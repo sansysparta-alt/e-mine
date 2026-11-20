@@ -13,6 +13,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import java.math.BigDecimal;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,12 +22,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Demandes (E-DEMANDES) : brouillon (US-03.1), dépôt (US-03.4). Créer et modifier exigent le droit
- * « déposer » (US-01.6) ; la lecture est filtrée par la RLS.
+ * Demandes (E-DEMANDES) : brouillon (US-03.1), dépôt (US-03.4), liste « Mes demandes » (US-03.5).
+ * Créer et modifier exigent le droit « déposer » (US-01.6) ; la lecture est filtrée par la RLS.
  */
 @RestController
 @RequestMapping("/api/v1/demandes")
@@ -54,6 +56,16 @@ class DemandeController {
   @Operation(operationId = "modifierBrouillon", summary = "Enregistrer le brouillon")
   DemandeDto modifier(@PathVariable long id, @Valid @RequestBody BrouillonDto corps) {
     return DemandeDto.depuis(service.modifier(id, corps.versDomaine()));
+  }
+
+  @GetMapping
+  @Operation(
+      operationId = "listerDemandes",
+      summary = "Mes demandes (toutes pour un agent), filtrables par statut et document")
+  List<DemandeDto> lister(
+      @RequestParam(required = false) @Pattern(regexp = "^[a-z_]+$") String statut,
+      @RequestParam(required = false) @Pattern(regexp = "^[A-Z]{3}$") String typeDocumentCode) {
+    return service.lister(statut, typeDocumentCode).stream().map(DemandeDto::depuis).toList();
   }
 
   @GetMapping("/{id}")

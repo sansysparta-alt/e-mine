@@ -45,7 +45,8 @@
       "titre": "My requests",
       "vide": "You have no requests yet.",
       "aide": "Submit an application online: choose the document, attach your files, then pay the fees.",
-      "nouvelle": "New application"
+      "nouvelle": "New application",
+      "toutes": "See all my applications ({nombre})"
     },
     "dossiers": {
       "titre": "Files to process",
@@ -190,5 +191,18 @@
       "paiement": "Application fee payment: {montant}. Online payment will be offered here."
     },
     "retour": "Back to dashboard"
+  },
+  "mesDemandes": {
+    "titre": "My applications",
+    "nouvelle": "New application",
+    "filtreStatut": "Status",
+    "tous": "All statuses",
+    "filtrer": "Filter",
+    "nombre": "{nombre, plural, =0 {No application} one {# application} other {# applications}}",
+    "aucune": "You have no application yet.",
+    "aucuneFiltre": "No application with this status.",
+    "brouillonSansNumero": "Draft (number assigned on submission)",
+    "deposeeLe": "submitted on {date}",
+    "creeeLe": "created on {date}"
   }
 }

@@ -75,6 +75,43 @@
       }
     },
     "/api/v1/demandes" : {
+      "get" : {
+        "tags" : [ "Demandes" ],
+        "summary" : "Mes demandes (toutes pour un agent), filtrables par statut et document",
+        "operationId" : "listerDemandes",
+        "parameters" : [ {
+          "name" : "statut",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "^[a-z_]+$"
+          }
+        }, {
+          "name" : "typeDocumentCode",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "^[A-Z]{3}$"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/DemandeDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "post" : {
         "tags" : [ "Demandes" ],
         "summary" : "Créer une demande au statut brouillon",

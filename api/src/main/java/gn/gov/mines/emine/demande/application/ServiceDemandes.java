@@ -9,6 +9,7 @@ import gn.gov.mines.emine.demande.domaine.DemandeDetail;
 import gn.gov.mines.emine.demande.infrastructure.DemandeRepository;
 import gn.gov.mines.emine.shared.erreur.CodeErreur;
 import gn.gov.mines.emine.shared.erreur.ErreurMetier;
+import gn.gov.mines.emine.shared.jooq.enums.StatutDemande;
 import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Service;
@@ -68,6 +69,26 @@ public class ServiceDemandes {
   @Transactional(readOnly = true)
   public DemandeDetail lire(long id) {
     return lireVisible(id);
+  }
+
+  /** Nombre maximal de demandes renvoyées par la liste (V1, sans pagination). */
+  public static final int LIMITE_LISTE = 200;
+
+  /**
+   * « Mes demandes » (US-03.5) : la RLS limite un usager à ses propres demandes ; un agent interne
+   * voit toutes les demandes (base des files de travail de l'instruction).
+   */
+  @Transactional(readOnly = true)
+  public List<DemandeDetail> lister(String statut, String typeDocumentCode) {
+    StatutDemande filtre = null;
+    if (statut != null) {
+      filtre =
+          java.util.Arrays.stream(StatutDemande.values())
+              .filter(s -> s.getLiteral().equals(statut))
+              .findFirst()
+              .orElseThrow(() -> champInvalide("statut", "Statut inconnu."));
+    }
+    return demandes.lister(filtre, typeDocumentCode, LIMITE_LISTE);
   }
 
   private DemandeDetail lireVisible(long id) {

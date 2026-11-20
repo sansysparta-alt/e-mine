@@ -10,6 +10,7 @@ import static gn.gov.mines.emine.shared.jooq.Tables.UTILISATEUR;
 import gn.gov.mines.emine.demande.domaine.DemandeDetail;
 import gn.gov.mines.emine.shared.jooq.enums.StatutDemande;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import org.jooq.DSLContext;
 import org.jooq.Record;
@@ -74,6 +75,27 @@ public class DemandeRepository {
         .and(DEMANDE.STATUT.eq(StatutDemande.brouillon))
         .and(DEMANDE.DELETED_AT.isNull())
         .execute();
+  }
+
+  /**
+   * Demandes visibles selon la RLS (les siennes pour un usager, toutes pour un agent), filtrées, de
+   * la plus récente à la plus ancienne (date de dépôt, à défaut de création).
+   */
+  public List<DemandeDetail> lister(StatutDemande statut, String typeDocumentCode, int limite) {
+    var condition = DEMANDE.DELETED_AT.isNull();
+    if (statut != null) {
+      condition = condition.and(DEMANDE.STATUT.eq(statut));
+    }
+    if (typeDocumentCode != null) {
+      condition = condition.and(TYPE_DOCUMENT.CODE.eq(typeDocumentCode));
+    }
+    return selection()
+        .where(condition)
+        .orderBy(
+            org.jooq.impl.DSL.coalesce(DEMANDE.DATE_DEPOT, DEMANDE.CREATED_AT).desc(),
+            DEMANDE.ID.desc())
+        .limit(limite)
+        .fetch(DemandeRepository::detail);
   }
 
   public Optional<DemandeDetail> lire(long id) {
