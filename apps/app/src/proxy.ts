@@ -21,6 +21,10 @@ export async function proxy(requete: NextRequest) {
   const session = await getIronSession<SessionEmine>(requete, reponse, optionsSession());
 
   if (!session.jetonAcces) {
+    // Appels du navigateur aux relais BFF (/api/...) : réponse JSON, pas de redirection.
+    if (pathname.startsWith("/api/")) {
+      return NextResponse.json({ code: "AUTH-001" }, { status: 401 });
+    }
     const connexion = new URL("/api/auth/login", requete.url);
     connexion.searchParams.set("retour", `${pathname}${search}`);
     return NextResponse.redirect(connexion);
@@ -32,7 +36,9 @@ export async function proxy(requete: NextRequest) {
       Object.assign(session, await renouveler(session.jetonRafraichissement));
       await session.save();
     } catch {
-      const expiree = NextResponse.redirect(new URL("/?expiree=1", requete.url));
+      const expiree = pathname.startsWith("/api/")
+        ? NextResponse.json({ code: "AUTH-001" }, { status: 401 })
+        : NextResponse.redirect(new URL("/?expiree=1", requete.url));
       const ancienne = await getIronSession<SessionEmine>(requete, expiree, optionsSession());
       ancienne.destroy();
       return expiree;
