@@ -10,6 +10,20 @@ spring:
       enabled: true
   jackson:
     time-zone: UTC
+  # Connexion applicative : emine_app, soumise à la RLS (jamais le propriétaire du schéma)
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/emine}
+    username: emine_app
+    password: ${EMINE_APP_PASSWORD:}
+    hikari:
+      maximum-pool-size: 5
+  # Migrations : emine_owner, propriétaire du schéma emine
+  flyway:
+    user: emine_owner
+    password: ${EMINE_OWNER_PASSWORD:}
+    schemas: emine
+    default-schema: emine
+    create-schemas: false
 
 server:
   port: 8080

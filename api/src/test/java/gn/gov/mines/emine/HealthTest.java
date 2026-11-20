@@ -4,16 +4,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import gn.gov.mines.emine.support.TestIntegration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.web.servlet.MockMvc;
 
 /** L'API démarre et /actuator/health répond UP (US-00.4). */
-@SpringBootTest
 @AutoConfigureMockMvc
-class HealthTest {
+class HealthTest extends TestIntegration {
 
   @Autowired MockMvc mvc;
 
