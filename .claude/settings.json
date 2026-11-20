@@ -133,6 +133,18 @@
           }
         ]
       }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/scripts/hooks/format-lint.mjs\"",
+            "timeout": 60
+          }
+        ]
+      }
     ]
   }
 }

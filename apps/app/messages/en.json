@@ -1,0 +1,13 @@
+{
+  "application": {
+    "titre": "e-mine · Management application",
+    "description": "Management application for requests to the Ministry of Mines and Geology (demo, fictitious data)."
+  },
+  "accessibilite": {
+    "allerAuContenu": "Skip to main content"
+  },
+  "accueil": {
+    "titre": "e-mine management application",
+    "presentation": "Submit your mining document requests, pay online and track their progress."
+  }
+}

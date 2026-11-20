@@ -7,6 +7,14 @@
     "node": ">=26"
   },
   "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "api:client": "turbo run generate --filter=@emine/api-client",
     "infra:up": "docker compose up -d --wait",
     "infra:down": "docker compose stop",
     "infra:ps": "docker compose ps",
@@ -17,5 +25,16 @@
     "db:codegen": "node scripts/mvnw.mjs -q -pl api generate-sources -Djooq.codegen.args=--force",
     "infra:keycloak:reset": "docker compose up -d --wait --force-recreate keycloak",
     "db:seed": "node scripts/db-seed.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "26.6.6",
+    "eslint": "10.14.0",
+    "eslint-config-next": "16.4.5",
+    "prettier": "3.9.10",
+    "prettier-plugin-tailwindcss": "0.8.1",
+    "turbo": "2.11.10",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.1"
   }
 }

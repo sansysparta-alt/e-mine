@@ -1,0 +1,57 @@
+/*
+ * Design system « Bleu Souverain » — jetons (Tailwind CSS v4).
+ * Contrastes sur fond blanc : navy 16,4:1 · royal 10,9:1 · azure 4,7:1 (AA) · danger 6,6:1 ·
+ * succès 6,1:1. L'or (#C9A227) est un accent décoratif, jamais une couleur de texte sur fond clair.
+ * Polices : Cambria (titres) et Calibri (texte), avec leurs équivalents libres Caladea et Carlito.
+ */
+@theme {
+  --color-navy: #0a1f44;
+  --color-royal: #0b3a8f;
+  --color-azure: #1e6fd9;
+  --color-sky: #5aa9f0;
+  --color-ice: #eaf2fc;
+  --color-or: #c9a227;
+
+  --color-texte: #0a1f44;
+  --color-texte-doux: #3b4a66;
+  --color-bordure: #c3d3ea;
+  --color-fond: #f6f9fe;
+  --color-danger: #b42318;
+  --color-danger-fond: #fef3f2;
+  --color-succes: #067647;
+  --color-succes-fond: #ecfdf3;
+  --color-avertissement: #93370d;
+  --color-avertissement-fond: #fffaeb;
+
+  --font-titre: Cambria, Caladea, Georgia, "Times New Roman", serif;
+  --font-texte: Calibri, Carlito, "Segoe UI", system-ui, -apple-system, sans-serif;
+
+  --radius-carte: 0.75rem;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-texte);
+    color: var(--color-texte);
+    background-color: var(--color-fond);
+    -webkit-text-size-adjust: 100%;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-titre);
+    color: var(--color-navy);
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-azure);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

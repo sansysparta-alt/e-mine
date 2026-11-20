@@ -1,0 +1,13 @@
+{
+  "application": {
+    "titre": "e-mine · Application de gestion",
+    "description": "Application de gestion des demandes du Ministère des Mines et de la Géologie (démonstration, données fictives)."
+  },
+  "accessibilite": {
+    "allerAuContenu": "Aller au contenu principal"
+  },
+  "accueil": {
+    "titre": "Application de gestion e-mine",
+    "presentation": "Déposez vos demandes de documents miniers, payez en ligne et suivez leur avancement."
+  }
+}

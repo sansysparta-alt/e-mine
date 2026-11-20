@@ -1,0 +1,33 @@
+{
+  "name": "@emine/app",
+  "private": true,
+  "type": "module",
+  "description": "Application de gestion e-mine (Next.js, BFF : les jetons restent côté serveur)",
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start -p 3001",
+    "lint": "eslint .",
+    "typecheck": "tsc",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@emine/api-client": "workspace:*",
+    "@emine/ui": "workspace:*",
+    "next": "16.4.5",
+    "next-intl": "4.14.9",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.5",
+    "@testing-library/jest-dom": "7.0.1",
+    "@testing-library/react": "16.3.3",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.2.1",
+    "jsdom": "31.0.0",
+    "tailwindcss": "4.3.5",
+    "vitest": "5.1.0"
+  }
+}

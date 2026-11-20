@@ -8,17 +8,38 @@ import { fileURLToPath } from "node:url";
 
 const racine = join(dirname(fileURLToPath(import.meta.url)), "..");
 const dossier = join(racine, "db", "seed");
-const fichiers = readdirSync(dossier).filter((f) => f.endsWith(".sql")).sort();
+const fichiers = readdirSync(dossier)
+  .filter((f) => f.endsWith(".sql"))
+  .sort();
 
 for (const fichier of fichiers) {
   process.stdout.write(`seed : ${fichier}… `);
   const r = spawnSync(
     "docker",
-    ["compose", "exec", "-T", "postgres", "psql", "-q", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "emine"],
-    { cwd: racine, input: readFileSync(join(dossier, fichier)), stdio: ["pipe", "inherit", "inherit"] },
+    [
+      "compose",
+      "exec",
+      "-T",
+      "postgres",
+      "psql",
+      "-q",
+      "-v",
+      "ON_ERROR_STOP=1",
+      "-U",
+      "postgres",
+      "-d",
+      "emine",
+    ],
+    {
+      cwd: racine,
+      input: readFileSync(join(dossier, fichier)),
+      stdio: ["pipe", "inherit", "inherit"],
+    },
   );
   if (r.status !== 0) {
-    console.error(`\nÉchec du seed ${fichier}. La base est-elle démarrée (pnpm infra:up) et migrée (pnpm api:dev) ?`);
+    console.error(
+      `\nÉchec du seed ${fichier}. La base est-elle démarrée (pnpm infra:up) et migrée (pnpm api:dev) ?`,
+    );
     process.exit(r.status ?? 1);
   }
   console.log("ok");

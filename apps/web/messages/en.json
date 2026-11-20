@@ -1,0 +1,14 @@
+{
+  "site": {
+    "titre": "e-mine · Mines and geology of Guinea",
+    "description": "Demonstration platform of the Ministry of Mines and Geology: online requests and document verification (fictitious data)."
+  },
+  "accessibilite": {
+    "allerAuContenu": "Skip to main content"
+  },
+  "accueil": {
+    "titre": "Mining procedures online",
+    "presentation": "Request one of the Ministry's 15 documents, pay online, track your file and check a document's authenticity with its QR code.",
+    "avertissement": "Demonstration platform: all data is fictitious."
+  }
+}

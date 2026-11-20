@@ -1,0 +1,17 @@
+{
+  "name": "@emine/api-client",
+  "private": true,
+  "type": "module",
+  "description": "Client TypeScript de l'API e-mine, généré par orval depuis openapi.json (ne pas éditer src/generated)",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "generate": "orval --config orval.config.ts",
+    "lint": "eslint .",
+    "typecheck": "tsc"
+  },
+  "devDependencies": {
+    "orval": "8.46.0"
+  }
+}
