@@ -14,10 +14,15 @@ services:
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Copier .env.example en .env}
       POSTGRES_DB: emine
+      # Lus par db/bootstrap/03-mots-de-passe.sh à la création du volume
+      EMINE_OWNER_PASSWORD: ${EMINE_OWNER_PASSWORD:?Copier .env.example en .env}
+      EMINE_APP_PASSWORD: ${EMINE_APP_PASSWORD:?Copier .env.example en .env}
     ports:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
+      # Amorçage (rôles, extensions, schéma) : exécuté une seule fois, à la création du volume
+      - ./db/bootstrap:/docker-entrypoint-initdb.d:ro
     command: ["postgres", "-c", "shared_buffers=128MB", "-c", "max_connections=50"]
     mem_limit: 512m
     healthcheck:
