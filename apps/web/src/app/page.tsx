@@ -1,4 +1,5 @@
-import { Alerte } from "@emine/ui";
+import { Alerte, Bouton } from "@emine/ui";
+import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 export default async function Accueil() {
@@ -7,6 +8,11 @@ export default async function Accueil() {
     <main id="contenu" className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-12 sm:px-6">
       <h1 className="text-3xl sm:text-5xl">{t("titre")}</h1>
       <p className="max-w-2xl text-lg text-texte-doux sm:text-xl">{t("presentation")}</p>
+      <div>
+        <Bouton asChild taille="grande">
+          <Link href="/catalogue">{t("lienCatalogue")}</Link>
+        </Bouton>
+      </div>
       <Alerte titre={t("avertissement")} />
     </main>
   );

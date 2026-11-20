@@ -6,7 +6,7 @@ const avecTraductions = createNextIntlPlugin("./src/i18n/request.ts");
 const config: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
-  transpilePackages: ["@emine/ui"],
+  transpilePackages: ["@emine/ui", "@emine/api-client"],
 };
 
 export default avecTraductions(config);

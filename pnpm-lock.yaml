@@ -253,6 +253,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@emine/api-client':
+        specifier: workspace:*
+        version: link:../../packages/api-client
       '@emine/ui':
         specifier: workspace:*
         version: link:../../packages/ui
