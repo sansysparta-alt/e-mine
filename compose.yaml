@@ -1,0 +1,79 @@
+# e-mine — environnement local de développement (US-00.1)
+# Démarrage : pnpm infra:up   ·   Arrêt : pnpm infra:down
+# Toutes les valeurs sensibles viennent du fichier .env (copie de .env.example, jamais versionnée).
+#
+# Poste de dev avec ~4 Go alloués à Docker : chaque service a une limite mémoire.
+# Ne pas lancer les tests Testcontainers en même temps que cet environnement.
+
+name: emine
+
+services:
+  postgres:
+    image: postgres:16-alpine@sha256:1d5b02d3a9941fbd52437db4107f8c52d6297dac553ca1e5c299ebb3756b4857
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Copier .env.example en .env}
+      POSTGRES_DB: emine
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    command: ["postgres", "-c", "shared_buffers=128MB", "-c", "max_connections=50"]
+    mem_limit: 512m
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d emine"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.8.2@sha256:7e66a96e4739239070aeaf72e4c5decf0f7f682cfc725b9f7ea2b336eaba38b3
+    restart: unless-stopped
+    # Mode développement : base embarquée éphémère, le realm versionné est réimporté à chaque démarrage.
+    command: ["start-dev", "--http-port=8080", "--health-enabled=true"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN:?Copier .env.example en .env}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?Copier .env.example en .env}
+      JAVA_OPTS_KC_HEAP: "-XX:MaxRAMPercentage=65"
+    ports:
+      - "8081:8080"
+    mem_limit: 896m
+    healthcheck:
+      # L'image ne contient pas curl : requête HTTP via bash sur le port de gestion (9000).
+      test:
+        [
+          "CMD-SHELL",
+          "exec 3<>/dev/tcp/127.0.0.1/9000 && printf 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && grep -q '\"UP\"' <&3",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  minio:
+    # Les images officielles MinIO ne sont plus publiées : image reconstruite depuis les sources (Chainguard),
+    # épinglée par empreinte. Même API S3 (D9).
+    image: cgr.dev/chainguard/minio@sha256:e9cf6b99c226e9539ed0f14b6f00e37b07da153c7ba1f4f8709c807574b471ec
+    restart: unless-stopped
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?Copier .env.example en .env}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Copier .env.example en .env}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    mem_limit: 256m
+
+  mailpit:
+    image: axllent/mailpit:v1.33.1@sha256:aef2aacc11f075ec0fb6874275ee4a421e688e11a96ebb296134d1735c7761ce
+    restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    mem_limit: 64m
+
+volumes:
+  postgres-data:
+  minio-data:
