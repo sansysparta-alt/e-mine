@@ -17,7 +17,7 @@ export function EnTete({ nomComplet, profil }: EnTeteProps) {
           <span className="text-sm text-ice">{t("sousTitre")}</span>
         </p>
         <div className="flex flex-wrap items-center gap-3">
-          <p className="text-right text-sm leading-tight">
+          <p className="text-left text-sm leading-tight sm:text-right">
             <span className="block font-semibold">{t("connecte", { nom: nomComplet })}</span>
             <span className="block text-ice">{profil}</span>
           </p>
