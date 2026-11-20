@@ -39,3 +39,5 @@ api/src/main/generated/
 Thumbs.db
 # Claude Code (réglages personnels)
 .claude/settings.local.json
+*.tsbuildinfo
+next-env.d.ts

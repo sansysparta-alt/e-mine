@@ -8,14 +8,16 @@
     "build": "next build",
     "start": "next start -p 3001",
     "lint": "eslint .",
-    "typecheck": "tsc",
+    "typecheck": "next typegen && tsc",
     "test": "vitest run"
   },
   "dependencies": {
     "@emine/api-client": "workspace:*",
     "@emine/ui": "workspace:*",
+    "iron-session": "9.0.1",
     "next": "16.4.5",
     "next-intl": "4.14.9",
+    "openid-client": "6.8.9",
     "react": "19.3.1",
     "react-dom": "19.3.1"
   },

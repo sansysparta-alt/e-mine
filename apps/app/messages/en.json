@@ -6,8 +6,60 @@
   "accessibilite": {
     "allerAuContenu": "Skip to main content"
   },
-  "accueil": {
+  "connexion": {
     "titre": "e-mine management application",
-    "presentation": "Submit your mining document requests, pay online and track their progress."
+    "presentation": "Submit your mining document requests, pay online and track their progress.",
+    "bouton": "Sign in",
+    "aide": "You will be redirected to the secure sign-in page, then brought back here.",
+    "demo": "Demonstration platform: all data is fictitious.",
+    "messages": {
+      "connexion": {
+        "titre": "Sign-in failed.",
+        "conseil": "Please try again. If the problem persists, contact the platform administrator."
+      },
+      "indisponible": {
+        "titre": "The sign-in service is temporarily unavailable.",
+        "conseil": "Please try again in a few minutes."
+      },
+      "expiree": {
+        "titre": "Your session has expired.",
+        "conseil": "Sign in again to continue."
+      },
+      "deconnecte": {
+        "titre": "You are signed out.",
+        "conseil": "See you soon on e-mine."
+      }
+    }
+  },
+  "enTete": {
+    "marque": "e-mine",
+    "sousTitre": "Management application",
+    "connecte": "Signed in: {nom}",
+    "deconnexion": "Sign out"
+  },
+  "tableauDeBord": {
+    "titreOnglet": "Dashboard",
+    "bonjour": "Hello, {prenom} {nom}",
+    "profil": "Profile: {libelle}",
+    "demandes": {
+      "titre": "My requests",
+      "vide": "You have no requests yet.",
+      "aide": "Online request submission will be available here soon."
+    },
+    "dossiers": {
+      "titre": "Files to process",
+      "vide": "No files to process at the moment.",
+      "aide": "Requests submitted by applicants will appear here."
+    },
+    "erreurs": {
+      "compteNonActive": {
+        "titre": "Your account is not yet activated on e-mine.",
+        "conseil": "Contact the platform administrator to link it to your profile."
+      },
+      "indisponible": {
+        "titre": "The service is temporarily unavailable.",
+        "conseil": "Please try again in a few minutes. Your data is not lost."
+      }
+    }
   }
 }

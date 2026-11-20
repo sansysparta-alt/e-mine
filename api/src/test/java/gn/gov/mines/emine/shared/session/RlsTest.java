@@ -23,6 +23,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -42,6 +43,7 @@ class RlsTest extends TestIntegration {
   @TestConfiguration
   static class Contexte {
     @Bean
+    @Primary
     FournisseurContexteSession fournisseurDeTest() {
       return COURANT::get;
     }
