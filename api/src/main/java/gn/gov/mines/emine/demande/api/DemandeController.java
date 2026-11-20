@@ -1,6 +1,7 @@
 package gn.gov.mines.emine.demande.api;
 
 import gn.gov.mines.emine.demande.application.ServiceDemandes;
+import gn.gov.mines.emine.demande.application.ServiceDepot;
 import gn.gov.mines.emine.demande.domaine.Brouillon;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -9,6 +10,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import java.math.BigDecimal;
 import org.springframework.http.HttpStatus;
@@ -23,8 +25,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Demandes (E-DEMANDES) : brouillon (US-03.1). Créer et modifier exigent le droit « déposer »
- * (US-01.6) ; la lecture est filtrée par la RLS.
+ * Demandes (E-DEMANDES) : brouillon (US-03.1), dépôt (US-03.4). Créer et modifier exigent le droit
+ * « déposer » (US-01.6) ; la lecture est filtrée par la RLS.
  */
 @RestController
 @RequestMapping("/api/v1/demandes")
@@ -32,9 +34,11 @@ import org.springframework.web.bind.annotation.RestController;
 class DemandeController {
 
   private final ServiceDemandes service;
+  private final ServiceDepot depot;
 
-  DemandeController(ServiceDemandes service) {
+  DemandeController(ServiceDemandes service, ServiceDepot depot) {
     this.service = service;
+    this.depot = depot;
   }
 
   @PostMapping
@@ -59,6 +63,18 @@ class DemandeController {
   DemandeDto lire(@PathVariable long id) {
     return DemandeDto.depuis(service.lire(id));
   }
+
+  @PostMapping("/{id}/depot")
+  @PreAuthorize("hasAuthority('PERM_DEPOSER')")
+  @Operation(
+      operationId = "deposerDemande",
+      summary = "Déposer la demande (déclaration sur l'honneur, au moins une pièce)")
+  DemandeDto deposer(@PathVariable long id, @Valid @RequestBody DepotDto corps) {
+    return DemandeDto.depuis(depot.deposer(id, Boolean.TRUE.equals(corps.declarationHonneur())));
+  }
+
+  /** Dépôt : acceptation de la déclaration sur l'honneur. */
+  record DepotDto(@NotNull Boolean declarationHonneur) {}
 
   /** Saisie du brouillon. */
   record BrouillonDto(

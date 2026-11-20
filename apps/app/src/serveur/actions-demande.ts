@@ -1,6 +1,11 @@
 "use server";
 
-import { creerBrouillon, type DemandeDto, modifierBrouillon } from "@emine/api-client";
+import {
+  creerBrouillon,
+  type DemandeDto,
+  deposerDemande,
+  modifierBrouillon,
+} from "@emine/api-client";
 import {
   schemaBrouillon,
   type ValeursBrouillon,
@@ -39,6 +44,27 @@ export async function enregistrerBrouillon(
       id === null
         ? await creerBrouillon(corps, options)
         : await modifierBrouillon(id, corps, options);
+    return { ok: true, valeur: reponse.data };
+  } catch (e) {
+    return { ok: false, erreur: versErreurFormulaire(e) };
+  }
+}
+
+/**
+ * Dépose la demande (US-03.4) après acceptation de la déclaration sur l'honneur. La base attribue
+ * le numéro DEM-AAAA-NNNNNN.
+ */
+export async function deposer(
+  id: number,
+  declarationHonneur: boolean,
+): Promise<ResultatAction<DemandeDto>> {
+  try {
+    const session = await lireSession();
+    const reponse = await deposerDemande(
+      id,
+      { declarationHonneur },
+      { headers: await enTetesApi(session) },
+    );
     return { ok: true, valeur: reponse.data };
   } catch (e) {
     return { ok: false, erreur: versErreurFormulaire(e) };

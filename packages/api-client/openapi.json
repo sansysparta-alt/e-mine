@@ -103,6 +103,44 @@
         }
       }
     },
+    "/api/v1/demandes/{id}/depot" : {
+      "post" : {
+        "tags" : [ "Demandes" ],
+        "summary" : "Déposer la demande (déclaration sur l'honneur, au moins une pièce)",
+        "operationId" : "deposerDemande",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DepotDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DemandeDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/demandes/{demandeId}/pieces" : {
       "get" : {
         "tags" : [ "Demandes" ],
@@ -450,6 +488,15 @@
           }
         },
         "required" : [ "email", "nom", "organisation", "prenom" ]
+      },
+      "DepotDto" : {
+        "type" : "object",
+        "properties" : {
+          "declarationHonneur" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "declarationHonneur" ]
       },
       "PieceDto" : {
         "type" : "object",

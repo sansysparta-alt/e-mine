@@ -146,6 +146,49 @@
         "aucunFichier": "Choisissez d'abord un fichier.",
         "autre": "La pièce n'a pas pu être traitée. Réessayez."
       }
+    },
+    "depot": {
+      "piecesJointes": "Pièces jointes : {nombre}",
+      "manquantesTitre": "Certaines pièces attendues ne sont pas jointes.",
+      "manquantes": "Non fournies : {liste}. Vous pouvez déposer quand même : l'agent du guichet vérifiera la complétude du dossier.",
+      "declaration": "Je déclare sur l'honneur l'exactitude des informations fournies et l'authenticité des pièces jointes.",
+      "impossible": "La demande ne peut pas encore être déposée.",
+      "manques": {
+        "declarationHonneur": "Cochez la déclaration sur l'honneur.",
+        "pieces": "Joignez au moins une pièce (section Pièces).",
+        "autre": "Le dépôt n'a pas abouti. Réessayez."
+      },
+      "deposer": "Déposer ma demande",
+      "enCours": "Dépôt en cours…"
     }
+  },
+  "statuts": {
+    "brouillon": "Brouillon",
+    "deposee": "Déposée",
+    "complement_requis": "Complément requis",
+    "recevable": "Recevable",
+    "en_instruction": "En instruction",
+    "avis_rendu": "Avis rendu",
+    "decision": "Décision rendue",
+    "droits_payes": "Droits payés",
+    "delivree": "Délivrée",
+    "archivee": "Archivée",
+    "rejetee": "Rejetée"
+  },
+  "detail": {
+    "titreOnglet": "Ma demande",
+    "titre": "Demande {numero}",
+    "confirmation": "Votre demande {numero} a bien été déposée.",
+    "confirmationSuite": "Conservez ce numéro : il identifie votre dossier auprès du Ministère.",
+    "statut": "Statut",
+    "document": "Document",
+    "deposeLe": "Déposée le",
+    "demandeur": "Demandeur",
+    "pieces": "Pièces jointes ({nombre})",
+    "suite": {
+      "titre": "Prochaine étape",
+      "paiement": "Paiement des frais de dossier : {montant}. Le paiement en ligne sera proposé ici."
+    },
+    "retour": "Revenir au tableau de bord"
   }
 }
