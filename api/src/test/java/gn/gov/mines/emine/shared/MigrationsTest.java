@@ -25,13 +25,13 @@ class MigrationsTest extends TestIntegration {
   @Autowired JdbcTemplate jdbc;
 
   @Test
-  void lesMigrationsV1aV3SontAppliquees() {
+  void lesMigrationsV1aV4SontAppliquees() {
     List<String> versions =
         Arrays.stream(flyway.info().applied())
             .filter(MigrationInfo::isVersioned)
             .map(m -> m.getVersion().getVersion())
             .toList();
-    assertThat(versions).containsSequence("1", "2", "3");
+    assertThat(versions).containsSequence("1", "2", "3", "4");
     assertThat(flyway.info().pending()).isEmpty();
   }
 
@@ -45,11 +45,22 @@ class MigrationsTest extends TestIntegration {
   }
 
   @Test
-  void aucuneDonneeFictiveDansLesMigrations() {
-    assertThat(compter("organisation")).isZero();
-    assertThat(compter("demande")).isZero();
-    assertThat(compter("paiement")).isZero();
-    assertThat(compter("compteur")).isZero();
+  void aucuneDonneeFictiveDansLesMigrations() throws SQLException {
+    // La base est partagée par toute la suite : on ne compte que les lignes écrites par Flyway.
+    String parLesMigrations =
+        " WHERE created_at <= (SELECT max(installed_on) FROM flyway_schema_history)";
+    try (Connection c = BaseDeDonneesDeTest.connexionOwner();
+        Statement st = c.createStatement()) {
+      for (String table : List.of("organisation", "utilisateur", "titre", "demande", "paiement")) {
+        ResultSet rs = st.executeQuery("SELECT count(*) FROM " + table + parLesMigrations);
+        rs.next();
+        assertThat(rs.getInt(1)).as(table).isZero();
+      }
+      ResultSet rs =
+          st.executeQuery("SELECT count(*) FROM compteur WHERE cle NOT IN ('DEM', 'PAY', 'REC')");
+      rs.next();
+      assertThat(rs.getInt(1)).as("compteurs amorcés").isZero();
+    }
   }
 
   @Test

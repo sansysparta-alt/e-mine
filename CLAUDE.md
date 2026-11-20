@@ -89,7 +89,7 @@ Poste de dev sous **Windows 11** : scripts multiplateformes (scripts `package.js
 - **Dates** : `Instant` / `timestamptz` en UTC ; affichage `JJ/MM/AAAA`, heure de Conakry.
 - **Numéros** générés **par la base** (`fn_next_numero` via triggers), jamais en Java.
 - **Statuts** : transitions contrôlées par `transition_statut` et triggers, jamais contournées (`DEM-001`).
-- **Base** : ne jamais modifier une migration fusionnée (nouvelle `V<n>__…`) ; connexion `emine_app` ; `SET LOCAL emine.user_id / emine.interne / emine.ip` à chaque transaction ; tests SQL avec Testcontainers (jamais H2) ; pas de suppression physique (`deleted_at`) ; code jOOQ généré non modifié.
+- **Base** : ne jamais modifier une migration fusionnée (nouvelle `V<n>__…`) ; connexion `emine_app` ; `SET LOCAL emine.user_id / emine.interne / emine.ip` à chaque transaction (posé par `TransactionManagerAvecContexte`) : **tout accès aux données se fait dans une transaction**, sinon la RLS ne montre rien ; vues sur `demande`/`paiement` en `security_invoker` ; tests SQL avec Testcontainers (jamais H2) ; pas de suppression physique (`deleted_at`) ; code jOOQ généré non modifié.
 - **Front** : Server Components par défaut, `"use client"` seulement si nécessaire ; aucun jeton dans le navigateur (BFF, cookie httpOnly) ; chaque texte dans `messages/fr.json` et `messages/en.json` ; couleurs et polices via `packages/ui` ; WCAG AA.
 - **Git** : branches `us-04.3-paiement-tresorpay`, `fix/…`, `tech/…` ; Conventional Commits en français avec l'ID de story (`feat(paiement): redirection TrésorPay (US-04.3)`) ; une PR par story.
 
