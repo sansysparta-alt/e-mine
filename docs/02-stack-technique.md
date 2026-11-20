@@ -157,3 +157,7 @@ Décisions structurantes prises en cours de développement (par Claude en autono
 | Date | Sprint / story | Décision | Raison | Réversible ? |
 |---|---|---|---|---|
 | 20/11/2026 | — | Méthode « sprint autonome » : feu vert par sprint, une branche et une PR par story, fusion par le porteur du projet | Aller vite sans perdre le contrôle de `main` | Oui |
+| 20/11/2026 | J1 · US-00.1 | MinIO lancé depuis l'image `cgr.dev/chainguard/minio` (reconstruite depuis les sources, épinglée par empreinte) | MinIO ne publie plus d'images Docker officielles ; on garde MinIO (D9) et son API S3 | Oui (changer l'image) |
+| 20/11/2026 | J1 · US-00.1 | Keycloak en mode `start-dev` avec base embarquée éphémère ; limites mémoire sur chaque conteneur (≈ 1,7 Go au total) | Poste à 8 Go de RAM, ~4 Go pour Docker ; le realm versionné fait foi et est réimporté | Oui (base PostgreSQL dédiée en recette) |
+| 20/11/2026 | J1 | Tests Testcontainers lourds lancés surtout en CI (GitHub Actions) ; la CI minimale (US-00.7) est avancée juste après le squelette Spring | Mémoire du poste ; la CI doit exister avant les stories qui ajoutent des tests Testcontainers | Oui |
+| 20/11/2026 | J1 | Ajout de `openid-client` et `iron-session` à la stack (BFF Next.js) | Validé par le porteur du projet : OIDC certifié et cookie de session chiffré, sans code de sécurité maison | Oui |

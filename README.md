@@ -4,7 +4,7 @@ Plateforme de démonstration pour le Ministère des Mines et de la Géologie de 
 
 Le cœur du projet est le module **E-DEMANDES** : demander en ligne l'un des 15 documents du Ministère, payer (TrésorPay ou virement), suivre sa demande, puis recevoir un PDF signé portant un QR code vérifiable publiquement.
 
-> **État : planification.** Le code n'existe pas encore. La priorité est la V1 de démonstration ([docs/07](docs/07-plan-v1-une-semaine.md)).
+> **État : V1 de démonstration en cours** ([docs/07](docs/07-plan-v1-une-semaine.md)).
 
 ## Documentation
 
@@ -29,15 +29,19 @@ Le cœur du projet est le module **E-DEMANDES** : demander en ligne l'un des 15 
 
 Les services externes (TrésorPay, ArcGIS, HSM, SMS) sont **simulés** derrière des interfaces remplaçables.
 
-## Démarrage (à venir)
+## Démarrage
 
-Les commandes seront disponibles à partir du premier sprint :
+Prérequis : Docker Desktop, Node.js 26 et pnpm, JDK 25 (Temurin).
 
 ```bash
-cp .env.example .env     # valeurs fictives à adapter localement
-pnpm infra:up            # PostgreSQL, Keycloak, MinIO, Mailpit, simulateurs
-pnpm dev                 # API (8080) + site public (3000) + application (3001)
+cp .env.example .env     # valeurs fictives, à adapter localement
+pnpm install
+pnpm infra:up            # PostgreSQL 5432, Keycloak 8081, MinIO 9000/9001, Mailpit 8025
+pnpm dev                 # API 8080 + site public 3000 + application 3001
+pnpm infra:down          # arrête les conteneurs (les données sont conservées)
 ```
+
+Docker dispose d'environ 4 Go sur le poste de référence : chaque conteneur a une limite mémoire, et les tests Testcontainers ne doivent pas tourner en même temps que `pnpm infra:up`.
 
 ## Dépôt public : règles
 
