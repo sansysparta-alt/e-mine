@@ -1,0 +1,33 @@
+# e-mine API — configuration commune
+# Les valeurs sensibles viennent du fichier .env à la racine du dépôt (jamais versionné).
+spring:
+  application:
+    name: emine-api
+  config:
+    import: optional:file:../.env[.properties],optional:file:./.env[.properties]
+  threads:
+    virtual:
+      enabled: true
+  jackson:
+    time-zone: UTC
+
+server:
+  port: 8080
+  shutdown: graceful
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+      probes:
+        enabled: true
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
