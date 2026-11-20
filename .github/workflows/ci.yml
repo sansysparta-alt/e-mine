@@ -1,0 +1,53 @@
+# e-mine — CI minimale V1 (US-00.7) : build et tests back, Gitleaks.
+# Le job front est ajouté avec le monorepo (US-00.5). CodeQL : « default setup » GitHub (docs/07 §6).
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  back:
+    name: Build et tests back
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: maven
+      # Testcontainers utilise le Docker du runner (vrai PostgreSQL 16, jamais H2).
+      - name: Build, tests et formatage (Spotless)
+        run: ./mvnw -B -ntp -pl api verify
+      - name: Rapports de tests
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: rapports-tests-back
+          path: api/target/surefire-reports/
+          retention-days: 7
+
+  gitleaks:
+    name: Gitleaks
+    permissions:
+      contents: read
+      pull-requests: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
