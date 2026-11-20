@@ -38,10 +38,26 @@ cp .env.example .env     # valeurs fictives, à adapter localement
 pnpm install
 pnpm infra:up            # PostgreSQL 5432, Keycloak 8081, MinIO 9000/9001, Mailpit 8025
 pnpm dev                 # API 8080 + site public 3000 + application 3001
+pnpm db:seed             # personas de démo (une fois, après le 1er démarrage de l'API)
 pnpm infra:down          # arrête les conteneurs (les données sont conservées)
 ```
 
 Docker dispose d'environ 4 Go sur le poste de référence : chaque conteneur a une limite mémoire, et les tests Testcontainers ne doivent pas tourner en même temps que `pnpm infra:up`.
+
+### Comptes de démo (fictifs)
+
+Mot de passe commun : la valeur de `DEMO_PASSWORD` dans votre `.env`.
+
+| Profil | Identifiant |
+|---|---|
+| Investisseur | `f.bangoura@horizon-invest.test` |
+| Investisseur (second) | `k.sylla@sahel-ressources.test` |
+| Agent guichet unique | `a.camara@e-mine.test` |
+| Directeur | `s.kouyate@e-mine.test` |
+| Responsable fiscal | `m.diallo@e-mine.test` |
+| Administrateur technique | `o.bah@e-mine.test` |
+
+Après une modification de `infra/keycloak/realm-emine.json` : `pnpm infra:keycloak:reset`.
 
 ## Dépôt public : règles
 

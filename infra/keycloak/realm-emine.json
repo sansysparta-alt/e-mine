@@ -1,0 +1,286 @@
+{
+  "realm": "emine",
+  "displayName": "e-mine",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": false,
+  "editUsernameAllowed": false,
+  "rememberMe": false,
+  "internationalizationEnabled": true,
+  "supportedLocales": [
+    "fr",
+    "en"
+  ],
+  "defaultLocale": "fr",
+  "passwordPolicy": "length(12) and upperCase(1) and lowerCase(1) and digits(1) and specialChars(1) and notUsername and notEmail",
+  "bruteForceProtected": true,
+  "permanentLockout": false,
+  "failureFactor": 5,
+  "waitIncrementSeconds": 900,
+  "maxFailureWaitSeconds": 900,
+  "minimumQuickLoginWaitSeconds": 60,
+  "quickLoginCheckMilliSeconds": 1000,
+  "maxDeltaTimeSeconds": 43200,
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "roles": {
+    "realm": [
+      {
+        "name": "ADMIN_TECH",
+        "description": "Profil 01 — Administrateur Technique"
+      },
+      {
+        "name": "GUICHET",
+        "description": "Profil 02 — Agent Guichet Unique (CPDM)"
+      },
+      {
+        "name": "DNM",
+        "description": "Profil 03 — Agent DNM"
+      },
+      {
+        "name": "INSPECTEUR",
+        "description": "Profil 04 — Inspecteur des Mines"
+      },
+      {
+        "name": "GEOLOGUE",
+        "description": "Profil 05 — Géologue (DNG)"
+      },
+      {
+        "name": "FISCAL",
+        "description": "Profil 06 — Responsable Fiscal"
+      },
+      {
+        "name": "DIRECTEUR",
+        "description": "Profil 07 — Directeur Général / National"
+      },
+      {
+        "name": "MINISTRE",
+        "description": "Profil 08 — Ministre / Secrétaire Général"
+      },
+      {
+        "name": "INVESTISSEUR",
+        "description": "Profil 09 — Investisseur Extérieur"
+      },
+      {
+        "name": "SOCIETE_MINIERE",
+        "description": "Profil 10 — Société Minière"
+      },
+      {
+        "name": "COMMUNAUTE",
+        "description": "Profil 11 — Communauté Locale"
+      },
+      {
+        "name": "PME",
+        "description": "Profil 12 — PME Guinéenne"
+      },
+      {
+        "name": "TUTELLE",
+        "description": "Profil 13 — Organismes sous Tutelle"
+      },
+      {
+        "name": "BRIGADE",
+        "description": "Profil 14 — Brigade Anti-Fraude"
+      },
+      {
+        "name": "APPRENANT",
+        "description": "Profil 15 — Apprenant (Cadre du Ministère)"
+      },
+      {
+        "name": "WEBMASTER",
+        "description": "Profil 16 — Webmaster"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "emine-app",
+      "name": "e-mine — application de gestion (BFF)",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "${OIDC_CLIENT_SECRET_APP}",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "frontchannelLogout": false,
+      "rootUrl": "http://localhost:3001",
+      "baseUrl": "/",
+      "redirectUris": [
+        "http://localhost:3001/api/auth/callback"
+      ],
+      "webOrigins": [
+        "http://localhost:3001"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:3001/*"
+      },
+      "protocolMappers": [
+        {
+          "name": "audience-emine-api",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "emine-api",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "introspection.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "id": "00000000-0000-4000-8000-000000000009",
+      "username": "f.bangoura@horizon-invest.test",
+      "email": "f.bangoura@horizon-invest.test",
+      "emailVerified": true,
+      "firstName": "Fodé",
+      "lastName": "Bangoura",
+      "enabled": true,
+      "attributes": {
+        "locale": [
+          "fr"
+        ]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "${DEMO_PASSWORD}",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "INVESTISSEUR"
+      ]
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000109",
+      "username": "k.sylla@sahel-ressources.test",
+      "email": "k.sylla@sahel-ressources.test",
+      "emailVerified": true,
+      "firstName": "Kadiatou",
+      "lastName": "Sylla",
+      "enabled": true,
+      "attributes": {
+        "locale": [
+          "fr"
+        ]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "${DEMO_PASSWORD}",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "INVESTISSEUR"
+      ]
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000002",
+      "username": "a.camara@e-mine.test",
+      "email": "a.camara@e-mine.test",
+      "emailVerified": true,
+      "firstName": "Aïcha",
+      "lastName": "Camara",
+      "enabled": true,
+      "attributes": {
+        "locale": [
+          "fr"
+        ]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "${DEMO_PASSWORD}",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "GUICHET"
+      ]
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000007",
+      "username": "s.kouyate@e-mine.test",
+      "email": "s.kouyate@e-mine.test",
+      "emailVerified": true,
+      "firstName": "Sékou",
+      "lastName": "Kouyaté",
+      "enabled": true,
+      "attributes": {
+        "locale": [
+          "fr"
+        ]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "${DEMO_PASSWORD}",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "DIRECTEUR"
+      ]
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000006",
+      "username": "m.diallo@e-mine.test",
+      "email": "m.diallo@e-mine.test",
+      "emailVerified": true,
+      "firstName": "Mariama",
+      "lastName": "Diallo",
+      "enabled": true,
+      "attributes": {
+        "locale": [
+          "fr"
+        ]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "${DEMO_PASSWORD}",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "FISCAL"
+      ]
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "username": "o.bah@e-mine.test",
+      "email": "o.bah@e-mine.test",
+      "emailVerified": true,
+      "firstName": "Ousmane",
+      "lastName": "Bah",
+      "enabled": true,
+      "attributes": {
+        "locale": [
+          "fr"
+        ]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "${DEMO_PASSWORD}",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "ADMIN_TECH"
+      ]
+    }
+  ]
+}
