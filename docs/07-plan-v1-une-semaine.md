@@ -61,7 +61,7 @@ Chaque jour : **planning de 15 min le matin** (stories du jour, worktrees), **d�
 
 **Démo du soir** : `pnpm infra:up` puis `pnpm dev` ; l'investisseur et l'agent se connectent et voient chacun un tableau de bord vide à leur nom.
 
-**Parallèle (worktrees)** : `v1-back` (00.1–00.4, 01.5) ‖ `v1-front` (00.5, page de connexion) ; le realm Keycloak (01.1) va avec `v1-back`. Fusion en fin de journée pour brancher la connexion (01.2).
+**Parallèle (worktrees)** : `v1-back` (00.1–00.4, 01.5) ‖ `v1-front` (00.5, page de connexion) ; le realm Keycloak (01.1) va avec `v1-back`. La connexion (01.2) vient ensuite, en PR empilée sur les stories dont elle dépend (voir §5).
 
 ### Jour 2 — Catalogue et dépôt
 
@@ -123,10 +123,11 @@ Chaque jour : **planning de 15 min le matin** (stories du jour, worktrees), **d�
 
 ## 5. Worktrees : règles
 
-- Un worktree par piste, une session Claude par worktree, branches `v1-<piste>`.
+- Les pistes `v1-<piste>` du §4 désignent des **worktrees**, pas des branches : dans chaque piste, les branches restent **une par story** (`us-xx.y-<sujet>`), avec **une PR par story** (méthode de `CLAUDE.md`).
 - Pistes parallèles seulement si elles ne touchent **pas les mêmes fichiers** ; le contrat (OpenAPI ou échange TrésorPay) est fixé **avant** de séparer.
-- Fusion dans `main` en fin de journée, avant la démo ; la session principale relance tous les tests après fusion.
-- Claude propose les worktrees, le porteur du projet les crée (aucune commande Git sans demande).
+- Claude propose les pistes au début du sprint (`/sprint J<n>`), dans le message unique de questions ; après le feu vert du porteur du projet, **Claude crée les worktrees** et y crée ses branches, commite, pousse et ouvre les PR. La suppression d'un worktree reste soumise à accord.
+- Une story qui dépend d'une autre part de la branche de celle-ci (**PR empilée**, base indiquée dans la PR) ; on n'attend pas de fusion pour avancer.
+- **Seul le porteur du projet fusionne dans `main`**, dans l'ordre donné par le compte rendu de fin de sprint ; la CI de chaque PR passe avant fusion, et les contrôles longs (E2E) tournent en fin de sprint.
 
 ## 6. Outillage réduit V1
 
