@@ -10,6 +10,11 @@ spring:
       enabled: true
   jackson:
     time-zone: UTC
+  # Messages d'erreur du catalogue (US-00.8) : français par défaut, anglais sur Accept-Language: en
+  messages:
+    basename: messages/erreurs
+    encoding: UTF-8
+    fallback-to-system-locale: false
   # Connexion applicative : emine_app, soumise à la RLS (jamais le propriétaire du schéma)
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/emine}
