@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.GrantedAuthority;
@@ -21,9 +22,12 @@ import org.springframework.transaction.support.TransactionTemplate;
 /**
  * Sécurité de l'API (US-01.2) : serveur de ressources OAuth2, jetons JWT émis par Keycloak
  * (émetteur et audience {@code emine-api} vérifiés), sans session ni cookie. Les rôles Keycloak
- * (codes des 16 profils) deviennent des autorités {@code ROLE_<CODE>}.
+ * (codes des 16 profils) deviennent des autorités {@code ROLE_<CODE>}, remplacées après
+ * rattachement par celles de la base (profil et permissions, US-01.6). {@code @PreAuthorize} est
+ * activé.
  */
 @Configuration(proxyBeanMethods = false)
+@EnableMethodSecurity
 class ConfigurationSecurite {
 
   @Bean
