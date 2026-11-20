@@ -1,5 +1,6 @@
 package gn.gov.mines.emine.auth.infrastructure;
 
+import static gn.gov.mines.emine.shared.jooq.Tables.ORGANISATION;
 import static gn.gov.mines.emine.shared.jooq.Tables.PERMISSION;
 import static gn.gov.mines.emine.shared.jooq.Tables.PROFIL;
 import static gn.gov.mines.emine.shared.jooq.Tables.PROFIL_PERMISSION;
@@ -34,6 +35,7 @@ class UtilisateurRepository {
             UTILISATEUR.PRENOM,
             UTILISATEUR.EMAIL,
             UTILISATEUR.ORGANISATION_ID,
+            ORGANISATION.RAISON_SOCIALE,
             UTILISATEUR.PROFIL_ID,
             PROFIL.CODE,
             PROFIL.LIBELLE,
@@ -41,6 +43,8 @@ class UtilisateurRepository {
         .from(UTILISATEUR)
         .join(PROFIL)
         .on(PROFIL.ID.eq(UTILISATEUR.PROFIL_ID))
+        .leftJoin(ORGANISATION)
+        .on(ORGANISATION.ID.eq(UTILISATEUR.ORGANISATION_ID))
         .where(UTILISATEUR.KEYCLOAK_ID.eq(keycloakId))
         .and(UTILISATEUR.DELETED_AT.isNull())
         .and(UTILISATEUR.STATUT.eq("actif"))
@@ -53,6 +57,7 @@ class UtilisateurRepository {
                     r.get(UTILISATEUR.PRENOM),
                     r.get(UTILISATEUR.EMAIL),
                     r.get(UTILISATEUR.ORGANISATION_ID),
+                    r.get(ORGANISATION.RAISON_SOCIALE),
                     r.get(PROFIL.CODE),
                     r.get(PROFIL.LIBELLE),
                     r.get(PROFIL.EST_INTERNE),

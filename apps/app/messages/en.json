@@ -44,7 +44,8 @@
     "demandes": {
       "titre": "My requests",
       "vide": "You have no requests yet.",
-      "aide": "Online request submission will be available here soon."
+      "aide": "Submit an application online: choose the document, attach your files, then pay the fees.",
+      "nouvelle": "New application"
     },
     "dossiers": {
       "titre": "Files to process",
@@ -60,6 +61,63 @@
         "titre": "The service is temporarily unavailable.",
         "conseil": "Please try again in a few minutes. Your data is not lost."
       }
+    }
+  },
+  "demande": {
+    "titreNouvelle": "New application",
+    "titreBrouillon": "Draft application",
+    "facultatif": "optional",
+    "etapes": {
+      "titre": "Application steps",
+      "demandeur": "Applicant",
+      "document": "Document",
+      "pieces": "Attachments",
+      "recapitulatif": "Summary"
+    },
+    "demandeur": {
+      "nom": "Applicant",
+      "email": "Email address",
+      "organisation": "Organisation",
+      "aucuneOrganisation": "None (personal capacity)"
+    },
+    "document": {
+      "type": "Requested document",
+      "choisir": "Choose a document",
+      "prefecture": "Prefecture",
+      "substance": "Main substance",
+      "superficie": "Area (hectares)",
+      "superficieAide": "Positive number, at most two decimals (example: 125.50).",
+      "hectares": "{valeur} ha",
+      "nonPrecise": "Not specified",
+      "delai": "Processing time: {jours} days",
+      "frais": "payable on submission: {montant}",
+      "gratuit": "no fee on submission",
+      "aPayer": "Payable on submission",
+      "piecesRequises": "Required documents"
+    },
+    "precedent": "Previous",
+    "continuer": "Save and continue",
+    "enregistrer": "Save draft",
+    "enregistrement": {
+      "enCours": "Saving draft…",
+      "fait": "Draft saved at {heure}.",
+      "reessayer": "Please try again shortly. Your entries are kept on this page.",
+      "erreurs": {
+        "DEM-003": "This application has already been submitted.",
+        "DEM-005": "This document is no longer offered.",
+        "VAL-001": "Some information needs to be corrected.",
+        "PERM-001": "Your profile does not allow submitting an application.",
+        "DEM-002": "Application not found.",
+        "autre": "The draft could not be saved."
+      }
+    },
+    "erreurs": {
+      "documentObligatoire": "Choose the requested document.",
+      "superficieInvalide": "Enter a positive number with at most two decimals."
+    },
+    "nonAutorise": {
+      "titre": "Your profile does not allow submitting an application.",
+      "retour": "Back to dashboard"
     }
   }
 }

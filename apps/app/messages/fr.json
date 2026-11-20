@@ -44,7 +44,8 @@
     "demandes": {
       "titre": "Mes demandes",
       "vide": "Vous n'avez encore aucune demande.",
-      "aide": "Le dépôt d'une demande en ligne sera bientôt disponible ici."
+      "aide": "Déposez une demande en ligne : choisissez le document, joignez vos pièces, puis payez les frais.",
+      "nouvelle": "Nouvelle demande"
     },
     "dossiers": {
       "titre": "Dossiers à traiter",
@@ -60,6 +61,63 @@
         "titre": "Le service est momentanément indisponible.",
         "conseil": "Réessayez dans quelques minutes. Vos données ne sont pas perdues."
       }
+    }
+  },
+  "demande": {
+    "titreNouvelle": "Nouvelle demande",
+    "titreBrouillon": "Brouillon de demande",
+    "facultatif": "facultatif",
+    "etapes": {
+      "titre": "Étapes de la demande",
+      "demandeur": "Demandeur",
+      "document": "Document",
+      "pieces": "Pièces",
+      "recapitulatif": "Récapitulatif"
+    },
+    "demandeur": {
+      "nom": "Demandeur",
+      "email": "Adresse e-mail",
+      "organisation": "Organisation",
+      "aucuneOrganisation": "Aucune (à titre personnel)"
+    },
+    "document": {
+      "type": "Document demandé",
+      "choisir": "Choisissez un document",
+      "prefecture": "Préfecture",
+      "substance": "Substance principale",
+      "superficie": "Superficie (hectares)",
+      "superficieAide": "Nombre positif, deux décimales au plus (exemple : 125,50).",
+      "hectares": "{valeur} ha",
+      "nonPrecise": "Non précisé",
+      "delai": "Délai de traitement : {jours} jours",
+      "frais": "à payer au dépôt : {montant}",
+      "gratuit": "aucun frais au dépôt",
+      "aPayer": "À payer au dépôt",
+      "piecesRequises": "Pièces à fournir"
+    },
+    "precedent": "Précédent",
+    "continuer": "Enregistrer et continuer",
+    "enregistrer": "Enregistrer le brouillon",
+    "enregistrement": {
+      "enCours": "Enregistrement du brouillon…",
+      "fait": "Brouillon enregistré à {heure}.",
+      "reessayer": "Réessayez dans quelques instants. Vos saisies sont conservées sur cette page.",
+      "erreurs": {
+        "DEM-003": "Cette demande a déjà été déposée.",
+        "DEM-005": "Ce document n'est plus proposé.",
+        "VAL-001": "Certaines informations sont à corriger.",
+        "PERM-001": "Votre profil ne permet pas de déposer une demande.",
+        "DEM-002": "Demande introuvable.",
+        "autre": "Le brouillon n'a pas pu être enregistré."
+      }
+    },
+    "erreurs": {
+      "documentObligatoire": "Choisissez le document demandé.",
+      "superficieInvalide": "Indiquez un nombre positif, avec deux décimales au plus."
+    },
+    "nonAutorise": {
+      "titre": "Votre profil ne permet pas de déposer une demande.",
+      "retour": "Revenir au tableau de bord"
     }
   }
 }

@@ -8,6 +8,7 @@ import java.util.UUID;
  * utilisateur.keycloak_id}). API publique du module {@code auth}.
  *
  * @param organisationId organisation de rattachement ({@code null} pour un agent du Ministère)
+ * @param organisationNom raison sociale de cette organisation, ou {@code null}
  * @param interne profil interne du Ministère ({@code profil.est_interne})
  * @param permissions droits du profil lus dans {@code profil_permission} (US-01.6)
  */
@@ -18,6 +19,7 @@ public record UtilisateurConnecte(
     String prenom,
     String email,
     Long organisationId,
+    String organisationNom,
     String profilCode,
     String profilLibelle,
     boolean interne,

@@ -7,6 +7,8 @@ export class ErreurApi extends Error {
     readonly status: number,
     readonly code: string | undefined,
     message: string,
+    /** Détails du ProblemDetail de l'API (champs invalides, éléments manquants…). */
+    readonly details: Record<string, unknown> = {},
   ) {
     super(message);
     this.name = "ErreurApi";
@@ -26,11 +28,17 @@ export async function requete<T>(url: string, options: RequestInit = {}): Promis
   const texte = await reponse.text();
   const corps: unknown = texte ? JSON.parse(texte) : undefined;
   if (!reponse.ok) {
-    const probleme = (corps ?? {}) as { code?: string; message?: string; detail?: string };
+    const probleme = (corps ?? {}) as {
+      code?: string;
+      message?: string;
+      detail?: string;
+      details?: Record<string, unknown>;
+    };
     throw new ErreurApi(
       reponse.status,
       probleme.code,
       probleme.message ?? probleme.detail ?? reponse.statusText,
+      probleme.details ?? {},
     );
   }
   return { data: corps, status: reponse.status, headers: reponse.headers } as T;

@@ -41,6 +41,27 @@ describe("tableau de bord", () => {
   });
 });
 
+describe("droit de déposer (US-01.6)", () => {
+  it("propose une nouvelle demande seulement si le profil peut déposer", () => {
+    const { unmount } = enFrancais(
+      <VueTableauDeBord
+        prenom="Fodé"
+        nom="Bangoura"
+        profilLibelle="Investisseur"
+        interne={false}
+        peutDeposer
+      />,
+    );
+    expect(screen.getByRole("link", { name: "Nouvelle demande" })).toHaveAttribute(
+      "href",
+      "/demandes/nouvelle",
+    );
+    unmount();
+    enFrancais(<VueTableauDeBord prenom="Aïcha" nom="Camara" profilLibelle="Guichet" interne />);
+    expect(screen.queryByRole("link", { name: "Nouvelle demande" })).not.toBeInTheDocument();
+  });
+});
+
 describe("en-tête", () => {
   it("affiche l'utilisateur et déconnecte par un formulaire POST", () => {
     enFrancais(<EnTete nomComplet="Fodé Bangoura" profil="Investisseur Extérieur" />);
