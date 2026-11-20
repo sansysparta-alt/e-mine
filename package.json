@@ -14,6 +14,8 @@
     "api:dev": "node scripts/mvnw.mjs -pl api spring-boot:run -Djooq.codegen.skip=true",
     "api:verify": "node scripts/mvnw.mjs -B -pl api verify",
     "api:format": "node scripts/mvnw.mjs -q -pl api spotless:apply",
-    "db:codegen": "node scripts/mvnw.mjs -q -pl api generate-sources -Djooq.codegen.args=--force"
+    "db:codegen": "node scripts/mvnw.mjs -q -pl api generate-sources -Djooq.codegen.args=--force",
+    "infra:keycloak:reset": "docker compose up -d --wait --force-recreate keycloak",
+    "db:seed": "node scripts/db-seed.mjs"
   }
 }

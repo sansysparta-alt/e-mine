@@ -34,12 +34,18 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:26.8.2@sha256:7e66a96e4739239070aeaf72e4c5decf0f7f682cfc725b9f7ea2b336eaba38b3
     restart: unless-stopped
-    # Mode développement : base embarquée éphémère, le realm versionné est réimporté à chaque démarrage.
-    command: ["start-dev", "--http-port=8080", "--health-enabled=true"]
+    # Mode développement, base embarquée : le realm versionné (infra/keycloak) est importé à la création
+    # du conteneur. Pour le réimporter après modification : pnpm infra:keycloak:reset
+    command: ["start-dev", "--http-port=8080", "--health-enabled=true", "--import-realm"]
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN:?Copier .env.example en .env}
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?Copier .env.example en .env}
       JAVA_OPTS_KC_HEAP: "-XX:MaxRAMPercentage=65"
+      # Substitués dans realm-emine.json à l'import : aucun mot de passe dans le fichier versionné
+      DEMO_PASSWORD: ${DEMO_PASSWORD:?Copier .env.example en .env}
+      OIDC_CLIENT_SECRET_APP: ${OIDC_CLIENT_SECRET_APP:?Copier .env.example en .env}
+    volumes:
+      - ./infra/keycloak:/opt/keycloak/data/import:ro
     ports:
       - "8081:8080"
     mem_limit: 896m
