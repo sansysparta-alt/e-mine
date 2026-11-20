@@ -1,0 +1,41 @@
+# Secrets et configuration locale
+.env
+.env.*
+!.env.example
+*.p12
+*.jks
+*.pem
+*.key
+*.crt
+infra/softhsm/tokens/
+# Originaux du Ministère (présentations et scripts SQL)
+_client/
+# Documents bureautiques égarés ailleurs
+*.pptx
+*.docx
+*.xlsx
+# Java / Maven
+target/
+*.class
+.mvn/wrapper/maven-wrapper.jar
+# Node / Next.js
+node_modules/
+.next/
+out/
+.turbo/
+coverage/
+playwright-report/
+test-results/
+# Généré
+packages/api-client/src/generated/
+api/src/main/generated/
+# IDE / OS
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.DS_Store
+Thumbs.db
+# Claude Code (réglages personnels)
+.claude/settings.local.json

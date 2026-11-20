@@ -1,0 +1,159 @@
+# e-mine · Proposition de stack technique
+
+> Date : 20/11/2026 · Statut : **validée** (voir §5 Décisions finales) · S'appuie sur [01-analyse-cahier-des-charges.md](01-analyse-cahier-des-charges.md) et les décisions D1 à D5.
+> Les versions indiquées sont les dernières LTS ou stables connues ; elles seront figées au démarrage du lot 0.
+
+## 1. Vue d'ensemble
+
+```
+                 Navigateurs (PWA, FR/EN, 320 → 1920 px)
+          ┌──────────────────────┐      ┌──────────────────────────┐
+          │  web  (site public)  │      │  app  (16 espaces métier) │
+          │  Next.js · SSR/SSG   │      │  Next.js · BFF            │
+          └──────────┬───────────┘      └────────────┬─────────────┘
+                     │  REST JSON (OpenAPI 3)         │  OIDC (cookie httpOnly)
+                     ▼                                ▼
+   ┌────────────┐   ┌──────────────────────────────────────────────┐
+   │  Keycloak  │◄──┤  api  — Spring Boot, monolithe modulaire      │
+   │ OIDC · SAML│   │  e-demandes · paiement · cadastre · decision  │
+   │ 2FA · mdp  │   │  notification · admin · audit …               │
+   └─────┬──────┘   │  Ports :  Cadastre · Paiement · Signature · Sms│
+         │ SAML 2.0 └───┬─────────┬──────────┬──────────┬───────────┘
+         ▼              │         │          │          │
+   ArcGIS Portal   PostgreSQL 16  MinIO     ClamAV   Simulateurs (dev/recette)
+   (prod)          schéma emine   (WORM)             TrésorPay · SIG PostGIS
+                                                     SoftHSM2 · SMS
+```
+
+Principe : **un back-end unique (monolithe modulaire), deux fronts, une base, des ports remplaçables** pour tout ce qui est externe.
+
+## 2. Ce que le cahier des charges impose (respecté tel quel)
+
+PostgreSQL 16 · ArcGIS Enterprise + API JavaScript ArcGIS · REST JSON documenté en OpenAPI 3 · JWT · SAML 2.0 vers ArcGIS · 2FA SMS · TrésorPay HMAC-SHA256 · relevés CSV/MT940 · WMS 1.3 / WFS 2.0 / GeoJSON · signature HSM + horodatage qualifié, sans blockchain · WCAG AA, Lighthouse ≥ 90, FR/EN, hors-ligne partiel · 4 environnements.
+
+## 3. Choix proposés
+
+### 3.1 Back-end — Java 25 LTS + Spring Boot 4, monolithe modulaire
+
+| Choix | Justification par rapport au projet |
+|---|---|
+| **Java 25 LTS** | Support long (≥ 8 ans) pour un système d'État à conserver 10 ans ; écosystème le plus riche pour la **signature PAdES avec HSM** (voir 3.5), la géométrie (JTS) et l'intégration bancaire (MT940) ; profils faciles à recruter et à former (lien Alphorm). Virtual threads : 2 000 utilisateurs simultanés et appels externes lents (TrésorPay, ArcGIS) sans pool de threads saturé. |
+| **Spring Boot 4** | Sécurité OAuth2 Resource Server (validation JWT), Spring Security pour la matrice des droits par profil, Actuator pour la supervision 99,5 %. |
+| **Spring Modulith** | Les 13 modules deviennent des **modules applicatifs aux frontières vérifiées par les tests**, dans un seul déployable. Microservices écartés : 500 dépôts/jour ne le justifient pas, et une équipe réduite ne peut pas exploiter 13 services. Un module pourra être extrait plus tard si besoin. |
+| **jOOQ** (plutôt que JPA/Hibernate) | Le schéma est **piloté par la base** : enums PostgreSQL, triggers de transition, vues, RLS, partitions. jOOQ génère le code Java depuis ce schéma et écrit du SQL explicite ; JPA masquerait les triggers et gère mal les enums natifs et la RLS. Les 10 requêtes métier fournies se transposent telles quelles. |
+| **Flyway** | Le script fourni (`_client/e-mine_schema.sql`) est copié en `V1` au Sprint 0, puis adapté en S1 (rôles et base en script d'amorçage, schéma en migration ; l'original reste intact) ; D3 (`DEM-AAAA-NNNNNN`) devient `V2`. Chaque lot ajoute ses tables (D1). |
+| **RLS : `SET LOCAL` par transaction** | Le schéma attend `emine.user_id`, `emine.interne`, `emine.ip`. Un intercepteur de transaction les renseigne depuis le JWT ; `SET LOCAL` est sûr avec le pool HikariCP. La sécurité est ainsi doublée (Spring Security + base). |
+| **springdoc-openapi** | Génère la documentation **OpenAPI 3** exigée ; le client TypeScript des fronts en est dérivé (3.2). Format d'erreur `{code, message, details}` via `ProblemDetail` et le catalogue AUTH/PAY/GEO/DOC/SYS. |
+| **Tâches : transactional outbox + db-scheduler** | Couvre alertes J-180/90/30 quotidiennes, suspension des titres, polling TrésorPay 30 s × 15 min, reprise ArcGIS 1/5/15 min, envoi SMS/e-mail. L'outbox dans PostgreSQL garantit « **aucune écriture perdue** » (exigence ArcGIS) sans ajouter Kafka ou RabbitMQ. |
+| **Maven** | Outil le plus répandu, simple à reprendre par les équipes du Ministère. |
+
+### 3.2 Front-end — TypeScript, Next.js pour les deux faces
+
+| Choix | Justification |
+|---|---|
+| **Next.js 16 (React), un seul framework pour `web` et `app`** | Le site public exige **référencement, Lighthouse ≥ 90 et < 2 s en 3G** : il faut du rendu serveur/statique (SSR/SSG), ce qu'une SPA pure ne donne pas. L'application de gestion bénéficie du même outil en mode **BFF** : le serveur Next détient les jetons dans un cookie httpOnly, rien n'est exposé au navigateur (exigence « aucun jeton dans le navigateur »). Une seule compétence pour toute l'équipe front. |
+| **Monorepo pnpm + Turborepo** | `apps/web`, `apps/app`, `packages/ui` (design system), `packages/api-client`. Les 15 documents, statuts et libellés sont partagés, ce qui supprime à la source les incohérences site/application relevées dans l'analyse. |
+| **Design system « Bleu Souverain » : Tailwind CSS + shadcn/ui (Radix)** | Composants Radix accessibles (clavier, ARIA) → **WCAG AA** ; palette (Navy, Royal, Azure, Sky, Ice, Or) et polices Cambria/Calibri en jetons Tailwind. Le code des composants est dans le dépôt, donc modifiable sans dépendre d'un éditeur. |
+| **ArcGIS Maps SDK for JavaScript (`@arcgis/core`)** | Imposé. Il lit aussi GeoJSON, WMS et WFS : la même carte fonctionne avec le simulateur puis avec ArcGIS Enterprise. |
+| **next-intl** | FR/EN sur chaque page, URLs `/fr/…` et `/en/…` bien référencées. |
+| **Client API généré (orval) + TanStack Query + React Hook Form + Zod** | Types générés depuis l'OpenAPI : un changement d'API casse la compilation, pas la production. Formulaire de demande en sections avec brouillon automatique toutes les 30 s et règles (+224, NIF 8-20 car., 10 Mo). |
+| **Graphiques : Recharts** | Tableaux de bord des 16 profils, recettes, délais. |
+
+### 3.3 PWA et hors-ligne — Serwist
+
+| Besoin du cahier des charges | Solution |
+|---|---|
+| « Dernier statut consulté disponible sans réseau », bandeau hors connexion | **Serwist** (service worker pour Next.js, successeur de next-pwa) : cache des pages de suivi et vérification QR |
+| Rapports d'inspection hors ligne avec photos et GPS (lot INSPECT) | IndexedDB (**Dexie**) + file de synchronisation. À comparer en lot 5 avec **ArcGIS Field Maps**, déjà couvert par les licences « Field Worker » prévues |
+| Scan QR depuis le mobile | API caméra du navigateur, lecture via `@zxing/browser` |
+| Pas d'application native | Non demandée ; la PWA couvre Android 10+ / iOS 15+ |
+
+### 3.4 Authentification — Keycloak
+
+| Exigence | Réponse de Keycloak |
+|---|---|
+| JWT pour l'API | Fournisseur **OpenID Connect** ; Spring valide les jetons |
+| e-mine fournit l'identité à ArcGIS en **SAML 2.0** | Keycloak est aussi **fournisseur d'identité SAML** : un seul compte pour e-mine et le portail ArcGIS |
+| Mot de passe 12 car. + majuscule + chiffre + symbole | Politique de mot de passe native |
+| Blocage 15 min après 5 échecs | Détection de force brute native |
+| 2FA par code SMS 6 chiffres, 5 min, 3 essais | Authentificateur SMS (extension SPI) branché sur le **port SMS** → simulateur en dev (D5) |
+| 16 profils, droits par profil | Rôles Keycloak = `profil.code` ; permissions fines dans `profil_permission` |
+| SSO Alphorm (Academy, lot ultérieur) | Fédération OIDC/SAML |
+
+Pourquoi pas une authentification maison : SAML IdP, 2FA, verrouillage et politique de mot de passe seraient à recoder et à faire auditer.
+
+**Écart avec D1** : `utilisateur.mot_de_passe_hash` est `NOT NULL` et `echecs_connexion`/`verrouille_jusqua` existent dans le schéma. Avec Keycloak, ces données passent dans Keycloak. Migration proposée : ajouter `keycloak_id uuid UNIQUE`, rendre `mot_de_passe_hash` facultatif et ne plus l'utiliser. C'est un petit écart à valider.
+
+### 3.5 PDF, QR et signature
+
+| Étape | Outil | Justification |
+|---|---|---|
+| Gabarits des 15 documents et des reçus, FR/EN | **Thymeleaf** (HTML) → **OpenHTMLtoPDF** en **PDF/A** | Gabarits modifiables sans développeur Java ; PDF/A adapté à l'archivage sur 10 ans |
+| QR (documents, reçus `REC-…`) | **ZXing** | Standard, pointe vers `/verifier/{code}` |
+| Signature électronique + horodatage | **EU DSS** (Digital Signature Service, Commission européenne) : **PAdES Baseline B-LT**, horodatage RFC 3161 | Bibliothèque de référence pour la signature PDF qualifiée ; elle prend en charge **PKCS#11**, l'interface standard des HSM |
+| HSM | Port `SignatureService` : **SoftHSM2** (PKCS#11) en dev et recette, HSM réel en production | SoftHSM2 parle **le même PKCS#11 qu'un vrai HSM** : le code de production est testé dès le premier jour (D5) |
+| Archivage « non modifiable » | **MinIO** (stockage objet compatible S3) avec **Object Lock** (WORM), empreinte SHA-256 en base | Copie archivée inaltérable, conservation 10 ans ; même API qu'un stockage S3 souverain en production |
+| Pièces jointes | MinIO + **ClamAV** | Analyse antivirus exigée ; empreinte SHA-256 déjà prévue dans `piece_jointe` |
+
+### 3.6 Simulateurs et ports (D5)
+
+| Port | Simulateur (dev, recette) | Production |
+|---|---|---|
+| `CadastreGateway` | Service **PostGIS** dans une base séparée : validité de géométrie, superficie en UTM 28N/29N, non-chevauchement (0,01 ha), zones réservées, codes GEO-OK…GEO-005, GeoJSON ; **GeoServer** facultatif pour tester WMS/WFS | ArcGIS Enterprise (REST, jeton 60 min côté serveur) |
+| `PaiementGateway` | **Simulateur TrésorPay** (petite application Spring) : page de paiement, notification HMAC-SHA256, scénarios succès, refus, abandon, absence de retour, double notification, signature invalide, montant divergent | Connecteur TrésorPay selon la convention du Trésor |
+| Relevés bancaires | Générateur de relevés CSV et MT940 couvrant les 7 cas de rapprochement | Relevés réels |
+| `SignatureService` | SoftHSM2 + horodatage de test | HSM + autorité d'horodatage qualifiée |
+| `SmsGateway` / e-mail | Boîte de réception SMS simulée + **Mailpit** pour les e-mails | Passerelle SMS d'un opérateur guinéen + SMTP |
+
+La géométrie côté Java utilise **JTS** et **proj4j** : les contrôles de validité sont faits avant l'appel au cadastre, ce qui donne le même comportement avec le simulateur et avec ArcGIS.
+
+### 3.7 Outillage, qualité et exploitation
+
+| Domaine | Choix | Exigence couverte |
+|---|---|---|
+| Conteneurs | **Docker Compose** en dev (Postgres, Keycloak, MinIO, ClamAV, Mailpit, simulateurs) ; images OCI pour tous les environnements | 4 environnements identiques |
+| Orchestration prod | À arrêter avec l'hébergeur : **Kubernetes (RKE2/k3s)** si l'équipe d'exploitation le maîtrise, sinon VM + Compose | Disponibilité 99,5 % |
+| Base de données | **PostgreSQL 16** (+ PostGIS seulement pour le simulateur), **pgBackRest** avec archivage WAL | Sauvegarde quotidienne, RPO 24 h (en pratique quelques minutes), RTO 4 h, test trimestriel |
+| Forge et CI/CD | **GitHub, dépôt public**, **GitHub Actions** ; secret scanning + push protection, CodeQL, Dependabot (voir §5) | Livraison du code source et des scripts |
+| Formatage et lint | **Prettier + ESLint** (front), **Spotless + google-java-format** (Java), lancés par un hook Claude Code après chaque modification et en pré-commit | Code homogène, revues plus courtes |
+| Tests back | JUnit 5, **Testcontainers** (vrai PostgreSQL 16 avec triggers et RLS), tests de modules Spring Modulith, ArchUnit, JaCoCo | Couverture ≥ 80 % sur paiement et règles spatiales |
+| Tests front et E2E | Vitest, **Playwright** (dépôt → paiement → décision → délivrance), **axe-core** | Parcours de bout en bout, WCAG AA |
+| Performance | **Lighthouse CI**, **k6** (2 000 utilisateurs, 500 dépôts/jour) | Lighthouse ≥ 90, API ≤ 800 ms, pages ≤ 3 s |
+| Sécurité | **OWASP ZAP**, **Trivy** (images et dépendances), **Dependabot**, **CodeQL**, **Gitleaks** en pré-commit | Tests OWASP Top 10, audit avant recette |
+| Secrets | Dev : fichiers **`.env` exclus du dépôt** (modèle `.env.example` sans valeur réelle). Recette et production : **OpenBao** (fork libre de Vault) via Spring Cloud Vault | « Secrets dans un coffre » |
+| Supervision | Actuator + Micrometer + **OpenTelemetry** → **Prometheus, Grafana, Loki** | Supervision continue, journaux techniques 12 mois |
+
+## 4. Alternatives écartées
+
+| Alternative | Raison |
+|---|---|
+| NestJS (TypeScript partout) | Bon choix pour la productivité, mais l'écosystème de signature PAdES via PKCS#11 est bien moins mûr qu'EU DSS en Java ; c'est un point central du projet (QR, HSM, révocation) |
+| .NET 10 | Techniquement équivalent ; Java retenu pour la signature (DSS) et le vivier de compétences locales |
+| Angular pour l'application de gestion | Solide pour les formulaires, mais deux frameworks front pour une seule équipe ; Next.js est indispensable pour le site public |
+| Microservices + Kafka | Volumétrie modeste ; coût d'exploitation disproportionné |
+| JPA/Hibernate | Masque les triggers, les enums et la RLS dont dépend le schéma fourni |
+| Authentification maison | SAML IdP, 2FA SMS et verrouillage à recoder et à auditer |
+
+## 5. Décisions finales (20/11/2026)
+
+| # | Décision |
+|---|---|
+| D6 | **Stack validée** telle que décrite ci-dessus (Java 25 + Spring Boot 4 + jOOQ + Flyway, Next.js, Keycloak, EU DSS + SoftHSM2, MinIO, ClamAV, Serwist, db-scheduler). |
+| D7 | **Forge : GitHub, dépôt public**, avec secret scanning et push protection activés ; secrets uniquement dans des fichiers `.env` exclus du dépôt ; **aucune vraie donnée** dans le dépôt (noms, e-mails `.test`, téléphones, IBAN et montants fictifs). Le dépôt est créé et initialisé par le porteur du projet. |
+| D8 | **Migration Keycloak acceptée** : ajout de `utilisateur.keycloak_id uuid UNIQUE`, `mot_de_passe_hash` rendu facultatif et abandonné ; verrouillage et échecs gérés par Keycloak. |
+| D9 | **MinIO et Docker par défaut** ; l'hébergement de production (et donc l'orchestration) sera confirmé par le Ministère. |
+| D10 | **Méthode : Scrum, sprints d'une semaine** — voir [04-plan-des-sprints.md](04-plan-des-sprints.md). |
+
+Conséquences du dépôt public :
+- Les originaux du Ministère (deux `.pptx`, deux `.sql`) sont rangés dans **`_client/`, exclu de Git** : ne pas les publier sans accord (voir [05-prerequis-avant-de-coder.md](05-prerequis-avant-de-coder.md)). Seule la copie du schéma, devenue migration Flyway, est versionnée.
+- Aucun logo officiel ni armoiries dans le dépôt tant que le Ministère ne l'a pas autorisé : gabarits avec logo de substitution.
+- Le mot de passe d'exemple du script SQL (`CHANGER_CE_MOT_DE_PASSE`) est remplacé par une variable d'environnement.
+- Une licence doit être choisie avec le Ministère ; sans licence, le code public reste « tous droits réservés ».
+
+## 6. Journal des décisions techniques
+
+Décisions structurantes prises en cours de développement (par Claude en autonomie ou par le porteur du projet). Une ligne par décision ; les décisions courantes n'y figurent pas.
+
+| Date | Sprint / story | Décision | Raison | Réversible ? |
+|---|---|---|---|---|
+| 20/11/2026 | — | Méthode « sprint autonome » : feu vert par sprint, une branche et une PR par story, fusion par le porteur du projet | Aller vite sans perdre le contrôle de `main` | Oui |
