@@ -11,8 +11,9 @@
     "infra:down": "docker compose stop",
     "infra:ps": "docker compose ps",
     "infra:logs": "docker compose logs -f --tail=100",
-    "api:dev": "node scripts/mvnw.mjs -pl api spring-boot:run",
+    "api:dev": "node scripts/mvnw.mjs -pl api spring-boot:run -Djooq.codegen.skip=true",
     "api:verify": "node scripts/mvnw.mjs -B -pl api verify",
-    "api:format": "node scripts/mvnw.mjs -q -pl api spotless:apply"
+    "api:format": "node scripts/mvnw.mjs -q -pl api spotless:apply",
+    "db:codegen": "node scripts/mvnw.mjs -q -pl api generate-sources -Djooq.codegen.args=--force"
   }
 }

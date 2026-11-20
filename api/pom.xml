@@ -24,6 +24,11 @@
     <springdoc.version>3.2.0</springdoc.version>
     <spotless.version>3.10.3</spotless.version>
     <jacoco.version>0.8.14</jacoco.version>
+    <exec-maven-plugin.version>3.7.0</exec-maven-plugin.version>
+    <build-helper-maven-plugin.version>3.8.0</build-helper-maven-plugin.version>
+    <!-- Génération jOOQ (US-00.3) : jooq.codegen.skip=true pour la sauter, jooq.codegen.args pour passer l'option de forçage -->
+    <jooq.codegen.skip>false</jooq.codegen.skip>
+    <jooq.codegen.args></jooq.codegen.args>
   </properties>
 
   <dependencyManagement>
@@ -58,6 +63,10 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-jdbc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-jooq</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -108,10 +117,63 @@
       <artifactId>testcontainers-junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
+    <!-- Utilisé seulement par le générateur src/codegen/GenerationJooq.java -->
+    <dependency>
+      <groupId>org.jooq</groupId>
+      <artifactId>jooq-codegen</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
     <plugins>
+      <plugin>
+        <!-- Génération jOOQ depuis le schéma migré (Testcontainers), sautée si les migrations n'ont pas changé -->
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>${exec-maven-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>generation-jooq</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <skip>${jooq.codegen.skip}</skip>
+              <executable>${java.home}/bin/java</executable>
+              <classpathScope>test</classpathScope>
+              <workingDirectory>${project.basedir}</workingDirectory>
+              <arguments>
+                <argument>-Dstdout.encoding=UTF-8</argument>
+                <argument>-classpath</argument>
+                <classpath/>
+                <argument>src/codegen/GenerationJooq.java</argument>
+                <argument>${jooq.codegen.args}</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>${build-helper-maven-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>sources-jooq</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>add-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>src/main/generated</source>
+              </sources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
