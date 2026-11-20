@@ -58,6 +58,7 @@ PostgreSQL 16 · ArcGIS Enterprise + API JavaScript ArcGIS · REST JSON document
 | **next-intl** | FR/EN sur chaque page, URLs `/fr/…` et `/en/…` bien référencées. |
 | **Client API généré (orval) + TanStack Query + React Hook Form + Zod** | Types générés depuis l'OpenAPI : un changement d'API casse la compilation, pas la production. Formulaire de demande en sections avec brouillon automatique toutes les 30 s et règles (+224, NIF 8-20 car., 10 Mo). |
 | **Graphiques : Recharts** | Tableaux de bord des 16 profils, recettes, délais. |
+| **BFF : openid-client + iron-session** (ajoutés le 20/11/2026, accord du porteur du projet) | Flux OIDC Authorization Code + PKCE certifié côté serveur Next ; jetons dans un cookie httpOnly chiffré, jamais lisibles par le navigateur. |
 
 ### 3.3 PWA et hors-ligne — Serwist
 
@@ -166,3 +167,11 @@ Décisions structurantes prises en cours de développement (par Claude en autono
 | 20/11/2026 | J1 · US-00.3 | jOOQ édition open source avec PostgreSQL 16 : avertissement « version plus ancienne que le dialecte », fonctionnement vérifié par les tests | PostgreSQL 16 est imposé par le cahier des charges ; l'édition commerciale serait une dépense — **question au porteur du projet** | Oui |
 | 20/11/2026 | J1 · US-01.5 | Contexte RLS posé par un `JdbcTransactionManager` dédié (`set_config(…, true)` paramétré) à l'ouverture de chaque transaction ; contexte fourni par l'interface `FournisseurContexteSession` (implémentée par `auth`), anonyme par défaut | Un seul point d'entrée pour jOOQ et JDBC ; sûr par défaut (sans contexte, rien n'est visible) | Oui |
 | 20/11/2026 | J1 · US-01.5 | **V4** : vues `v_demande_suivi`, `v_paiement_a_verifier`, `v_encaissement_mensuel`, `v_demande_par_statut` en `security_invoker` | Faille du schéma fourni : ces vues, propriété de `emine_owner`, contournaient la RLS pour `emine_app` (prouvé par `RlsTest`) | Oui |
+| 20/11/2026 | J1 · US-00.5 | Versions front figées à la dernière version publiée depuis au moins 2 semaines : Next 16.4.5, React 19.3.1, Tailwind 4.3.5, next-intl 4.14.9, orval 8.46.0, Vitest 5.1.0, ESLint 10 ; **TypeScript 6.0.3** et non 7.0 | typescript-eslint n'accepte pas encore TypeScript 7 (`<6.1.0`) | Oui |
+| 20/11/2026 | J1 · US-00.5 | `openapi.json` exporté par un test de l'API (`OpenApiTest`), versionné, vérifié à jour en CI ; client orval (`fetch`) généré dans `packages/api-client/src/generated` (non versionné) | Contrat API visible en revue de PR ; client toujours aligné sur l'API | Oui |
+| 20/11/2026 | J1 · US-00.5 | Prettier ne formate pas les fichiers Markdown (docs, `CLAUDE.md`, `README.md`) | Documents rédigés à la main : éviter de réaligner tous les tableaux | Oui |
+| 20/11/2026 | J1 · US-01.2 | Codes d'erreur provisoires : AUTH-001 (non authentifié), AUTH-003 (compte Keycloak non rattaché ou inactif ; AUTH-002 = verrouillage), PERM-001 (accès refusé) ; catalogue complet en US-00.8 | Le cahier des charges ne détaille pas les codes AUTH | Oui |
+| 20/11/2026 | J1 · US-01.2 | OpenAPI : toute propriété de DTO est requise sauf si déclarée nullable | Client TypeScript exact (pas de champs faussement optionnels) | Oui |
+| 20/11/2026 | J1 · US-01.2 | BFF : renouvellement du jeton dans le proxy Next (`src/proxy.ts`), déconnexion par POST et fermeture de la session Keycloak côté serveur (sans `id_token` stocké, cookie plus petit) | Un Server Component ne peut pas écrire de cookie ; limite de 4 Ko par cookie | Oui |
+| 20/11/2026 | J1 · US-01.2 | L'API prend l'IP du client dans `X-Forwarded-For` (posé par le BFF) | Le BFF est le seul client de l'API ; en recette/production, l'API ne devra être joignable que par le BFF (réseau) | Oui |
+| 20/11/2026 | J1 | Turborepo en mode strict : variables transmises déclarées dans `globalPassThroughEnv` (`JAVA_HOME`, `OIDC_*`…) | Sans cela, `pnpm dev` ne trouvait pas le JDK | Oui |

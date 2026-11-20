@@ -17,6 +17,13 @@ spring:
     password: ${EMINE_APP_PASSWORD:}
     hikari:
       maximum-pool-size: 5
+  # Jetons OIDC émis par Keycloak (realm emine) ; l'audience emine-api est exigée
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${OIDC_ISSUER:http://localhost:8081/realms/emine}
+          audiences: emine-api
   # Migrations : emine_owner, propriétaire du schéma emine
   flyway:
     user: emine_owner
@@ -41,6 +48,7 @@ management:
         enabled: true
 
 springdoc:
+  paths-to-match: /api/**
   api-docs:
     path: /v3/api-docs
   swagger-ui:

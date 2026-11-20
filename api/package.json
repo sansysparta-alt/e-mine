@@ -1,0 +1,8 @@
+{
+  "name": "@emine/api",
+  "private": true,
+  "description": "Lance l'API Spring Boot depuis Turborepo (pnpm dev). Le build Java reste Maven (mvnw).",
+  "scripts": {
+    "dev": "node ../scripts/mvnw.mjs -pl api spring-boot:run -Djooq.codegen.skip=true"
+  }
+}

@@ -1,0 +1,17 @@
+_client/
+node_modules/
+.next/
+.turbo/
+target/
+coverage/
+pnpm-lock.yaml
+packages/api-client/src/generated/
+packages/api-client/openapi.json
+api/src/main/generated/
+infra/keycloak/realm-emine.json
+docs/
+*.sql
+**/next-env.d.ts
+# Documents rédigés à la main (tableaux alignés par leurs auteurs)
+*.md
+.claude/

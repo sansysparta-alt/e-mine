@@ -1,0 +1,8 @@
+packages:
+  - apps/*
+  - packages/*
+  - api
+allowBuilds:
+  "@parcel/watcher": true
+  "@swc/core": true
+  esbuild: true

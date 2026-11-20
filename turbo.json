@@ -1,0 +1,39 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "ui": "stream",
+  "globalPassThroughEnv": [
+    "JAVA_HOME",
+    "MAVEN_OPTS",
+    "DOCKER_HOST",
+    "TESTCONTAINERS_*",
+    "API_BASE_URL",
+    "APP_URL",
+    "OIDC_*",
+    "SESSION_SECRET",
+    "CI"
+  ],
+  "tasks": {
+    "generate": {
+      "inputs": ["openapi.json", "orval.config.ts"],
+      "outputs": ["src/generated/**"]
+    },
+    "build": {
+      "dependsOn": ["^generate", "generate", "^build"],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+    },
+    "typecheck": {
+      "dependsOn": ["^generate", "generate"]
+    },
+    "lint": {
+      "dependsOn": ["^generate", "generate"]
+    },
+    "test": {
+      "dependsOn": ["^generate", "generate"]
+    },
+    "dev": {
+      "dependsOn": ["^generate"],
+      "cache": false,
+      "persistent": true
+    }
+  }
+}

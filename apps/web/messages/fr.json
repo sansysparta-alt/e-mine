@@ -1,0 +1,14 @@
+{
+  "site": {
+    "titre": "e-mine · Mines et géologie de Guinée",
+    "description": "Plateforme de démonstration du Ministère des Mines et de la Géologie : demandes en ligne et vérification des documents (données fictives)."
+  },
+  "accessibilite": {
+    "allerAuContenu": "Aller au contenu principal"
+  },
+  "accueil": {
+    "titre": "Les démarches minières en ligne",
+    "presentation": "Demandez l'un des 15 documents du Ministère, payez en ligne, suivez votre dossier et vérifiez l'authenticité d'un document grâce à son QR code.",
+    "avertissement": "Plateforme de démonstration : toutes les données sont fictives."
+  }
+}

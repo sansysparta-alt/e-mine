@@ -1,5 +1,5 @@
-# e-mine — CI minimale V1 (US-00.7) : build et tests back, Gitleaks.
-# Le job front est ajouté avec le monorepo (US-00.5). CodeQL : « default setup » GitHub (docs/07 §6).
+# e-mine — CI minimale V1 (US-00.7) : build et tests back et front, OpenAPI à jour, Gitleaks.
+# CodeQL : « default setup » GitHub (docs/07 §6).
 name: CI
 
 on:
@@ -29,6 +29,12 @@ jobs:
       # Testcontainers utilise le Docker du runner (vrai PostgreSQL 16, jamais H2).
       - name: Build, tests et formatage (Spotless)
         run: ./mvnw -B -ntp -pl api verify
+      - name: OpenAPI versionnée à jour (packages/api-client/openapi.json)
+        run: |
+          if ! git diff --exit-code -- packages/api-client/openapi.json; then
+            echo "::error::openapi.json n'est pas à jour. Lancer les tests de l'API et commiter le fichier."
+            exit 1
+          fi
       - name: Rapports de tests
         if: failure()
         uses: actions/upload-artifact@v7
@@ -36,6 +42,29 @@ jobs:
           name: rapports-tests-back
           path: api/target/surefire-reports/
           retention-days: 7
+
+  front:
+    name: Build et tests front
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "26"
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Formatage (Prettier)
+        run: pnpm format:check
+      - name: Lint (ESLint)
+        run: pnpm lint
+      - name: Types (TypeScript)
+        run: pnpm typecheck
+      - name: Tests (Vitest)
+        run: pnpm test
+      - name: Build (Next.js)
+        run: pnpm build
 
   gitleaks:
     name: Gitleaks
