@@ -6,8 +6,60 @@
   "accessibilite": {
     "allerAuContenu": "Aller au contenu principal"
   },
-  "accueil": {
+  "connexion": {
     "titre": "Application de gestion e-mine",
-    "presentation": "Déposez vos demandes de documents miniers, payez en ligne et suivez leur avancement."
+    "presentation": "Déposez vos demandes de documents miniers, payez en ligne et suivez leur avancement.",
+    "bouton": "Se connecter",
+    "aide": "Vous serez redirigé vers la page de connexion sécurisée, puis ramené ici.",
+    "demo": "Plateforme de démonstration : toutes les données sont fictives.",
+    "messages": {
+      "connexion": {
+        "titre": "La connexion n'a pas abouti.",
+        "conseil": "Réessayez. Si le problème persiste, contactez l'administrateur de la plateforme."
+      },
+      "indisponible": {
+        "titre": "Le service de connexion est momentanément indisponible.",
+        "conseil": "Réessayez dans quelques minutes."
+      },
+      "expiree": {
+        "titre": "Votre session a expiré.",
+        "conseil": "Reconnectez-vous pour continuer."
+      },
+      "deconnecte": {
+        "titre": "Vous êtes déconnecté.",
+        "conseil": "À bientôt sur e-mine."
+      }
+    }
+  },
+  "enTete": {
+    "marque": "e-mine",
+    "sousTitre": "Application de gestion",
+    "connecte": "Connecté : {nom}",
+    "deconnexion": "Se déconnecter"
+  },
+  "tableauDeBord": {
+    "titreOnglet": "Tableau de bord",
+    "bonjour": "Bonjour, {prenom} {nom}",
+    "profil": "Profil : {libelle}",
+    "demandes": {
+      "titre": "Mes demandes",
+      "vide": "Vous n'avez encore aucune demande.",
+      "aide": "Le dépôt d'une demande en ligne sera bientôt disponible ici."
+    },
+    "dossiers": {
+      "titre": "Dossiers à traiter",
+      "vide": "Aucun dossier à traiter pour le moment.",
+      "aide": "Les demandes déposées par les usagers apparaîtront ici."
+    },
+    "erreurs": {
+      "compteNonActive": {
+        "titre": "Votre compte n'est pas encore activé sur e-mine.",
+        "conseil": "Contactez l'administrateur de la plateforme pour le rattacher à votre profil."
+      },
+      "indisponible": {
+        "titre": "Le service est momentanément indisponible.",
+        "conseil": "Réessayez dans quelques minutes. Vos données ne sont pas perdues."
+      }
+    }
   }
 }

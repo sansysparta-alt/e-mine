@@ -9,6 +9,66 @@
     "url" : "http://localhost",
     "description" : "Generated server url"
   } ],
-  "paths" : { },
-  "components" : { }
+  "paths" : {
+    "/api/v1/moi" : {
+      "get" : {
+        "tags" : [ "Authentification" ],
+        "summary" : "Utilisateur connecté et son profil",
+        "operationId" : "lireMoi",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MoiDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "MoiDto" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "prenom" : {
+            "type" : "string"
+          },
+          "nom" : {
+            "type" : "string"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "profil" : {
+            "$ref" : "#/components/schemas/Profil"
+          },
+          "interne" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "email", "id", "interne", "nom", "prenom", "profil" ]
+      },
+      "Profil" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "libelle" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "code", "libelle" ]
+      }
+    }
+  }
 }

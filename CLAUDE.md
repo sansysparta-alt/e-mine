@@ -10,7 +10,7 @@ Langue du projet : **français** (documents, interface, commits, échanges). Int
 - **Git est initialisé** et relié à `https://github.com/sansysparta-alt/e-mine` (dépôt public). Le **premier commit sera fait depuis VS Code** par le porteur du projet.
 - Démarrer chaque sprint avec **`/sprint J1`** (`.claude/commands/sprint.md`) ; voir « Méthode de travail ». Permissions : `.claude/settings.json` (commit, push de branche de story et PR autorisés ; fusion et suppressions sur accord ; push sur `main` et réécriture d'historique interdits).
 - Là où `docs/07` (§4, §5) parle de `/clear` par story, de worktrees créés par le porteur du projet ou de fusion en fin de journée, **la méthode de ce fichier prévaut**.
-- Commandes et arborescence ci-dessous = **cible**, créées en S1–S2. Mettre ce fichier à jour dès qu'elles existent ou changent.
+- Socle créé au sprint J1 : les commandes ci-dessous existent ; l'arborescence est la cible (dossiers ajoutés au fil des stories). Mettre ce fichier à jour dès qu'elles changent.
 
 ## Documents de référence
 
@@ -43,7 +43,7 @@ Langue du projet : **français** (documents, interface, commits, échanges). Int
 |---|---|
 | Back-end | Java 25, Spring Boot 4, Spring Modulith, **jOOQ (pas de JPA)**, Flyway, springdoc-openapi, db-scheduler + outbox, Maven (`mvnw`) |
 | Base | PostgreSQL 16, schéma `emine`, RLS, triggers ; PostGIS seulement dans le simulateur cadastre |
-| Front-end | Next.js (App Router), TypeScript, pnpm + Turborepo, Tailwind + shadcn/ui, next-intl, TanStack Query, React Hook Form + Zod, orval, `@arcgis/core`, Recharts, Serwist |
+| Front-end | Next.js (App Router), TypeScript, pnpm + Turborepo, Tailwind + shadcn/ui, next-intl, TanStack Query, React Hook Form + Zod, orval, `@arcgis/core`, Recharts, Serwist ; BFF : openid-client, iron-session |
 | Auth | Keycloak (OIDC, SAML 2.0 vers ArcGIS, 2FA SMS par SPI) |
 | Documents | Thymeleaf → OpenHTMLtoPDF (PDF/A), ZXing, EU DSS (PAdES), SoftHSM2 / PKCS#11, MinIO (Object Lock), ClamAV |
 | Qualité | Prettier, ESLint, Spotless (google-java-format), JUnit 5, Testcontainers, ArchUnit, JaCoCo, Vitest, Playwright, axe-core, Lighthouse CI, k6, ZAP, Trivy, CodeQL, Gitleaks |
@@ -68,15 +68,15 @@ tests/{e2e,perf}/
 
 Module Java = `api/` (REST, DTO) · `application/` (cas d'usage, transactions) · `domaine/` (règles, ports) · `infrastructure/` (jOOQ, adaptateurs). Un module n'utilise que l'API publique d'un autre (`ApplicationModules.verify()`).
 
-## Commandes (cible, créées en S1–S2)
+## Commandes
 
 ```bash
-pnpm infra:up / infra:down   # Docker Compose : PostgreSQL, Keycloak, MinIO, ClamAV, Mailpit, simulateurs
-pnpm dev                     # API (8080) + web (3000) + app (3001)
-pnpm db:migrate · pnpm db:seed · pnpm api:client
-pnpm lint && pnpm typecheck && pnpm test
-pnpm e2e
-./mvnw -pl api verify        # mvnw.cmd sous Windows
+pnpm infra:up / infra:down   # Docker Compose : PostgreSQL, Keycloak, MinIO, Mailpit (limites mémoire, ~4 Go Docker)
+pnpm dev                     # API (8080) + web (3000) + app (3001) via Turborepo
+pnpm db:seed                 # personas de démo (après le 1er démarrage de l'API) · pnpm infra:keycloak:reset
+pnpm db:codegen              # jOOQ forcé (Testcontainers : infra ARRÊTÉE) · pnpm api:client (orval)
+pnpm lint && pnpm typecheck && pnpm test && pnpm format:check
+./mvnw -pl api verify        # mvnw.cmd sous Windows ; ne pas lancer en même temps que infra:up
 ```
 
 Poste de dev sous **Windows 11** : scripts multiplateformes (scripts `package.json`, pas de `make` ni de Bash obligatoire). API sur l'hôte : `SIGNATURE_MODE=pkcs12` ; SoftHSM2 tourne dans l'image Docker de l'API et en CI. Ports : `docs/05` §5.

@@ -1,6 +1,17 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "ui": "stream",
+  "globalPassThroughEnv": [
+    "JAVA_HOME",
+    "MAVEN_OPTS",
+    "DOCKER_HOST",
+    "TESTCONTAINERS_*",
+    "API_BASE_URL",
+    "APP_URL",
+    "OIDC_*",
+    "SESSION_SECRET",
+    "CI"
+  ],
   "tasks": {
     "generate": {
       "inputs": ["openapi.json", "orval.config.ts"],
