@@ -1,7 +1,7 @@
 "use client";
 
 import type { PieceDto } from "@emine/api-client";
-import { Alerte, Bouton, classesChamp } from "@emine/ui";
+import { Alerte, Bouton, classesChamp, formaterTaille } from "@emine/ui";
 import { useTranslations } from "next-intl";
 import { useEffect, useId, useRef, useState } from "react";
 
@@ -17,12 +17,6 @@ export function controlerFichier(f: { name: string; size: number; type: string }
   if (f.size === 0 || !(TYPES_ACCEPTES.includes(f.type) || EXTENSIONS.test(f.name)))
     return "DOC-001";
   return null;
-}
-
-export function formaterTaille(octets: number): string {
-  if (octets < 1024) return `${octets} o`;
-  if (octets < 1024 * 1024) return `${Math.round(octets / 1024)} Ko`;
-  return `${(octets / (1024 * 1024)).toFixed(1).replace(".", ",")} Mo`;
 }
 
 export type SectionPiecesProps = {
