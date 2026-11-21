@@ -168,3 +168,17 @@ Recherche faite dans les deux présentations : **aucun langage ni framework de d
 | Environnements | dev, recette, pré-production, production ; simulateur TrésorPay en dev | Hébergement, conteneurs, CI/CD |
 
 → Le choix du langage back-end, du framework front-end et de l'outillage (Docker, CI) est **à proposer par l'équipe** et à faire valider ; il sera traité après le product backlog.
+
+## 7. Adaptations du schéma fourni (à signaler au Ministère)
+
+Le schéma d'origine (`_client/`) n'est jamais modifié : chaque adaptation est une migration Flyway de notre copie, prouvée par un test.
+
+| Migration | Adaptation | Raison | Test |
+|---|---|---|---|
+| V2 | Numéro de demande sur 6 chiffres (`DEM-AAAA-NNNNNN`) | Décision D3 | `MigrationsTest` |
+| V3 | `utilisateur.keycloak_id` ; mot de passe géré par Keycloak | Décision D8 | `MigrationsTest` |
+| V4 | Vues sur `demande`/`paiement` en `security_invoker` | Faille : ces vues contournaient la RLS (§3, point 16) | `RlsTest` |
+| V5 | Numéro de demande attribué au dépôt, plus à la création du brouillon | Pas de trou dans la numérotation officielle | `MigrationsTest`, `DepotTest` |
+| V6 | RLS sur `piece_jointe` | Faille : les pièces d'un usager étaient lisibles par un autre | `RlsTest` |
+| V7 | `demande.declaration_honneur_le` | La déclaration sur l'honneur du dépôt n'était pas conservée | `DepotTest` |
+| V8 | Le paiement des frais ne rend plus la demande recevable ; la recevabilité est déclarée par l'agent du guichet, et refusée par la base tant que les frais ne sont pas payés (DEM-006) | La recevabilité exige l'examen des pièces : le paiement est une condition, pas un déclencheur | `RecevabiliteTest` |
