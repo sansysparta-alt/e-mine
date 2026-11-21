@@ -1,9 +1,19 @@
 import { ErreurApi, lireDemande, listerPieces } from "@emine/api-client";
-import { Alerte, Bouton, Carte, formaterDateHeure, formaterGnf } from "@emine/ui";
+import {
+  Alerte,
+  BadgeStatut,
+  Bouton,
+  Carte,
+  EnTetePage,
+  formaterDateHeure,
+  formaterGnf,
+} from "@emine/ui";
+import { ArrowLeft } from "@emine/ui/icones";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { tonStatut } from "@/composants/demande/statut";
 import { appelPage, chargerReferentiels, optionsApi } from "@/serveur/donnees";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -47,11 +57,27 @@ export default async function DetailDemande({ params, searchParams }: Props) {
           {t("confirmationSuite")}
         </Alerte>
       ) : null}
-      <h1 className="text-3xl sm:text-4xl">{t("titre", { numero })}</h1>
+      <EnTetePage
+        titre={t("titre", { numero })}
+        description={document ? `${document.libelleFr} (${document.code})` : undefined}
+        retour={
+          <Link
+            href="/demandes"
+            className="inline-flex min-h-11 items-center gap-2 text-royal underline-offset-4 hover:underline"
+          >
+            <ArrowLeft aria-hidden="true" className="size-4" />
+            {t("retourListe")}
+          </Link>
+        }
+      />
       <Carte>
         <dl className="grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-[auto_1fr]">
           <dt className="font-semibold">{t("statut")}</dt>
-          <dd>{tStatut.has(demande.statut) ? tStatut(demande.statut) : demande.statut}</dd>
+          <dd>
+            <BadgeStatut ton={tonStatut(demande.statut)}>
+              {tStatut.has(demande.statut) ? tStatut(demande.statut) : demande.statut}
+            </BadgeStatut>
+          </dd>
           <dt className="font-semibold">{t("document")}</dt>
           <dd>
             {document ? `${document.libelleFr} (${document.code})` : demande.typeDocumentCode}
