@@ -304,7 +304,8 @@
     "sections": {
       "principal": "Main",
       "demarches": "Procedures",
-      "instruction": "Processing"
+      "instruction": "Processing",
+      "administration": "Administration"
     },
     "entrees": {
       "tableauDeBord": "Dashboard",
@@ -312,7 +313,8 @@
       "demandes": "Applications",
       "nouvelleDemande": "New application",
       "fileGuichet": "Front desk queue",
-      "decisions": "Decisions to take"
+      "decisions": "Decisions to take",
+      "journalAudit": "Audit log"
     }
   },
   "etats": {
@@ -617,6 +619,130 @@
         "rejetee": "Rejection recorded for application {numero}."
       },
       "traiteeSuite": "The applicant sees the decision on their application. You can move on to the next one."
+    }
+  },
+  "audit": {
+    "titre": "Audit log",
+    "description": "Every change recorded by the database, most recent first. The log can be neither changed nor erased.",
+    "recherche": {
+      "libelle": "Search the log",
+      "exemple": "Number, reference, email or application no.",
+      "bouton": "Search"
+    },
+    "periode": {
+      "du": "From",
+      "au": "To",
+      "appliquer": "Apply period",
+      "effacer": "Clear period",
+      "inverseeTitre": "Incorrect period",
+      "inversee": "The end date is before the start date: correct the period."
+    },
+    "filtre": "Object type",
+    "categories": {
+      "toutes": "All",
+      "demandes": "Applications",
+      "paiements": "Payments",
+      "decisions": "Decisions",
+      "pieces": "Attachments",
+      "comptes": "Accounts",
+      "catalogue": "Catalogue"
+    },
+    "colonnes": {
+      "date": "Date and time",
+      "auteur": "Author",
+      "action": "Action",
+      "objet": "Object",
+      "changements": "What changed"
+    },
+    "operations": {
+      "I": "Creation",
+      "U": "Change",
+      "D": "Deletion"
+    },
+    "tables": {
+      "demande": "Application",
+      "paiement": "Payment",
+      "avis_decision": "Decision",
+      "piece_jointe": "Attachment",
+      "utilisateur": "Account",
+      "organisation": "Organisation",
+      "type_document": "Catalogue document",
+      "tarif": "Fee",
+      "titre": "Mining title",
+      "document_delivre": "Issued document",
+      "remboursement": "Refund"
+    },
+    "champs": {
+      "statut": "Status",
+      "numero": "Number",
+      "reference": "Reference",
+      "recu_numero": "Receipt no.",
+      "motif_rejet": "Reason for rejection",
+      "motif": "Reason",
+      "sens": "Outcome",
+      "nature": "Nature",
+      "date_depot": "Submission date",
+      "date_recevabilite": "Admissibility date",
+      "declaration_honneur_le": "Solemn declaration",
+      "superficie_ha": "Area (ha)",
+      "prefecture_id": "Prefecture (no.)",
+      "substance_id": "Substance (no.)",
+      "type_document_id": "Document (no.)",
+      "demandeur_id": "Applicant (no.)",
+      "demande_id": "Application (no.)",
+      "auteur_id": "Author (no.)",
+      "payeur_id": "Payer (no.)",
+      "organisation_id": "Organisation (no.)",
+      "profil_id": "Profile (no.)",
+      "objet": "Purpose",
+      "moyen": "Method",
+      "montant_gnf": "Amount",
+      "montant_recu_gnf": "Amount received",
+      "transaction_externe_id": "TrésorPay transaction",
+      "date_expiration": "Expiry",
+      "type_piece": "Document type",
+      "nom_fichier": "File",
+      "mime_type": "Format",
+      "taille_octets": "Size (bytes)",
+      "empreinte_sha256": "SHA-256 fingerprint",
+      "nom": "Last name",
+      "prenom": "First name",
+      "email": "Email",
+      "telephone": "Phone",
+      "keycloak_id": "Account identifier",
+      "mot_de_passe_hash": "Password",
+      "created_at": "Created on",
+      "deleted_at": "Deleted on",
+      "rendu_le": "Given on"
+    },
+    "systeme": "System",
+    "systemeDetail": "System (TrésorPay notification, automatic task or migration)",
+    "ouvrirDemande": "Open the application",
+    "voirDetail": "See details",
+    "devient": "becomes",
+    "autres": "{nombre, plural, one {and # other field} other {and # other fields}}",
+    "oui": "Yes",
+    "non": "No",
+    "elements": "entries",
+    "vide": {
+      "titre": "The log is empty",
+      "filtre": "No entry matches these criteria",
+      "toutVoir": "See the whole log"
+    },
+    "entree": {
+      "titreOnglet": "Audit log entry",
+      "titre": "{operation} · {table}",
+      "retour": "Back to the log",
+      "identifiant": "identifier {id}",
+      "adresseIp": "IP address",
+      "numero": "Entry no.",
+      "champsModifies": "Changed fields",
+      "valeurs": "Recorded values",
+      "aucunChamp": "No readable field changed.",
+      "champ": "Field",
+      "avant": "Before",
+      "apres": "After",
+      "valeur": "Value"
     }
   }
 }

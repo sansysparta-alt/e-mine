@@ -304,7 +304,8 @@
     "sections": {
       "principal": "Principal",
       "demarches": "Démarches",
-      "instruction": "Instruction"
+      "instruction": "Instruction",
+      "administration": "Administration"
     },
     "entrees": {
       "tableauDeBord": "Tableau de bord",
@@ -312,7 +313,8 @@
       "demandes": "Demandes",
       "nouvelleDemande": "Nouvelle demande",
       "fileGuichet": "File du guichet",
-      "decisions": "Décisions à prendre"
+      "decisions": "Décisions à prendre",
+      "journalAudit": "Journal d’audit"
     }
   },
   "etats": {
@@ -617,6 +619,130 @@
         "rejetee": "Rejet enregistré pour la demande {numero}."
       },
       "traiteeSuite": "Le demandeur voit la décision sur sa demande. Vous pouvez passer à la suivante."
+    }
+  },
+  "audit": {
+    "titre": "Journal d’audit",
+    "description": "Toutes les modifications enregistrées par la base, de la plus récente à la plus ancienne. Le journal ne peut être ni modifié ni effacé.",
+    "recherche": {
+      "libelle": "Rechercher dans le journal",
+      "exemple": "Numéro, référence, e-mail ou n° de demande",
+      "bouton": "Rechercher"
+    },
+    "periode": {
+      "du": "Du",
+      "au": "Au",
+      "appliquer": "Appliquer la période",
+      "effacer": "Effacer la période",
+      "inverseeTitre": "Période incorrecte",
+      "inversee": "La date de fin précède la date de début : corrigez la période."
+    },
+    "filtre": "Type d’objet",
+    "categories": {
+      "toutes": "Tout",
+      "demandes": "Demandes",
+      "paiements": "Paiements",
+      "decisions": "Décisions",
+      "pieces": "Pièces jointes",
+      "comptes": "Comptes",
+      "catalogue": "Catalogue"
+    },
+    "colonnes": {
+      "date": "Date et heure",
+      "auteur": "Auteur",
+      "action": "Action",
+      "objet": "Objet",
+      "changements": "Ce qui a changé"
+    },
+    "operations": {
+      "I": "Création",
+      "U": "Modification",
+      "D": "Suppression"
+    },
+    "tables": {
+      "demande": "Demande",
+      "paiement": "Paiement",
+      "avis_decision": "Décision",
+      "piece_jointe": "Pièce jointe",
+      "utilisateur": "Compte",
+      "organisation": "Organisation",
+      "type_document": "Document du catalogue",
+      "tarif": "Tarif",
+      "titre": "Titre minier",
+      "document_delivre": "Document délivré",
+      "remboursement": "Remboursement"
+    },
+    "champs": {
+      "statut": "Statut",
+      "numero": "Numéro",
+      "reference": "Référence",
+      "recu_numero": "N° de reçu",
+      "motif_rejet": "Motif du rejet",
+      "motif": "Motif",
+      "sens": "Sens",
+      "nature": "Nature",
+      "date_depot": "Date de dépôt",
+      "date_recevabilite": "Date de recevabilité",
+      "declaration_honneur_le": "Déclaration sur l’honneur",
+      "superficie_ha": "Superficie (ha)",
+      "prefecture_id": "Préfecture (n°)",
+      "substance_id": "Substance (n°)",
+      "type_document_id": "Document (n°)",
+      "demandeur_id": "Demandeur (n°)",
+      "demande_id": "Demande (n°)",
+      "auteur_id": "Auteur (n°)",
+      "payeur_id": "Payeur (n°)",
+      "organisation_id": "Organisation (n°)",
+      "profil_id": "Profil (n°)",
+      "objet": "Objet",
+      "moyen": "Moyen",
+      "montant_gnf": "Montant",
+      "montant_recu_gnf": "Montant reçu",
+      "transaction_externe_id": "Transaction TrésorPay",
+      "date_expiration": "Expiration",
+      "type_piece": "Type de pièce",
+      "nom_fichier": "Fichier",
+      "mime_type": "Format",
+      "taille_octets": "Taille (octets)",
+      "empreinte_sha256": "Empreinte SHA-256",
+      "nom": "Nom",
+      "prenom": "Prénom",
+      "email": "E-mail",
+      "telephone": "Téléphone",
+      "keycloak_id": "Identifiant de compte",
+      "mot_de_passe_hash": "Mot de passe",
+      "created_at": "Créé le",
+      "deleted_at": "Supprimé le",
+      "rendu_le": "Rendu le"
+    },
+    "systeme": "Système",
+    "systemeDetail": "Système (notification TrésorPay, tâche automatique ou migration)",
+    "ouvrirDemande": "Ouvrir la demande",
+    "voirDetail": "Voir le détail",
+    "devient": "devient",
+    "autres": "{nombre, plural, one {et # autre champ} other {et # autres champs}}",
+    "oui": "Oui",
+    "non": "Non",
+    "elements": "entrées",
+    "vide": {
+      "titre": "Le journal est vide",
+      "filtre": "Aucune entrée ne correspond à ces critères",
+      "toutVoir": "Voir tout le journal"
+    },
+    "entree": {
+      "titreOnglet": "Entrée du journal d’audit",
+      "titre": "{operation} · {table}",
+      "retour": "Retour au journal",
+      "identifiant": "identifiant {id}",
+      "adresseIp": "Adresse IP",
+      "numero": "N° d’entrée",
+      "champsModifies": "Champs modifiés",
+      "valeurs": "Valeurs enregistrées",
+      "aucunChamp": "Aucun champ lisible n’a changé.",
+      "champ": "Champ",
+      "avant": "Avant",
+      "apres": "Après",
+      "valeur": "Valeur"
     }
   }
 }
