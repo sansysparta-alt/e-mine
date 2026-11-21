@@ -1,0 +1,24 @@
+# Simulateur TrésorPay (US-04.1) — contrat : docs/contrats/tresorpay.md
+# Valeurs lues dans le fichier .env à la racine du dépôt (fictives, jamais versionnées).
+spring:
+  application:
+    name: emine-simulateur-tresorpay
+  config:
+    import: optional:file:../../.env[.properties],optional:file:../.env[.properties],optional:file:./.env[.properties]
+  threads:
+    virtual:
+      enabled: true
+  thymeleaf:
+    cache: false
+
+server:
+  port: ${TRESORPAY_PORT:8090}
+  shutdown: graceful
+
+tresorpay:
+  secret-hmac: ${TRESORPAY_HMAC_SECRET:}
+  marchand-id: ${TRESORPAY_MERCHANT_ID:MARCHAND-TEST-0001}
+  url-notification: ${TRESORPAY_URL_NOTIFICATION:http://localhost:8080/api/v1/paiements/notifications/tresorpay}
+  url-retour-autorisee: ${TRESORPAY_URL_RETOUR_AUTORISEE:http://localhost:3001/}
+  duree-session: 15m
+  tolerance-horodatage: 5m

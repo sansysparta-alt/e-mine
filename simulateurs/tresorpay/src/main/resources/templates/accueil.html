@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments :: tete('Accueil')}"></head>
+  <body>
+    <header th:replace="~{fragments :: bandeau}"></header>
+    <main class="page" id="contenu">
+      <h1>Simulateur TrésorPay</h1>
+      <p class="intro">
+        Remplace TrésorPay pendant le développement et la démonstration (contrat
+        <code>docs/contrats/tresorpay.md</code>). Les paiements commencent sur e-mine ; cette page
+        sert à piloter le simulateur.
+      </p>
+
+      <section class="carte" aria-labelledby="titre-disponibilite">
+        <div class="ligne-titre">
+          <h2 id="titre-disponibilite">Disponibilité</h2>
+          <span th:if="${disponible}" class="badge badge--vert">Disponible</span>
+          <span th:unless="${disponible}" class="badge badge--rouge">Indisponible</span>
+        </div>
+        <p th:if="${disponible}">Les demandes de paiement d’e-mine sont acceptées.</p>
+        <p th:unless="${disponible}">
+          Toute demande de paiement reçoit une erreur 503 : e-mine doit proposer le virement
+          (PAY-003).
+        </p>
+        <form method="post" th:action="@{/disponibilite}">
+          <input type="hidden" name="disponible" th:value="${!disponible}" />
+          <button
+            type="submit"
+            class="bouton bouton--secondaire bouton--auto"
+            th:text="${disponible} ? 'Simuler une indisponibilité' : 'Rétablir le service'"
+          >
+            Simuler une indisponibilité
+          </button>
+        </form>
+      </section>
+
+      <section class="carte" aria-labelledby="titre-sessions">
+        <h2 id="titre-sessions">Sessions récentes</h2>
+        <p th:if="${#lists.isEmpty(sessions)}" class="vide">
+          Aucune session pour l’instant. Lancez un paiement depuis une demande sur e-mine.
+        </p>
+        <div th:unless="${#lists.isEmpty(sessions)}" class="tableau-defilant">
+          <table>
+            <caption class="visuellement-masque">
+              Sessions de paiement les plus récentes
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Référence</th>
+                <th scope="col" class="nombre">Montant</th>
+                <th scope="col">Ouverte le</th>
+                <th scope="col">Issue</th>
+                <th scope="col">Notification</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="s : ${sessions}">
+                <td class="chiffres">
+                  <a
+                    th:if="${!s.terminee() and !s.expiree(maintenant)}"
+                    th:href="@{/payer/{id}(id=${s.id})}"
+                    th:text="${s.reference}"
+                    >PAY-2026-000001</a
+                  >
+                  <span
+                    th:unless="${!s.terminee() and !s.expiree(maintenant)}"
+                    th:text="${s.reference}"
+                    >PAY-2026-000001</span
+                  >
+                </td>
+                <td class="nombre" th:text="${@formats.gnf(s.montantGnf)}">500 000 GNF</td>
+                <td th:text="${@formats.dateHeure(s.creeeLe)}">21/11/2026 à 10:00</td>
+                <td>
+                  <span th:if="${s.terminee()}" th:text="${s.resultat.scenario.libelle}"
+                    >Paiement accepté</span
+                  >
+                  <span th:if="${s.expiree(maintenant)}">Expirée</span>
+                  <span th:if="${!s.terminee() and !s.expiree(maintenant)}"
+                    >En attente de l’usager</span
+                  >
+                </td>
+                <td th:text="${s.terminee()} ? ${s.resultat.compteRendu} : '—'">HTTP 200</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="carte" aria-labelledby="titre-scenarios">
+        <h2 id="titre-scenarios">Scénarios de test</h2>
+        <p>
+          Choisis sur la page de paiement, ou par l’adresse
+          <code>/payer/{session}?scenario=&lt;code&gt;</code>.
+        </p>
+        <dl class="liste-scenarios">
+          <div th:each="s : ${scenarios}">
+            <dt>
+              <span th:text="${s.libelle}">Paiement accepté</span>
+              <code th:text="${s.code}">succes</code>
+            </dt>
+            <dd th:text="${s.description}">Description</dd>
+          </div>
+        </dl>
+      </section>
+    </main>
+  </body>
+</html>

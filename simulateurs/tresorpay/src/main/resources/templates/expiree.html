@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments :: tete('Session expirée')}"></head>
+  <body>
+    <header th:replace="~{fragments :: bandeau}"></header>
+    <main class="page page--etroite" id="contenu">
+      <section class="carte" aria-labelledby="titre">
+        <h1 id="titre">Session de paiement expirée</h1>
+        <p>
+          La session était valable 15 minutes, jusqu’à
+          <span th:text="${@formats.heure(paiement.expireLe)}">10:15</span>. Aucun montant n’a été
+          prélevé. Revenez sur e-mine pour relancer le paiement.
+        </p>
+        <a class="bouton bouton--principal" th:href="${urlRetour}">Revenir sur e-mine</a>
+      </section>
+    </main>
+  </body>
+</html>
