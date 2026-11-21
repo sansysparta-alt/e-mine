@@ -371,7 +371,72 @@
         "PAY-007": "Aucun paiement n’est attendu à cette étape",
         "autre": "Le paiement n’a pas pu être préparé",
         "reessayer": "Réessayez dans quelques instants. Si le problème persiste, contactez le guichet unique."
+      },
+      "redirection": "Vous serez dirigé vers la page sécurisée de TrésorPay.",
+      "tentatives": "{nombre, plural, one {Il vous reste # tentative aujourd’hui.} other {Il vous reste # tentatives aujourd’hui.}}",
+      "tentativesEpuisees": "Vous avez fait 3 tentatives de paiement en ligne aujourd’hui. Vous pourrez réessayer demain à partir de minuit.",
+      "indisponibleTexte": "Aucun montant n’a été prélevé et aucune tentative n’a été décomptée. Réessayez dans quelques minutes."
+    },
+    "retour": {
+      "titreOnglet": "Résultat du paiement",
+      "titre": "Résultat du paiement",
+      "retourDemande": "Retour à la demande",
+      "details": "Détails du paiement",
+      "statut": "Statut",
+      "reference": "Référence",
+      "montant": "Montant",
+      "moyen": "Moyen de paiement",
+      "virement": "Virement bancaire",
+      "payeLe": "Payé le",
+      "recu": "Reçu",
+      "reessayer": "Réessayer le paiement",
+      "tentativesRestantes": "{nombre, plural, one {Il vous reste # tentative aujourd’hui.} other {Il vous reste # tentatives aujourd’hui.}}",
+      "tentativesEpuisees": "Vous avez atteint 3 tentatives aujourd’hui : vous pourrez réessayer demain.",
+      "attente": {
+        "enCours": "Confirmation de votre paiement par TrésorPay…",
+        "longueTitre": "Confirmation en attente",
+        "longueTexte": "TrésorPay n’a pas encore confirmé votre paiement. Ne payez pas une seconde fois : votre demande sera mise à jour dès réception de la confirmation.",
+        "actualiser": "Actualiser",
+        "retourDemande": "Retour à la demande"
+      },
+      "issue": {
+        "paye": {
+          "titre": "Paiement confirmé",
+          "texte": "Merci. Votre paiement a été reçu par le Trésor public. L’agent du guichet peut maintenant examiner votre demande."
+        },
+        "a_verifier": {
+          "titre": "Paiement reçu, vérification en cours",
+          "texte": "Le montant reçu ne correspond pas au montant attendu. Le service fiscal le vérifie ; vous n’avez rien à faire pour l’instant."
+        },
+        "echoue": {
+          "titre": "Paiement refusé",
+          "texte": "Votre banque a refusé le paiement. Aucun montant n’a été prélevé."
+        },
+        "annule": {
+          "titre": "Paiement annulé",
+          "texte": "Vous avez annulé le paiement. Aucun montant n’a été prélevé."
+        },
+        "expire": {
+          "titre": "Session de paiement expirée",
+          "texte": "La session de paiement a expiré (15 minutes). Aucun montant n’a été prélevé."
+        },
+        "autre": {
+          "titre": "Paiement non abouti",
+          "texte": "Le paiement n’a pas abouti. Revenez à votre demande pour connaître la suite."
+        }
       }
     }
+  },
+  "statutsPaiement": {
+    "initie": "Initié",
+    "en_attente": "En attente de confirmation",
+    "paye": "Payé",
+    "a_verifier": "À vérifier",
+    "echoue": "Refusé",
+    "rejete": "Rejeté",
+    "expire": "Expiré",
+    "annule": "Annulé",
+    "remboursement_demande": "Remboursement demandé",
+    "rembourse": "Remboursé"
   }
 }

@@ -11,10 +11,16 @@ const moyens: MoyenDto[] = [
 
 const paiement = { reference: "PAY-2026-000001", statut: "initie" } as PaiementDto;
 
-function afficher(choisir = vi.fn()) {
+function afficher(choisir = vi.fn(), tentativesRestantes = 3) {
   render(
     <NextIntlClientProvider locale="fr" messages={fr} timeZone="Africa/Conakry">
-      <ChoixMoyen demandeId={42} moyens={moyens} montant="5 000 000 GNF" choisir={choisir} />
+      <ChoixMoyen
+        demandeId={42}
+        moyens={moyens}
+        montant="5 000 000 GNF"
+        tentativesRestantes={tentativesRestantes}
+        choisir={choisir}
+      />
     </NextIntlClientProvider>,
   );
   return choisir;
@@ -47,6 +53,31 @@ describe("ChoixMoyen (US-04.2)", () => {
     fireEvent.click(bouton);
     await waitFor(() => expect(choisir).toHaveBeenCalledWith(42, "TRESORPAY"));
     expect(await screen.findByText("Paiement PAY-2026-000001 créé")).toBeInTheDocument();
+  });
+
+  it("annonce les tentatives restantes et la redirection vers TrésorPay", () => {
+    afficher(vi.fn(), 2);
+    expect(screen.getByText(/dirigé vers la page sécurisée de TrésorPay/)).toBeInTheDocument();
+    expect(screen.getByText(/Il vous reste 2 tentatives aujourd’hui/)).toBeInTheDocument();
+  });
+
+  it("bloque le paiement après 3 tentatives dans la journée", () => {
+    afficher(vi.fn(), 0);
+    expect(screen.getByText("Nombre de tentatives atteint pour aujourd’hui")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Payer/ })).toBeDisabled();
+  });
+
+  it("rassure quand TrésorPay est indisponible (PAY-003)", async () => {
+    afficher(
+      vi.fn().mockResolvedValue({
+        ok: false,
+        erreur: { code: "PAY-003", message: "", champs: [] },
+      }),
+    );
+    fireEvent.click(screen.getByRole("radio", { name: /TrésorPay/ }));
+    fireEvent.click(screen.getByRole("button", { name: /avec TrésorPay/ }));
+    expect(await screen.findByText("TrésorPay est momentanément indisponible")).toBeInTheDocument();
+    expect(screen.getByText(/aucune tentative n’a été décomptée/)).toBeInTheDocument();
   });
 
   it("explique un refus de l'API (objet déjà payé)", async () => {

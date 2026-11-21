@@ -371,7 +371,72 @@
         "PAY-007": "No payment is expected at this stage",
         "autre": "The payment could not be prepared",
         "reessayer": "Please try again in a moment. If the problem persists, contact the one-stop shop."
+      },
+      "redirection": "You will be taken to the secure TrésorPay page.",
+      "tentatives": "{nombre, plural, one {You have # attempt left today.} other {You have # attempts left today.}}",
+      "tentativesEpuisees": "You have made 3 online payment attempts today. You can try again tomorrow from midnight.",
+      "indisponibleTexte": "No amount has been charged and no attempt has been counted. Please try again in a few minutes."
+    },
+    "retour": {
+      "titreOnglet": "Payment result",
+      "titre": "Payment result",
+      "retourDemande": "Back to the application",
+      "details": "Payment details",
+      "statut": "Status",
+      "reference": "Reference",
+      "montant": "Amount",
+      "moyen": "Payment method",
+      "virement": "Bank transfer",
+      "payeLe": "Paid on",
+      "recu": "Receipt",
+      "reessayer": "Try the payment again",
+      "tentativesRestantes": "{nombre, plural, one {You have # attempt left today.} other {You have # attempts left today.}}",
+      "tentativesEpuisees": "You have reached 3 attempts today: you can try again tomorrow.",
+      "attente": {
+        "enCours": "TrésorPay is confirming your payment…",
+        "longueTitre": "Confirmation pending",
+        "longueTexte": "TrésorPay has not confirmed your payment yet. Do not pay a second time: your application will be updated as soon as the confirmation arrives.",
+        "actualiser": "Refresh",
+        "retourDemande": "Back to the application"
+      },
+      "issue": {
+        "paye": {
+          "titre": "Payment confirmed",
+          "texte": "Thank you. Your payment has been received by the Public Treasury. The one-stop shop officer can now review your application."
+        },
+        "a_verifier": {
+          "titre": "Payment received, under review",
+          "texte": "The amount received does not match the expected amount. The tax department is checking it; you do not need to do anything for now."
+        },
+        "echoue": {
+          "titre": "Payment declined",
+          "texte": "Your bank declined the payment. No amount has been charged."
+        },
+        "annule": {
+          "titre": "Payment cancelled",
+          "texte": "You cancelled the payment. No amount has been charged."
+        },
+        "expire": {
+          "titre": "Payment session expired",
+          "texte": "The payment session expired (15 minutes). No amount has been charged."
+        },
+        "autre": {
+          "titre": "Payment not completed",
+          "texte": "The payment was not completed. Go back to your application to see what happens next."
+        }
       }
     }
+  },
+  "statutsPaiement": {
+    "initie": "Initiated",
+    "en_attente": "Awaiting confirmation",
+    "paye": "Paid",
+    "a_verifier": "To be checked",
+    "echoue": "Declined",
+    "rejete": "Rejected",
+    "expire": "Expired",
+    "annule": "Cancelled",
+    "remboursement_demande": "Refund requested",
+    "rembourse": "Refunded"
   }
 }
