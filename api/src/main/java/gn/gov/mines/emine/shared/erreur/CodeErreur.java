@@ -33,6 +33,8 @@ public enum CodeErreur {
   DEM_004("DEM-004", HttpStatus.UNPROCESSABLE_CONTENT),
   /** Type de document inconnu ou inactif. */
   DEM_005("DEM-005", HttpStatus.UNPROCESSABLE_CONTENT),
+  /** Recevabilité impossible : frais de dossier non payés (trigger, V8). */
+  DEM_006("DEM-006", HttpStatus.CONFLICT),
   /** Objet déjà payé pour cette demande (index {@code ux_paiement_paye}). */
   PAY_001("PAY-001", HttpStatus.CONFLICT),
   /** Transition de statut de paiement interdite. */
