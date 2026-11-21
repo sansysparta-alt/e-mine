@@ -64,6 +64,30 @@
       "delivrees": "Documents délivrés",
       "aTraiter": "Déposées, à traiter",
       "total": "Total des demandes"
+    },
+    "aFaire": {
+      "titre": "{nombre, plural, one {À faire maintenant (#)} other {À faire maintenant (#)}}",
+      "explication": {
+        "FRAIS": "Frais de dossier à payer : {montant}. Le guichet examinera votre dossier ensuite.",
+        "DROITS": "Décision favorable : droits à payer, {montant}, pour obtenir votre document.",
+        "COMPLEMENT": "Un complément de pièces est demandé."
+      },
+      "explicationSansMontant": {
+        "FRAIS": "Frais de dossier à payer. Le guichet examinera votre dossier ensuite.",
+        "DROITS": "Décision favorable : droits à payer pour obtenir votre document.",
+        "COMPLEMENT": "Un complément de pièces est demandé."
+      },
+      "action": {
+        "FRAIS": "Payer les frais",
+        "DROITS": "Payer les droits",
+        "COMPLEMENT": "Compléter"
+      }
+    },
+    "taches": {
+      "aExaminer": "À examiner au guichet",
+      "aExaminerPrecision": "Frais payés, en attente de recevabilité",
+      "decisions": "Décisions à prendre",
+      "decisionsPrecision": "Demandes recevables dont vous êtes signataire"
     }
   },
   "demande": {

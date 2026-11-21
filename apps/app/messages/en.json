@@ -64,6 +64,30 @@
       "delivrees": "Documents issued",
       "aTraiter": "Submitted, to process",
       "total": "Total applications"
+    },
+    "aFaire": {
+      "titre": "{nombre, plural, one {To do now (#)} other {To do now (#)}}",
+      "explication": {
+        "FRAIS": "Application fee to pay: {montant}. The front desk will then review your file.",
+        "DROITS": "Approved: duties to pay, {montant}, to obtain your document.",
+        "COMPLEMENT": "Additional documents are requested."
+      },
+      "explicationSansMontant": {
+        "FRAIS": "Application fee to pay. The front desk will then review your file.",
+        "DROITS": "Approved: duties to pay to obtain your document.",
+        "COMPLEMENT": "Additional documents are requested."
+      },
+      "action": {
+        "FRAIS": "Pay the fee",
+        "DROITS": "Pay the duties",
+        "COMPLEMENT": "Complete"
+      }
+    },
+    "taches": {
+      "aExaminer": "To review at the front desk",
+      "aExaminerPrecision": "Fee paid, awaiting admissibility",
+      "decisions": "Decisions to take",
+      "decisionsPrecision": "Admissible applications you sign"
     }
   },
   "demande": {
