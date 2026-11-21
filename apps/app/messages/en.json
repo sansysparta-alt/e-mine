@@ -31,12 +31,6 @@
       }
     }
   },
-  "enTete": {
-    "marque": "e-mine",
-    "sousTitre": "Management application",
-    "connecte": "Signed in: {nom}",
-    "deconnexion": "Sign out"
-  },
   "tableauDeBord": {
     "titreOnglet": "Dashboard",
     "bonjour": "Hello, {prenom} {nom}",
@@ -62,6 +56,14 @@
         "titre": "The service is temporarily unavailable.",
         "conseil": "Please try again in a few minutes. Your data is not lost."
       }
+    },
+    "chiffres": {
+      "mesDemandes": "My applications",
+      "brouillons": "Drafts",
+      "enCours": "Being processed",
+      "delivrees": "Documents issued",
+      "aTraiter": "Submitted, to process",
+      "total": "Total applications"
     }
   },
   "demande": {
@@ -167,7 +169,8 @@
     "restauration": {
       "titre": "Unsaved entries restored.",
       "texte": "Your latest changes, kept on this device, have been restored. They will be saved at the next step."
-    }
+    },
+    "descriptionNouvelle": "Four steps: applicant, document, attachments, summary. Your entries are saved as you go."
   },
   "statuts": {
     "brouillon": "Draft",
@@ -196,7 +199,8 @@
       "titre": "Next step",
       "paiement": "Application fee payment: {montant}. Online payment will be offered here."
     },
-    "retour": "Back to dashboard"
+    "retour": "Back to dashboard",
+    "retourListe": "Back to applications"
   },
   "mesDemandes": {
     "titre": "My applications",
@@ -209,7 +213,20 @@
     "aucuneFiltre": "No application with this status.",
     "brouillonSansNumero": "Draft (number assigned on submission)",
     "deposeeLe": "submitted on {date}",
-    "creeeLe": "created on {date}"
+    "creeeLe": "created on {date}",
+    "titreInterne": "Applications",
+    "description": "Follow the progress of each application. A draft opens in the form.",
+    "colonnes": {
+      "numero": "Number",
+      "document": "Document",
+      "statut": "Status",
+      "date": "Date"
+    },
+    "tri": {
+      "trier": "Sort by",
+      "croissant": "ascending",
+      "decroissant": "descending"
+    }
   },
   "session": {
     "avertissement": {
@@ -222,6 +239,34 @@
       "titre": "Your session has expired",
       "texte": "Sign in again to continue. Your current entries are kept on this device and you will come back to this page.",
       "reconnecter": "Sign in again"
+    }
+  },
+  "navigation": {
+    "marque": "e-mine",
+    "sousTitre": "Mines and geology",
+    "titre": "Main navigation",
+    "ouvrirMenu": "Open menu",
+    "fermerMenu": "Close menu",
+    "reduireMenu": "Collapse menu",
+    "deplierMenu": "Expand menu",
+    "deconnexion": "Sign out",
+    "sections": {
+      "principal": "Main",
+      "demarches": "Procedures"
+    },
+    "entrees": {
+      "tableauDeBord": "Dashboard",
+      "mesDemandes": "My applications",
+      "demandes": "Applications",
+      "nouvelleDemande": "New application"
+    }
+  },
+  "etats": {
+    "chargement": "Loading…",
+    "erreur": {
+      "titre": "This page could not be displayed.",
+      "description": "An unexpected error occurred. Your data is not lost.",
+      "reessayer": "Try again"
     }
   }
 }

@@ -1,0 +1,111 @@
+import { fireEvent, render, screen, within } from "@testing-library/react";
+import { FileText, LayoutDashboard } from "lucide-react";
+import { GabaritApplication } from "./gabarit";
+import { BadgeStatut, EtatVide } from "./page";
+import { TableauDonnees } from "./liste";
+
+const libelles = {
+  navigation: "Navigation principale",
+  ouvrirMenu: "Ouvrir le menu",
+  fermerMenu: "Fermer le menu",
+  reduireMenu: "Réduire le menu",
+  deplierMenu: "Déplier le menu",
+};
+
+function afficher() {
+  return render(
+    <GabaritApplication
+      marque="e-mine"
+      titre="Mes demandes"
+      utilisateur={{ nomComplet: "Fodé Bangoura", profil: "Investisseur" }}
+      libelles={libelles}
+      sections={[
+        {
+          cle: "principal",
+          titre: "Principal",
+          entrees: [
+            {
+              cle: "a",
+              href: "/tableau-de-bord",
+              libelle: "Tableau de bord",
+              icone: LayoutDashboard,
+              actif: false,
+            },
+            { cle: "b", href: "/demandes", libelle: "Mes demandes", icone: FileText, actif: true },
+          ],
+        },
+      ]}
+    >
+      <p>Contenu</p>
+    </GabaritApplication>,
+  );
+}
+
+describe("gabarit de l'application", () => {
+  beforeEach(() => localStorage.clear());
+
+  it("affiche la navigation, l'entrée active, le titre de la page et l'utilisateur", () => {
+    afficher();
+    const nav = screen.getAllByRole("navigation", { name: "Navigation principale" })[0]!;
+    expect(within(nav).getByRole("link", { name: "Mes demandes" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    expect(within(nav).getByRole("link", { name: "Tableau de bord" })).not.toHaveAttribute(
+      "aria-current",
+    );
+    expect(screen.getByText("Fodé Bangoura")).toBeInTheDocument();
+    expect(screen.getByRole("main")).toHaveTextContent("Contenu");
+  });
+
+  it("réduit le menu et mémorise ce choix", () => {
+    afficher();
+    fireEvent.click(screen.getByRole("button", { name: "Réduire le menu" }));
+    expect(screen.getByRole("button", { name: "Déplier le menu" })).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
+    expect(localStorage.getItem("emine:interface:menu-replie")).toBe("1");
+  });
+
+  it("ouvre le tiroir mobile et le ferme avec Échap", () => {
+    afficher();
+    fireEvent.click(screen.getByRole("button", { name: "Ouvrir le menu" }));
+    expect(screen.getAllByRole("navigation", { name: "Navigation principale" })).toHaveLength(2);
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(screen.getAllByRole("navigation", { name: "Navigation principale" })).toHaveLength(1);
+  });
+});
+
+describe("composants de liste et de page", () => {
+  it("tableau : en-têtes triables annoncés (aria-sort) et intitulés de cellule pour le mobile", () => {
+    render(
+      <TableauDonnees
+        legende="Demandes"
+        lignes={[{ id: 1, numero: "DEM-2026-000001" }]}
+        cleLigne={(l) => l.id}
+        tri={{ colonne: "numero", sens: "desc" }}
+        lienTri={(c) => `/demandes?tri=${c}`}
+        colonnes={[{ cle: "numero", entete: "Numéro", triable: true, rendu: (l) => l.numero }]}
+      />,
+    );
+    expect(screen.getByRole("table", { name: "Demandes" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader")).toHaveAttribute("aria-sort", "descending");
+    expect(screen.getByRole("link", { name: /Trier par Numéro, tri décroissant/ })).toHaveAttribute(
+      "href",
+      "/demandes?tri=numero",
+    );
+    expect(screen.getByRole("cell")).toHaveTextContent("DEM-2026-000001");
+  });
+
+  it("badge : pastille décorative et libellé lisible", () => {
+    render(<BadgeStatut ton="succes">Délivrée</BadgeStatut>);
+    expect(screen.getByText("Délivrée")).toBeInTheDocument();
+  });
+
+  it("état vide : titre et action", () => {
+    render(<EtatVide titre="Aucune demande" action={<a href="/n">Nouvelle demande</a>} />);
+    expect(screen.getByText("Aucune demande")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Nouvelle demande" })).toBeInTheDocument();
+  });
+});
