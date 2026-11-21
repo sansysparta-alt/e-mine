@@ -50,3 +50,9 @@ export {
   pagesAffichees,
   type PaginationProps,
 } from "./composants/pagination";
+export {
+  type DocumentAffiche,
+  type LibellesVisualiseur,
+  VisualiseurDocument,
+  type VisualiseurDocumentProps,
+} from "./composants/visualiseur";
