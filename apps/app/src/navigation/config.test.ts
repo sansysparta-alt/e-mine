@@ -10,9 +10,17 @@ describe("configuration unique de la navigation", () => {
       "mesDemandes",
       "nouvelleDemande",
     ]);
+    const fiscal = navigationPour({ permissions: ["ENCAISSER"], interne: true });
+    expect(cles(fiscal)).toEqual(["tableauDeBord", "mesDemandes"]);
+    expect(fiscal.map((s) => s.cle)).toEqual(["principal"]); // sections vides retirées
+  });
+
+  it("montre la file du guichet seulement aux agents internes qui instruisent (US-05.1)", () => {
     const agent = navigationPour({ permissions: ["INSTRUIRE"], interne: true });
-    expect(cles(agent)).toEqual(["tableauDeBord", "mesDemandes"]);
-    expect(agent.map((s) => s.cle)).toEqual(["principal"]); // section vide retirée
+    expect(cles(agent)).toEqual(["tableauDeBord", "mesDemandes", "fileGuichet"]);
+    expect(cles(navigationPour({ permissions: ["INSTRUIRE"], interne: false }))).not.toContain(
+      "fileGuichet",
+    );
   });
 
   it("chaque entrée a une adresse, une icône et un module", () => {

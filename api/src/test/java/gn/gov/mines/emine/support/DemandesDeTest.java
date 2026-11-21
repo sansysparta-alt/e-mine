@@ -67,4 +67,65 @@ public final class DemandesDeTest {
       return rs.next() ? rs.getString(1) : null;
     }
   }
+
+  /** Paiement TrésorPay de l'objet donné, mené jusqu'à « payé » (les triggers s'appliquent). */
+  public static void payer(long demande, String objet, long montant) throws SQLException {
+    String reference;
+    try (Connection c = BaseDeDonneesDeTest.connexionOwner();
+        PreparedStatement ps =
+            c.prepareStatement(
+                "INSERT INTO paiement (demande_id, objet, moyen, montant_gnf)"
+                    + " VALUES (?, ?::objet_paiement, 'TRESORPAY', ?) RETURNING reference")) {
+      ps.setLong(1, demande);
+      ps.setString(2, objet);
+      ps.setLong(3, montant);
+      ResultSet rs = ps.executeQuery();
+      rs.next();
+      reference = rs.getString(1);
+    }
+    changerStatutPaiement(reference, "en_attente", "paye");
+  }
+
+  /** Pièce jointe fictive (aucun fichier dans le stockage) d'un type donné. */
+  public static void piece(long demande, String typePiece) throws SQLException {
+    try (Connection c = BaseDeDonneesDeTest.connexionOwner();
+        PreparedStatement ps =
+            c.prepareStatement(
+                "INSERT INTO piece_jointe (demande_id, type_piece, nom_fichier, mime_type,"
+                    + " taille_octets, empreinte_sha256, stockage_cle, depose_par)"
+                    + " SELECT d.id, ?, 'piece.pdf', 'application/pdf', 1000, repeat('a', 64),"
+                    + " 'tests/' || gen_random_uuid(), d.demandeur_id FROM demande d WHERE d.id = ?")) {
+      ps.setString(1, typePiece);
+      ps.setLong(2, demande);
+      ps.executeUpdate();
+    }
+  }
+
+  /** Statut d'une demande et son motif de rejet, lus hors RLS. */
+  public static String[] statutEtMotif(long demande) throws SQLException {
+    try (Connection c = BaseDeDonneesDeTest.connexionOwner();
+        PreparedStatement ps =
+            c.prepareStatement(
+                "SELECT statut::text, motif_rejet, date_recevabilite IS NOT NULL FROM demande"
+                    + " WHERE id = ?")) {
+      ps.setLong(1, demande);
+      ResultSet rs = ps.executeQuery();
+      rs.next();
+      return new String[] {rs.getString(1), rs.getString(2), String.valueOf(rs.getBoolean(3))};
+    }
+  }
+
+  /** Auteur (identifiant Keycloak) du dernier changement de statut de la demande. */
+  public static String auteurDernierStatut(long demande) throws SQLException {
+    try (Connection c = BaseDeDonneesDeTest.connexionOwner();
+        PreparedStatement ps =
+            c.prepareStatement(
+                "SELECT u.keycloak_id::text FROM historique_statut_demande h"
+                    + " JOIN utilisateur u ON u.id = h.auteur_id WHERE h.demande_id = ?"
+                    + " ORDER BY h.id DESC LIMIT 1")) {
+      ps.setLong(1, demande);
+      ResultSet rs = ps.executeQuery();
+      return rs.next() ? rs.getString(1) : null;
+    }
+  }
 }

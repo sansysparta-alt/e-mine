@@ -1,4 +1,4 @@
-import { FilePlus2, FileText, LayoutDashboard, type LucideIcon } from "@emine/ui/icones";
+import { FilePlus2, FileText, Inbox, LayoutDashboard, type LucideIcon } from "@emine/ui/icones";
 
 /**
  * Configuration unique de la navigation de l'application (gabarit du socle).
@@ -38,6 +38,19 @@ export const NAVIGATION: SectionConfig[] = [
         module: "demande",
         href: "/demandes",
         icone: FileText,
+      },
+    ],
+  },
+  {
+    cle: "instruction",
+    entrees: [
+      {
+        cle: "fileGuichet",
+        module: "instruction",
+        href: "/guichet",
+        icone: Inbox,
+        permission: "INSTRUIRE",
+        interne: true,
       },
     ],
   },

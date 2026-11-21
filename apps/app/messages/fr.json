@@ -199,7 +199,7 @@
         "agent": "Action attendue",
         "demandeur": "Prochaine étape"
       },
-      "agentVerifier": "Vérifiez le dossier : les frais de dossier sont payés. Contrôlez les pièces jointes, puis déclarez la demande recevable ou demandez un complément au demandeur.",
+      "agentVerifier": "Les frais de dossier sont payés. Contrôlez les pièces jointes, puis déclarez la demande recevable ou non recevable.",
       "agentAttenteComplement": "Un complément a été demandé : la demande attend les pièces du demandeur.",
       "agentInstruire": "Instruisez la demande et rendez votre avis.",
       "agentDecision": "Avis rendu : la décision du signataire est attendue.",
@@ -211,12 +211,12 @@
       "demandeurPayerDroits": "Une décision favorable a été rendue : payez les droits ({droits}) pour obtenir votre document.",
       "demandeurDelivrance": "Droits payés : votre document est en cours d'établissement.",
       "demandeurDelivree": "Votre document a été délivré.",
-      "demandeurRejetee": "Votre demande a été rejetée. Le motif figure dans la décision.",
+      "demandeurRejetee": "Votre demande a été rejetée. Le motif est indiqué ci-dessus.",
       "actionPayer": {
         "FRAIS": "Payer les frais de dossier",
         "DROITS": "Payer les droits"
       },
-      "agentFraisAttendus": "Vérifiez le dossier. Les frais de dossier ne sont pas encore payés : vous pourrez déclarer la demande recevable dès leur paiement, ou demander dès maintenant un complément au demandeur.",
+      "agentFraisAttendus": "Les frais de dossier ne sont pas encore payés : vous pourrez déclarer la demande recevable dès leur paiement. Si le dossier ne peut pas aboutir, déclarez-le non recevable en indiquant le motif.",
       "demandeurAttenteGuichet": "Frais de dossier payés. L’agent du guichet unique examine maintenant votre dossier ; vous serez informé de sa décision."
     },
     "fraisPayes": "Frais payés",
@@ -231,7 +231,8 @@
         "date": "Date",
         "recu": "Reçu"
       }
-    }
+    },
+    "motifRejet": "Motif"
   },
   "mesDemandes": {
     "titre": "Mes demandes",
@@ -299,13 +300,15 @@
     "deconnexion": "Se déconnecter",
     "sections": {
       "principal": "Principal",
-      "demarches": "Démarches"
+      "demarches": "Démarches",
+      "instruction": "Instruction"
     },
     "entrees": {
       "tableauDeBord": "Tableau de bord",
       "mesDemandes": "Mes demandes",
       "demandes": "Demandes",
-      "nouvelleDemande": "Nouvelle demande"
+      "nouvelleDemande": "Nouvelle demande",
+      "fileGuichet": "File du guichet"
     }
   },
   "etats": {
@@ -457,5 +460,95 @@
     "annule": "Annulé",
     "remboursement_demande": "Remboursement demandé",
     "rembourse": "Remboursé"
+  },
+  "instruction": {
+    "motif": {
+      "obligatoire": "obligatoire",
+      "compteur": "{nombre} / {max} caractères",
+      "erreurs": {
+        "court": "Expliquez le motif en 10 caractères au moins : le demandeur le lira.",
+        "long": "Le motif dépasse 2000 caractères : raccourcissez-le."
+      }
+    },
+    "recevabilite": {
+      "controles": "Contrôles de recevabilité",
+      "fraisPayes": "Frais de dossier payés",
+      "fraisNonPayes": "Frais de dossier non payés",
+      "pieceFournie": "{piece} : fournie",
+      "pieceManquante": "{piece} : manquante",
+      "verification": "J’ai ouvert et vérifié chaque pièce jointe : lisible, complète et au nom du demandeur.",
+      "verificationRequise": "Cochez cette case après avoir vérifié les pièces.",
+      "pasEncoreTitre": "La demande ne peut pas encore être déclarée recevable",
+      "pasEncoreFrais": "Les frais de dossier ne sont pas payés. Vous pourrez la déclarer recevable dès que le paiement sera confirmé.",
+      "pasEncorePieces": "Une pièce obligatoire n’a pas de fichier. Si le dossier ne peut pas aboutir, déclarez-le non recevable en indiquant le motif.",
+      "declarerRecevable": "Déclarer recevable",
+      "declarerNonRecevable": "Déclarer non recevable…",
+      "enCours": "Enregistrement…",
+      "echec": "La déclaration n’a pas été enregistrée",
+      "indisponible": "Le service est momentanément indisponible. Réessayez dans un instant.",
+      "dialogue": {
+        "titre": "Déclarer la demande {numero} non recevable",
+        "explication": "La demande sera rejetée et le demandeur en sera informé. Cette décision ne peut pas être annulée.",
+        "motif": "Motif communiqué au demandeur",
+        "aide": "Dites précisément ce qui ne va pas (pièce illisible, document non conforme…). 10 caractères au moins.",
+        "annuler": "Annuler",
+        "confirmer": "Confirmer la non-recevabilité"
+      }
+    },
+    "file": {
+      "titre": "File du guichet",
+      "description": "Les demandes déposées, de la plus ancienne à la plus récente. Ouvrez une demande pour en examiner la recevabilité.",
+      "chiffres": "Chiffres clés du guichet",
+      "cartes": {
+        "aExaminer": "À examiner",
+        "aExaminerPrecision": "Frais payés, en attente de votre examen",
+        "fraisAttendus": "Frais attendus",
+        "fraisAttendusPrecision": "Déposées, frais de dossier non payés",
+        "recevables": "Recevables",
+        "recevablesPrecision": "En attente de la décision du signataire",
+        "nonRecevables": "Rejetées",
+        "nonRecevablesPrecision": "Non recevables ou rejetées à la décision"
+      },
+      "demandesDeposees": "Demandes déposées",
+      "filtre": "Afficher",
+      "onglets": {
+        "a-examiner": "À examiner",
+        "frais-attendus": "Frais attendus"
+      },
+      "aide": {
+        "a-examiner": "Les plus anciennes d’abord : une attente de 5 jours ou plus est signalée.",
+        "frais-attendus": "Ces demandes pourront être déclarées recevables dès le paiement des frais."
+      },
+      "recherche": {
+        "libelle": "Rechercher une demande",
+        "exemple": "Numéro (DEM-2026-…) ou document",
+        "bouton": "Rechercher"
+      },
+      "colonnes": {
+        "numero": "Numéro",
+        "document": "Document",
+        "demandeur": "Demandeur",
+        "depot": "Déposée le",
+        "frais": "Frais"
+      },
+      "attente": "{jours, plural, =0 {aujourd’hui} one {depuis # jour} other {depuis # jours}}",
+      "fraisPayes": "Payés",
+      "fraisAttendus": "Attendus",
+      "elements": "demandes",
+      "vide": {
+        "a-examiner": "Aucune demande à examiner",
+        "a-examinerDescription": "Toutes les demandes dont les frais sont payés ont été examinées.",
+        "frais-attendus": "Aucune demande en attente de paiement",
+        "frais-attendusDescription": "Toutes les demandes déposées ont leurs frais de dossier payés.",
+        "recherche": "Aucune demande ne correspond à cette recherche",
+        "toutesLesDemandes": "Voir toutes les demandes"
+      },
+      "traitee": {
+        "recevable": "La demande {numero} a été déclarée recevable.",
+        "recevableSuite": "Elle attend maintenant la décision du signataire. Vous pouvez examiner la demande suivante.",
+        "rejetee": "La demande {numero} a été déclarée non recevable.",
+        "rejeteeSuite": "Le demandeur voit le motif sur sa demande. Vous pouvez examiner la demande suivante."
+      }
+    }
   }
 }

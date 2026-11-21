@@ -102,6 +102,10 @@ public class DemandeRepository {
     if (critere.typeDocumentCode() != null) {
       condition = condition.and(TYPE_DOCUMENT.CODE.eq(critere.typeDocumentCode()));
     }
+    if (critere.fraisPayes() != null) {
+      condition =
+          condition.and(critere.fraisPayes() ? FRAIS_PAYES_COND : DSL.not(FRAIS_PAYES_COND));
+    }
     if (critere.recherche() != null && !critere.recherche().isBlank()) {
       String motif = "%" + echapperLike(critere.recherche().strip()) + "%";
       condition =
@@ -179,16 +183,15 @@ public class DemandeRepository {
    * Frais de dossier (ou attestation, paiement unique) payés : condition de la recevabilité (V8),
    * affichée « Frais payés » à côté du statut. Lecture soumise à la RLS du paiement.
    */
-  static final Field<Boolean> FRAIS_PAYES =
-      DSL.field(
-              DSL.exists(
-                  DSL.selectOne()
-                      .from(PAIEMENT)
-                      .where(PAIEMENT.DEMANDE_ID.eq(DEMANDE.ID))
-                      .and(
-                          PAIEMENT.OBJET.in(ObjetPaiement.FRAIS_DOSSIER, ObjetPaiement.ATTESTATION))
-                      .and(PAIEMENT.STATUT.eq(StatutPaiement.paye))))
-          .as("frais_payes");
+  static final Condition FRAIS_PAYES_COND =
+      DSL.exists(
+          DSL.selectOne()
+              .from(PAIEMENT)
+              .where(PAIEMENT.DEMANDE_ID.eq(DEMANDE.ID))
+              .and(PAIEMENT.OBJET.in(ObjetPaiement.FRAIS_DOSSIER, ObjetPaiement.ATTESTATION))
+              .and(PAIEMENT.STATUT.eq(StatutPaiement.paye)));
+
+  static final Field<Boolean> FRAIS_PAYES = DSL.field(FRAIS_PAYES_COND).as("frais_payes");
 
   SelectOnConditionStep<? extends Record> selection() {
     return dsl.select(
@@ -198,6 +201,7 @@ public class DemandeRepository {
             DEMANDE.SUPERFICIE_HA,
             DEMANDE.CREATED_AT,
             DEMANDE.DATE_DEPOT,
+            DEMANDE.MOTIF_REJET,
             TYPE_DOCUMENT.CODE,
             UTILISATEUR.ID,
             UTILISATEUR.PRENOM,
@@ -241,6 +245,7 @@ public class DemandeRepository {
         r.get(DEMANDE.SUPERFICIE_HA),
         r.get(DEMANDE.CREATED_AT),
         r.get(DEMANDE.DATE_DEPOT),
-        Boolean.TRUE.equals(r.get(FRAIS_PAYES)));
+        Boolean.TRUE.equals(r.get(FRAIS_PAYES)),
+        r.get(DEMANDE.MOTIF_REJET));
   }
 }
