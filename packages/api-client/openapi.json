@@ -77,7 +77,7 @@
     "/api/v1/demandes" : {
       "get" : {
         "tags" : [ "Demandes" ],
-        "summary" : "Mes demandes (toutes pour un agent), filtrables par statut et document",
+        "summary" : "Mes demandes (toutes pour un agent), paginées, filtrables par statut, document et recherche, triables",
         "operationId" : "listerDemandes",
         "parameters" : [ {
           "name" : "statut",
@@ -95,6 +95,47 @@
             "type" : "string",
             "pattern" : "^[A-Z]{3}$"
           }
+        }, {
+          "name" : "q",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "name" : "tri",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "^(numero|date|statut)$"
+          }
+        }, {
+          "name" : "sens",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "^(asc|desc)$"
+          }
+        }, {
+          "name" : "page",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "name" : "taille",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
         } ],
         "responses" : {
           "200" : {
@@ -102,10 +143,7 @@
             "content" : {
               "*/*" : {
                 "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/DemandeDto"
-                  }
+                  "$ref" : "#/components/schemas/PageDemandesDto"
                 }
               }
             }
@@ -363,6 +401,29 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/MoiDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/demandes/compteurs" : {
+      "get" : {
+        "tags" : [ "Demandes" ],
+        "summary" : "Nombre de demandes visibles par statut (tableau de bord)",
+        "operationId" : "compterDemandes",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "type" : "integer",
+                    "format" : "int64"
+                  }
                 }
               }
             }
@@ -653,6 +714,34 @@
           }
         },
         "required" : [ "code", "libelleEn", "libelleFr" ]
+      },
+      "PageDemandesDto" : {
+        "type" : "object",
+        "properties" : {
+          "elements" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DemandeDto"
+            }
+          },
+          "page" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "taille" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "total" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "elements", "page", "taille", "total", "totalPages" ]
       },
       "PrefectureDto" : {
         "type" : "object",

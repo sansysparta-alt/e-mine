@@ -57,19 +57,19 @@ class MesDemandesTest extends TestIntegration {
 
   @Test
   void lInvestisseurNeVoitQueSesDemandesLaPlusRecenteDAbord() throws Exception {
-    List<Long> ids = ids(liste(INVESTISSEUR, "INVESTISSEUR", ""));
+    List<Long> ids = ids(liste(INVESTISSEUR, "INVESTISSEUR", "?taille=100"));
     assertThat(ids).contains(brouillonA, deposeeA).doesNotContain(brouillonB);
     // La demande déposée (date de dépôt la plus récente) passe avant le brouillon créé avant elle.
     assertThat(ids.indexOf(deposeeA)).isLessThan(ids.indexOf(brouillonA));
-    assertThat(ids(liste(INVESTISSEUR_2, "INVESTISSEUR", "")))
+    assertThat(ids(liste(INVESTISSEUR_2, "INVESTISSEUR", "?taille=100")))
         .contains(brouillonB)
         .doesNotContain(brouillonA, deposeeA);
   }
 
   @Test
   void laListeDonneNumeroEtStatut() throws Exception {
-    JsonNode liste = liste(INVESTISSEUR, "INVESTISSEUR", "");
-    for (JsonNode d : liste) {
+    JsonNode liste = liste(INVESTISSEUR, "INVESTISSEUR", "?taille=100");
+    for (JsonNode d : liste.path("elements")) {
       if (d.path("id").asLong() == deposeeA) {
         assertThat(d.path("statut").asString()).isEqualTo("deposee");
         assertThat(d.path("numero").asString()).startsWith("DEM-");
@@ -83,17 +83,18 @@ class MesDemandesTest extends TestIntegration {
 
   @Test
   void laListeSeFiltreParStatutEtParDocument() throws Exception {
-    assertThat(ids(liste(INVESTISSEUR, "INVESTISSEUR", "?statut=deposee")))
+    assertThat(ids(liste(INVESTISSEUR, "INVESTISSEUR", "?statut=deposee&taille=100")))
         .contains(deposeeA)
         .doesNotContain(brouillonA);
-    assertThat(ids(liste(INVESTISSEUR, "INVESTISSEUR", "?typeDocumentCode=PEX")))
+    assertThat(ids(liste(INVESTISSEUR, "INVESTISSEUR", "?typeDocumentCode=PEX&taille=100")))
         .contains(brouillonA)
         .doesNotContain(deposeeA);
   }
 
   @Test
   void unAgentInterneVoitToutesLesDemandes() throws Exception {
-    assertThat(ids(liste(GUICHET, "GUICHET", ""))).contains(brouillonA, deposeeA, brouillonB);
+    assertThat(ids(liste(GUICHET, "GUICHET", "?taille=100")))
+        .contains(brouillonA, deposeeA, brouillonB);
   }
 
   @Test
@@ -105,6 +106,68 @@ class MesDemandesTest extends TestIntegration {
             get("/api/v1/demandes?statut=DROP%20TABLE").with(jeton(INVESTISSEUR, "INVESTISSEUR")))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.code").value("VAL-001"));
+  }
+
+  @Test
+  void laListeEstPagineeSansLimiteFixe() throws Exception {
+    for (int i = 0; i < 12; i++) {
+      creer(INVESTISSEUR_2, "COR");
+    }
+    JsonNode p1 = liste(INVESTISSEUR_2, "INVESTISSEUR", "?taille=10&page=1");
+    long total = p1.path("total").asLong();
+    assertThat(total).isGreaterThanOrEqualTo(13);
+    assertThat(p1.path("elements")).hasSize(10);
+    assertThat(p1.path("page").asInt()).isEqualTo(1);
+    assertThat(p1.path("taille").asInt()).isEqualTo(10);
+    assertThat(p1.path("totalPages").asInt()).isEqualTo((int) ((total + 9) / 10));
+    JsonNode p2 = liste(INVESTISSEUR_2, "INVESTISSEUR", "?taille=10&page=2");
+    assertThat(ids(p2)).doesNotContainAnyElementsOf(ids(p1));
+  }
+
+  @Test
+  void laTailleEtLaPageSontValidees() throws Exception {
+    mvc.perform(get("/api/v1/demandes?taille=7").with(jeton(INVESTISSEUR, "INVESTISSEUR")))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("VAL-001"))
+        .andExpect(jsonPath("$.details.champs[0].champ").value("taille"));
+    mvc.perform(get("/api/v1/demandes?page=0").with(jeton(INVESTISSEUR, "INVESTISSEUR")))
+        .andExpect(jsonPath("$.details.champs[0].champ").value("page"));
+  }
+
+  @Test
+  void laListeSeTrieEtSeCherche() throws Exception {
+    JsonNode parStatut = liste(INVESTISSEUR, "INVESTISSEUR", "?tri=statut&sens=asc&taille=100");
+    List<String> statuts = new ArrayList<>();
+    parStatut.path("elements").forEach(d -> statuts.add(d.path("statut").asString()));
+    assertThat(statuts.indexOf("brouillon")).isLessThan(statuts.indexOf("deposee"));
+    String numero = "";
+    for (JsonNode d : liste(INVESTISSEUR, "INVESTISSEUR", "?taille=100").path("elements")) {
+      if (d.path("id").asLong() == deposeeA) numero = d.path("numero").asString();
+    }
+    assertThat(ids(liste(INVESTISSEUR, "INVESTISSEUR", "?q=" + numero.toLowerCase())))
+        .containsExactly(deposeeA);
+    assertThat(ids(liste(INVESTISSEUR, "INVESTISSEUR", "?q=exploitation&taille=100")))
+        .contains(brouillonA)
+        .doesNotContain(deposeeA);
+    // Les jokers LIKE sont pris littéralement.
+    assertThat(liste(INVESTISSEUR, "INVESTISSEUR", "?q=%25").path("total").asLong()).isZero();
+  }
+
+  @Test
+  void lesCompteursParStatutSuiventLaRls() throws Exception {
+    String corps =
+        mvc.perform(get("/api/v1/demandes/compteurs").with(jeton(INVESTISSEUR, "INVESTISSEUR")))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+    JsonNode c = JSON.readTree(corps);
+    assertThat(c.path("deposee").asLong()).isGreaterThanOrEqualTo(1);
+    assertThat(c.path("brouillon").asLong()).isGreaterThanOrEqualTo(1);
+    long totalVisible = liste(INVESTISSEUR, "INVESTISSEUR", "").path("total").asLong();
+    long somme = 0;
+    for (var e : c.properties()) somme += e.getValue().asLong();
+    assertThat(somme).isEqualTo(totalVisible);
   }
 
   @Test
@@ -124,9 +187,9 @@ class MesDemandesTest extends TestIntegration {
     return JSON.readTree(corps);
   }
 
-  private static List<Long> ids(JsonNode liste) {
+  private static List<Long> ids(JsonNode page) {
     List<Long> ids = new ArrayList<>();
-    liste.forEach(d -> ids.add(d.path("id").asLong()));
+    page.path("elements").forEach(d -> ids.add(d.path("id").asLong()));
     return ids;
   }
 

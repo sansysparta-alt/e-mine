@@ -19,19 +19,32 @@ export type VueTableauDeBordProps = {
   peutDeposer?: boolean;
   /** Demandes visibles (les siennes pour un usager, toutes pour un agent), la plus récente d'abord. */
   demandes?: DemandeDto[];
-  /** Nombre total de demandes (la liste peut n'en contenir qu'une page). */
-  total?: number;
+  /** Nombre de demandes visibles par statut (API, tableau de bord). */
+  compteurs?: Record<string, number>;
   /** Libellé de chaque document du catalogue, par code. */
   libelles?: Record<string, string>;
 };
 
-/** Chiffres clés calculés à partir des demandes. */
-export function chiffres(demandes: DemandeDto[]) {
+/** Compteurs par statut déduits d'une liste (quand l'API ne les fournit pas). */
+function compteursDe(demandes: DemandeDto[]): Record<string, number> {
+  const c: Record<string, number> = {};
+  for (const d of demandes) c[d.statut] = (c[d.statut] ?? 0) + 1;
+  return c;
+}
+
+/** Chiffres clés calculés à partir des compteurs par statut. */
+export function chiffres(compteurs: Record<string, number>) {
+  const n = (s: string) => compteurs[s] ?? 0;
+  const total = Object.values(compteurs).reduce((a, b) => a + b, 0);
+  const enCours = Object.entries(compteurs)
+    .filter(([s]) => s !== "brouillon" && !TERMINES.has(s))
+    .reduce((a, [, nb]) => a + nb, 0);
   return {
-    brouillons: demandes.filter((d) => d.statut === "brouillon").length,
-    aTraiter: demandes.filter((d) => d.statut === "deposee").length,
-    enCours: demandes.filter((d) => d.statut !== "brouillon" && !TERMINES.has(d.statut)).length,
-    delivrees: demandes.filter((d) => d.statut === "delivree").length,
+    total,
+    brouillons: n("brouillon"),
+    aTraiter: n("deposee"),
+    enCours,
+    delivrees: n("delivree"),
   };
 }
 
@@ -46,12 +59,12 @@ export function VueTableauDeBord({
   interne,
   peutDeposer = false,
   demandes = [],
-  total,
+  compteurs,
   libelles = {},
 }: VueTableauDeBordProps) {
   const t = useTranslations("tableauDeBord");
-  const c = chiffres(demandes);
-  const nombre = total ?? demandes.length;
+  const c = chiffres(compteurs ?? compteursDe(demandes));
+  const nombre = c.total;
   const nouvelle = peutDeposer ? (
     <Bouton asChild>
       <Link href="/demandes/nouvelle">{t("demandes.nouvelle")}</Link>
