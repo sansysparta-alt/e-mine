@@ -10,7 +10,8 @@
     "APP_URL",
     "OIDC_*",
     "SESSION_SECRET",
-    "CI"
+    "CI",
+    "TRESORPAY_*"
   ],
   "tasks": {
     "generate": {

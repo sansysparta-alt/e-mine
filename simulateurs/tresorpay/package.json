@@ -1,0 +1,8 @@
+{
+  "name": "@emine/simulateur-tresorpay",
+  "private": true,
+  "description": "Lance le simulateur TrésorPay (port 8090) depuis Turborepo (pnpm dev). Le build Java reste Maven (mvnw).",
+  "scripts": {
+    "dev": "node ../../scripts/mvnw.mjs -pl simulateurs/tresorpay spring-boot:run"
+  }
+}
