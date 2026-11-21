@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
  * Catalogue des codes d'erreur de l'API (US-00.8). Familles du cahier des charges : AUTH, PERM,
  * VAL, DEM, PAY, GEO, DOC, SYS. Chaque code a un statut HTTP et un message FR/EN dans {@code
  * messages/erreurs*.properties} (clé {@code erreur.<CODE>}). Les codes GEO arrivent avec le
- * cadastre (lot 2) ; d'autres codes PAY avec le paiement (sprint J3).
+ * cadastre (lot 2).
  */
 public enum CodeErreur {
   /** Non authentifié (jeton absent, expiré ou invalide). */
@@ -37,8 +37,20 @@ public enum CodeErreur {
   DEM_006("DEM-006", HttpStatus.CONFLICT),
   /** Objet déjà payé pour cette demande (index {@code ux_paiement_paye}). */
   PAY_001("PAY-001", HttpStatus.CONFLICT),
+  /** Trois tentatives de paiement en ligne atteintes aujourd'hui pour cet objet (US-04.3). */
+  PAY_002("PAY-002", HttpStatus.TOO_MANY_REQUESTS),
+  /** TrésorPay indisponible (US-04.3) : réessayer plus tard ou choisir le virement. */
+  PAY_003("PAY-003", HttpStatus.SERVICE_UNAVAILABLE),
+  /** Notification TrésorPay refusée : signature, marchand ou horodatage invalide (US-04.4). */
+  PAY_004("PAY-004", HttpStatus.UNAUTHORIZED),
+  /** Paiement introuvable (ou non visible pour cet utilisateur). */
+  PAY_005("PAY-005", HttpStatus.NOT_FOUND),
   /** Transition de statut de paiement interdite. */
   PAY_006("PAY-006", HttpStatus.CONFLICT),
+  /** Aucun paiement n'est attendu pour cette demande à ce stade. */
+  PAY_007("PAY-007", HttpStatus.CONFLICT),
+  /** Moyen de paiement pas encore proposé (le virement arrive après la V1). */
+  PAY_008("PAY-008", HttpStatus.UNPROCESSABLE_CONTENT),
   /** Format de fichier non accepté (PDF, JPG ou PNG). */
   DOC_001("DOC-001", HttpStatus.UNSUPPORTED_MEDIA_TYPE),
   /** Fichier trop volumineux (10 Mo au plus). */
