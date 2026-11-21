@@ -3,6 +3,9 @@ package gn.gov.mines.emine.demande.api;
 import gn.gov.mines.emine.demande.application.ServiceDemandes;
 import gn.gov.mines.emine.demande.application.ServiceDepot;
 import gn.gov.mines.emine.demande.domaine.Brouillon;
+import gn.gov.mines.emine.demande.domaine.CritereDemandes;
+import gn.gov.mines.emine.shared.pagination.PageResultat;
+import gn.gov.mines.emine.shared.pagination.Pagination;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,8 +15,10 @@ import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -61,12 +66,47 @@ class DemandeController {
   @GetMapping
   @Operation(
       operationId = "listerDemandes",
-      summary = "Mes demandes (toutes pour un agent), filtrables par statut et document")
-  List<DemandeDto> lister(
+      summary =
+          "Mes demandes (toutes pour un agent), paginées, filtrables par statut, document et"
+              + " recherche, triables")
+  PageDemandesDto lister(
       @RequestParam(required = false) @Pattern(regexp = "^[a-z_]+$") String statut,
-      @RequestParam(required = false) @Pattern(regexp = "^[A-Z]{3}$") String typeDocumentCode) {
-    return service.lister(statut, typeDocumentCode).stream().map(DemandeDto::depuis).toList();
+      @RequestParam(required = false) @Pattern(regexp = "^[A-Z]{3}$") String typeDocumentCode,
+      @RequestParam(required = false) @Size(max = 100) String q,
+      @RequestParam(required = false) @Pattern(regexp = "^(numero|date|statut)$") String tri,
+      @RequestParam(required = false) @Pattern(regexp = "^(asc|desc)$") String sens,
+      @RequestParam(required = false) Integer page,
+      @RequestParam(required = false) Integer taille) {
+    CritereDemandes.Tri colonne =
+        tri == null
+            ? CritereDemandes.Tri.DATE
+            : CritereDemandes.Tri.valueOf(tri.toUpperCase(java.util.Locale.ROOT));
+    boolean croissant = sens == null ? colonne != CritereDemandes.Tri.DATE : "asc".equals(sens);
+    PageResultat<DemandeDto> resultat =
+        service
+            .lister(
+                new CritereDemandes(statut, typeDocumentCode, q, colonne, croissant),
+                Pagination.de(page, taille))
+            .map(DemandeDto::depuis);
+    return new PageDemandesDto(
+        resultat.elements(),
+        resultat.page(),
+        resultat.taille(),
+        resultat.total(),
+        resultat.totalPages());
   }
+
+  @GetMapping("/compteurs")
+  @Operation(
+      operationId = "compterDemandes",
+      summary = "Nombre de demandes visibles par statut (tableau de bord)")
+  Map<String, Long> compteurs() {
+    return service.compteurs();
+  }
+
+  /** Une page de demandes (modèle de pagination du socle). */
+  record PageDemandesDto(
+      List<DemandeDto> elements, int page, int taille, long total, int totalPages) {}
 
   @GetMapping("/{id}")
   @Operation(

@@ -208,9 +208,8 @@
     "filtreStatut": "Statut",
     "tous": "Tous les statuts",
     "filtrer": "Filtrer",
-    "nombre": "{nombre, plural, =0 {Aucune demande} one {# demande} other {# demandes}}",
     "aucune": "Vous n'avez encore aucune demande.",
-    "aucuneFiltre": "Aucune demande à ce statut.",
+    "aucuneFiltre": "Aucune demande ne correspond à ces critères.",
     "brouillonSansNumero": "Brouillon (numéro attribué au dépôt)",
     "deposeeLe": "déposée le {date}",
     "creeeLe": "créée le {date}",
@@ -226,6 +225,12 @@
       "trier": "Trier par",
       "croissant": "tri croissant",
       "decroissant": "tri décroissant"
+    },
+    "elements": "demandes",
+    "recherche": {
+      "libelle": "Rechercher une demande",
+      "exemple": "Numéro ou document (ex. DEM-2026, permis)",
+      "bouton": "Rechercher"
     }
   },
   "session": {
@@ -268,5 +273,15 @@
       "description": "Une erreur inattendue est survenue. Vos données ne sont pas perdues.",
       "reessayer": "Réessayer"
     }
+  },
+  "pagination": {
+    "zone": "Pagination",
+    "afficher": "Afficher",
+    "parPage": "par page",
+    "resume": "{debut}–{fin} sur {total} {elements}",
+    "precedente": "Préc.",
+    "suivante": "Suiv.",
+    "page": "Page {numero}",
+    "pageSur": "Page {numero} sur {total}"
   }
 }

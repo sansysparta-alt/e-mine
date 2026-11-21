@@ -7,14 +7,23 @@ import static gn.gov.mines.emine.shared.jooq.Tables.SUBSTANCE;
 import static gn.gov.mines.emine.shared.jooq.Tables.TYPE_DOCUMENT;
 import static gn.gov.mines.emine.shared.jooq.Tables.UTILISATEUR;
 
+import gn.gov.mines.emine.demande.domaine.CritereDemandes;
 import gn.gov.mines.emine.demande.domaine.DemandeDetail;
 import gn.gov.mines.emine.shared.jooq.enums.StatutDemande;
+import gn.gov.mines.emine.shared.pagination.PageResultat;
+import gn.gov.mines.emine.shared.pagination.Pagination;
 import java.math.BigDecimal;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import org.jooq.Condition;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.SelectOnConditionStep;
+import org.jooq.SortField;
+import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -81,21 +90,65 @@ public class DemandeRepository {
    * Demandes visibles selon la RLS (les siennes pour un usager, toutes pour un agent), filtrées, de
    * la plus récente à la plus ancienne (date de dépôt, à défaut de création).
    */
-  public List<DemandeDetail> lister(StatutDemande statut, String typeDocumentCode, int limite) {
-    var condition = DEMANDE.DELETED_AT.isNull();
+  public PageResultat<DemandeDetail> lister(
+      StatutDemande statut, CritereDemandes critere, Pagination pagination) {
+    Condition condition = DEMANDE.DELETED_AT.isNull();
     if (statut != null) {
       condition = condition.and(DEMANDE.STATUT.eq(statut));
     }
-    if (typeDocumentCode != null) {
-      condition = condition.and(TYPE_DOCUMENT.CODE.eq(typeDocumentCode));
+    if (critere.typeDocumentCode() != null) {
+      condition = condition.and(TYPE_DOCUMENT.CODE.eq(critere.typeDocumentCode()));
     }
-    return selection()
-        .where(condition)
-        .orderBy(
-            org.jooq.impl.DSL.coalesce(DEMANDE.DATE_DEPOT, DEMANDE.CREATED_AT).desc(),
-            DEMANDE.ID.desc())
-        .limit(limite)
-        .fetch(DemandeRepository::detail);
+    if (critere.recherche() != null && !critere.recherche().isBlank()) {
+      String motif = "%" + echapperLike(critere.recherche().strip()) + "%";
+      condition =
+          condition.and(
+              DEMANDE
+                  .NUMERO
+                  .likeIgnoreCase(motif, '\\')
+                  .or(TYPE_DOCUMENT.CODE.likeIgnoreCase(motif, '\\'))
+                  .or(TYPE_DOCUMENT.LIBELLE_FR.likeIgnoreCase(motif, '\\')));
+    }
+    long total =
+        dsl.selectCount()
+            .from(DEMANDE)
+            .join(TYPE_DOCUMENT)
+            .on(TYPE_DOCUMENT.ID.eq(DEMANDE.TYPE_DOCUMENT_ID))
+            .where(condition)
+            .fetchOne(0, Long.class);
+    Field<?> colonne =
+        switch (critere.tri()) {
+          case NUMERO -> DEMANDE.NUMERO;
+          case STATUT -> DEMANDE.STATUT;
+          case DATE -> DSL.coalesce(DEMANDE.DATE_DEPOT, DEMANDE.CREATED_AT);
+        };
+    SortField<?> ordre =
+        critere.croissant() ? colonne.asc().nullsFirst() : colonne.desc().nullsLast();
+    List<DemandeDetail> elements =
+        selection()
+            .where(condition)
+            .orderBy(ordre, critere.croissant() ? DEMANDE.ID.asc() : DEMANDE.ID.desc())
+            .limit(pagination.taille())
+            .offset(pagination.decalage())
+            .fetch(DemandeRepository::detail);
+    return new PageResultat<>(elements, pagination.page(), pagination.taille(), total);
+  }
+
+  /** Nombre de demandes visibles (RLS) par statut. */
+  public Map<String, Long> compteursParStatut() {
+    Map<String, Long> compteurs = new LinkedHashMap<>();
+    dsl.select(DEMANDE.STATUT, DSL.count())
+        .from(DEMANDE)
+        .where(DEMANDE.DELETED_AT.isNull())
+        .groupBy(DEMANDE.STATUT)
+        .fetch()
+        .forEach(r -> compteurs.put(r.value1().getLiteral(), r.value2().longValue()));
+    return compteurs;
+  }
+
+  /** Échappe les caractères spéciaux de LIKE (le texte cherché est pris littéralement). */
+  static String echapperLike(String texte) {
+    return texte.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
   }
 
   public Optional<DemandeDetail> lire(long id) {
