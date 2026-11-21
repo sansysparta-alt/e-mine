@@ -1,5 +1,5 @@
 import type { PieceDto } from "@emine/api-client";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import fr from "../../../messages/fr.json";
 import { controlerFichier, SectionPieces, TAILLE_MAX_OCTETS } from "./section-pieces";
@@ -26,13 +26,16 @@ function afficher(surChangement = vi.fn()) {
     <NextIntlClientProvider locale="fr" messages={fr} timeZone="Africa/Conakry">
       <SectionPieces
         demandeId={41}
-        piecesRequises={["Étude de faisabilité", "EIES"]}
+        piecesRequises={["Étude de faisabilité", "EIES", "Plan de restauration"]}
         surChangement={surChangement}
       />
     </NextIntlClientProvider>,
   );
   return surChangement;
 }
+
+/** Le bloc d'une pièce, retrouvé par son titre. */
+const bloc = (nom: string) => screen.getByRole("region", { name: nom });
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -49,58 +52,65 @@ describe("contrôles côté navigateur", () => {
   });
 });
 
-describe("section Pièces", () => {
-  it("liste les pièces et indique celles qui manquent", async () => {
+describe("écran des pièces (correctifs J2 C5–C7)", () => {
+  it("affiche un bloc par pièce attendue, plus « Autre pièce », avec son état", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => reponse(200, [eies])),
     );
     const surChangement = afficher();
-    expect(await screen.findByRole("link", { name: "eies.pdf" })).toHaveAttribute(
-      "href",
-      "/api/demandes/41/pieces/7/contenu",
-    );
-    expect(screen.getByText("✓ EIES : fournie")).toBeInTheDocument();
-    expect(screen.getByText("○ Étude de faisabilité : à joindre")).toBeInTheDocument();
-    expect(surChangement).toHaveBeenCalledWith([eies]);
+    await waitFor(() => expect(surChangement).toHaveBeenCalledWith([eies]));
+    for (const nom of ["Étude de faisabilité", "EIES", "Plan de restauration", "Autre pièce"]) {
+      expect(bloc(nom)).toBeInTheDocument();
+    }
+    expect(within(bloc("EIES")).getByText("Fournie")).toBeInTheDocument();
+    expect(within(bloc("EIES")).getAllByText("eies.pdf")[0]).toBeInTheDocument();
+    expect(within(bloc("Plan de restauration")).getByText("Obligatoire")).toBeInTheDocument();
+    expect(within(bloc("Autre pièce")).getByText("Facultative")).toBeInTheDocument();
   });
 
-  it("refuse un fichier trop lourd sans l'envoyer", async () => {
-    const appels = vi.fn(async () => reponse(200, []));
-    vi.stubGlobal("fetch", appels);
-    afficher();
-    await screen.findByText("Aucune pièce jointe pour le moment.");
-    const gros = new File(["x"], "gros.pdf", { type: "application/pdf" });
-    Object.defineProperty(gros, "size", { value: TAILLE_MAX_OCTETS + 1 });
-    fireEvent.change(screen.getByLabelText("Fichier"), { target: { files: [gros] } });
-    fireEvent.click(screen.getByRole("button", { name: "Joindre le fichier" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("10 Mo au maximum");
-    expect(appels).toHaveBeenCalledTimes(1); // seulement le chargement de la liste
-  });
-
-  it("envoie le fichier par le relais BFF et l'ajoute à la liste", async () => {
+  it("envoie le fichier dès qu'il est choisi, sans bouton « Joindre »", async () => {
     const appels = vi
       .fn()
       .mockResolvedValueOnce(reponse(200, []))
       .mockResolvedValueOnce(reponse(201, eies));
     vi.stubGlobal("fetch", appels);
     const surChangement = afficher();
-    await screen.findByText("Aucune pièce jointe pour le moment.");
-    fireEvent.change(screen.getByLabelText("Cette pièce correspond à"), {
-      target: { value: "EIES" },
-    });
+    await waitFor(() => expect(surChangement).toHaveBeenCalledWith([]));
+    expect(screen.queryByRole("button", { name: /Joindre/ })).toBeNull();
     const fichier = new File(["%PDF-1.7"], "eies.pdf", { type: "application/pdf" });
-    fireEvent.change(screen.getByLabelText("Fichier"), { target: { files: [fichier] } });
-    fireEvent.click(screen.getByRole("button", { name: "Joindre le fichier" }));
+    fireEvent.change(within(bloc("EIES")).getByLabelText("Fichier pour la pièce « EIES »"), {
+      target: { files: [fichier] },
+    });
     await waitFor(() => expect(surChangement).toHaveBeenLastCalledWith([eies]));
     const [url, init] = appels.mock.calls[1] as [string, RequestInit];
     expect(url).toBe("/api/demandes/41/pieces");
-    expect(init.method).toBe("POST");
     expect((init.body as FormData).get("typePiece")).toBe("EIES");
-    expect(screen.getByRole("status")).toHaveTextContent("Pièce « eies.pdf » ajoutée.");
+    expect(within(bloc("EIES")).getByRole("status")).toHaveTextContent(
+      "Pièce « eies.pdf » ajoutée.",
+    );
   });
 
-  it("affiche le refus de l'API", async () => {
+  it("accepte un fichier glissé-déposé sur la zone", async () => {
+    const appels = vi
+      .fn()
+      .mockResolvedValueOnce(reponse(200, []))
+      .mockResolvedValueOnce(reponse(201, { ...eies, typePiece: "Plan de restauration" }));
+    vi.stubGlobal("fetch", appels);
+    const surChangement = afficher();
+    await waitFor(() => expect(surChangement).toHaveBeenCalledWith([]));
+    const zone = within(bloc("Plan de restauration")).getByText(
+      "Choisir un fichier ou le glisser ici",
+    );
+    const fichier = new File(["%PDF-1.7"], "plan.pdf", { type: "application/pdf" });
+    fireEvent.drop(zone, { dataTransfer: { files: [fichier] } });
+    await waitFor(() => expect(appels).toHaveBeenCalledTimes(2));
+    expect(
+      ((appels.mock.calls[1] as [string, RequestInit])[1].body as FormData).get("typePiece"),
+    ).toBe("Plan de restauration");
+  });
+
+  it("affiche l'erreur sur la pièce concernée seulement", async () => {
     vi.stubGlobal(
       "fetch",
       vi
@@ -108,15 +118,33 @@ describe("section Pièces", () => {
         .mockResolvedValueOnce(reponse(200, []))
         .mockResolvedValueOnce(reponse(415, { code: "DOC-001", message: "Format non accepté." })),
     );
-    afficher();
-    await screen.findByText("Aucune pièce jointe pour le moment.");
-    const fichier = new File(["MZ"], "faux.pdf", { type: "application/pdf" });
-    fireEvent.change(screen.getByLabelText("Fichier"), { target: { files: [fichier] } });
-    fireEvent.click(screen.getByRole("button", { name: "Joindre le fichier" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("PDF, JPG ou PNG uniquement");
+    const surChangement = afficher();
+    await waitFor(() => expect(surChangement).toHaveBeenCalledWith([]));
+    const faux = new File(["texte"], "faux.pdf", { type: "application/pdf" });
+    fireEvent.change(within(bloc("EIES")).getByLabelText(/EIES/), { target: { files: [faux] } });
+    expect(await within(bloc("EIES")).findByRole("alert")).toHaveTextContent(
+      "PDF, JPG ou PNG uniquement",
+    );
+    expect(within(bloc("Étude de faisabilité")).queryByRole("alert")).toBeNull();
   });
 
-  it("retire une pièce", async () => {
+  it("refuse un fichier trop lourd sans l'envoyer, sur la pièce concernée", async () => {
+    const appels = vi.fn(async () => reponse(200, []));
+    vi.stubGlobal("fetch", appels);
+    const surChangement = afficher();
+    await waitFor(() => expect(surChangement).toHaveBeenCalledWith([]));
+    const gros = new File(["x"], "gros.pdf", { type: "application/pdf" });
+    Object.defineProperty(gros, "size", { value: TAILLE_MAX_OCTETS + 1 });
+    fireEvent.change(within(bloc("Plan de restauration")).getByLabelText(/Plan de restauration/), {
+      target: { files: [gros] },
+    });
+    expect(within(bloc("Plan de restauration")).getByRole("alert")).toHaveTextContent(
+      "10 Mo au maximum",
+    );
+    expect(appels).toHaveBeenCalledTimes(1);
+  });
+
+  it("consulte une pièce dans le visualiseur et la retire", async () => {
     vi.stubGlobal(
       "fetch",
       vi
@@ -124,8 +152,15 @@ describe("section Pièces", () => {
         .mockResolvedValueOnce(reponse(200, [eies]))
         .mockResolvedValueOnce(new Response(null, { status: 204 })),
     );
-    afficher();
-    fireEvent.click(await screen.findByRole("button", { name: "Retirer la pièce eies.pdf" }));
-    expect(await screen.findByText("Aucune pièce jointe pour le moment.")).toBeInTheDocument();
+    const surChangement = afficher();
+    await waitFor(() => expect(surChangement).toHaveBeenCalledWith([eies]));
+    fireEvent.click(within(bloc("EIES")).getByRole("button", { name: /Consulter/ }));
+    expect(document.querySelector("iframe")).toHaveAttribute(
+      "src",
+      "/api/demandes/41/pieces/7/contenu?inline=1",
+    );
+    fireEvent.click(within(bloc("EIES")).getByRole("button", { name: /Retirer/ }));
+    await waitFor(() => expect(surChangement).toHaveBeenLastCalledWith([]));
+    expect(within(bloc("EIES")).getByText("Obligatoire")).toBeInTheDocument();
   });
 });
