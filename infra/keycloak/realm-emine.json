@@ -1,6 +1,8 @@
 {
   "realm": "emine",
   "displayName": "e-mine",
+  "displayNameHtml": "<div class=\"emine-marque\"><span class=\"emine-logo\" aria-hidden=\"true\">e</span><span>e-mine<small>Ministère des Mines et de la Géologie · démonstration</small></span></div>",
+  "loginTheme": "emine",
   "enabled": true,
   "sslRequired": "external",
   "registrationAllowed": false,

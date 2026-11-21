@@ -51,6 +51,20 @@ class RealmKeycloakTest extends TestIntegration {
   }
 
   @Test
+  void laPageDeConnexionUtiliseLeThemeEmine() throws IOException {
+    assertThat(realm.path("loginTheme").asString()).isEqualTo("emine");
+    Path theme = Path.of("..", "infra", "keycloak", "themes", "emine", "login");
+    assertThat(Files.readString(theme.resolve("theme.properties")))
+        .contains("parent=keycloak", "css/emine.css");
+    String css = Files.readString(theme.resolve("resources/css/emine.css"));
+    assertThat(css)
+        .contains("--emine-royal: #0b3a8f")
+        .doesNotContain("http://", "https://", "@import");
+    assertThat(theme.resolve("messages/messages_fr.properties")).exists();
+    assertThat(theme.resolve("messages/messages_en.properties")).exists();
+  }
+
+  @Test
   void politiqueDeMotDePasseDouzeCaracteresMajusculeChiffreSymbole() {
     String politique = realm.path("passwordPolicy").asString();
     assertThat(politique).contains("length(12)", "upperCase(1)", "digits(1)", "specialChars(1)");

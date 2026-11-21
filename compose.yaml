@@ -46,6 +46,8 @@ services:
       OIDC_CLIENT_SECRET_APP: ${OIDC_CLIENT_SECRET_APP:?Copier .env.example en .env}
     volumes:
       - ./infra/keycloak:/opt/keycloak/data/import:ro
+      # Thème de la page de connexion e-mine (correctifs J2)
+      - ./infra/keycloak/themes/emine:/opt/keycloak/themes/emine:ro
     ports:
       - "8081:8080"
     mem_limit: 896m
