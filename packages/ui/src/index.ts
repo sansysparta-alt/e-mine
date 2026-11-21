@@ -29,6 +29,10 @@ export {
 } from "./composants/page";
 export {
   ChampRecherche,
+  type ChampRechercheProps,
+  DELAI_RECHERCHE_MS,
+} from "./composants/recherche";
+export {
   classesAuDessusDuLien,
   classesLienEtire,
   classesLigneCliquable,

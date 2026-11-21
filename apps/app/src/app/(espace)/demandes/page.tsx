@@ -1,5 +1,5 @@
 import { compterDemandes, listerDemandes } from "@emine/api-client";
-import { Bouton, ChampRecherche, EnTetePage, EtatVide, FiltresPastilles } from "@emine/ui";
+import { Bouton, EnTetePage, EtatVide, FiltresPastilles } from "@emine/ui";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
@@ -12,6 +12,7 @@ import {
 import { lireParametres, type Parametres, TRIS } from "@/composants/demande/parametres-liste";
 import { TableauDemandes } from "@/composants/demande/tableau-demandes";
 import { PaginationListe } from "@/composants/liste/pagination-liste";
+import { RechercheListe } from "@/composants/liste/recherche-liste";
 import { appelPage, chargerMoi, chargerReferentiels, optionsApi } from "@/serveur/donnees";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -81,7 +82,7 @@ export default async function MesDemandes({ searchParams }: Props) {
   return (
     <div className="flex flex-col gap-6">
       <EnTetePage titre={titre} description={t("description")} actions={nouvelle} />
-      <ChampRecherche
+      <RechercheListe
         libelle={t("recherche.libelle")}
         valeur={p.q}
         placeholder={t("recherche.exemple")}

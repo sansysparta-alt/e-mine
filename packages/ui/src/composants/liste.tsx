@@ -1,6 +1,5 @@
-import { ArrowDown, ArrowUp, ArrowUpDown, Search } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import type { ComponentType, ReactNode } from "react";
-import { classesChamp } from "../champ";
 import { cn } from "../cn";
 
 /** Composant de lien fourni par l'application (par exemple `next/link`), `<a>` par défaut. */
@@ -229,53 +228,5 @@ export function FiltresPastilles({
         ))}
       </ul>
     </nav>
-  );
-}
-
-export type ChampRechercheProps = {
-  libelle: string;
-  nom?: string;
-  valeur?: string;
-  placeholder?: string;
-  boutonLibelle: string;
-  /** Paramètres à conserver lors de la recherche (filtres, tri). */
-  conserver?: Record<string, string | undefined>;
-};
-
-/** Recherche par formulaire GET (fonctionne sans JavaScript ; la page est rendue côté serveur). */
-export function ChampRecherche({
-  libelle,
-  nom = "q",
-  valeur,
-  placeholder,
-  boutonLibelle,
-  conserver = {},
-}: ChampRechercheProps) {
-  return (
-    <form method="get" role="search" className="flex w-full max-w-md gap-2">
-      {Object.entries(conserver).map(([cle, v]) =>
-        v ? <input key={cle} type="hidden" name={cle} value={v} /> : null,
-      )}
-      <label className="relative min-w-0 flex-1">
-        <span className="sr-only">{libelle}</span>
-        <Search
-          aria-hidden="true"
-          className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-texte-doux"
-        />
-        <input
-          type="search"
-          name={nom}
-          defaultValue={valeur}
-          placeholder={placeholder}
-          className={cn(classesChamp, "pl-9")}
-        />
-      </label>
-      <button
-        type="submit"
-        className="min-h-11 rounded-lg border-2 border-royal bg-white px-4 font-semibold text-royal hover:bg-ice"
-      >
-        {boutonLibelle}
-      </button>
-    </form>
   );
 }
