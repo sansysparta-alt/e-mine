@@ -15,7 +15,8 @@ import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { tonStatut } from "@/composants/demande/statut";
 import { ListePieces } from "@/composants/documents/liste-pieces";
-import { appelPage, chargerReferentiels, optionsApi } from "@/serveur/donnees";
+import { prochaineEtape } from "@/composants/demande/prochaine-etape";
+import { appelPage, chargerMoi, chargerReferentiels, optionsApi } from "@/serveur/donnees";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("detail");
@@ -43,12 +44,17 @@ export default async function DetailDemande({ params, searchParams }: Props) {
   if (demande.statut === "brouillon") redirect(`/demandes/${id}/modifier`);
   const t = await getTranslations("detail");
   const tStatut = await getTranslations("statuts");
-  const [{ documents }, pieces] = await Promise.all([
+  const [moi, { documents }, pieces] = await Promise.all([
+    chargerMoi(),
     chargerReferentiels(),
     appelPage(chemin, async () => listerPieces(Number(id), await optionsApi())),
   ]);
   const document = documents.find((d) => d.code === demande.typeDocumentCode);
   const aPayer = document?.tarifs.aPayerAuDepotGnf;
+  const etape = prochaineEtape(demande.statut, {
+    interne: moi.interne,
+    permissions: moi.permissions,
+  });
   const numero = demande.numero ?? "";
 
   return (
@@ -95,9 +101,15 @@ export default async function DetailDemande({ params, searchParams }: Props) {
       <Carte titre={t("pieces", { nombre: pieces.data.length })}>
         <ListePieces demandeId={demande.id} pieces={pieces.data} />
       </Carte>
-      {demande.statut === "deposee" && aPayer != null ? (
-        <Carte titre={t("suite.titre")}>
-          <p>{t("suite.paiement", { montant: formaterGnf(aPayer) })}</p>
+      {etape ? (
+        <Carte titre={t(`etape.titre.${etape.pour}`)}>
+          <p>
+            {t(`etape.${etape.cle}`, {
+              montant: aPayer != null ? formaterGnf(aPayer) : "—",
+              droits:
+                document?.tarifs.droitsGnf != null ? formaterGnf(document.tarifs.droitsGnf) : "—",
+            })}
+          </p>
         </Carte>
       ) : null}
       <div>

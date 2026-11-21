@@ -193,12 +193,27 @@
     "deposeLe": "Submitted on",
     "demandeur": "Applicant",
     "pieces": "Attached documents ({nombre})",
-    "suite": {
-      "titre": "Next step",
-      "paiement": "Application fee payment: {montant}. Online payment will be offered here."
-    },
     "retour": "Back to dashboard",
-    "retourListe": "Back to applications"
+    "retourListe": "Back to applications",
+    "etape": {
+      "titre": {
+        "agent": "Expected action",
+        "demandeur": "Next step"
+      },
+      "agentVerifier": "Check the file: review the attached documents, then declare the application admissible (the application fee must be paid) or request additional information from the applicant.",
+      "agentAttenteComplement": "Additional information was requested: the application is waiting for the applicant's documents.",
+      "agentInstruire": "Review the application and give your opinion.",
+      "agentDecision": "Opinion given: the signatory's decision is expected.",
+      "agentAttenteDroits": "Decision issued: the application is waiting for the applicant to pay the duties.",
+      "agentDelivrer": "Duties paid: the document can be drawn up, signed and issued.",
+      "demandeurPayerFrais": "Application fee payment: {montant}. Online payment will be offered here.",
+      "demandeurCompleter": "Additional information is requested: attach the documents indicated by the front desk officer.",
+      "demandeurInstruction": "Your application is being reviewed by the Ministry's services.",
+      "demandeurPayerDroits": "A favourable decision was issued: pay the duties ({droits}) to obtain your document.",
+      "demandeurDelivrance": "Duties paid: your document is being drawn up.",
+      "demandeurDelivree": "Your document has been issued.",
+      "demandeurRejetee": "Your application was rejected. The reason is given in the decision."
+    }
   },
   "mesDemandes": {
     "titre": "My applications",
