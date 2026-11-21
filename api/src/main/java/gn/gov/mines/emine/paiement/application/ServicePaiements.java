@@ -10,10 +10,13 @@ import gn.gov.mines.emine.paiement.domaine.MoyensPaiement;
 import gn.gov.mines.emine.paiement.domaine.Paiement;
 import gn.gov.mines.emine.paiement.domaine.RegleObjetAPayer;
 import gn.gov.mines.emine.paiement.domaine.RegleObjetAPayer.ObjetAPayer;
+import gn.gov.mines.emine.paiement.domaine.RegleTentatives;
 import gn.gov.mines.emine.paiement.infrastructure.PaiementRepository;
 import gn.gov.mines.emine.shared.erreur.CodeErreur;
 import gn.gov.mines.emine.shared.erreur.ErreurMetier;
 import gn.gov.mines.emine.shared.jooq.enums.MoyenPaiement;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -32,16 +35,19 @@ public class ServicePaiements {
   private final Demandes demandes;
   private final Catalogue catalogue;
   private final UtilisateurCourant utilisateurCourant;
+  private final Clock horloge;
 
   public ServicePaiements(
       PaiementRepository paiements,
       Demandes demandes,
       Catalogue catalogue,
-      UtilisateurCourant utilisateurCourant) {
+      UtilisateurCourant utilisateurCourant,
+      Clock horloge) {
     this.paiements = paiements;
     this.demandes = demandes;
     this.catalogue = catalogue;
     this.utilisateurCourant = utilisateurCourant;
+    this.horloge = horloge;
   }
 
   /**
@@ -54,7 +60,8 @@ public class ServicePaiements {
   public record APayer(
       Optional<ObjetAPayer> objet,
       List<MoyensPaiement.MoyenPropose> moyens,
-      Optional<Paiement> paiementOuvert) {}
+      Optional<Paiement> paiementOuvert,
+      int tentativesRestantes) {}
 
   @Transactional(readOnly = true)
   public APayer aPayer(long demandeId) {
@@ -66,7 +73,9 @@ public class ServicePaiements {
                 paiements.lister(demandeId).stream()
                     .filter(p -> p.objet() == o.objet() && p.ouvert())
                     .findFirst());
-    return new APayer(objet, MoyensPaiement.proposes(), ouvert);
+    int restantes =
+        objet.map(o -> tentativesRestantes(demandeId, o)).orElse(RegleTentatives.MAX_PAR_JOUR);
+    return new APayer(objet, MoyensPaiement.proposes(), ouvert, restantes);
   }
 
   @Transactional(readOnly = true)
@@ -97,8 +106,51 @@ public class ServicePaiements {
     if (paiements.estPaye(demandeId, objet.objet())) {
       throw new ErreurMetier(CodeErreur.PAY_001, Map.of("objet", objet.objet().getLiteral()));
     }
+    if (moyen == MoyenPaiement.TRESORPAY && tentativesRestantes(demandeId, objet) == 0) {
+      throw new ErreurMetier(
+          CodeErreur.PAY_002,
+          Map.of(
+              "prochaineTentative",
+              RegleTentatives.debutDuJourSuivant(horloge.instant()).toString()));
+    }
     paiements.annulerOuverts(demandeId, objet.objet());
     return paiements.creer(demandeId, objet.objet(), moyen, objet.montantGnf(), moi().id());
+  }
+
+  /**
+   * Session ouverte chez la passerelle (US-04.3) : le paiement passe à {@code en_attente} jusqu'à
+   * la notification signée, seule preuve du paiement.
+   */
+  @Transactional
+  public Paiement enregistrerSession(Paiement paiement, String payloadJson, Instant expireLe) {
+    paiements.passerEnAttente(paiement.id(), paiement.reference(), payloadJson, expireLe);
+    return paiements.lire(paiement.id()).orElseThrow();
+  }
+
+  /** Annule un paiement dont la session n'a pas pu être ouverte (passerelle indisponible). */
+  @Transactional
+  public void annuler(Paiement paiement) {
+    paiements.annuler(paiement.id());
+  }
+
+  /** Libellé de la demande pour la page de paiement : « Frais de dossier · DEM-2026-000001 ». */
+  @Transactional(readOnly = true)
+  public String libelle(Paiement paiement) {
+    String objet =
+        switch (paiement.objet()) {
+          case FRAIS_DOSSIER -> "Frais de dossier";
+          case DROITS -> "Droits";
+          case ATTESTATION -> "Attestation";
+          case FORMATION -> "Formation";
+        };
+    String numero = demande(paiement.demandeId()).numero();
+    return numero == null ? objet : objet + " · " + numero;
+  }
+
+  private int tentativesRestantes(long demandeId, ObjetAPayer objet) {
+    return RegleTentatives.restantes(
+        paiements.compterTentatives(
+            demandeId, objet.objet(), RegleTentatives.debutDuJour(horloge.instant())));
   }
 
   private DemandeResume demande(long demandeId) {

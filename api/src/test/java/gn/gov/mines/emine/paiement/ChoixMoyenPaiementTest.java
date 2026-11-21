@@ -72,12 +72,11 @@ class ChoixMoyenPaiementTest extends TestIntegration {
     long id = DemandesDeTest.deposee(INVESTISSEUR, "PEX");
     choisir(id, "TRESORPAY", investisseur())
         .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.reference").value(matchesPattern(REFERENCE)))
-        .andExpect(jsonPath("$.objet").value("FRAIS_DOSSIER"))
-        .andExpect(jsonPath("$.moyen").value("TRESORPAY"))
-        .andExpect(jsonPath("$.montantGnf").value(5_000_000))
-        .andExpect(jsonPath("$.statut").value("initie"))
-        .andExpect(jsonPath("$.dateExpiration").isNotEmpty());
+        .andExpect(jsonPath("$.paiement.reference").value(matchesPattern(REFERENCE)))
+        .andExpect(jsonPath("$.paiement.objet").value("FRAIS_DOSSIER"))
+        .andExpect(jsonPath("$.paiement.moyen").value("TRESORPAY"))
+        .andExpect(jsonPath("$.paiement.montantGnf").value(5_000_000))
+        .andExpect(jsonPath("$.paiement.dateExpiration").isNotEmpty());
   }
 
   @Test
@@ -89,7 +88,7 @@ class ChoixMoyenPaiementTest extends TestIntegration {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"moyen\":\"TRESORPAY\",\"montantGnf\":1}"))
         .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.montantGnf").value(5_000_000));
+        .andExpect(jsonPath("$.paiement.montantGnf").value(5_000_000));
   }
 
   @Test
@@ -99,7 +98,7 @@ class ChoixMoyenPaiementTest extends TestIntegration {
     String seconde = reference(choisir(id, "TRESORPAY", investisseur()));
     assertThat(seconde).isNotEqualTo(premiere);
     assertThat(DemandesDeTest.statutPaiement(premiere)).isEqualTo("annule");
-    assertThat(DemandesDeTest.statutPaiement(seconde)).isEqualTo("initie");
+    assertThat(DemandesDeTest.statutPaiement(seconde)).isEqualTo("en_attente");
     mvc.perform(get("/api/v1/demandes/" + id + "/paiements/a-payer").with(investisseur()))
         .andExpect(jsonPath("$.referenceOuverte").value(seconde))
         .andExpect(jsonPath("$.moyenOuvert").value("TRESORPAY"));
@@ -112,7 +111,7 @@ class ChoixMoyenPaiementTest extends TestIntegration {
   void unObjetDejaPayeEstRefuseAvecPay001() throws Exception {
     long id = DemandesDeTest.deposee(INVESTISSEUR, "PEX");
     String ref = reference(choisir(id, "TRESORPAY", investisseur()));
-    DemandesDeTest.changerStatutPaiement(ref, "en_attente", "paye");
+    DemandesDeTest.changerStatutPaiement(ref, "paye");
     choisir(id, "TRESORPAY", investisseur())
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.code").value("PAY-001"));
@@ -132,7 +131,7 @@ class ChoixMoyenPaiementTest extends TestIntegration {
   void lesDroitsSontAttendusApresLaDecision() throws Exception {
     long id = DemandesDeTest.deposee(INVESTISSEUR, "PEX");
     String frais = reference(choisir(id, "TRESORPAY", investisseur()));
-    DemandesDeTest.changerStatutPaiement(frais, "en_attente", "paye");
+    DemandesDeTest.changerStatutPaiement(frais, "paye");
     DemandesDeTest.changerStatut(id, "recevable", "en_instruction", "avis_rendu", "decision");
     mvc.perform(get("/api/v1/demandes/" + id + "/paiements/a-payer").with(investisseur()))
         .andExpect(jsonPath("$.objet").value("DROITS"))
@@ -143,7 +142,7 @@ class ChoixMoyenPaiementTest extends TestIntegration {
   void rienNEstAttenduPendantLInstruction() throws Exception {
     long id = DemandesDeTest.deposee(INVESTISSEUR, "PEX");
     String frais = reference(choisir(id, "TRESORPAY", investisseur()));
-    DemandesDeTest.changerStatutPaiement(frais, "en_attente", "paye");
+    DemandesDeTest.changerStatutPaiement(frais, "paye");
     DemandesDeTest.changerStatut(id, "recevable");
     choisir(id, "TRESORPAY", investisseur())
         .andExpect(status().isConflict())
@@ -192,6 +191,7 @@ class ChoixMoyenPaiementTest extends TestIntegration {
 
   private static String reference(ResultActions r) throws Exception {
     return JSON.readTree(r.andReturn().getResponse().getContentAsString())
+        .path("paiement")
         .path("reference")
         .asString();
   }

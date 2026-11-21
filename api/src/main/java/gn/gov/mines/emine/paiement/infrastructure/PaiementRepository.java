@@ -1,6 +1,7 @@
 package gn.gov.mines.emine.paiement.infrastructure;
 
 import static gn.gov.mines.emine.shared.jooq.Tables.PAIEMENT;
+import static gn.gov.mines.emine.shared.jooq.Tables.PAIEMENT_EVENEMENT;
 
 import gn.gov.mines.emine.paiement.domaine.Paiement;
 import gn.gov.mines.emine.shared.jooq.enums.MoyenPaiement;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.jooq.DSLContext;
+import org.jooq.JSONB;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -78,6 +80,49 @@ public class PaiementRepository {
             .and(PAIEMENT.OBJET.eq(objet))
             .and(PAIEMENT.MOYEN.eq(moyen))
             .and(PAIEMENT.CREATED_AT.ge(depuis)));
+  }
+
+  /**
+   * Tentatives de paiement en ligne du jour (US-04.3) : paiements de cet objet pour lesquels une
+   * session a réellement été ouverte chez la passerelle (événement INITIATION) depuis {@code
+   * depuis}. Une passerelle indisponible ne consomme donc pas de tentative.
+   */
+  public long compterTentatives(long demandeId, ObjetPaiement objet, Instant depuis) {
+    return dsl.fetchCount(
+        dsl.select(PAIEMENT.ID)
+            .from(PAIEMENT)
+            .join(PAIEMENT_EVENEMENT)
+            .on(PAIEMENT_EVENEMENT.PAIEMENT_ID.eq(PAIEMENT.ID))
+            .where(PAIEMENT.DEMANDE_ID.eq(demandeId))
+            .and(PAIEMENT.OBJET.eq(objet))
+            .and(PAIEMENT_EVENEMENT.TYPE_EVENEMENT.eq("INITIATION"))
+            .and(PAIEMENT.CREATED_AT.ge(depuis)));
+  }
+
+  /** Session ouverte chez la passerelle : {@code initie → en_attente} et événement INITIATION. */
+  public void passerEnAttente(UUID id, String reference, String payloadJson, Instant expireLe) {
+    dsl.update(PAIEMENT)
+        .set(PAIEMENT.STATUT, StatutPaiement.en_attente)
+        .set(PAIEMENT.DATE_EXPIRATION, expireLe)
+        .where(PAIEMENT.ID.eq(id))
+        .execute();
+    dsl.insertInto(PAIEMENT_EVENEMENT)
+        .set(PAIEMENT_EVENEMENT.PAIEMENT_ID, id)
+        .set(PAIEMENT_EVENEMENT.REFERENCE_RECUE, reference)
+        .set(PAIEMENT_EVENEMENT.TYPE_EVENEMENT, "INITIATION")
+        .set(PAIEMENT_EVENEMENT.PAYLOAD, JSONB.valueOf(payloadJson))
+        .set(PAIEMENT_EVENEMENT.SIGNATURE_VALIDE, true)
+        .set(PAIEMENT_EVENEMENT.TRAITE, true)
+        .execute();
+  }
+
+  /** Annule un paiement (session impossible à ouvrir, par exemple). */
+  public void annuler(UUID id) {
+    dsl.update(PAIEMENT)
+        .set(PAIEMENT.STATUT, StatutPaiement.annule)
+        .where(PAIEMENT.ID.eq(id))
+        .and(PAIEMENT.STATUT.in(StatutPaiement.initie, StatutPaiement.en_attente))
+        .execute();
   }
 
   /** Paiements d'une demande, du plus récent au plus ancien. */

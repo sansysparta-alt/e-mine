@@ -99,6 +99,7 @@ export default async function PaiementDemande({ params }: Props) {
             demandeId={demande.id}
             moyens={attendu.moyens}
             montant={montant}
+            tentativesRestantes={attendu.tentativesRestantes}
             choisir={choisirMoyen}
           />
         </Carte>

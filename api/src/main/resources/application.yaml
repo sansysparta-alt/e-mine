@@ -72,3 +72,11 @@ emine:
     cle-acces: ${S3_ACCESS_KEY:${MINIO_ROOT_USER:}}
     cle-secrete: ${S3_SECRET_KEY:${MINIO_ROOT_PASSWORD:}}
     compartiment-pieces: ${S3_BUCKET_PIECES:emine-pieces}
+  # TrésorPay (simulé, D5) : contrat docs/contrats/tresorpay.md. Secret HMAC dans .env (fictif en dev).
+  tresorpay:
+    url-base: ${TRESORPAY_BASE_URL:http://localhost:8090}
+    secret-hmac: ${TRESORPAY_HMAC_SECRET:}
+    marchand-id: ${TRESORPAY_MERCHANT_ID:MARCHAND-TEST-0001}
+    url-application: ${APP_URL:http://localhost:3001}
+    tolerance-horodatage: 5m
+    delai-reponse: 5s

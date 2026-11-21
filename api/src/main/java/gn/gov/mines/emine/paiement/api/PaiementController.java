@@ -1,5 +1,6 @@
 package gn.gov.mines.emine.paiement.api;
 
+import gn.gov.mines.emine.paiement.application.ServicePaiementEnLigne;
 import gn.gov.mines.emine.paiement.application.ServicePaiements;
 import gn.gov.mines.emine.paiement.domaine.Paiement;
 import gn.gov.mines.emine.shared.jooq.enums.MoyenPaiement;
@@ -30,9 +31,11 @@ import org.springframework.web.bind.annotation.RestController;
 class PaiementController {
 
   private final ServicePaiements service;
+  private final ServicePaiementEnLigne enLigne;
 
-  PaiementController(ServicePaiements service) {
+  PaiementController(ServicePaiements service, ServicePaiementEnLigne enLigne) {
     this.service = service;
+    this.enLigne = enLigne;
   }
 
   @GetMapping("/api/v1/demandes/{id}/paiements/a-payer")
@@ -46,7 +49,8 @@ class PaiementController {
         a.objet().map(o -> o.montantGnf()).orElse(null),
         a.moyens().stream().map(m -> new MoyenDto(m.moyen().getLiteral(), m.disponible())).toList(),
         a.paiementOuvert().map(Paiement::reference).orElse(null),
-        a.paiementOuvert().map(p -> p.moyen().getLiteral()).orElse(null));
+        a.paiementOuvert().map(p -> p.moyen().getLiteral()).orElse(null),
+        a.tentativesRestantes());
   }
 
   @GetMapping("/api/v1/demandes/{id}/paiements")
@@ -64,10 +68,18 @@ class PaiementController {
       operationId = "choisirMoyenPaiement",
       summary =
           "Choisir le moyen de paiement : crée le paiement au montant du barème (référence"
-              + " PAY-AAAA-NNNNNN) et annule un paiement encore ouvert pour le même objet")
-  PaiementDto choisir(@PathVariable long id, @Valid @RequestBody ChoixMoyenDto corps) {
-    return PaiementDto.depuis(service.choisirMoyen(id, MoyenPaiement.valueOf(corps.moyen())));
+              + " PAY-AAAA-NNNNNN), annule un paiement encore ouvert pour le même objet et, pour"
+              + " TrésorPay, ouvre la session de paiement (3 tentatives par jour)")
+  InitiationDto choisir(@PathVariable long id, @Valid @RequestBody ChoixMoyenDto corps) {
+    ServicePaiementEnLigne.Initiation i = enLigne.payer(id, MoyenPaiement.valueOf(corps.moyen()));
+    return new InitiationDto(PaiementDto.depuis(i.paiement()), i.urlPaiement());
   }
+
+  /**
+   * Paiement créé et, pour un paiement en ligne, adresse de la page TrésorPay vers laquelle
+   * rediriger le navigateur (session de 15 minutes).
+   */
+  record InitiationDto(PaiementDto paiement, @Schema(nullable = true) String urlPaiement) {}
 
   @GetMapping("/api/v1/paiements/{reference}")
   @Operation(operationId = "lirePaiement", summary = "Un paiement, par sa référence")
@@ -87,11 +99,13 @@ class PaiementController {
    * @param objet objet attendu, {@code null} si rien n'est à payer à ce stade (ou déjà payé)
    * @param montantGnf montant du barème, en GNF entiers
    * @param referenceOuverte paiement en cours pour cet objet (initié ou en attente), s'il existe
+   * @param tentativesRestantes paiements en ligne encore possibles aujourd'hui (3 par jour)
    */
   record APayerDto(
       @Schema(nullable = true) String objet,
       @Schema(nullable = true) Long montantGnf,
       List<MoyenDto> moyens,
       @Schema(nullable = true) String referenceOuverte,
-      @Schema(nullable = true) String moyenOuvert) {}
+      @Schema(nullable = true) String moyenOuvert,
+      int tentativesRestantes) {}
 }

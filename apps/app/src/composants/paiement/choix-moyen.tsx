@@ -14,7 +14,9 @@ export type ChoixMoyenProps = {
   moyens: MoyenDto[];
   /** Montant déjà formaté (« 5 000 000 GNF »), repris sur le bouton. */
   montant: string;
-  /** Action serveur : crée le paiement (et, à partir de US-04.3, redirige vers TrésorPay). */
+  /** Paiements en ligne encore possibles aujourd'hui (3 par jour, US-04.3). */
+  tentativesRestantes: number;
+  /** Action serveur : crée le paiement puis redirige vers TrésorPay (US-04.3). */
   choisir: (demandeId: number, moyen: Moyen) => Promise<ResultatAction<PaiementDto>>;
 };
 
@@ -25,7 +27,13 @@ const ICONES = { TRESORPAY: CreditCard, VIREMENT: Building2 } as const;
  * désactivé, avec la raison. Chaque option est une carte entière cliquable (bouton radio natif,
  * clavier et lecteurs d'écran). Le bouton reprend le montant et le moyen choisi.
  */
-export function ChoixMoyen({ demandeId, moyens, montant, choisir }: ChoixMoyenProps) {
+export function ChoixMoyen({
+  demandeId,
+  moyens,
+  montant,
+  tentativesRestantes,
+  choisir,
+}: ChoixMoyenProps) {
   const t = useTranslations("paiement.choix");
   const id = useId();
   const [moyen, setMoyen] = useState<Moyen | null>(null);
@@ -33,6 +41,7 @@ export function ChoixMoyen({ demandeId, moyens, montant, choisir }: ChoixMoyenPr
   const [erreurApi, setErreurApi] = useState<{ code: string; message: string } | null>(null);
   const [cree, setCree] = useState<PaiementDto | null>(null);
   const [enCours, demarrer] = useTransition();
+  const epuisees = tentativesRestantes <= 0;
 
   function valider() {
     setErreurApi(null);
@@ -120,7 +129,15 @@ export function ChoixMoyen({ demandeId, moyens, montant, choisir }: ChoixMoyenPr
           nature={erreurApi.code === "PAY-003" ? "avertissement" : "erreur"}
           titre={t(`erreurs.${titreErreur(erreurApi.code)}`)}
         >
-          {erreurApi.message || t("erreurs.reessayer")}
+          {erreurApi.code === "PAY-003"
+            ? t("indisponibleTexte")
+            : erreurApi.message || t("erreurs.reessayer")}
+        </Alerte>
+      ) : null}
+
+      {epuisees ? (
+        <Alerte nature="avertissement" titre={t("erreurs.PAY-002")}>
+          {t("tentativesEpuisees")}
         </Alerte>
       ) : null}
 
@@ -130,14 +147,25 @@ export function ChoixMoyen({ demandeId, moyens, montant, choisir }: ChoixMoyenPr
         </Alerte>
       ) : null}
 
-      <div>
-        <Bouton type="button" taille="grande" onClick={valider} disabled={enCours}>
+      <div className="flex flex-col gap-2">
+        <Bouton
+          type="button"
+          taille="grande"
+          onClick={valider}
+          disabled={enCours || epuisees}
+          className="self-start"
+        >
           {enCours
             ? t("enCours")
             : moyen
               ? t(`payerAvec.${moyen}`, { montant })
               : t("continuer", { montant })}
         </Bouton>
+        {!epuisees ? (
+          <p className="text-sm text-texte-doux">
+            {t("redirection")} {t("tentatives", { nombre: tentativesRestantes })}
+          </p>
+        ) : null}
       </div>
     </div>
   );

@@ -213,7 +213,7 @@
       },
       "post" : {
         "tags" : [ "Paiements" ],
-        "summary" : "Choisir le moyen de paiement : crée le paiement au montant du barème (référence PAY-AAAA-NNNNNN) et annule un paiement encore ouvert pour le même objet",
+        "summary" : "Choisir le moyen de paiement : crée le paiement au montant du barème (référence PAY-AAAA-NNNNNN), annule un paiement encore ouvert pour le même objet et, pour TrésorPay, ouvre la session de paiement (3 tentatives par jour)",
         "operationId" : "choisirMoyenPaiement",
         "parameters" : [ {
           "name" : "id",
@@ -240,7 +240,7 @@
             "content" : {
               "*/*" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/PaiementDto"
+                  "$ref" : "#/components/schemas/InitiationDto"
                 }
               }
             }
@@ -731,6 +731,18 @@
         },
         "required" : [ "moyen" ]
       },
+      "InitiationDto" : {
+        "type" : "object",
+        "properties" : {
+          "paiement" : {
+            "$ref" : "#/components/schemas/PaiementDto"
+          },
+          "urlPaiement" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "paiement", "urlPaiement" ]
+      },
       "PaiementDto" : {
         "type" : "object",
         "properties" : {
@@ -1015,9 +1027,13 @@
           },
           "moyenOuvert" : {
             "type" : [ "string", "null" ]
+          },
+          "tentativesRestantes" : {
+            "type" : "integer",
+            "format" : "int32"
           }
         },
-        "required" : [ "montantGnf", "moyenOuvert", "moyens", "objet", "referenceOuverte" ]
+        "required" : [ "montantGnf", "moyenOuvert", "moyens", "objet", "referenceOuverte", "tentativesRestantes" ]
       },
       "MoyenDto" : {
         "type" : "object",
