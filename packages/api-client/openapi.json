@@ -408,29 +408,6 @@
         }
       }
     },
-    "/api/v1/demandes/compteurs" : {
-      "get" : {
-        "tags" : [ "Demandes" ],
-        "summary" : "Nombre de demandes visibles par statut (tableau de bord)",
-        "operationId" : "compterDemandes",
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "*/*" : {
-                "schema" : {
-                  "type" : "object",
-                  "additionalProperties" : {
-                    "type" : "integer",
-                    "format" : "int64"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v1/demandes/{demandeId}/pieces/{pieceId}/contenu" : {
       "get" : {
         "tags" : [ "Demandes" ],
@@ -461,6 +438,29 @@
                 "schema" : {
                   "type" : "string",
                   "format" : "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/demandes/compteurs" : {
+      "get" : {
+        "tags" : [ "Demandes" ],
+        "summary" : "Nombre de demandes visibles par statut (tableau de bord)",
+        "operationId" : "compterDemandes",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "type" : "integer",
+                    "format" : "int64"
+                  }
                 }
               }
             }
@@ -715,34 +715,6 @@
         },
         "required" : [ "code", "libelleEn", "libelleFr" ]
       },
-      "PageDemandesDto" : {
-        "type" : "object",
-        "properties" : {
-          "elements" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/DemandeDto"
-            }
-          },
-          "page" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "taille" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "total" : {
-            "type" : "integer",
-            "format" : "int64"
-          },
-          "totalPages" : {
-            "type" : "integer",
-            "format" : "int32"
-          }
-        },
-        "required" : [ "elements", "page", "taille", "total", "totalPages" ]
-      },
       "PrefectureDto" : {
         "type" : "object",
         "properties" : {
@@ -804,6 +776,34 @@
           }
         },
         "required" : [ "code", "libelle" ]
+      },
+      "PageDemandesDto" : {
+        "type" : "object",
+        "properties" : {
+          "elements" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DemandeDto"
+            }
+          },
+          "page" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "taille" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "total" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "elements", "page", "taille", "total", "totalPages" ]
       }
     }
   }
