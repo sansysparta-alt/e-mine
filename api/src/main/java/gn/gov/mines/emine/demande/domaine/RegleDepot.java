@@ -1,12 +1,15 @@
 package gn.gov.mines.emine.demande.domaine;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
- * Conditions du dépôt d'une demande (US-03.4, V1) : déclaration sur l'honneur acceptée et au moins
- * une pièce jointe. La complétude des pièces au regard du catalogue est jugée par l'agent du
- * guichet à la recevabilité (US-05.1), selon la décision du porteur du projet du 20/11/2026.
+ * Conditions du dépôt d'une demande (US-03.4, correctif J2 B3) : déclaration sur l'honneur acceptée
+ * et une pièce au moins pour <b>chaque</b> pièce obligatoire du catalogue. Les pièces
+ * supplémentaires (« Autre pièce ») sont facultatives. L'agent du guichet juge ensuite la qualité
+ * des pièces (complément requis si besoin).
  */
 public final class RegleDepot {
 
@@ -17,13 +20,20 @@ public final class RegleDepot {
 
   private RegleDepot() {}
 
+  /** Pièces obligatoires du catalogue sans aucun fichier joint, dans l'ordre du catalogue. */
+  public static List<String> piecesManquantes(
+      List<String> piecesObligatoires, Collection<String> typesFournis) {
+    Set<String> fournis = Set.copyOf(typesFournis);
+    return piecesObligatoires.stream().filter(p -> !fournis.contains(p)).toList();
+  }
+
   /** Éléments manquants ; vide si la demande peut être déposée. */
-  public static List<String> manques(boolean declarationAcceptee, int nombrePieces) {
+  public static List<String> manques(boolean declarationAcceptee, List<String> piecesManquantes) {
     List<String> manques = new ArrayList<>();
     if (!declarationAcceptee) {
       manques.add(DECLARATION);
     }
-    if (nombrePieces < 1) {
+    if (!piecesManquantes.isEmpty()) {
       manques.add(PIECES);
     }
     return manques;

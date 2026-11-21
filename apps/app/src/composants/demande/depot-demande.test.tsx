@@ -8,6 +8,15 @@ const push = vi.fn();
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
 
 const demande = { id: 41, statut: "brouillon" } as DemandeDto;
+const etude: PieceDto = {
+  id: 6,
+  typePiece: "Étude de faisabilité",
+  nomFichier: "etude.pdf",
+  typeMime: "application/pdf",
+  tailleOctets: 4096,
+  empreinteSha256: "cd".repeat(32),
+  deposeLe: "2026-11-20T10:00:00Z",
+};
 const eies: PieceDto = {
   id: 7,
   typePiece: "EIES",
@@ -43,19 +52,24 @@ describe("dépôt de la demande", () => {
     fireEvent.click(screen.getByRole("button", { name: "Déposer ma demande" }));
     const alerte = screen.getByRole("alert");
     expect(alerte).toHaveTextContent("Cochez la déclaration sur l'honneur.");
-    expect(alerte).toHaveTextContent("Joignez au moins une pièce");
+    expect(alerte).toHaveTextContent("Joignez toutes les pièces obligatoires");
     expect(declaration()).toHaveAttribute("aria-invalid", "true");
     expect(deposer).not.toHaveBeenCalled();
   });
 
-  it("signale les pièces attendues manquantes sans bloquer le dépôt", () => {
-    afficher([eies]);
-    expect(screen.getByText(/Non fournies : Étude de faisabilité/)).toBeInTheDocument();
+  it("bloque le dépôt tant qu'une pièce obligatoire manque et la nomme", () => {
+    const deposer = afficher([eies]);
+    expect(screen.getByText("Pièces obligatoires à joindre avant le dépôt :")).toBeInTheDocument();
+    expect(screen.getByText("Étude de faisabilité")).toBeInTheDocument();
+    fireEvent.click(declaration());
+    fireEvent.click(screen.getByRole("button", { name: "Déposer ma demande" }));
+    expect(screen.getByRole("alert")).toHaveTextContent("Joignez toutes les pièces obligatoires");
+    expect(deposer).not.toHaveBeenCalled();
   });
 
   it("dépose puis affiche la demande déposée", async () => {
     const deposer = afficher(
-      [eies],
+      [etude, eies],
       vi.fn(async () => ({
         ok: true as const,
         valeur: { ...demande, statut: "deposee", numero: "DEM-2026-000001" },
@@ -67,17 +81,26 @@ describe("dépôt de la demande", () => {
     expect(deposer).toHaveBeenCalledWith(41, true);
   });
 
-  it("affiche les manques renvoyés par l'API", async () => {
+  it("affiche les pièces manquantes renvoyées par l'API", async () => {
     afficher(
-      [eies],
+      [etude, eies],
       vi.fn(async () => ({
         ok: false as const,
-        erreur: { code: "DEM-004", message: "", champs: [], manques: ["pieces"] },
+        erreur: {
+          code: "DEM-004",
+          message: "",
+          champs: [],
+          manques: ["pieces"],
+          piecesManquantes: ["Plan de restauration"],
+        },
       })),
     );
     fireEvent.click(declaration());
     fireEvent.click(screen.getByRole("button", { name: "Déposer ma demande" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("Joignez au moins une pièce");
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Joignez toutes les pièces obligatoires",
+    );
+    expect(screen.getByText("Plan de restauration")).toBeInTheDocument();
     expect(push).not.toHaveBeenCalled();
   });
 });

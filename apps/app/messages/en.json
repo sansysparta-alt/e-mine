@@ -153,13 +153,13 @@
     },
     "depot": {
       "piecesJointes": "Attached documents: {nombre}",
-      "manquantesTitre": "Some expected documents are not attached.",
-      "manquantes": "Not provided: {liste}. You can still submit: the front desk officer will check that the file is complete.",
+      "manquantesTitre": "Mandatory documents to attach before submitting:",
+      "manquantes": "Add them in the Attachments section. The front desk officer will then check their content.",
       "declaration": "I solemnly declare that the information provided is accurate and that the attached documents are authentic.",
       "impossible": "The application cannot be submitted yet.",
       "manques": {
         "declarationHonneur": "Tick the solemn declaration.",
-        "pieces": "Attach at least one document (Attachments section).",
+        "pieces": "Attach all mandatory documents (Attachments section).",
         "autre": "Submission failed. Please try again."
       },
       "deposer": "Submit my application",
