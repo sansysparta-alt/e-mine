@@ -15,3 +15,4 @@ export {
 } from "./format";
 export { classesChamp } from "./champ";
 export { Dialogue, type DialogueProps } from "./composants/dialogue";
+export { CaseACocher, type CaseACocherProps } from "./composants/case-a-cocher";

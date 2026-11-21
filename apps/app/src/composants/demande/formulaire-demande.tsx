@@ -194,7 +194,7 @@ export function FormulaireDemande(props: FormulaireDemandeProps) {
                 onClick={() => allerA(e)}
                 disabled={!accessible(e) || enCours}
                 aria-current={e === etape ? "step" : undefined}
-                className={`rounded-full border-2 px-4 py-2 font-semibold ${
+                className={`min-h-11 rounded-full border-2 px-4 py-2 font-semibold ${
                   e === etape
                     ? "border-royal bg-royal text-white"
                     : "border-bordure bg-white text-navy"

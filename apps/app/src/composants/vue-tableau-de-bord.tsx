@@ -47,7 +47,10 @@ export function VueTableauDeBord({
           <>
             <ListeDemandes demandes={demandes.slice(0, DEMANDES_RECENTES)} libelles={libelles} />
             <p className="mt-3">
-              <Link href="/demandes" className="text-royal underline">
+              <Link
+                href="/demandes"
+                className="inline-flex min-h-11 items-center text-royal underline"
+              >
                 {t("demandes.toutes", { nombre: demandes.length })}
               </Link>
             </p>

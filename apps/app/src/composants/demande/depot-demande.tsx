@@ -1,7 +1,7 @@
 "use client";
 
 import type { DemandeDto, PieceDto } from "@emine/api-client";
-import { Alerte, Bouton } from "@emine/ui";
+import { Alerte, Bouton, CaseACocher } from "@emine/ui";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useId, useState, useTransition } from "react";
@@ -81,26 +81,22 @@ export function DepotDemande({ demande, piecesRequises, pieces, deposer }: Depot
         </Alerte>
       ) : null}
 
-      <div className="flex items-start gap-3">
-        <input
-          id={`${id}-declaration`}
-          type="checkbox"
-          checked={declaration}
-          onChange={(e) => setDeclaration(e.target.checked)}
-          className="mt-1 size-5 shrink-0"
-          aria-invalid={erreurs.includes("declarationHonneur") ? true : undefined}
-          aria-describedby={
-            erreurs.includes("declarationHonneur") ? `${id}-erreur-declaration` : undefined
-          }
-        />
-        <label htmlFor={`${id}-declaration`}>{t("declaration")}</label>
-      </div>
+      <CaseACocher
+        id={`${id}-declaration`}
+        checked={declaration}
+        onChange={(e) => setDeclaration(e.target.checked)}
+        erreur={
+          erreurs.includes("declarationHonneur") ? t("manques.declarationHonneur") : undefined
+        }
+      >
+        {t("declaration")}
+      </CaseACocher>
 
       {erreurs.length > 0 ? (
         <Alerte nature="erreur" titre={t("impossible")}>
           <ul className="list-disc pl-6">
             {erreurs.map((e) => (
-              <li key={e} id={e === "declarationHonneur" ? `${id}-erreur-declaration` : undefined}>
+              <li key={e}>
                 {t(`manques.${["declarationHonneur", "pieces"].includes(e) ? e : "autre"}`)}
               </li>
             ))}
