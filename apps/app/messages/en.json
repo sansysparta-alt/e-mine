@@ -208,9 +208,8 @@
     "filtreStatut": "Status",
     "tous": "All statuses",
     "filtrer": "Filter",
-    "nombre": "{nombre, plural, =0 {No application} one {# application} other {# applications}}",
     "aucune": "You have no application yet.",
-    "aucuneFiltre": "No application with this status.",
+    "aucuneFiltre": "No application matches these criteria.",
     "brouillonSansNumero": "Draft (number assigned on submission)",
     "deposeeLe": "submitted on {date}",
     "creeeLe": "created on {date}",
@@ -226,6 +225,12 @@
       "trier": "Sort by",
       "croissant": "ascending",
       "decroissant": "descending"
+    },
+    "elements": "applications",
+    "recherche": {
+      "libelle": "Search an application",
+      "exemple": "Number or document (e.g. DEM-2026, permit)",
+      "bouton": "Search"
     }
   },
   "session": {
@@ -268,5 +273,15 @@
       "description": "An unexpected error occurred. Your data is not lost.",
       "reessayer": "Try again"
     }
+  },
+  "pagination": {
+    "zone": "Pagination",
+    "afficher": "Show",
+    "parPage": "per page",
+    "resume": "{debut}–{fin} of {total} {elements}",
+    "precedente": "Prev.",
+    "suivante": "Next",
+    "page": "Page {numero}",
+    "pageSur": "Page {numero} of {total}"
   }
 }

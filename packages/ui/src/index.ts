@@ -43,3 +43,10 @@ export {
   type GabaritApplicationProps,
   type SectionNavigation,
 } from "./composants/gabarit";
+export {
+  adressePage,
+  type LibellesPagination,
+  Pagination,
+  pagesAffichees,
+  type PaginationProps,
+} from "./composants/pagination";
