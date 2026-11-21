@@ -45,9 +45,12 @@ class ContexteHttpTest {
             "Camara",
             "Aïcha",
             "a@e-mine.test",
+            null,
+            null,
             "GUICHET",
             "Guichet",
-            true));
+            true,
+            java.util.Set.of()));
     RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(requete));
 
     assertThat(fournisseur.contexteCourant())

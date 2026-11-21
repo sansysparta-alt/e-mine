@@ -1,0 +1,13 @@
+import { NextResponse } from "next/server";
+import { identifiant, relayer } from "@/serveur/relais";
+
+type Contexte = { params: Promise<{ id: string; pieceId: string }> };
+
+/** Retrait d'une pièce d'un brouillon (relais BFF vers l'API, US-03.2). */
+export async function DELETE(requete: Request, contexte: Contexte) {
+  const { id, pieceId } = await contexte.params;
+  const d = identifiant(id);
+  const p = identifiant(pieceId);
+  if (!d || !p) return NextResponse.json({ code: "SYS-002" }, { status: 404 });
+  return relayer(requete, `/api/v1/demandes/${d}/pieces/${p}`);
+}

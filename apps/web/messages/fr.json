@@ -9,6 +9,22 @@
   "accueil": {
     "titre": "Les démarches minières en ligne",
     "presentation": "Demandez l'un des 15 documents du Ministère, payez en ligne, suivez votre dossier et vérifiez l'authenticité d'un document grâce à son QR code.",
-    "avertissement": "Plateforme de démonstration : toutes les données sont fictives."
+    "avertissement": "Plateforme de démonstration : toutes les données sont fictives.",
+    "lienCatalogue": "Consulter le catalogue des documents"
+  },
+  "catalogue": {
+    "titre": "Catalogue des documents",
+    "presentation": "Les 15 documents délivrés par le Ministère, avec leur délai de traitement, les pièces à fournir, le signataire et les frais. Montants en francs guinéens (données de démonstration).",
+    "delai": "Délai",
+    "jours": "{nombre} jours",
+    "signataire": "Signataire",
+    "fraisDossier": "Frais de dossier",
+    "droits": "Droits",
+    "paiementUnique": "Paiement unique",
+    "pieces": "Pièces à fournir",
+    "indisponible": {
+      "titre": "Le catalogue est momentanément indisponible.",
+      "conseil": "Réessayez dans quelques minutes."
+    }
   }
 }

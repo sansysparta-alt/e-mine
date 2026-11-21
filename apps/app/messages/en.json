@@ -44,7 +44,9 @@
     "demandes": {
       "titre": "My requests",
       "vide": "You have no requests yet.",
-      "aide": "Online request submission will be available here soon."
+      "aide": "Submit an application online: choose the document, attach your files, then pay the fees.",
+      "nouvelle": "New application",
+      "toutes": "See all my applications ({nombre})"
     },
     "dossiers": {
       "titre": "Files to process",
@@ -61,5 +63,146 @@
         "conseil": "Please try again in a few minutes. Your data is not lost."
       }
     }
+  },
+  "demande": {
+    "titreNouvelle": "New application",
+    "titreBrouillon": "Draft application",
+    "facultatif": "optional",
+    "etapes": {
+      "titre": "Application steps",
+      "demandeur": "Applicant",
+      "document": "Document",
+      "pieces": "Attachments",
+      "recapitulatif": "Summary"
+    },
+    "demandeur": {
+      "nom": "Applicant",
+      "email": "Email address",
+      "organisation": "Organisation",
+      "aucuneOrganisation": "None (personal capacity)"
+    },
+    "document": {
+      "type": "Requested document",
+      "choisir": "Choose a document",
+      "prefecture": "Prefecture",
+      "substance": "Main substance",
+      "superficie": "Area (hectares)",
+      "superficieAide": "Positive number, at most two decimals (example: 125.50).",
+      "hectares": "{valeur} ha",
+      "nonPrecise": "Not specified",
+      "delai": "Processing time: {jours} days",
+      "frais": "payable on submission: {montant}",
+      "gratuit": "no fee on submission",
+      "aPayer": "Payable on submission",
+      "piecesRequises": "Required documents"
+    },
+    "precedent": "Previous",
+    "continuer": "Save and continue",
+    "enregistrer": "Save draft",
+    "enregistrement": {
+      "enCours": "Saving draft…",
+      "fait": "Draft saved at {heure}.",
+      "reessayer": "Please try again shortly. Your entries are kept on this page.",
+      "erreurs": {
+        "DEM-003": "This application has already been submitted.",
+        "DEM-005": "This document is no longer offered.",
+        "VAL-001": "Some information needs to be corrected.",
+        "PERM-001": "Your profile does not allow submitting an application.",
+        "DEM-002": "Application not found.",
+        "autre": "The draft could not be saved."
+      }
+    },
+    "erreurs": {
+      "documentObligatoire": "Choose the requested document.",
+      "superficieInvalide": "Enter a positive number with at most two decimals."
+    },
+    "nonAutorise": {
+      "titre": "Your profile does not allow submitting an application.",
+      "retour": "Back to dashboard"
+    },
+    "pieces": {
+      "attendues": "Documents expected for this application",
+      "fournie": "✓ {piece}: provided",
+      "manquante": "○ {piece}: to attach",
+      "ajouter": "Attach a document",
+      "type": "This document is",
+      "autre": "Other document",
+      "fichier": "File",
+      "aide": "PDF, JPG or PNG, 10 MB maximum.",
+      "joindre": "Attach file",
+      "envoi": "Uploading…",
+      "ajoutee": "Document “{nom}” attached.",
+      "retiree": "Document “{nom}” removed.",
+      "chargement": "Loading documents…",
+      "aucune": "No document attached yet.",
+      "empreinte": "SHA-256 fingerprint {debut}…",
+      "retirer": "Remove",
+      "retirerLibelle": "Remove document {nom}",
+      "erreurs": {
+        "DOC-001": "Format not accepted: PDF, JPG or PNG only.",
+        "DOC-002": "File too large: 10 MB maximum.",
+        "DOC-003": "This document cannot be found.",
+        "DEM-003": "The application has already been submitted: its documents can no longer change.",
+        "AUTH-001": "Your session has expired: please sign in again.",
+        "aucunFichier": "Choose a file first.",
+        "autre": "The document could not be processed. Please try again."
+      }
+    },
+    "depot": {
+      "piecesJointes": "Attached documents: {nombre}",
+      "manquantesTitre": "Some expected documents are not attached.",
+      "manquantes": "Not provided: {liste}. You can still submit: the front desk officer will check that the file is complete.",
+      "declaration": "I solemnly declare that the information provided is accurate and that the attached documents are authentic.",
+      "impossible": "The application cannot be submitted yet.",
+      "manques": {
+        "declarationHonneur": "Tick the solemn declaration.",
+        "pieces": "Attach at least one document (Attachments section).",
+        "autre": "Submission failed. Please try again."
+      },
+      "deposer": "Submit my application",
+      "enCours": "Submitting…"
+    }
+  },
+  "statuts": {
+    "brouillon": "Draft",
+    "deposee": "Submitted",
+    "complement_requis": "Additional information required",
+    "recevable": "Admissible",
+    "en_instruction": "Under review",
+    "avis_rendu": "Opinion issued",
+    "decision": "Decision issued",
+    "droits_payes": "Duties paid",
+    "delivree": "Issued",
+    "archivee": "Archived",
+    "rejetee": "Rejected"
+  },
+  "detail": {
+    "titreOnglet": "My application",
+    "titre": "Application {numero}",
+    "confirmation": "Your application {numero} has been submitted.",
+    "confirmationSuite": "Keep this number: it identifies your file with the Ministry.",
+    "statut": "Status",
+    "document": "Document",
+    "deposeLe": "Submitted on",
+    "demandeur": "Applicant",
+    "pieces": "Attached documents ({nombre})",
+    "suite": {
+      "titre": "Next step",
+      "paiement": "Application fee payment: {montant}. Online payment will be offered here."
+    },
+    "retour": "Back to dashboard"
+  },
+  "mesDemandes": {
+    "titre": "My applications",
+    "nouvelle": "New application",
+    "filtreStatut": "Status",
+    "tous": "All statuses",
+    "filtrer": "Filter",
+    "nombre": "{nombre, plural, =0 {No application} one {# application} other {# applications}}",
+    "aucune": "You have no application yet.",
+    "aucuneFiltre": "No application with this status.",
+    "brouillonSansNumero": "Draft (number assigned on submission)",
+    "deposeeLe": "submitted on {date}",
+    "creeeLe": "created on {date}"
   }
 }

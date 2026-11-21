@@ -44,7 +44,9 @@
     "demandes": {
       "titre": "Mes demandes",
       "vide": "Vous n'avez encore aucune demande.",
-      "aide": "Le dépôt d'une demande en ligne sera bientôt disponible ici."
+      "aide": "Déposez une demande en ligne : choisissez le document, joignez vos pièces, puis payez les frais.",
+      "nouvelle": "Nouvelle demande",
+      "toutes": "Voir toutes mes demandes ({nombre})"
     },
     "dossiers": {
       "titre": "Dossiers à traiter",
@@ -61,5 +63,146 @@
         "conseil": "Réessayez dans quelques minutes. Vos données ne sont pas perdues."
       }
     }
+  },
+  "demande": {
+    "titreNouvelle": "Nouvelle demande",
+    "titreBrouillon": "Brouillon de demande",
+    "facultatif": "facultatif",
+    "etapes": {
+      "titre": "Étapes de la demande",
+      "demandeur": "Demandeur",
+      "document": "Document",
+      "pieces": "Pièces",
+      "recapitulatif": "Récapitulatif"
+    },
+    "demandeur": {
+      "nom": "Demandeur",
+      "email": "Adresse e-mail",
+      "organisation": "Organisation",
+      "aucuneOrganisation": "Aucune (à titre personnel)"
+    },
+    "document": {
+      "type": "Document demandé",
+      "choisir": "Choisissez un document",
+      "prefecture": "Préfecture",
+      "substance": "Substance principale",
+      "superficie": "Superficie (hectares)",
+      "superficieAide": "Nombre positif, deux décimales au plus (exemple : 125,50).",
+      "hectares": "{valeur} ha",
+      "nonPrecise": "Non précisé",
+      "delai": "Délai de traitement : {jours} jours",
+      "frais": "à payer au dépôt : {montant}",
+      "gratuit": "aucun frais au dépôt",
+      "aPayer": "À payer au dépôt",
+      "piecesRequises": "Pièces à fournir"
+    },
+    "precedent": "Précédent",
+    "continuer": "Enregistrer et continuer",
+    "enregistrer": "Enregistrer le brouillon",
+    "enregistrement": {
+      "enCours": "Enregistrement du brouillon…",
+      "fait": "Brouillon enregistré à {heure}.",
+      "reessayer": "Réessayez dans quelques instants. Vos saisies sont conservées sur cette page.",
+      "erreurs": {
+        "DEM-003": "Cette demande a déjà été déposée.",
+        "DEM-005": "Ce document n'est plus proposé.",
+        "VAL-001": "Certaines informations sont à corriger.",
+        "PERM-001": "Votre profil ne permet pas de déposer une demande.",
+        "DEM-002": "Demande introuvable.",
+        "autre": "Le brouillon n'a pas pu être enregistré."
+      }
+    },
+    "erreurs": {
+      "documentObligatoire": "Choisissez le document demandé.",
+      "superficieInvalide": "Indiquez un nombre positif, avec deux décimales au plus."
+    },
+    "nonAutorise": {
+      "titre": "Votre profil ne permet pas de déposer une demande.",
+      "retour": "Revenir au tableau de bord"
+    },
+    "pieces": {
+      "attendues": "Pièces attendues pour ce document",
+      "fournie": "✓ {piece} : fournie",
+      "manquante": "○ {piece} : à joindre",
+      "ajouter": "Joindre une pièce",
+      "type": "Cette pièce correspond à",
+      "autre": "Autre pièce",
+      "fichier": "Fichier",
+      "aide": "PDF, JPG ou PNG, 10 Mo au maximum.",
+      "joindre": "Joindre le fichier",
+      "envoi": "Envoi en cours…",
+      "ajoutee": "Pièce « {nom} » ajoutée.",
+      "retiree": "Pièce « {nom} » retirée.",
+      "chargement": "Chargement des pièces…",
+      "aucune": "Aucune pièce jointe pour le moment.",
+      "empreinte": "empreinte SHA-256 {debut}…",
+      "retirer": "Retirer",
+      "retirerLibelle": "Retirer la pièce {nom}",
+      "erreurs": {
+        "DOC-001": "Format non accepté : PDF, JPG ou PNG uniquement.",
+        "DOC-002": "Fichier trop volumineux : 10 Mo au maximum.",
+        "DOC-003": "Cette pièce est introuvable.",
+        "DEM-003": "La demande a déjà été déposée : ses pièces ne peuvent plus changer.",
+        "AUTH-001": "Votre session a expiré : reconnectez-vous.",
+        "aucunFichier": "Choisissez d'abord un fichier.",
+        "autre": "La pièce n'a pas pu être traitée. Réessayez."
+      }
+    },
+    "depot": {
+      "piecesJointes": "Pièces jointes : {nombre}",
+      "manquantesTitre": "Certaines pièces attendues ne sont pas jointes.",
+      "manquantes": "Non fournies : {liste}. Vous pouvez déposer quand même : l'agent du guichet vérifiera la complétude du dossier.",
+      "declaration": "Je déclare sur l'honneur l'exactitude des informations fournies et l'authenticité des pièces jointes.",
+      "impossible": "La demande ne peut pas encore être déposée.",
+      "manques": {
+        "declarationHonneur": "Cochez la déclaration sur l'honneur.",
+        "pieces": "Joignez au moins une pièce (section Pièces).",
+        "autre": "Le dépôt n'a pas abouti. Réessayez."
+      },
+      "deposer": "Déposer ma demande",
+      "enCours": "Dépôt en cours…"
+    }
+  },
+  "statuts": {
+    "brouillon": "Brouillon",
+    "deposee": "Déposée",
+    "complement_requis": "Complément requis",
+    "recevable": "Recevable",
+    "en_instruction": "En instruction",
+    "avis_rendu": "Avis rendu",
+    "decision": "Décision rendue",
+    "droits_payes": "Droits payés",
+    "delivree": "Délivrée",
+    "archivee": "Archivée",
+    "rejetee": "Rejetée"
+  },
+  "detail": {
+    "titreOnglet": "Ma demande",
+    "titre": "Demande {numero}",
+    "confirmation": "Votre demande {numero} a bien été déposée.",
+    "confirmationSuite": "Conservez ce numéro : il identifie votre dossier auprès du Ministère.",
+    "statut": "Statut",
+    "document": "Document",
+    "deposeLe": "Déposée le",
+    "demandeur": "Demandeur",
+    "pieces": "Pièces jointes ({nombre})",
+    "suite": {
+      "titre": "Prochaine étape",
+      "paiement": "Paiement des frais de dossier : {montant}. Le paiement en ligne sera proposé ici."
+    },
+    "retour": "Revenir au tableau de bord"
+  },
+  "mesDemandes": {
+    "titre": "Mes demandes",
+    "nouvelle": "Nouvelle demande",
+    "filtreStatut": "Statut",
+    "tous": "Tous les statuts",
+    "filtrer": "Filtrer",
+    "nombre": "{nombre, plural, =0 {Aucune demande} one {# demande} other {# demandes}}",
+    "aucune": "Vous n'avez encore aucune demande.",
+    "aucuneFiltre": "Aucune demande à ce statut.",
+    "brouillonSansNumero": "Brouillon (numéro attribué au dépôt)",
+    "deposeeLe": "déposée le {date}",
+    "creeeLe": "créée le {date}"
   }
 }

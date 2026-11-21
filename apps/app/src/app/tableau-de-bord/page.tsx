@@ -1,4 +1,11 @@
-import { ErreurApi, lireMoi, type MoiDto } from "@emine/api-client";
+import {
+  type DemandeDto,
+  ErreurApi,
+  listerDemandes,
+  listerTypesDocuments,
+  lireMoi,
+  type MoiDto,
+} from "@emine/api-client";
 import { Alerte } from "@emine/ui";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
@@ -28,8 +35,31 @@ async function chargerUtilisateur(): Promise<Resultat> {
   }
 }
 
+/** Demandes de l'usager et libellés du catalogue ; en cas d'échec, le tableau reste utilisable. */
+async function chargerDemandes(
+  moi: MoiDto,
+): Promise<{ demandes: DemandeDto[]; libelles: Record<string, string> }> {
+  if (moi.interne) return { demandes: [], libelles: {} };
+  try {
+    const session = await lireSession();
+    const [demandes, documents] = await Promise.all([
+      listerDemandes(undefined, { headers: await enTetesApi(session) }),
+      listerTypesDocuments(),
+    ]);
+    return {
+      demandes: demandes.data,
+      libelles: Object.fromEntries(documents.data.map((d) => [d.code, d.libelleFr])),
+    };
+  } catch (e) {
+    console.error("Tableau de bord : demandes indisponibles", e);
+    return { demandes: [], libelles: {} };
+  }
+}
+
 export default async function TableauDeBord() {
   const resultat = await chargerUtilisateur();
+  const { demandes, libelles } =
+    "moi" in resultat ? await chargerDemandes(resultat.moi) : { demandes: [], libelles: {} };
   const t = await getTranslations("tableauDeBord.erreurs");
   return (
     <>
@@ -46,6 +76,9 @@ export default async function TableauDeBord() {
             nom={resultat.moi.nom}
             profilLibelle={resultat.moi.profil.libelle}
             interne={resultat.moi.interne}
+            peutDeposer={resultat.moi.permissions.includes("DEPOSER")}
+            demandes={demandes}
+            libelles={libelles}
           />
         ) : (
           <Alerte nature="erreur" titre={t(`${resultat.erreur}.titre`)}>

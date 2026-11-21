@@ -57,7 +57,7 @@
 - **US-00.5** — pnpm + Turborepo ; `apps/web` et `apps/app` en Next.js ; `packages/api-client` généré par orval depuis l'OpenAPI de l'API ; `pnpm build`, `pnpm lint`, `pnpm test` passent.
 - **US-00.6** — Jetons de couleur (Navy #0A1F44, Royal #0B3A8F, Azure #1E6FD9, Sky #5AA9F0, Ice #EAF2FC, Or #C9A227), polices Cambria/Calibri ; composants bouton, champ, pastille de statut, tableau, carte, stepper ; FR/EN avec next-intl et sélecteur de langue ; axe-core sans violation sérieuse ; grille mobile-first 320→1920 px.
 - **US-00.7** — GitHub Actions : build et tests back (Testcontainers), lint/typecheck/tests front, contrôle que l'OpenAPI et le client généré sont à jour, CodeQL, Trivy, Gitleaks ; checks obligatoires sur `main`.
-- **US-00.8** — Réponse `{code, message, details}` (ProblemDetail) ; codes AUTH-001…SYS-001 de l'analyse ; messages FR/EN ; `SYS-001` affiche un identifiant d'incident.
+- **US-00.8** — Réponse `{code, message, details}` (ProblemDetail) ; codes AUTH-001…SYS-001 de l'analyse ; messages FR/EN ; `SYS-001` affiche un identifiant d'incident. *Catalogue retenu au sprint J2 : `api/src/main/java/gn/gov/mines/emine/shared/erreur/CodeErreur.java` (messages dans `api/src/main/resources/messages/`).*
 - **US-00.9** — Commande `seed` : 16 utilisateurs (un par profil), 5 organisations, 15 types de documents, tarifs, ~20 titres, demandes à tous les statuts ; uniquement des données fictives (`.test`, +224 fictifs, IBAN `GN00…`).
 
 ### E01 · Authentification, profils, droits, audit

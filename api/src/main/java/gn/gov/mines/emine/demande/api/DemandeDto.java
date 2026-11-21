@@ -1,0 +1,51 @@
+package gn.gov.mines.emine.demande.api;
+
+import gn.gov.mines.emine.demande.domaine.DemandeDetail;
+import io.swagger.v3.oas.annotations.media.Schema;
+import java.math.BigDecimal;
+import java.time.Instant;
+
+/**
+ * Demande telle que publiée par l'API. Les champs facultatifs sont à plat (et non des objets
+ * imbriqués) pour que le client TypeScript généré reflète exactement leur nullabilité.
+ *
+ * @param numero {@code DEM-AAAA-NNNNNN}, attribué au dépôt ; {@code null} pour un brouillon
+ */
+record DemandeDto(
+    long id,
+    @Schema(nullable = true) String numero,
+    String statut,
+    String typeDocumentCode,
+    Demandeur demandeur,
+    @Schema(nullable = true) Short prefectureId,
+    @Schema(nullable = true) String prefectureNom,
+    @Schema(nullable = true) String substanceCode,
+    @Schema(nullable = true) String substanceLibelle,
+    @Schema(nullable = true) BigDecimal superficieHa,
+    Instant creeLe,
+    @Schema(nullable = true) Instant deposeLe) {
+
+  /** Auteur de la demande. */
+  record Demandeur(
+      String prenom, String nom, String email, @Schema(nullable = true) String organisation) {}
+
+  static DemandeDto depuis(DemandeDetail d) {
+    return new DemandeDto(
+        d.id(),
+        d.numero(),
+        d.statut(),
+        d.typeDocumentCode(),
+        new Demandeur(
+            d.demandeur().prenom(),
+            d.demandeur().nom(),
+            d.demandeur().email(),
+            d.demandeur().organisation()),
+        d.prefectureId(),
+        d.prefectureNom(),
+        d.substanceCode(),
+        d.substanceLibelle(),
+        d.superficieHa(),
+        d.creeLe(),
+        d.deposeLe());
+  }
+}

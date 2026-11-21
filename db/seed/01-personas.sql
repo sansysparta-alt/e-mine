@@ -1,7 +1,7 @@
 -- e-mine · seed 1 — personas de démo (données FICTIVES), liés aux comptes du realm Keycloak
 -- (infra/keycloak/realm-emine.json : mêmes identifiants « id » = utilisateur.keycloak_id).
 -- Idempotent. Lancé par : pnpm db:seed (après pnpm infra:up et une première migration de l'API).
--- Le seed complet (US-00.9) ajoutera organisations, titres et demandes.
+-- Seed minimal de la V1 (US-00.9) : voir aussi 02-organisations.sql. Titres et demandes : plan complet.
 
 SET search_path = emine, public;
 
