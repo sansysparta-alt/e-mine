@@ -1,0 +1,422 @@
+/*
+ * Simulateur TrésorPay — style volontairement distinct d'e-mine (on « sort » vers un service tiers).
+ * Contrastes sur fond blanc : texte #1f2933 14,7:1 · sarcelle #0f5f5c 7,4:1 · texte doux #4b5563 7,6:1.
+ */
+:root {
+  --texte: #1f2933;
+  --texte-doux: #4b5563;
+  --sarcelle: #0f5f5c;
+  --sarcelle-fonce: #0a4442;
+  --fond: #f3f5f4;
+  --carte: #ffffff;
+  --bordure: #d5dbd9;
+  --test: #7a2e0e;
+  --test-fond: #fff4e5;
+  --vert: #067647;
+  --vert-fond: #ecfdf3;
+  --rouge: #b42318;
+  --rouge-fond: #fef3f2;
+  --focus: #1e6fd9;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family:
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    Roboto,
+    sans-serif;
+  color: var(--texte);
+  background: var(--fond);
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+h1,
+h2 {
+  line-height: 1.2;
+  margin: 0 0 0.5rem;
+}
+
+h1 {
+  font-size: 1.75rem;
+}
+
+h2 {
+  font-size: 1.25rem;
+}
+
+code {
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.9em;
+  background: var(--fond);
+  padding: 0.1em 0.3em;
+  border-radius: 0.25rem;
+}
+
+.visuellement-masque {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Bandeau */
+.bandeau {
+  background: var(--sarcelle-fonce);
+  color: #fff;
+}
+
+.bandeau__contenu {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.marque {
+  color: #fff;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  min-height: 44px;
+  align-items: center;
+}
+
+.marque__nom {
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: 0.01em;
+}
+
+.marque__sous-titre {
+  font-size: 0.875rem;
+  opacity: 0.9;
+}
+
+.etiquette-test {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--test);
+  background: var(--test-fond);
+  border-radius: 999px;
+  padding: 0.25rem 0.75rem;
+}
+
+/* Mise en page */
+.page {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+.page--etroite {
+  max-width: 30rem;
+}
+
+.intro {
+  color: var(--texte-doux);
+  margin-top: 0;
+}
+
+.carte {
+  background: var(--carte);
+  border: 1px solid var(--bordure);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.ligne-titre {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.ligne-titre h2 {
+  margin: 0;
+}
+
+/* Page de paiement */
+.surtitre {
+  margin: 0 0 0.25rem;
+  color: var(--texte-doux);
+  font-size: 0.9375rem;
+}
+
+.montant {
+  font-size: 2.25rem;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 0.25rem;
+}
+
+.libelle {
+  margin: 0 0 1.25rem;
+  font-weight: 600;
+}
+
+.details {
+  margin: 0 0 1.25rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--bordure);
+  border-bottom: 1px solid var(--bordure);
+  display: grid;
+  gap: 0.75rem;
+}
+
+.details div {
+  display: grid;
+  gap: 0.125rem;
+}
+
+.details dt {
+  color: var(--texte-doux);
+  font-size: 0.875rem;
+}
+
+.details dd {
+  margin: 0;
+}
+
+.chiffres {
+  font-variant-numeric: tabular-nums;
+}
+
+.compte-a-rebours {
+  display: block;
+  color: var(--texte-doux);
+  font-size: 0.875rem;
+}
+
+.note {
+  color: var(--texte-doux);
+  font-size: 0.875rem;
+  margin: 1rem 0 0;
+}
+
+/* Scénarios */
+.scenarios {
+  margin-bottom: 1rem;
+  border: 1px solid var(--bordure);
+  border-radius: 0.5rem;
+}
+
+.scenarios summary {
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  min-height: 44px;
+  font-weight: 600;
+}
+
+.scenarios fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0 1rem 0.75rem;
+}
+
+.scenarios legend {
+  padding: 0;
+  margin-bottom: 0.5rem;
+  color: var(--texte-doux);
+  font-size: 0.875rem;
+}
+
+.choix {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 0.625rem 0.5rem;
+  min-height: 44px;
+  border-radius: 0.375rem;
+  cursor: pointer;
+}
+
+.choix:hover {
+  background: var(--fond);
+}
+
+.choix input {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0.125rem 0 0;
+  accent-color: var(--sarcelle);
+  flex: none;
+}
+
+.choix__titre {
+  display: block;
+  font-weight: 600;
+}
+
+.choix__aide {
+  display: block;
+  color: var(--texte-doux);
+  font-size: 0.875rem;
+}
+
+/* Boutons */
+.bouton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.5rem;
+  font: inherit;
+  font-weight: 600;
+  font-size: 1rem;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.bouton + .bouton,
+form + form {
+  margin-top: 0.75rem;
+}
+
+.bouton--auto {
+  width: auto;
+}
+
+.bouton--principal {
+  background: var(--sarcelle);
+  color: #fff;
+}
+
+.bouton--principal:hover {
+  background: var(--sarcelle-fonce);
+}
+
+.bouton--principal[aria-disabled="true"] {
+  opacity: 0.75;
+  cursor: progress;
+}
+
+.bouton--secondaire {
+  background: var(--carte);
+  color: var(--sarcelle-fonce);
+  border-color: var(--bordure);
+}
+
+.bouton--secondaire:hover {
+  background: var(--fond);
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border-radius: 999px;
+  padding: 0.125rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.badge::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.badge--vert {
+  color: var(--vert);
+  background: var(--vert-fond);
+}
+
+.badge--rouge {
+  color: var(--rouge);
+  background: var(--rouge-fond);
+}
+
+/* Tableau */
+.tableau-defilant {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.625rem 0.75rem;
+  border-bottom: 1px solid var(--bordure);
+  white-space: nowrap;
+}
+
+th {
+  color: var(--texte-doux);
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.nombre {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+td a {
+  color: var(--sarcelle-fonce);
+  font-weight: 600;
+}
+
+.vide {
+  color: var(--texte-doux);
+}
+
+.liste-scenarios {
+  margin: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.liste-scenarios dt {
+  font-weight: 600;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.liste-scenarios dd {
+  margin: 0.125rem 0 0;
+  color: var(--texte-doux);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}

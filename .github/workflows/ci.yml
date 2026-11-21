@@ -28,7 +28,7 @@ jobs:
           cache: maven
       # Testcontainers utilise le Docker du runner (vrai PostgreSQL 16, jamais H2).
       - name: Build, tests et formatage (Spotless)
-        run: ./mvnw -B -ntp -pl api verify
+        run: ./mvnw -B -ntp -pl simulateurs/tresorpay,api verify
       - name: OpenAPI versionnée à jour (packages/api-client/openapi.json)
         run: |
           if ! git diff --exit-code -- packages/api-client/openapi.json; then
@@ -40,7 +40,9 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: rapports-tests-back
-          path: api/target/surefire-reports/
+          path: |
+            api/target/surefire-reports/
+            simulateurs/tresorpay/target/surefire-reports/
           retention-days: 7
 
   front:
