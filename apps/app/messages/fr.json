@@ -45,7 +45,8 @@
       "titre": "Mes demandes",
       "vide": "Vous n'avez encore aucune demande.",
       "aide": "Déposez une demande en ligne : choisissez le document, joignez vos pièces, puis payez les frais.",
-      "nouvelle": "Nouvelle demande"
+      "nouvelle": "Nouvelle demande",
+      "toutes": "Voir toutes mes demandes ({nombre})"
     },
     "dossiers": {
       "titre": "Dossiers à traiter",
@@ -190,5 +191,18 @@
       "paiement": "Paiement des frais de dossier : {montant}. Le paiement en ligne sera proposé ici."
     },
     "retour": "Revenir au tableau de bord"
+  },
+  "mesDemandes": {
+    "titre": "Mes demandes",
+    "nouvelle": "Nouvelle demande",
+    "filtreStatut": "Statut",
+    "tous": "Tous les statuts",
+    "filtrer": "Filtrer",
+    "nombre": "{nombre, plural, =0 {Aucune demande} one {# demande} other {# demandes}}",
+    "aucune": "Vous n'avez encore aucune demande.",
+    "aucuneFiltre": "Aucune demande à ce statut.",
+    "brouillonSansNumero": "Brouillon (numéro attribué au dépôt)",
+    "deposeeLe": "déposée le {date}",
+    "creeeLe": "créée le {date}"
   }
 }
