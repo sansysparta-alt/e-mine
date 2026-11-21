@@ -22,6 +22,13 @@ import {
   type ValeursBrouillon,
 } from "./schema";
 import { DepotDemande } from "./depot-demande";
+import {
+  cleSaisie,
+  ecrireSaisie,
+  effacerSaisie,
+  lireSaisie,
+  memesValeurs,
+} from "./sauvegarde-locale";
 import { SectionPieces } from "./section-pieces";
 
 /** Délai de l'enregistrement automatique du brouillon (US-03.1). */
@@ -71,6 +78,23 @@ export function FormulaireDemande(props: FormulaireDemandeProps) {
   const codeDocument = useWatch({ control, name: "typeDocumentCode" });
   const document = documents.find((d) => d.code === codeDocument);
 
+  // Saisie en cours gardée dans l'onglet (sessionStorage) : jamais perdue si la session expire ou
+  // si la page est rechargée ; restaurée à l'ouverture si elle diffère de la version enregistrée.
+  const cleCourante = useRef(cleSaisie(demandeur.email, props.demande?.id ?? null));
+  const [restauree, setRestauree] = useState(false);
+  useEffect(() => {
+    const locale = lireSaisie(cleCourante.current);
+    if (locale && !memesValeurs(locale, getValues())) {
+      reset(locale, { keepDefaultValues: true });
+      setRestauree(true);
+    }
+    const abonnement = formulaire.subscribe({
+      formState: { values: true },
+      callback: ({ values }) => ecrireSaisie(cleCourante.current, values as ValeursBrouillon),
+    });
+    return abonnement;
+  }, [formulaire, getValues, reset]);
+
   const sauvegarder = useCallback(async (): Promise<boolean> => {
     const valeurs = getValues();
     setEtat({ nature: "enregistrement" });
@@ -86,12 +110,15 @@ export function FormulaireDemande(props: FormulaireDemandeProps) {
     }
     setDemande(resultat.valeur);
     reset(valeurs, { keepValues: true });
+    effacerSaisie(cleCourante.current, cleSaisie(demandeur.email, null));
+    cleCourante.current = cleSaisie(demandeur.email, resultat.valeur.id);
+    setRestauree(false);
     setEtat({ nature: "enregistre", a: new Date() });
     if (demande === null) {
       window.history.replaceState(null, "", `/demandes/${resultat.valeur.id}/modifier`);
     }
     return true;
-  }, [demande, enregistrer, getValues, reset, setError]);
+  }, [demande, demandeur.email, enregistrer, getValues, reset, setError]);
 
   // L'état « modifié » est lu pendant le rendu (abonnement de React Hook Form), puis gardé dans une
   // référence pour la minuterie d'enregistrement automatique.
@@ -172,6 +199,11 @@ export function FormulaireDemande(props: FormulaireDemandeProps) {
         </ol>
       </nav>
 
+      {restauree ? (
+        <Alerte nature="info" titre={t("restauration.titre")}>
+          {t("restauration.texte")}
+        </Alerte>
+      ) : null}
       <EtatEnregistrement etat={etat} />
 
       <Carte>
@@ -354,6 +386,20 @@ export function FormulaireDemande(props: FormulaireDemandeProps) {
 function EtatEnregistrement({ etat }: { etat: Etat }) {
   const t = useTranslations("demande");
   if (etat.nature === "erreur") {
+    if (etat.code === "AUTH-001") {
+      const retour = typeof window === "undefined" ? "/tableau-de-bord" : window.location.pathname;
+      return (
+        <Alerte nature="avertissement" titre={t("enregistrement.erreurs.AUTH-001")}>
+          <p>{t("enregistrement.sessionExpiree")}</p>
+          <a
+            href={`/api/auth/login?retour=${encodeURIComponent(retour)}`}
+            className="mt-2 inline-flex min-h-11 items-center font-semibold text-royal underline"
+          >
+            {t("enregistrement.reconnecter")}
+          </a>
+        </Alerte>
+      );
+    }
     const cle = ["DEM-003", "DEM-005", "VAL-001", "PERM-001", "DEM-002"].includes(etat.code)
       ? etat.code
       : "autre";

@@ -5,3 +5,4 @@ export { Carte, type CarteProps } from "./composants/carte";
 export { LienEvitement } from "./composants/lien-evitement";
 export { formaterGnf } from "./format";
 export { classesChamp } from "./champ";
+export { Dialogue, type DialogueProps } from "./composants/dialogue";

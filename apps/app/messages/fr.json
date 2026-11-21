@@ -109,8 +109,11 @@
         "VAL-001": "Certaines informations sont à corriger.",
         "PERM-001": "Votre profil ne permet pas de déposer une demande.",
         "DEM-002": "Demande introuvable.",
-        "autre": "Le brouillon n'a pas pu être enregistré."
-      }
+        "autre": "Le brouillon n'a pas pu être enregistré.",
+        "AUTH-001": "Votre session a expiré."
+      },
+      "sessionExpiree": "Vos saisies sont conservées sur cet appareil. Reconnectez-vous pour les enregistrer : vous reviendrez sur cette page.",
+      "reconnecter": "Se reconnecter"
     },
     "erreurs": {
       "documentObligatoire": "Choisissez le document demandé.",
@@ -161,6 +164,10 @@
       },
       "deposer": "Déposer ma demande",
       "enCours": "Dépôt en cours…"
+    },
+    "restauration": {
+      "titre": "Saisie non enregistrée restaurée.",
+      "texte": "Vos dernières modifications, conservées sur cet appareil, ont été rétablies. Elles seront enregistrées à la prochaine étape."
     }
   },
   "statuts": {
@@ -204,5 +211,18 @@
     "brouillonSansNumero": "Brouillon (numéro attribué au dépôt)",
     "deposeeLe": "déposée le {date}",
     "creeeLe": "créée le {date}"
+  },
+  "session": {
+    "avertissement": {
+      "titre": "Votre session va expirer",
+      "texte": "Sans action de votre part, vous serez déconnecté dans 2 minutes pour protéger vos données. Vos saisies en cours sont conservées.",
+      "rester": "Rester connecté",
+      "deconnecter": "Se déconnecter"
+    },
+    "expiree": {
+      "titre": "Votre session a expiré",
+      "texte": "Reconnectez-vous pour continuer. Vos saisies en cours sont conservées sur cet appareil et vous reviendrez sur cette page.",
+      "reconnecter": "Se reconnecter"
+    }
   }
 }
