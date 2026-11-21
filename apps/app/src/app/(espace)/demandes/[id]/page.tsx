@@ -1,13 +1,5 @@
 import { ErreurApi, lireDemande, listerPieces } from "@emine/api-client";
-import {
-  Alerte,
-  BadgeStatut,
-  Bouton,
-  Carte,
-  EnTetePage,
-  formaterDateHeure,
-  formaterGnf,
-} from "@emine/ui";
+import { Alerte, BadgeStatut, Carte, EnTetePage, formaterDateHeure, formaterGnf } from "@emine/ui";
 import { ArrowLeft } from "@emine/ui/icones";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -112,11 +104,6 @@ export default async function DetailDemande({ params, searchParams }: Props) {
           </p>
         </Carte>
       ) : null}
-      <div>
-        <Bouton asChild variante="secondaire">
-          <Link href="/tableau-de-bord">{t("retour")}</Link>
-        </Bouton>
-      </div>
     </div>
   );
 }
