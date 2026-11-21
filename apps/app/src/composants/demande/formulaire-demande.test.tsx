@@ -94,6 +94,8 @@ describe("schéma du brouillon", () => {
 });
 
 describe("formulaire guidé", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
   it("affiche d'abord le demandeur, puis le document avec délai, frais et pièces", async () => {
     afficher();
     expect(screen.getByRole("heading", { level: 2, name: "Demandeur" })).toBeInTheDocument();
@@ -117,6 +119,11 @@ describe("formulaire guidé", () => {
   });
 
   it("enregistre le brouillon en quittant la section Document", async () => {
+    // La section Pièces charge la liste par le relais BFF.
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("[]", { status: 200 })),
+    );
     const { enregistrer } = afficher({ typeInitial: "PEX" });
     fireEvent.click(screen.getByRole("button", { name: "Enregistrer et continuer" }));
     fireEvent.change(await screen.findByLabelText(/Superficie/), { target: { value: "125,5" } });
@@ -130,7 +137,7 @@ describe("formulaire guidé", () => {
       }),
     );
     expect(await screen.findByRole("heading", { level: 2, name: "Pièces" })).toBeInTheDocument();
-    expect(screen.getByRole("status")).toHaveTextContent(/Brouillon enregistré à/);
+    expect(screen.getByText(/Brouillon enregistré à/)).toBeInTheDocument();
   });
 
   it("affiche l'erreur de l'API sans changer de section", async () => {

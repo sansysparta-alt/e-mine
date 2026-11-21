@@ -15,6 +15,7 @@ import {
   schemaBrouillon,
   type ValeursBrouillon,
 } from "./schema";
+import { SectionPieces } from "./section-pieces";
 
 /** Délai de l'enregistrement automatique du brouillon (US-03.1). */
 export const DELAI_ENREGISTREMENT_MS = 30_000;
@@ -254,7 +255,7 @@ export function FormulaireDemande(props: FormulaireDemandeProps) {
         ) : null}
 
         {etape === "pieces" && demande && document ? (
-          <ListePiecesRequises pieces={document.piecesRequises} />
+          <SectionPieces demandeId={demande.id} piecesRequises={document.piecesRequises} />
         ) : null}
 
         {etape === "recapitulatif" && demande && document ? (
@@ -402,20 +403,6 @@ function ResumeDocument({ document }: { document: TypeDocumentDto }) {
       <p className="mt-2 font-semibold">{t("piecesRequises")}</p>
       <ul className="list-disc pl-6">
         {document.piecesRequises.map((p) => (
-          <li key={p}>{p}</li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-function ListePiecesRequises({ pieces }: { pieces: string[] }) {
-  const t = useTranslations("demande.document");
-  return (
-    <div>
-      <p className="font-semibold">{t("piecesRequises")}</p>
-      <ul className="list-disc pl-6">
-        {pieces.map((p) => (
           <li key={p}>{p}</li>
         ))}
       </ul>

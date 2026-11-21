@@ -2,6 +2,7 @@ package gn.gov.mines.emine.shared.session;
 
 import static gn.gov.mines.emine.shared.jooq.Tables.DEMANDE;
 import static gn.gov.mines.emine.shared.jooq.Tables.PAIEMENT;
+import static gn.gov.mines.emine.shared.jooq.Tables.PIECE_JOINTE;
 import static gn.gov.mines.emine.shared.jooq.Tables.TYPE_DOCUMENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -59,6 +60,7 @@ class RlsTest extends TestIntegration {
   private long demandeA;
   private long demandeB;
   private UUID paiementA;
+  private long pieceA;
 
   @BeforeAll
   void donnees() throws SQLException {
@@ -71,6 +73,7 @@ class RlsTest extends TestIntegration {
       demandeB = demande(c, investisseurB);
       paiementA = paiement(c, demandeA, investisseurA);
       paiement(c, demandeB, investisseurB);
+      pieceA = piece(c, demandeA, investisseurA);
     }
   }
 
@@ -98,6 +101,46 @@ class RlsTest extends TestIntegration {
                     .where(PAIEMENT.DEMANDE_ID.in(demandeA, demandeB))
                     .fetch(PAIEMENT.ID));
     assertThat(visibles).containsExactly(paiementA);
+  }
+
+  @Test
+  void lesPiecesJointesSuiventLaRlsDeLaDemandeV6() {
+    java.util.function.Function<ContexteSession, List<Long>> visibles =
+        ctx ->
+            enTant(
+                ctx,
+                () ->
+                    dsl.select(PIECE_JOINTE.ID)
+                        .from(PIECE_JOINTE)
+                        .where(PIECE_JOINTE.ID.eq(pieceA))
+                        .fetch(PIECE_JOINTE.ID));
+    assertThat(visibles.apply(new ContexteSession(investisseurA, false, null)))
+        .containsExactly(pieceA);
+    assertThat(visibles.apply(new ContexteSession(investisseurB, false, null))).isEmpty();
+    assertThat(visibles.apply(new ContexteSession(agentGuichet, true, null)))
+        .containsExactly(pieceA);
+    assertThat(visibles.apply(null)).isEmpty();
+  }
+
+  @Test
+  void unInvestisseurNePeutPasJoindreUnePieceALaDemandeDUnAutre() {
+    assertThatThrownBy(
+            () ->
+                enTant(
+                    new ContexteSession(investisseurB, false, null),
+                    () ->
+                        dsl.insertInto(PIECE_JOINTE)
+                            .set(PIECE_JOINTE.DEMANDE_ID, demandeA)
+                            .set(PIECE_JOINTE.TYPE_PIECE, "Intrusion")
+                            .set(PIECE_JOINTE.NOM_FICHIER, "x.pdf")
+                            .set(PIECE_JOINTE.MIME_TYPE, "application/pdf")
+                            .set(PIECE_JOINTE.TAILLE_OCTETS, 10L)
+                            .set(PIECE_JOINTE.EMPREINTE_SHA256, "b".repeat(64))
+                            .set(PIECE_JOINTE.STOCKAGE_CLE, "intrus/" + System.nanoTime())
+                            .set(PIECE_JOINTE.DEPOSE_PAR, investisseurB)
+                            .execute()))
+        .rootCause()
+        .hasMessageContaining("row-level security");
   }
 
   @Test
@@ -226,6 +269,22 @@ class RlsTest extends TestIntegration {
             "INSERT INTO demande (type_document_id, demandeur_id)"
                 + " SELECT id, ? FROM type_document WHERE code = 'PEX' RETURNING id")) {
       ps.setLong(1, demandeur);
+      ResultSet rs = ps.executeQuery();
+      rs.next();
+      return rs.getLong(1);
+    }
+  }
+
+  private static long piece(Connection c, long demande, long auteur) throws SQLException {
+    try (PreparedStatement ps =
+        c.prepareStatement(
+            "INSERT INTO piece_jointe (demande_id, type_piece, nom_fichier, mime_type,"
+                + " taille_octets, empreinte_sha256, stockage_cle, depose_par)"
+                + " VALUES (?, 'EIES', 'eies.pdf', 'application/pdf', 1000, repeat('a', 64), ?, ?)"
+                + " RETURNING id")) {
+      ps.setLong(1, demande);
+      ps.setString(2, "rls/" + System.nanoTime());
+      ps.setLong(3, auteur);
       ResultSet rs = ps.executeQuery();
       rs.next();
       return rs.getLong(1);

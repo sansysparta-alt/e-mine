@@ -103,6 +103,86 @@
         }
       }
     },
+    "/api/v1/demandes/{demandeId}/pieces" : {
+      "get" : {
+        "tags" : [ "Demandes" ],
+        "summary" : "Pièces jointes de la demande",
+        "operationId" : "listerPieces",
+        "parameters" : [ {
+          "name" : "demandeId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/PieceDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Demandes" ],
+        "summary" : "Joindre une pièce (PDF, JPG ou PNG, 10 Mo au plus)",
+        "operationId" : "ajouterPiece",
+        "parameters" : [ {
+          "name" : "demandeId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "typePiece",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "fichier" : {
+                    "type" : "string",
+                    "format" : "binary"
+                  }
+                },
+                "required" : [ "fichier" ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Created",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PieceDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/types-documents" : {
       "get" : {
         "tags" : [ "Catalogue" ],
@@ -214,6 +294,72 @@
           }
         }
       }
+    },
+    "/api/v1/demandes/{demandeId}/pieces/{pieceId}/contenu" : {
+      "get" : {
+        "tags" : [ "Demandes" ],
+        "summary" : "Télécharger une pièce jointe",
+        "operationId" : "telechargerPiece",
+        "parameters" : [ {
+          "name" : "demandeId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "pieceId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/demandes/{demandeId}/pieces/{pieceId}" : {
+      "delete" : {
+        "tags" : [ "Demandes" ],
+        "summary" : "Retirer une pièce d'un brouillon",
+        "operationId" : "retirerPiece",
+        "parameters" : [ {
+          "name" : "demandeId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "pieceId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        }
+      }
     }
   },
   "components" : {
@@ -304,6 +450,36 @@
           }
         },
         "required" : [ "email", "nom", "organisation", "prenom" ]
+      },
+      "PieceDto" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "typePiece" : {
+            "type" : "string"
+          },
+          "nomFichier" : {
+            "type" : "string"
+          },
+          "typeMime" : {
+            "type" : "string"
+          },
+          "tailleOctets" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "empreinteSha256" : {
+            "type" : "string"
+          },
+          "deposeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "deposeLe", "empreinteSha256", "id", "nomFichier", "tailleOctets", "typeMime", "typePiece" ]
       },
       "Famille" : {
         "type" : "object",
