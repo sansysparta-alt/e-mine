@@ -115,6 +115,10 @@ Classées par impact sur le développement.
 14. Taille des pièces : 10 Mo (pièces), 5 Mo (justificatifs et CSV de périmètre) — à garder tel quel mais documenter.
 15. Chiffres affichés (1 245 titres, 450 Mds GNF, 38 500 emplois) : données d'exemple à remplacer par des requêtes.
 
+### 🔐 Sécurité du schéma fourni (à remonter au Ministère)
+
+16. **Les vues du schéma contournent la RLS.** `v_demande_suivi`, `v_paiement_a_verifier`, `v_encaissement_mensuel` et `v_demande_par_statut` appartiennent à `emine_owner` et sont créées sans `security_invoker` : PostgreSQL y applique donc les droits du propriétaire, pas ceux de l'appelant. Conséquence : le rôle applicatif `emine_app` voit par ces vues **les demandes et paiements de tous les demandeurs**, alors que la RLS les masque sur les tables. Constaté sur `v_demande_suivi` par `RlsTest.lesVuesAppliquentLaRlsDeLAppelant` (sprint J1, US-01.5) ; les trois autres vues ont la même définition de droits. → **Corrigé dans notre copie** par la migration `V4__vues_rls_appelant.sql` (`security_invoker = true`, PostgreSQL 15+). **À signaler au Ministère** : toute autre installation du schéma d'origine (`_client/`) porte la même faille ; toute nouvelle vue sur `demande` ou `paiement` doit être créée en `security_invoker`.
+
 ### Décisions retenues (provisoires, à valider par le Ministère)
 
 | # | Décision | Conséquence |
@@ -125,7 +129,7 @@ Classées par impact sur le développement.
 | D4 | Les documents signés par le Ministre sont **paramétrables dans le catalogue** | Règle le point 4 : signataire porté par le type de document / l'étape du workflow |
 | D5 | ArcGIS, TrésorPay, HSM et SMS sont **simulés** au début, derrière des interfaces remplaçables | Voir [02-stack-technique.md](02-stack-technique.md) |
 
-Restent ouverts : points 5 à 15. Décisions D6 à D10 (stack, forge, Keycloak, hébergement, méthode) : voir [02-stack-technique.md §5](02-stack-technique.md).
+Restent ouverts : points 5 à 15. Point 16 : corrigé de notre côté (V4), à porter à la connaissance du Ministère. Décisions D6 à D10 (stack, forge, Keycloak, hébergement, méthode) : voir [02-stack-technique.md §5](02-stack-technique.md).
 
 ## 4. Risques
 
@@ -137,6 +141,8 @@ Restent ouverts : points 5 à 15. Décisions D6 à D10 (stack, forge, Keycloak, 
 | HSM non fourni | Moyenne | Port `SignatureService`, signature logicielle PAdES en dev |
 | Données métier contradictoires (§3) | Certaine | Atelier de validation avant de figer le catalogue |
 | Connectivité terrain (inspecteurs, mobile 3G) | Moyenne | PWA + hors-ligne limité aux écrans prévus |
+| **Licence jOOQ** : l'édition open source (gratuite) ne prend officiellement en charge que la dernière version de PostgreSQL ; avec PostgreSQL 16 (imposé), jOOQ émet un avertissement de dialecte | Moyenne | **V1 : édition gratuite acceptée** par le porteur du projet (20/11/2026), fonctionnement vérifié par les tests Testcontainers. **Décision à prendre avant la production** : licence commerciale jOOQ (dépense) ou montée de version de PostgreSQL (à faire valider par le Ministère, le cahier des charges impose la 16) |
+| Faille RLS des vues du schéma fourni (§3, point 16) | Certaine (constatée) | Corrigée par `V4` ; `RlsTest` empêche toute régression ; vues futures en `security_invoker` ; signalement au Ministère |
 
 ## 5. Recommandation : découpage en lots
 
