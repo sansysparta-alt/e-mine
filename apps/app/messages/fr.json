@@ -205,13 +205,17 @@
       "agentDecision": "Avis rendu : la décision du signataire est attendue.",
       "agentAttenteDroits": "Décision rendue : la demande attend le paiement des droits par le demandeur.",
       "agentDelivrer": "Droits payés : le document peut être établi, signé et délivré.",
-      "demandeurPayerFrais": "Paiement des frais de dossier : {montant}. Le paiement en ligne sera proposé ici.",
+      "demandeurPayerFrais": "Réglez les frais de dossier ({montant}) pour que l’agent du guichet puisse examiner votre demande.",
       "demandeurCompleter": "Un complément est demandé : joignez les pièces indiquées par l'agent du guichet.",
       "demandeurInstruction": "Votre demande est en cours d'instruction par les services du Ministère.",
       "demandeurPayerDroits": "Une décision favorable a été rendue : payez les droits ({droits}) pour obtenir votre document.",
       "demandeurDelivrance": "Droits payés : votre document est en cours d'établissement.",
       "demandeurDelivree": "Votre document a été délivré.",
-      "demandeurRejetee": "Votre demande a été rejetée. Le motif figure dans la décision."
+      "demandeurRejetee": "Votre demande a été rejetée. Le motif figure dans la décision.",
+      "actionPayer": {
+        "FRAIS": "Payer les frais de dossier",
+        "DROITS": "Payer les droits"
+      }
     }
   },
   "mesDemandes": {
@@ -314,5 +318,60 @@
     "quitterPleinEcran": "Quitter le plein écran",
     "fermer": "Fermer le document",
     "formatNonAffichable": "Ce format ne peut pas être affiché ici. Utilisez le bouton Télécharger."
+  },
+  "paiement": {
+    "titreOnglet": "Paiement",
+    "retourDemande": "Retour à la demande",
+    "titre": {
+      "FRAIS_DOSSIER": "Payer les frais de dossier",
+      "DROITS": "Payer les droits",
+      "ATTESTATION": "Payer l’attestation",
+      "FORMATION": "Payer la formation"
+    },
+    "objet": {
+      "FRAIS_DOSSIER": "Frais de dossier",
+      "DROITS": "Droits",
+      "ATTESTATION": "Attestation (paiement unique)",
+      "FORMATION": "Formation"
+    },
+    "titreRien": "Paiement",
+    "rienTitre": "Aucun paiement n’est attendu pour cette demande",
+    "rienTexte": "Le paiement a déjà été effectué, ou aucun paiement n’est demandé à cette étape. Le suivi de votre demande indique la prochaine étape.",
+    "montantTitre": "Montant à payer",
+    "montantBareme": "Montant fixé par le barème officiel du Ministère. Il ne peut pas être modifié.",
+    "moyenTitre": "Moyen de paiement",
+    "enCoursTitre": "Un paiement est déjà en cours ({reference})",
+    "enCoursTexte": "Si vous relancez le paiement, le précédent sera annulé et une nouvelle référence sera créée.",
+    "choix": {
+      "legende": "Choisissez votre moyen de paiement",
+      "obligatoire": "Choisissez un moyen de paiement pour continuer.",
+      "bientot": "Bientôt disponible",
+      "moyens": {
+        "TRESORPAY": {
+          "titre": "TrésorPay",
+          "aide": "Paiement en ligne sécurisé par le Trésor public. Confirmation immédiate et reçu téléchargeable."
+        },
+        "VIREMENT": {
+          "titre": "Virement bancaire",
+          "aide": "Virement depuis votre banque avec la référence du paiement. Bientôt proposé sur e-mine."
+        }
+      },
+      "continuer": "Payer {montant}",
+      "payerAvec": {
+        "TRESORPAY": "Payer {montant} avec TrésorPay",
+        "VIREMENT": "Payer {montant} par virement"
+      },
+      "enCours": "Préparation du paiement…",
+      "cree": "Paiement {reference} créé",
+      "creeSuite": "Vous allez être dirigé vers TrésorPay pour le régler.",
+      "erreurs": {
+        "PAY-001": "Ce paiement a déjà été effectué",
+        "PAY-002": "Nombre de tentatives atteint pour aujourd’hui",
+        "PAY-003": "TrésorPay est momentanément indisponible",
+        "PAY-007": "Aucun paiement n’est attendu à cette étape",
+        "autre": "Le paiement n’a pas pu être préparé",
+        "reessayer": "Réessayez dans quelques instants. Si le problème persiste, contactez le guichet unique."
+      }
+    }
   }
 }

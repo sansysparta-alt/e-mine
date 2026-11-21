@@ -205,13 +205,17 @@
       "agentDecision": "Opinion given: the signatory's decision is expected.",
       "agentAttenteDroits": "Decision issued: the application is waiting for the applicant to pay the duties.",
       "agentDelivrer": "Duties paid: the document can be drawn up, signed and issued.",
-      "demandeurPayerFrais": "Application fee payment: {montant}. Online payment will be offered here.",
+      "demandeurPayerFrais": "Pay the application fee ({montant}) so that the one-stop shop officer can review your application.",
       "demandeurCompleter": "Additional information is requested: attach the documents indicated by the front desk officer.",
       "demandeurInstruction": "Your application is being reviewed by the Ministry's services.",
       "demandeurPayerDroits": "A favourable decision was issued: pay the duties ({droits}) to obtain your document.",
       "demandeurDelivrance": "Duties paid: your document is being drawn up.",
       "demandeurDelivree": "Your document has been issued.",
-      "demandeurRejetee": "Your application was rejected. The reason is given in the decision."
+      "demandeurRejetee": "Your application was rejected. The reason is given in the decision.",
+      "actionPayer": {
+        "FRAIS": "Pay the application fee",
+        "DROITS": "Pay the duties"
+      }
     }
   },
   "mesDemandes": {
@@ -314,5 +318,60 @@
     "quitterPleinEcran": "Exit full screen",
     "fermer": "Close document",
     "formatNonAffichable": "This format cannot be displayed here. Use the Download button."
+  },
+  "paiement": {
+    "titreOnglet": "Payment",
+    "retourDemande": "Back to the application",
+    "titre": {
+      "FRAIS_DOSSIER": "Pay the application fee",
+      "DROITS": "Pay the duties",
+      "ATTESTATION": "Pay for the certificate",
+      "FORMATION": "Pay for the training"
+    },
+    "objet": {
+      "FRAIS_DOSSIER": "Application fee",
+      "DROITS": "Duties",
+      "ATTESTATION": "Certificate (single payment)",
+      "FORMATION": "Training"
+    },
+    "titreRien": "Payment",
+    "rienTitre": "No payment is expected for this application",
+    "rienTexte": "The payment has already been made, or no payment is required at this stage. The application tracking shows the next step.",
+    "montantTitre": "Amount to pay",
+    "montantBareme": "Amount set by the Ministry’s official scale. It cannot be changed.",
+    "moyenTitre": "Payment method",
+    "enCoursTitre": "A payment is already in progress ({reference})",
+    "enCoursTexte": "If you start the payment again, the previous one will be cancelled and a new reference will be created.",
+    "choix": {
+      "legende": "Choose your payment method",
+      "obligatoire": "Choose a payment method to continue.",
+      "bientot": "Coming soon",
+      "moyens": {
+        "TRESORPAY": {
+          "titre": "TrésorPay",
+          "aide": "Secure online payment by the Public Treasury. Immediate confirmation and downloadable receipt."
+        },
+        "VIREMENT": {
+          "titre": "Bank transfer",
+          "aide": "Transfer from your bank with the payment reference. Coming soon on e-mine."
+        }
+      },
+      "continuer": "Pay {montant}",
+      "payerAvec": {
+        "TRESORPAY": "Pay {montant} with TrésorPay",
+        "VIREMENT": "Pay {montant} by bank transfer"
+      },
+      "enCours": "Preparing the payment…",
+      "cree": "Payment {reference} created",
+      "creeSuite": "You will be taken to TrésorPay to complete it.",
+      "erreurs": {
+        "PAY-001": "This payment has already been made",
+        "PAY-002": "Attempt limit reached for today",
+        "PAY-003": "TrésorPay is temporarily unavailable",
+        "PAY-007": "No payment is expected at this stage",
+        "autre": "The payment could not be prepared",
+        "reessayer": "Please try again in a moment. If the problem persists, contact the one-stop shop."
+      }
+    }
   }
 }

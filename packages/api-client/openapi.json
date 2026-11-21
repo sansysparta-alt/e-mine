@@ -181,6 +181,73 @@
         }
       }
     },
+    "/api/v1/demandes/{id}/paiements" : {
+      "get" : {
+        "tags" : [ "Paiements" ],
+        "summary" : "Paiements de la demande, du plus récent au plus ancien",
+        "operationId" : "listerPaiementsDemande",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/PaiementDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Paiements" ],
+        "summary" : "Choisir le moyen de paiement : crée le paiement au montant du barème (référence PAY-AAAA-NNNNNN) et annule un paiement encore ouvert pour le même objet",
+        "operationId" : "choisirMoyenPaiement",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ChoixMoyenDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Created",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PaiementDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/demandes/{id}/depot" : {
       "post" : {
         "tags" : [ "Demandes" ],
@@ -392,6 +459,34 @@
         }
       }
     },
+    "/api/v1/paiements/{reference}" : {
+      "get" : {
+        "tags" : [ "Paiements" ],
+        "summary" : "Un paiement, par sa référence",
+        "operationId" : "lirePaiement",
+        "parameters" : [ {
+          "name" : "reference",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "^PAY-[0-9]{4}-[0-9]{6}$"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PaiementDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/moi" : {
       "get" : {
         "tags" : [ "Authentification" ],
@@ -404,6 +499,34 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/MoiDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/demandes/{id}/paiements/a-payer" : {
+      "get" : {
+        "tags" : [ "Paiements" ],
+        "summary" : "Ce qui est à payer pour la demande (montant du barème, moyens proposés)",
+        "operationId" : "lirePaiementAttendu",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/APayerDto"
                 }
               }
             }
@@ -597,6 +720,61 @@
           }
         },
         "required" : [ "email", "nom", "organisation", "prenom" ]
+      },
+      "ChoixMoyenDto" : {
+        "type" : "object",
+        "properties" : {
+          "moyen" : {
+            "type" : "string",
+            "pattern" : "^(TRESORPAY|VIREMENT)$"
+          }
+        },
+        "required" : [ "moyen" ]
+      },
+      "PaiementDto" : {
+        "type" : "object",
+        "properties" : {
+          "reference" : {
+            "type" : "string"
+          },
+          "demandeId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "objet" : {
+            "type" : "string"
+          },
+          "moyen" : {
+            "type" : "string"
+          },
+          "montantGnf" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "statut" : {
+            "type" : "string"
+          },
+          "dateExpiration" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "montantRecuGnf" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "datePaiement" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "recuNumero" : {
+            "type" : [ "string", "null" ]
+          },
+          "creeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "creeLe", "dateExpiration", "datePaiement", "demandeId", "montantGnf", "montantRecuGnf", "moyen", "objet", "recuNumero", "reference", "statut" ]
       },
       "DepotDto" : {
         "type" : "object",
@@ -815,6 +993,43 @@
           }
         },
         "required" : [ "elements", "page", "taille", "total", "totalPages" ]
+      },
+      "APayerDto" : {
+        "type" : "object",
+        "properties" : {
+          "objet" : {
+            "type" : [ "string", "null" ]
+          },
+          "montantGnf" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "moyens" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/MoyenDto"
+            }
+          },
+          "referenceOuverte" : {
+            "type" : [ "string", "null" ]
+          },
+          "moyenOuvert" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "montantGnf", "moyenOuvert", "moyens", "objet", "referenceOuverte" ]
+      },
+      "MoyenDto" : {
+        "type" : "object",
+        "properties" : {
+          "moyen" : {
+            "type" : "string"
+          },
+          "disponible" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "disponible", "moyen" ]
       }
     }
   }

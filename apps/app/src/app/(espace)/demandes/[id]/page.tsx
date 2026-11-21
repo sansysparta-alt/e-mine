@@ -1,6 +1,14 @@
 import { ErreurApi, lireDemande, listerPieces } from "@emine/api-client";
-import { Alerte, BadgeStatut, Carte, EnTetePage, formaterDateHeure, formaterGnf } from "@emine/ui";
-import { ArrowLeft } from "@emine/ui/icones";
+import {
+  Alerte,
+  BadgeStatut,
+  Bouton,
+  Carte,
+  EnTetePage,
+  formaterDateHeure,
+  formaterGnf,
+} from "@emine/ui";
+import { ArrowLeft, CreditCard } from "@emine/ui/icones";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -48,6 +56,12 @@ export default async function DetailDemande({ params, searchParams }: Props) {
     permissions: moi.permissions,
   });
   const numero = demande.numero ?? "";
+  const actionPayer =
+    etape?.cle === "demandeurPayerFrais"
+      ? "FRAIS"
+      : etape?.cle === "demandeurPayerDroits"
+        ? "DROITS"
+        : null;
 
   return (
     <div className="flex flex-col gap-6">
@@ -102,6 +116,16 @@ export default async function DetailDemande({ params, searchParams }: Props) {
                 document?.tarifs.droitsGnf != null ? formaterGnf(document.tarifs.droitsGnf) : "—",
             })}
           </p>
+          {actionPayer && moi.permissions.includes("PAYER") ? (
+            <div className="mt-4">
+              <Bouton asChild taille="grande">
+                <Link href={`/demandes/${demande.id}/paiement`}>
+                  <CreditCard aria-hidden="true" className="size-5" />
+                  {t(`etape.actionPayer.${actionPayer}`)}
+                </Link>
+              </Bouton>
+            </div>
+          ) : null}
         </Carte>
       ) : null}
     </div>
