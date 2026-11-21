@@ -14,6 +14,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { AttenteConfirmation } from "@/composants/paiement/attente-confirmation";
+import { LienRecu } from "@/composants/paiement/lien-recu";
 import {
   enAttenteDeConfirmation,
   peutReessayer,
@@ -83,6 +84,8 @@ export default async function RetourPaiement({ params, searchParams }: Props) {
         ) : (
           <Issue
             statut={paiement.statut}
+            reference={paiement.reference}
+            recuNumero={paiement.recuNumero}
             tentatives={tentatives}
             lienDemande={lienDemande}
             lienPayer={lienPayer}
@@ -125,6 +128,8 @@ export default async function RetourPaiement({ params, searchParams }: Props) {
 
 type IssueProps = {
   statut: string;
+  reference: string;
+  recuNumero: string | null;
   tentatives: number | null;
   lienDemande: string;
   lienPayer: string;
@@ -132,9 +137,17 @@ type IssueProps = {
 };
 
 /** Message et actions selon l'issue du paiement. */
-function Issue({ statut, tentatives, lienDemande, lienPayer, t }: IssueProps) {
+function Issue({
+  statut,
+  reference,
+  recuNumero,
+  tentatives,
+  lienDemande,
+  lienPayer,
+  t,
+}: IssueProps) {
   const retour = (
-    <Bouton asChild variante={statut === "paye" ? "primaire" : "secondaire"}>
+    <Bouton asChild variante="secondaire">
       <Link href={lienDemande}>{t("retourDemande")}</Link>
     </Bouton>
   );
@@ -144,7 +157,10 @@ function Issue({ statut, tentatives, lienDemande, lienPayer, t }: IssueProps) {
         <Alerte nature="succes" titre={t("issue.paye.titre")}>
           {t("issue.paye.texte")}
         </Alerte>
-        <div className="flex flex-wrap gap-3">{retour}</div>
+        <div className="flex flex-wrap gap-3">
+          {recuNumero ? <LienRecu reference={reference} numero={recuNumero} /> : null}
+          {retour}
+        </div>
       </div>
     );
   }

@@ -25,6 +25,11 @@ export function identifiant(valeur: string): string | null {
   return /^\d{1,18}$/.test(valeur) ? valeur : null;
 }
 
+/** Référence de paiement `PAY-AAAA-NNNNNN`, sinon `null` (aucune autre valeur n'est relayée). */
+export function referencePaiement(valeur: string): string | null {
+  return /^PAY-\d{4}-\d{6}$/.test(valeur) ? valeur : null;
+}
+
 /**
  * Relaie une requête du navigateur vers l'API au nom de l'utilisateur connecté (BFF) : le jeton
  * d'accès est ajouté ici, côté serveur, et ne parvient jamais au navigateur.

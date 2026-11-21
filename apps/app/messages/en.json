@@ -228,7 +228,8 @@
         "objet": "Purpose",
         "montant": "Amount",
         "statut": "Status",
-        "date": "Date"
+        "date": "Date",
+        "recu": "Receipt"
       }
     }
   },
@@ -416,7 +417,7 @@
       "issue": {
         "paye": {
           "titre": "Payment confirmed",
-          "texte": "Thank you. Your payment has been received by the Public Treasury. The one-stop shop officer can now review your application."
+          "texte": "Thank you. Your payment has been received by the Public Treasury and your receipt is ready. The one-stop shop officer can now review your application."
         },
         "a_verifier": {
           "titre": "Payment received, under review",
@@ -439,6 +440,10 @@
           "texte": "The payment was not completed. Go back to your application to see what happens next."
         }
       }
+    },
+    "recu": {
+      "telecharger": "Download the receipt (PDF)",
+      "telechargerNumero": "Download receipt {numero} (PDF)"
     }
   },
   "statutsPaiement": {
