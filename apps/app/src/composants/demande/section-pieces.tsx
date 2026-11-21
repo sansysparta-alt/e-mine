@@ -1,7 +1,15 @@
 "use client";
 
 import type { PieceDto } from "@emine/api-client";
-import { Alerte, BadgeStatut, cn, formaterTaille } from "@emine/ui";
+import {
+  Alerte,
+  BadgeStatut,
+  classesAuDessusDuLien,
+  classesLienEtire,
+  classesLigneCliquable,
+  cn,
+  formaterTaille,
+} from "@emine/ui";
 import { Eye, FileUp, Loader2, Trash2 } from "@emine/ui/icones";
 import { useTranslations } from "next-intl";
 import { type DragEvent, useEffect, useId, useRef, useState } from "react";
@@ -217,7 +225,10 @@ function BlocPiece({
       {pieces && pieces.length > 0 ? (
         <ul className="flex flex-col divide-y divide-bordure rounded-lg border border-bordure">
           {pieces.map((p) => (
-            <li key={p.id} className="flex flex-wrap items-center gap-2 px-3 py-2">
+            <li
+              key={p.id}
+              className={cn("flex flex-wrap items-center gap-2 px-3 py-2", classesLigneCliquable)}
+            >
               <span className="min-w-0 flex-1">
                 <span className="block font-semibold break-all">{p.nomFichier}</span>
                 <span className="block text-sm text-texte-doux">
@@ -230,7 +241,10 @@ function BlocPiece({
               <button
                 type="button"
                 onClick={() => surConsultation(p)}
-                className="inline-flex min-h-11 items-center gap-2 rounded-lg px-3 font-semibold text-royal hover:bg-ice"
+                className={cn(
+                  "inline-flex min-h-11 items-center gap-2 rounded-lg px-3 font-semibold text-royal",
+                  classesLienEtire,
+                )}
               >
                 <Eye aria-hidden="true" className="size-5" />
                 {t("consulter")}
@@ -239,7 +253,10 @@ function BlocPiece({
               <button
                 type="button"
                 onClick={() => void retirer(p)}
-                className="inline-flex min-h-11 items-center gap-2 rounded-lg px-3 font-semibold text-danger hover:bg-danger-fond"
+                className={cn(
+                  "inline-flex min-h-11 items-center gap-2 rounded-lg px-3 font-semibold text-danger hover:bg-danger-fond",
+                  classesAuDessusDuLien,
+                )}
               >
                 <Trash2 aria-hidden="true" className="size-5" />
                 {t("retirer")}

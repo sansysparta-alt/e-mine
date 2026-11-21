@@ -30,6 +30,9 @@ export {
 } from "./composants/page";
 export {
   ChampRecherche,
+  classesAuDessusDuLien,
+  classesLienEtire,
+  classesLigneCliquable,
   type ColonneTableau,
   type ComposantLien,
   FiltresPastilles,

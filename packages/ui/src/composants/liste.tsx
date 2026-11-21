@@ -25,7 +25,26 @@ export type ColonneTableau<T> = {
   /** Colonne triable : l'en-tête devient un lien vers la liste triée. */
   triable?: boolean;
   alignement?: "gauche" | "droite";
+  /**
+   * Cellule contenant ses propres boutons ou liens d'action : placée au-dessus du lien de ligne,
+   * elle garde son comportement (règle des lignes cliquables).
+   */
+  interactive?: boolean;
 };
+
+/**
+ * Lien étiré (socle) : le lien couvre toute la ligne (pseudo-élément), la ligne entière est donc
+ * cliquable tout en restant un vrai lien : Tab, Entrée, Ctrl+clic et clic du milieu (nouvel
+ * onglet), lecteurs d'écran. Le conteneur de la ligne doit être en `relative`.
+ */
+export const classesLienEtire =
+  "after:absolute after:inset-0 after:content-[''] focus-visible:outline-none focus-visible:after:outline-3 focus-visible:after:-outline-offset-2 focus-visible:after:outline-azure";
+
+/** Ligne cliquable : survol visible (fond léger, curseur main). */
+export const classesLigneCliquable = "relative cursor-pointer hover:bg-fond";
+
+/** Élément d'action d'une ligne cliquable : au-dessus du lien étiré. */
+export const classesAuDessusDuLien = "relative z-10";
 
 export type TableauDonneesProps<T> = {
   /** Légende lue par les lecteurs d'écran (titre du tableau). */
@@ -38,12 +57,18 @@ export type TableauDonneesProps<T> = {
   lienTri?: (colonne: string) => string;
   libellesTri?: { croissant: string; decroissant: string; trier: string };
   Lien?: ComposantLien;
+  /**
+   * Adresse de l'élément d'une ligne : la ligne entière devient cliquable (lien étiré sur la
+   * première colonne).
+   */
+  lienLigne?: (ligne: T) => string;
 };
 
 /**
  * Tableau de données du socle. Grand écran : tableau classique, en-têtes triables (`aria-sort`).
  * Mobile : chaque ligne devient une carte, chaque cellule précédée de son intitulé. Un seul
- * tableau dans le DOM (pas de doublon pour les lecteurs d'écran).
+ * tableau dans le DOM (pas de doublon pour les lecteurs d'écran). Avec `lienLigne`, la ligne
+ * entière ouvre l'élément (lien étiré).
  */
 export function TableauDonnees<T>({
   legende,
@@ -54,6 +79,7 @@ export function TableauDonnees<T>({
   lienTri,
   libellesTri = { croissant: "tri croissant", decroissant: "tri décroissant", trier: "Trier par" },
   Lien = LienParDefaut,
+  lienLigne,
 }: TableauDonneesProps<T>) {
   return (
     <div className="rounded-carte border border-bordure bg-white">
@@ -108,7 +134,10 @@ export function TableauDonnees<T>({
           {lignes.map((ligne) => (
             <tr
               key={cleLigne(ligne)}
-              className="block border-b border-bordure px-4 py-3 last:border-b-0 sm:table-row sm:p-0 sm:hover:bg-fond"
+              className={cn(
+                "block border-b border-bordure px-4 py-3 last:border-b-0 sm:table-row sm:p-0",
+                lienLigne ? classesLigneCliquable : "sm:hover:bg-fond",
+              )}
             >
               {colonnes.map((c, i) => (
                 <td
@@ -125,7 +154,21 @@ export function TableauDonnees<T>({
                   >
                     {c.entete}
                   </span>
-                  <span className="min-w-0">{c.rendu(ligne)}</span>
+                  <span className={cn("min-w-0", c.interactive && classesAuDessusDuLien)}>
+                    {i === 0 && lienLigne ? (
+                      <Lien
+                        href={lienLigne(ligne)}
+                        className={cn(
+                          "text-royal underline-offset-4 hover:underline",
+                          classesLienEtire,
+                        )}
+                      >
+                        {c.rendu(ligne)}
+                      </Lien>
+                    ) : (
+                      c.rendu(ligne)
+                    )}
+                  </span>
                 </td>
               ))}
             </tr>
