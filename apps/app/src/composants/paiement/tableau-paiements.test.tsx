@@ -1,5 +1,5 @@
 import type { PaiementDto } from "@emine/api-client";
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import fr from "../../../messages/fr.json";
 import { adresseRecu, LienRecu } from "./lien-recu";
@@ -42,18 +42,26 @@ describe("historique des paiements et reçu (US-04.4, US-04.6)", () => {
     expect(within(premiere).getByText("Payé")).toBeInTheDocument();
     expect(within(premiere).getByText("Frais de dossier")).toBeInTheDocument();
     expect(within(premiere).getByText(/5\s000\s000/)).toBeInTheDocument();
-    const recu = within(premiere).getByRole("link", { name: /REC-2026-000001/ });
-    expect(recu).toHaveAttribute("href", "/api/paiements/PAY-2026-000002/recu");
-    expect(recu).toHaveAttribute("download");
+    fireEvent.click(within(premiere).getByRole("button", { name: /REC-2026-000001/ }));
+    expect(document.querySelector("iframe")).toHaveAttribute(
+      "src",
+      "/api/paiements/PAY-2026-000002/recu?inline=1",
+    );
     expect(within(seconde).getByText("Refusé")).toBeInTheDocument();
-    expect(within(seconde).queryByRole("link", { name: /REC-/ })).not.toBeInTheDocument();
+    expect(within(seconde).queryByRole("button", { name: /REC-/ })).not.toBeInTheDocument();
     expect(lienPaiement(paye)).toBe("/demandes/42/paiement/retour?reference=PAY-2026-000002");
   });
 
-  it("propose un bouton explicite sur la page de résultat", () => {
+  it("ouvre le reçu dans le visualiseur, qui propose le téléchargement", () => {
     afficher(<LienRecu reference="PAY-2026-000002" numero="REC-2026-000001" />);
-    expect(
-      screen.getByRole("link", { name: "Télécharger le reçu REC-2026-000001 (PDF)" }),
-    ).toHaveAttribute("href", adresseRecu("PAY-2026-000002"));
+    fireEvent.click(screen.getByRole("button", { name: "Voir le reçu REC-2026-000001" }));
+    expect(document.querySelector("iframe")).toHaveAttribute(
+      "src",
+      `${adresseRecu("PAY-2026-000002")}?inline=1`,
+    );
+    expect(screen.getByRole("link", { name: /Télécharger/ })).toHaveAttribute(
+      "href",
+      adresseRecu("PAY-2026-000002"),
+    );
   });
 });

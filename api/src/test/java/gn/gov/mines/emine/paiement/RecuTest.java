@@ -82,6 +82,21 @@ class RecuTest extends TestIntegration {
   }
 
   @Test
+  void leRecuSAfficheDansLeVisualiseurAvecInline() throws Exception {
+    String ref = payerEtConfirmer(DemandesDeTest.deposee(INVESTISSEUR, "PEX"));
+    mvc.perform(get("/api/v1/paiements/" + ref + "/recu?inline=true").with(investisseur()))
+        .andExpect(status().isOk())
+        .andExpect(header().string("Content-Type", "application/pdf"))
+        .andExpect(
+            header()
+                .string(
+                    "Content-Disposition",
+                    org.hamcrest.Matchers.matchesPattern(
+                        "inline; filename=\"recu-REC-\\d{4}-\\d{6}\\.pdf\"")))
+        .andExpect(header().string("X-Content-Type-Options", "nosniff"));
+  }
+
+  @Test
   void pasDeRecuAvantLaConfirmation() throws Exception {
     long demande = DemandesDeTest.deposee(INVESTISSEUR, "PEX");
     String ref = payer(demande);

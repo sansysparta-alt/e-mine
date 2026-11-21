@@ -87,7 +87,6 @@ export default async function RetourPaiement({ params, searchParams }: Props) {
             reference={paiement.reference}
             recuNumero={paiement.recuNumero}
             tentatives={tentatives}
-            lienDemande={lienDemande}
             lienPayer={lienPayer}
             t={t}
           />
@@ -131,36 +130,23 @@ type IssueProps = {
   reference: string;
   recuNumero: string | null;
   tentatives: number | null;
-  lienDemande: string;
   lienPayer: string;
   t: Awaited<ReturnType<typeof getTranslations<"paiement.retour">>>;
 };
 
 /** Message et actions selon l'issue du paiement. */
-function Issue({
-  statut,
-  reference,
-  recuNumero,
-  tentatives,
-  lienDemande,
-  lienPayer,
-  t,
-}: IssueProps) {
-  const retour = (
-    <Bouton asChild variante="secondaire">
-      <Link href={lienDemande}>{t("retourDemande")}</Link>
-    </Bouton>
-  );
+function Issue({ statut, reference, recuNumero, tentatives, lienPayer, t }: IssueProps) {
   if (statut === "paye") {
     return (
       <div className="flex flex-col gap-4">
         <Alerte nature="succes" titre={t("issue.paye.titre")}>
           {t("issue.paye.texte")}
         </Alerte>
-        <div className="flex flex-wrap gap-3">
-          {recuNumero ? <LienRecu reference={reference} numero={recuNumero} /> : null}
-          {retour}
-        </div>
+        {recuNumero ? (
+          <div className="flex flex-wrap gap-3">
+            <LienRecu reference={reference} numero={recuNumero} />
+          </div>
+        ) : null}
       </div>
     );
   }
@@ -170,7 +156,6 @@ function Issue({
         <Alerte nature="avertissement" titre={t("issue.a_verifier.titre")}>
           {t("issue.a_verifier.texte")}
         </Alerte>
-        <div className="flex flex-wrap gap-3">{retour}</div>
       </div>
     );
   }
@@ -197,7 +182,6 @@ function Issue({
             </Link>
           </Bouton>
         ) : null}
-        {retour}
       </div>
     </div>
   );

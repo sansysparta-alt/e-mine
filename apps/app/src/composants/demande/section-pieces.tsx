@@ -1,16 +1,8 @@
 "use client";
 
 import type { PieceDto } from "@emine/api-client";
-import {
-  Alerte,
-  BadgeStatut,
-  classesAuDessusDuLien,
-  classesLienEtire,
-  classesLigneCliquable,
-  cn,
-  formaterTaille,
-} from "@emine/ui";
-import { Eye, FileUp, Loader2, Trash2 } from "@emine/ui/icones";
+import { Alerte, BadgeStatut, cn, formaterTaille } from "@emine/ui";
+import { Eye, FileText, FileUp, Loader2, RefreshCw, Trash2 } from "@emine/ui/icones";
 import { useTranslations } from "next-intl";
 import { type DragEvent, useEffect, useId, useRef, useState } from "react";
 import { documentDePiece, useVisualiseurDocument } from "../documents/visualiseur";
@@ -52,10 +44,11 @@ async function lireErreur(r: Response): Promise<Erreur> {
 }
 
 /**
- * Pièces jointes d'un brouillon (US-03.2, correctifs J2 C5–C7) : un bloc par pièce attendue du
- * catalogue, plus « Autre pièce ». Choisir ou glisser-déposer un fichier l'envoie aussitôt (un
- * seul geste) ; les erreurs s'affichent sur la pièce concernée ; chaque fichier se consulte dans le
- * visualiseur ou se retire.
+ * Pièces jointes d'un brouillon (US-03.2, correctifs J2 C5–C7, correctifs J4) : une liste
+ * compacte, une ligne par pièce attendue du catalogue plus « Autre pièce », précédée de
+ * l'avancement (pièces obligatoires fournies). Choisir un fichier ou le glisser sur la ligne
+ * l'envoie aussitôt ; une pièce obligatoire déjà fournie se remplace en un geste ; chaque fichier
+ * s'ouvre dans le visualiseur (consultation, puis téléchargement si besoin) ou se retire.
  */
 export function SectionPieces({ demandeId, piecesRequises, surChangement }: SectionPiecesProps) {
   const t = useTranslations("demande.pieces");
@@ -99,33 +92,63 @@ export function SectionPieces({ demandeId, piecesRequises, surChangement }: Sect
   }
 
   const types = [...piecesRequises, AUTRE_PIECE];
+  const fournies = piecesRequises.filter((p) => pieces?.some((x) => x.typePiece === p)).length;
+  const total = piecesRequises.length;
 
   return (
-    <div className="flex flex-col gap-4">
-      <p className="text-texte-doux">{t("consigne")}</p>
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-2">
+        <p className="text-texte-doux">{t("consigne")}</p>
+        {total > 0 ? (
+          <div className="flex items-center gap-3">
+            <div
+              role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={total}
+              aria-valuenow={pieces === null ? undefined : fournies}
+              aria-label={t("avancementLibelle")}
+              className="h-2 flex-1 overflow-hidden rounded-full bg-fond ring-1 ring-bordure"
+            >
+              <div
+                className={cn(
+                  "h-full rounded-full transition-[width]",
+                  fournies === total ? "bg-succes" : "bg-royal",
+                )}
+                style={{ width: `${pieces === null ? 0 : (fournies / total) * 100}%` }}
+              />
+            </div>
+            <p className="shrink-0 text-sm font-semibold">
+              {t("avancement", { fournies: pieces === null ? 0 : fournies, total })}
+            </p>
+          </div>
+        ) : null}
+      </div>
       {erreurChargement ? (
         <Alerte nature="erreur" titre={t("erreurs.chargement")}>
           {erreurChargement.message || null}
         </Alerte>
       ) : null}
-      {types.map((type) => (
-        <BlocPiece
-          key={type}
-          type={type}
-          obligatoire={type !== AUTRE_PIECE}
-          pieces={pieces === null ? null : pieces.filter((p) => p.typePiece === type)}
-          url={url}
-          surAjout={(p) => mettreAJour((l) => [...l, p])}
-          surRetrait={(p) => mettreAJour((l) => l.filter((x) => x.id !== p.id))}
-          surConsultation={(p) => ouvrir(documentDePiece(demandeId, p))}
-        />
-      ))}
+      <ul className="flex flex-col divide-y divide-bordure rounded-carte border border-bordure bg-white">
+        {types.map((type) => (
+          <li key={type}>
+            <LignePiece
+              type={type}
+              obligatoire={type !== AUTRE_PIECE}
+              pieces={pieces === null ? null : pieces.filter((p) => p.typePiece === type)}
+              url={url}
+              surAjout={(p) => mettreAJour((l) => [...l, p])}
+              surRetrait={(p) => mettreAJour((l) => l.filter((x) => x.id !== p.id))}
+              surConsultation={(p) => ouvrir(documentDePiece(demandeId, p))}
+            />
+          </li>
+        ))}
+      </ul>
       {visualiseur}
     </div>
   );
 }
 
-type BlocPieceProps = {
+type LignePieceProps = {
   type: string;
   obligatoire: boolean;
   /** `null` pendant le chargement. */
@@ -136,8 +159,8 @@ type BlocPieceProps = {
   surConsultation: (p: PieceDto) => void;
 };
 
-/** Une pièce attendue : état, fichiers joints, zone de dépôt et erreurs propres à cette pièce. */
-function BlocPiece({
+/** Une pièce attendue : état, bouton d'ajout (ou de remplacement), fichiers joints, erreurs. */
+function LignePiece({
   type,
   obligatoire,
   pieces,
@@ -145,7 +168,7 @@ function BlocPiece({
   surAjout,
   surRetrait,
   surConsultation,
-}: BlocPieceProps) {
+}: LignePieceProps) {
   const t = useTranslations("demande.pieces");
   const id = useId();
   const champ = useRef<HTMLInputElement>(null);
@@ -153,7 +176,10 @@ function BlocPiece({
   const [message, setMessage] = useState("");
   const [envoi, setEnvoi] = useState(false);
   const [survol, setSurvol] = useState(false);
-  const fournie = (pieces?.length ?? 0) > 0;
+  const fichiers = pieces ?? [];
+  const fournie = fichiers.length > 0;
+  /** Une pièce obligatoire n'a qu'un fichier : en choisir un autre remplace le précédent. */
+  const remplacer = obligatoire && fournie;
   const titre = type === AUTRE_PIECE ? t("autre") : type;
 
   async function envoyer(fichier: File | undefined) {
@@ -174,7 +200,16 @@ function BlocPiece({
       if (!r.ok) throw await lireErreur(r);
       const piece = (await r.json()) as PieceDto;
       surAjout(piece);
-      setMessage(t("ajoutee", { nom: piece.nomFichier }));
+      if (remplacer) {
+        // Le nouveau fichier est enregistré : l'ancien peut être retiré sans risque de perte.
+        for (const ancien of fichiers) {
+          const s = await fetch(`${url}/${ancien.id}`, { method: "DELETE" });
+          if (s.ok) surRetrait(ancien);
+        }
+        setMessage(t("remplacee", { nom: piece.nomFichier }));
+      } else {
+        setMessage(t("ajoutee", { nom: piece.nomFichier }));
+      }
     } catch (e) {
       setErreur(e as Erreur);
     } finally {
@@ -195,117 +230,118 @@ function BlocPiece({
     setMessage(t("retiree", { nom: piece.nomFichier }));
   }
 
-  function deposer(e: DragEvent<HTMLLabelElement>) {
+  function deposer(e: DragEvent<HTMLElement>) {
     e.preventDefault();
     setSurvol(false);
     void envoyer(e.dataTransfer.files[0]);
   }
 
+  const action = envoi ? t("envoi") : remplacer ? t("remplacer") : t("ajouter");
+  const IconeAction = envoi ? Loader2 : remplacer ? RefreshCw : FileUp;
+
   return (
     <section
       aria-labelledby={`${id}-titre`}
+      aria-busy={envoi || undefined}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setSurvol(true);
+      }}
+      onDragLeave={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setSurvol(false);
+      }}
+      onDrop={deposer}
       className={cn(
-        "flex flex-col gap-3 rounded-carte border bg-white p-4",
-        erreur ? "border-danger/50" : "border-bordure",
+        "flex flex-col gap-2 px-4 py-3 transition-colors",
+        survol && "bg-ice outline-2 -outline-offset-2 outline-royal outline-dashed",
+        erreur && !survol && "bg-danger-fond/40",
       )}
     >
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 id={`${id}-titre`} className="text-lg">
-          {titre}
-        </h3>
-        {obligatoire ? (
-          <BadgeStatut ton={fournie ? "succes" : "avertissement"}>
-            {fournie ? t("fournie") : t("obligatoire")}
-          </BadgeStatut>
-        ) : (
-          <BadgeStatut ton="neutre">{t("facultative")}</BadgeStatut>
-        )}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-1">
+          <h3 id={`${id}-titre`} className="font-texte text-base font-semibold text-navy">
+            {titre}
+          </h3>
+          {obligatoire ? (
+            <BadgeStatut ton={fournie ? "succes" : "avertissement"}>
+              {fournie ? t("fournie") : t("obligatoire")}
+            </BadgeStatut>
+          ) : (
+            <BadgeStatut ton="neutre">{t("facultative")}</BadgeStatut>
+          )}
+          {survol ? (
+            <span className="text-sm font-semibold text-royal">{t("deposerIci")}</span>
+          ) : null}
+        </div>
+        <label
+          htmlFor={`${id}-fichier`}
+          className={cn(
+            "inline-flex min-h-11 shrink-0 cursor-pointer items-center justify-center gap-2 self-start rounded-lg border-2 px-4 font-semibold sm:self-auto",
+            "focus-within:outline-3 focus-within:outline-offset-2 focus-within:outline-azure",
+            remplacer
+              ? "border-bordure bg-white text-royal hover:border-royal"
+              : "border-royal bg-white text-royal hover:bg-ice",
+            envoi && "cursor-wait opacity-80",
+          )}
+        >
+          <IconeAction
+            aria-hidden="true"
+            className={cn("size-5", envoi && "motion-safe:animate-spin")}
+          />
+          <span aria-hidden="true">{action}</span>
+          <input
+            id={`${id}-fichier`}
+            ref={champ}
+            type="file"
+            accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+            disabled={envoi}
+            aria-label={t("champ", { piece: titre })}
+            aria-describedby={erreur ? `${id}-erreur` : undefined}
+            onChange={(e) => void envoyer(e.target.files?.[0])}
+            className="sr-only"
+          />
+        </label>
       </div>
 
-      {pieces && pieces.length > 0 ? (
-        <ul className="flex flex-col divide-y divide-bordure rounded-lg border border-bordure">
-          {pieces.map((p) => (
+      {fichiers.length > 0 ? (
+        <ul className="flex flex-col gap-1">
+          {fichiers.map((p) => (
             <li
               key={p.id}
-              className={cn("flex flex-wrap items-center gap-2 px-3 py-2", classesLigneCliquable)}
+              className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg bg-fond px-3 py-1"
             >
-              <span className="min-w-0 flex-1">
-                <span className="block font-semibold break-all">{p.nomFichier}</span>
-                <span className="block text-sm text-texte-doux">
-                  {formaterTaille(p.tailleOctets)} ·{" "}
-                  <span title={p.empreinteSha256}>
-                    {t("empreinte", { debut: p.empreinteSha256.slice(0, 12) })}
-                  </span>
-                </span>
+              <FileText aria-hidden="true" className="size-5 shrink-0 text-texte-doux" />
+              <span
+                className="min-w-0 flex-1 text-sm"
+                title={t("empreinte", { valeur: p.empreinteSha256 })}
+              >
+                <span className="font-semibold break-all">{p.nomFichier}</span>
+                <span className="text-texte-doux"> · {formaterTaille(p.tailleOctets)}</span>
               </span>
-              <button
-                type="button"
-                onClick={() => surConsultation(p)}
-                className={cn(
-                  "inline-flex min-h-11 items-center gap-2 rounded-lg px-3 font-semibold text-royal",
-                  classesLienEtire,
-                )}
-              >
-                <Eye aria-hidden="true" className="size-5" />
-                {t("consulter")}
-                <span className="sr-only">{p.nomFichier}</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => void retirer(p)}
-                className={cn(
-                  "inline-flex min-h-11 items-center gap-2 rounded-lg px-3 font-semibold text-danger hover:bg-danger-fond",
-                  classesAuDessusDuLien,
-                )}
-              >
-                <Trash2 aria-hidden="true" className="size-5" />
-                {t("retirer")}
-                <span className="sr-only">{p.nomFichier}</span>
-              </button>
+              <span className="flex items-center">
+                <button
+                  type="button"
+                  onClick={() => surConsultation(p)}
+                  className="inline-flex min-h-11 items-center gap-1 rounded-lg px-3 text-sm font-semibold text-royal hover:bg-ice"
+                >
+                  <Eye aria-hidden="true" className="size-4" />
+                  {t("consulter")}
+                  <span className="sr-only">{p.nomFichier}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void retirer(p)}
+                  className="inline-flex min-h-11 items-center gap-1 rounded-lg px-3 text-sm font-semibold text-danger hover:bg-danger-fond"
+                >
+                  <Trash2 aria-hidden="true" className="size-4" />
+                  {t("retirer")}
+                  <span className="sr-only">{p.nomFichier}</span>
+                </button>
+              </span>
             </li>
           ))}
         </ul>
       ) : null}
-
-      <label
-        htmlFor={`${id}-fichier`}
-        onDragOver={(e) => {
-          e.preventDefault();
-          setSurvol(true);
-        }}
-        onDragLeave={() => setSurvol(false)}
-        onDrop={deposer}
-        aria-busy={envoi || undefined}
-        className={cn(
-          "flex min-h-16 cursor-pointer items-center justify-center gap-3 rounded-lg border-2 border-dashed px-4 py-3 text-center font-semibold transition-colors",
-          "focus-within:outline-3 focus-within:outline-offset-2 focus-within:outline-azure",
-          survol
-            ? "border-royal bg-ice text-royal"
-            : "border-azure/60 bg-white text-royal hover:bg-ice",
-          envoi && "cursor-wait opacity-80",
-        )}
-      >
-        {envoi ? (
-          <Loader2 aria-hidden="true" className="size-5 motion-safe:animate-spin" />
-        ) : (
-          <FileUp aria-hidden="true" className="size-5" />
-        )}
-        <span>
-          {envoi ? t("envoi") : fournie ? t("ajouterAutre") : t("choisir")}
-          <span className="block text-sm font-normal text-texte-doux">{t("aide")}</span>
-        </span>
-        <input
-          id={`${id}-fichier`}
-          ref={champ}
-          type="file"
-          accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
-          disabled={envoi}
-          aria-label={t("champ", { piece: titre })}
-          aria-describedby={erreur ? `${id}-erreur` : undefined}
-          onChange={(e) => void envoyer(e.target.files?.[0])}
-          className="sr-only"
-        />
-      </label>
 
       {erreur ? (
         <div id={`${id}-erreur`}>

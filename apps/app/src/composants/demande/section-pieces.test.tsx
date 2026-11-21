@@ -92,7 +92,7 @@ describe("écran des pièces (correctifs J2 C5–C7)", () => {
     );
   });
 
-  it("accepte un fichier glissé-déposé sur la zone", async () => {
+  it("accepte un fichier glissé-déposé sur la ligne de la pièce", async () => {
     const appels = vi
       .fn()
       .mockResolvedValueOnce(reponse(200, []))
@@ -100,9 +100,9 @@ describe("écran des pièces (correctifs J2 C5–C7)", () => {
     vi.stubGlobal("fetch", appels);
     const surChangement = afficher();
     await waitFor(() => expect(surChangement).toHaveBeenCalledWith([]));
-    const zone = within(bloc("Plan de restauration")).getByText(
-      "Choisir un fichier ou le glisser ici",
-    );
+    const zone = bloc("Plan de restauration");
+    fireEvent.dragOver(zone);
+    expect(within(zone).getByText("Déposez le fichier pour cette pièce")).toBeInTheDocument();
     const fichier = new File(["%PDF-1.7"], "plan.pdf", { type: "application/pdf" });
     fireEvent.drop(zone, { dataTransfer: { files: [fichier] } });
     await waitFor(() => expect(appels).toHaveBeenCalledTimes(2));
@@ -155,7 +155,7 @@ describe("écran des pièces (correctifs J2 C5–C7)", () => {
     );
     const surChangement = afficher();
     await waitFor(() => expect(surChangement).toHaveBeenCalledWith([eies]));
-    fireEvent.click(within(bloc("EIES")).getByRole("button", { name: /Consulter/ }));
+    fireEvent.click(within(bloc("EIES")).getByRole("button", { name: /Voir/ }));
     expect(document.querySelector("iframe")).toHaveAttribute(
       "src",
       "/api/demandes/41/pieces/7/contenu?inline=1",
@@ -163,6 +163,45 @@ describe("écran des pièces (correctifs J2 C5–C7)", () => {
     fireEvent.click(within(bloc("EIES")).getByRole("button", { name: /Retirer/ }));
     await waitFor(() => expect(surChangement).toHaveBeenLastCalledWith([]));
     expect(within(bloc("EIES")).getByText("Obligatoire")).toBeInTheDocument();
+  });
+});
+
+describe("liste compacte (correctifs J4)", () => {
+  it("annonce l'avancement des pièces obligatoires", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => reponse(200, [eies])),
+    );
+    const surChangement = afficher();
+    await waitFor(() => expect(surChangement).toHaveBeenCalledWith([eies]));
+    const barre = screen.getByRole("progressbar", { name: "Pièces obligatoires fournies" });
+    expect(barre).toHaveAttribute("aria-valuenow", "1");
+    expect(barre).toHaveAttribute("aria-valuemax", "3");
+    expect(screen.getByText("1 sur 3 pièces obligatoires fournies")).toBeInTheDocument();
+    expect(within(bloc("EIES")).getByText("Remplacer")).toBeInTheDocument();
+    expect(within(bloc("Plan de restauration")).getByText("Ajouter")).toBeInTheDocument();
+  });
+
+  it("remplace le fichier d'une pièce obligatoire : le nouveau d'abord, puis l'ancien retiré", async () => {
+    const nouveau = { ...eies, id: 8, nomFichier: "eies-v2.pdf" };
+    const appels = vi
+      .fn()
+      .mockResolvedValueOnce(reponse(200, [eies]))
+      .mockResolvedValueOnce(reponse(201, nouveau))
+      .mockResolvedValueOnce(new Response(null, { status: 204 }));
+    vi.stubGlobal("fetch", appels);
+    const surChangement = afficher();
+    await waitFor(() => expect(surChangement).toHaveBeenCalledWith([eies]));
+    const fichier = new File(["%PDF-1.7"], "eies-v2.pdf", { type: "application/pdf" });
+    fireEvent.change(within(bloc("EIES")).getByLabelText("Fichier pour la pièce « EIES »"), {
+      target: { files: [fichier] },
+    });
+    await waitFor(() => expect(surChangement).toHaveBeenLastCalledWith([nouveau]));
+    expect((appels.mock.calls[1] as [string, RequestInit])[1].method).toBe("POST");
+    expect(appels.mock.calls[2]).toEqual(["/api/demandes/41/pieces/7", { method: "DELETE" }]);
+    expect(within(bloc("EIES")).getByRole("status")).toHaveTextContent(
+      "Pièce remplacée par « eies-v2.pdf ».",
+    );
   });
 });
 

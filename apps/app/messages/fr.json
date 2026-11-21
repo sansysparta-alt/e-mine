@@ -125,20 +125,17 @@
       "retour": "Revenir au tableau de bord"
     },
     "pieces": {
-      "consigne": "Joignez un fichier pour chaque pièce obligatoire (PDF, JPG ou PNG, 10 Mo au maximum). Choisissez le fichier ou glissez-le sur la zone : il est envoyé aussitôt.",
+      "consigne": "Un fichier PDF, JPG ou PNG de 10 Mo au maximum par pièce. Il est envoyé dès que vous le choisissez ou le glissez sur la ligne de la pièce.",
       "fournie": "Fournie",
       "obligatoire": "Obligatoire",
       "facultative": "Facultative",
-      "choisir": "Choisir un fichier ou le glisser ici",
-      "ajouterAutre": "Ajouter un autre fichier",
-      "aide": "PDF, JPG ou PNG, 10 Mo au maximum",
       "champ": "Fichier pour la pièce « {piece} »",
       "envoi": "Envoi en cours…",
-      "consulter": "Consulter",
+      "consulter": "Voir",
       "retirer": "Retirer",
       "ajoutee": "Pièce « {nom} » ajoutée.",
       "retiree": "Pièce « {nom} » retirée.",
-      "empreinte": "empreinte SHA-256 {debut}…",
+      "empreinte": "Empreinte SHA-256 : {valeur}",
       "autre": "Autre pièce",
       "erreurs": {
         "chargement": "Les pièces n'ont pas pu être chargées. Rechargez la page.",
@@ -148,7 +145,13 @@
         "DEM-003": "La demande a déjà été déposée : ses pièces ne peuvent plus changer.",
         "AUTH-001": "Votre session a expiré : reconnectez-vous.",
         "autre": "La pièce n'a pas pu être traitée. Réessayez."
-      }
+      },
+      "avancement": "{fournies} sur {total} pièces obligatoires fournies",
+      "avancementLibelle": "Pièces obligatoires fournies",
+      "ajouter": "Ajouter",
+      "remplacer": "Remplacer",
+      "deposerIci": "Déposez le fichier pour cette pièce",
+      "remplacee": "Pièce remplacée par « {nom} »."
     },
     "depot": {
       "piecesJointes": "Pièces jointes : {nombre}",
@@ -451,8 +454,8 @@
       }
     },
     "recu": {
-      "telecharger": "Télécharger le reçu (PDF)",
-      "telechargerNumero": "Télécharger le reçu {numero} (PDF)"
+      "voir": "voir le reçu",
+      "voirNumero": "Voir le reçu {numero}"
     }
   },
   "statutsPaiement": {
