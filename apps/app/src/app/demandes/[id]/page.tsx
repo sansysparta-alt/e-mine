@@ -72,7 +72,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
               {p.typePiece} :{" "}
               <a
                 href={`/api/demandes/${id}/pieces/${p.id}/contenu`}
-                className="text-royal underline"
+                className="inline-flex min-h-11 items-center break-all text-royal underline"
               >
                 {p.nomFichier}
               </a>
