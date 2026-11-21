@@ -62,9 +62,11 @@ L'adresse de **notification** n'est pas transmise : elle est enregistrée chez T
 
 | Réponse d'e-mine | Cas |
 |---|---|
-| `200` | Notification traitée, **ou déjà traitée** (même `transactionId` : aucun retraitement) |
-| `401` (`PAY-004`) | Signature ou horodatage invalide : rien n'est modifié, l'événement est journalisé (`signature_valide = false`) |
-| `404` (`PAY-005`) | Référence inconnue |
+| `200` `{ "recu": true, "issue": "TRAITEE" }` | Notification appliquée au paiement |
+| `200` `{ "recu": true, "issue": "DEJA_TRAITEE" }` | Même `transactionId` déjà reçu : aucun retraitement |
+| `200` `{ "recu": true, "issue": "IGNOREE" }` | Paiement déjà clos (annulé après un changement de moyen, expiré…) : notification journalisée, non appliquée, à examiner par le service fiscal |
+| `401` (`PAY-004`) | Marchand, signature ou horodatage invalide : rien n'est modifié, l'événement est journalisé (`signature_valide = false`) et une alerte est écrite dans les journaux |
+| `404` (`PAY-005`) | Référence inconnue : notification journalisée |
 
 Effet côté e-mine (transitions de `transition_statut`, jamais contournées) :
 
