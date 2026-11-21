@@ -37,7 +37,7 @@ Prérequis : Docker Desktop, Node.js 26 et pnpm, JDK 25 (Temurin).
 cp .env.example .env     # valeurs fictives, à adapter localement
 pnpm install
 pnpm infra:up            # PostgreSQL 5432, Keycloak 8081, MinIO 9000/9001, Mailpit 8025
-pnpm dev                 # API 8080 + site public 3000 + application 3001
+pnpm dev                 # API 8080 + site public 3000 + application 3001 + simulateur TrésorPay 8090
 pnpm db:seed             # personas de démo (une fois, après le 1er démarrage de l'API)
 pnpm infra:down          # arrête les conteneurs (les données sont conservées)
 ```

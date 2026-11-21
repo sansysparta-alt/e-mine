@@ -2,6 +2,7 @@ packages:
   - apps/*
   - packages/*
   - api
+  - simulateurs/*
 allowBuilds:
   "@parcel/watcher": true
   "@swc/core": true

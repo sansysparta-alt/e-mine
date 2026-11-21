@@ -13,5 +13,6 @@
 
   <modules>
     <module>api</module>
+    <module>simulateurs/tresorpay</module>
   </modules>
 </project>

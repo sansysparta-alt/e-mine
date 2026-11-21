@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments :: tete('Paiement déjà traité')}"></head>
+  <body>
+    <header th:replace="~{fragments :: bandeau}"></header>
+    <main class="page page--etroite" id="contenu">
+      <section class="carte" aria-labelledby="titre">
+        <h1 id="titre">Ce paiement a déjà été traité</h1>
+        <p>
+          La session
+          <span class="chiffres" th:text="${paiement.reference}">PAY-2026-000001</span> est terminée
+          (<span th:text="${paiement.resultat.scenario.libelle}">Paiement accepté</span>). Le
+          résultat est disponible sur e-mine.
+        </p>
+        <a class="bouton bouton--principal" th:href="${urlRetour}">Revenir sur e-mine</a>
+      </section>
+    </main>
+  </body>
+</html>
