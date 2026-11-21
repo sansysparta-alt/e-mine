@@ -115,6 +115,18 @@ class PiecesTest extends TestIntegration {
             .getContentAsByteArray();
     assertThat(relu).isEqualTo(PDF);
 
+    // Téléchargement par défaut ; affichage en ligne pour le visualiseur (D9).
+    mvc.perform(
+            get(url(demande) + "/" + piece + "/contenu").with(jeton(INVESTISSEUR, "INVESTISSEUR")))
+        .andExpect(
+            header().string("Content-Disposition", org.hamcrest.Matchers.startsWith("attachment")));
+    mvc.perform(
+            get(url(demande) + "/" + piece + "/contenu?inline=true")
+                .with(jeton(INVESTISSEUR, "INVESTISSEUR")))
+        .andExpect(status().isOk())
+        .andExpect(
+            header().string("Content-Disposition", org.hamcrest.Matchers.startsWith("inline")));
+
     // L'agent du guichet (interne) peut consulter la pièce.
     mvc.perform(get(url(demande) + "/" + piece + "/contenu").with(jeton(GUICHET, "GUICHET")))
         .andExpect(status().isOk());

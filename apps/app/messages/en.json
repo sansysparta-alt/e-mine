@@ -283,5 +283,13 @@
     "suivante": "Next",
     "page": "Page {numero}",
     "pageSur": "Page {numero} of {total}"
+  },
+  "visualiseur": {
+    "consulter": "View",
+    "telecharger": "Download",
+    "pleinEcran": "Full screen",
+    "quitterPleinEcran": "Exit full screen",
+    "fermer": "Close document",
+    "formatNonAffichable": "This format cannot be displayed here. Use the Download button."
   }
 }

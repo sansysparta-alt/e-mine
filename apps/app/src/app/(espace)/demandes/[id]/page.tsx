@@ -14,6 +14,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { tonStatut } from "@/composants/demande/statut";
+import { ListePieces } from "@/composants/documents/liste-pieces";
 import { appelPage, chargerReferentiels, optionsApi } from "@/serveur/donnees";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -92,19 +93,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
         </dl>
       </Carte>
       <Carte titre={t("pieces", { nombre: pieces.data.length })}>
-        <ul className="list-disc pl-6">
-          {pieces.data.map((p) => (
-            <li key={p.id}>
-              {p.typePiece} :{" "}
-              <a
-                href={`/api/demandes/${id}/pieces/${p.id}/contenu`}
-                className="inline-flex min-h-11 items-center break-all text-royal underline"
-              >
-                {p.nomFichier}
-              </a>
-            </li>
-          ))}
-        </ul>
+        <ListePieces demandeId={demande.id} pieces={pieces.data} />
       </Carte>
       {demande.statut === "deposee" && aPayer != null ? (
         <Carte titre={t("suite.titre")}>

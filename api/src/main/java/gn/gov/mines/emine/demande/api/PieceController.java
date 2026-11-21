@@ -68,9 +68,13 @@ class PieceController {
   }
 
   @GetMapping(value = "/{pieceId}/contenu", produces = MediaType.ALL_VALUE)
-  @Operation(operationId = "telechargerPiece", summary = "Télécharger une pièce jointe")
+  @Operation(
+      operationId = "telechargerPiece",
+      summary = "Télécharger une pièce jointe (ou l'afficher dans le visualiseur : inline=true)")
   ResponseEntity<InputStreamResource> telecharger(
-      @PathVariable long demandeId, @PathVariable long pieceId) {
+      @PathVariable long demandeId,
+      @PathVariable long pieceId,
+      @RequestParam(defaultValue = "false") boolean inline) {
     ServicePieces.Contenu contenu = service.contenu(demandeId, pieceId);
     Piece p = contenu.piece();
     return ResponseEntity.ok()
@@ -78,7 +82,7 @@ class PieceController {
         .contentLength(p.tailleOctets())
         .header(
             HttpHeaders.CONTENT_DISPOSITION,
-            ContentDisposition.attachment()
+            (inline ? ContentDisposition.inline() : ContentDisposition.attachment())
                 .filename(p.nomFichier(), java.nio.charset.StandardCharsets.UTF_8)
                 .build()
                 .toString())
