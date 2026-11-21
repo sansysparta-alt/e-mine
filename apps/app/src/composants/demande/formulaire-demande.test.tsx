@@ -205,6 +205,20 @@ describe("formulaire guidé", () => {
   });
 });
 
+describe("formats français (correctif D11)", () => {
+  it("affiche la superficie avec virgule et deux décimales dans le récapitulatif", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("[]", { status: 200 })),
+    );
+    afficher({ demande: demande({ superficieHa: 125.5 }) });
+    fireEvent.click(screen.getByRole("button", { name: "4. Récapitulatif" }));
+    expect(await screen.findByText(/^125,50\sha$/)).toBeInTheDocument();
+    expect(screen.getByText(/^5\s000\s000\sGNF$/)).toBeInTheDocument();
+    vi.unstubAllGlobals();
+  });
+});
+
 describe("saisie jamais perdue (correctif A1)", () => {
   beforeEach(() => sessionStorage.clear());
   afterEach(() => vi.unstubAllGlobals());

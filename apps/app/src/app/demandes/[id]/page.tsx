@@ -1,5 +1,5 @@
 import { ErreurApi, lireDemande, listerPieces } from "@emine/api-client";
-import { Alerte, Bouton, Carte, formaterGnf } from "@emine/ui";
+import { Alerte, Bouton, Carte, formaterDateHeure, formaterGnf } from "@emine/ui";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -15,16 +15,6 @@ type Props = {
   params: Promise<{ id: string }>;
   searchParams: Promise<{ deposee?: string }>;
 };
-
-/** Date et heure de Conakry, JJ/MM/AAAA HH:MM. */
-const DATE = new Intl.DateTimeFormat("fr-FR", {
-  day: "2-digit",
-  month: "2-digit",
-  year: "numeric",
-  hour: "2-digit",
-  minute: "2-digit",
-  timeZone: "Africa/Conakry",
-});
 
 /** Une demande déposée (US-03.4) : numéro, statut, document, pièces et prochaine étape. */
 export default async function DetailDemande({ params, searchParams }: Props) {
@@ -67,7 +57,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
             {document ? `${document.libelleFr} (${document.code})` : demande.typeDocumentCode}
           </dd>
           <dt className="font-semibold">{t("deposeLe")}</dt>
-          <dd>{demande.deposeLe ? DATE.format(new Date(demande.deposeLe)) : "—"}</dd>
+          <dd>{demande.deposeLe ? formaterDateHeure(demande.deposeLe) : "—"}</dd>
           <dt className="font-semibold">{t("demandeur")}</dt>
           <dd>
             {demande.demandeur.prenom} {demande.demandeur.nom}

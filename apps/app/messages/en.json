@@ -88,7 +88,6 @@
       "substance": "Main substance",
       "superficie": "Area (hectares)",
       "superficieAide": "Positive number, at most two decimals (example: 125.50).",
-      "hectares": "{valeur} ha",
       "nonPrecise": "Not specified",
       "delai": "Processing time: {jours} days",
       "frais": "payable on submission: {montant}",

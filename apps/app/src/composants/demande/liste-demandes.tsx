@@ -1,4 +1,5 @@
 import type { DemandeDto } from "@emine/api-client";
+import { formaterDate } from "@emine/ui";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 
@@ -7,13 +8,6 @@ export type ListeDemandesProps = {
   /** Libellé de chaque document du catalogue, par code. */
   libelles: Record<string, string>;
 };
-
-const DATE = new Intl.DateTimeFormat("fr-FR", {
-  day: "2-digit",
-  month: "2-digit",
-  year: "numeric",
-  timeZone: "Africa/Conakry",
-});
 
 /** Adresse d'une demande : le formulaire pour un brouillon, la fiche sinon. */
 export function lienDemande(d: Pick<DemandeDto, "id" | "statut">): string {
@@ -44,8 +38,8 @@ export function ListeDemandes({ demandes, libelles }: ListeDemandesProps) {
               </span>
               <span className="text-sm text-texte-doux">
                 {d.deposeLe
-                  ? t("deposeeLe", { date: DATE.format(new Date(d.deposeLe)) })
-                  : t("creeeLe", { date: DATE.format(new Date(d.creeLe)) })}
+                  ? t("deposeeLe", { date: formaterDate(d.deposeLe) })
+                  : t("creeeLe", { date: formaterDate(d.creeLe) })}
               </span>
             </span>
           </Link>

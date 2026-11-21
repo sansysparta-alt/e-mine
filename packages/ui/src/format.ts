@@ -1,13 +1,74 @@
-/** Espace insécable entre le montant et la devise. */
+/**
+ * Formats d'affichage communs (socle) : à utiliser dans tous les écrans, jamais de formatage local.
+ * Français : virgule décimale, espace (insécable) entre milliers, dates JJ/MM/AAAA à l'heure de
+ * Conakry. Anglais : point décimal, virgule entre milliers, dates DD/MM/YYYY.
+ */
+
+/** Fuseau d'affichage de toutes les dates (stockées en UTC). */
+export const FUSEAU = "Africa/Conakry";
+
 const INSECABLE = String.fromCharCode(0xa0);
+
+function locale(langue: string): string {
+  return langue === "en" ? "en-GB" : "fr-FR";
+}
+
+/** Nombre : 125,5 → « 125,5 » ; avec `decimales`, nombre exact de décimales (« 125,50 »). */
+export function formaterNombre(valeur: number, langue = "fr", decimales?: number): string {
+  return new Intl.NumberFormat(locale(langue), {
+    minimumFractionDigits: decimales ?? 0,
+    maximumFractionDigits: decimales ?? 2,
+  }).format(valeur);
+}
 
 /**
  * Montant en francs guinéens entiers (convention E-DEMANDES : `long` en GNF, jamais de décimales),
  * avec séparateur de milliers : 5 000 000 GNF.
  */
-export function formaterGnf(montant: number, langue: string = "fr"): string {
-  const nombre = new Intl.NumberFormat(langue === "en" ? "en-GB" : "fr-FR", {
-    maximumFractionDigits: 0,
-  }).format(montant);
-  return `${nombre}${INSECABLE}GNF`;
+export function formaterGnf(montant: number, langue = "fr"): string {
+  return `${formaterNombre(Math.round(montant), langue, 0)}${INSECABLE}GNF`;
+}
+
+/** Superficie en hectares, toujours deux décimales : « 125,50 ha ». */
+export function formaterSuperficie(hectares: number, langue = "fr"): string {
+  return `${formaterNombre(hectares, langue, 2)}${INSECABLE}ha`;
+}
+
+function enDate(valeur: string | Date): Date {
+  return typeof valeur === "string" ? new Date(valeur) : valeur;
+}
+
+/** Date JJ/MM/AAAA à l'heure de Conakry. */
+export function formaterDate(valeur: string | Date, langue = "fr"): string {
+  return new Intl.DateTimeFormat(locale(langue), {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    timeZone: FUSEAU,
+  }).format(enDate(valeur));
+}
+
+/** Heure HH:MM à l'heure de Conakry. */
+export function formaterHeure(valeur: string | Date, langue = "fr"): string {
+  return new Intl.DateTimeFormat(locale(langue), {
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+    timeZone: FUSEAU,
+  }).format(enDate(valeur));
+}
+
+/** Date et heure : « 20/11/2026 à 10:30 » (« 20/11/2026 at 10:30 » en anglais). */
+export function formaterDateHeure(valeur: string | Date, langue = "fr"): string {
+  const lien = langue === "en" ? "at" : "à";
+  return `${formaterDate(valeur, langue)} ${lien} ${formaterHeure(valeur, langue)}`;
+}
+
+/** Taille de fichier : « 850 o », « 12 Ko », « 2,4 Mo ». */
+export function formaterTaille(octets: number, langue = "fr"): string {
+  const [o, k, m] = langue === "en" ? ["B", "KB", "MB"] : ["o", "Ko", "Mo"];
+  if (octets < 1024) return `${octets}${INSECABLE}${o}`;
+  if (octets < 1024 * 1024)
+    return `${formaterNombre(Math.round(octets / 1024), langue)}${INSECABLE}${k}`;
+  return `${formaterNombre(octets / (1024 * 1024), langue, 1)}${INSECABLE}${m}`;
 }
