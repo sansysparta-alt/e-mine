@@ -153,13 +153,13 @@
     },
     "depot": {
       "piecesJointes": "Pièces jointes : {nombre}",
-      "manquantesTitre": "Certaines pièces attendues ne sont pas jointes.",
-      "manquantes": "Non fournies : {liste}. Vous pouvez déposer quand même : l'agent du guichet vérifiera la complétude du dossier.",
+      "manquantesTitre": "Pièces obligatoires à joindre avant le dépôt :",
+      "manquantes": "Ajoutez-les dans la section Pièces. L'agent du guichet vérifiera ensuite leur contenu.",
       "declaration": "Je déclare sur l'honneur l'exactitude des informations fournies et l'authenticité des pièces jointes.",
       "impossible": "La demande ne peut pas encore être déposée.",
       "manques": {
         "declarationHonneur": "Cochez la déclaration sur l'honneur.",
-        "pieces": "Joignez au moins une pièce (section Pièces).",
+        "pieces": "Joignez toutes les pièces obligatoires (section Pièces).",
         "autre": "Le dépôt n'a pas abouti. Réessayez."
       },
       "deposer": "Déposer ma demande",

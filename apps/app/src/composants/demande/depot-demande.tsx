@@ -15,8 +15,9 @@ export type DepotDemandeProps = {
 };
 
 /**
- * Fin du récapitulatif (US-03.4) : pièces jointes, pièces attendues non fournies (signalées, non
- * bloquantes : le guichet juge la complétude), déclaration sur l'honneur, dépôt.
+ * Fin du récapitulatif (US-03.4, correctif J2 B3) : pièces jointes, déclaration sur l'honneur,
+ * dépôt. Le dépôt est bloqué tant qu'une pièce obligatoire du catalogue manque ; l'agent du
+ * guichet juge ensuite la qualité des pièces.
  */
 export function DepotDemande({ demande, piecesRequises, pieces, deposer }: DepotDemandeProps) {
   const t = useTranslations("demande.depot");
@@ -25,17 +26,20 @@ export function DepotDemande({ demande, piecesRequises, pieces, deposer }: Depot
   const [declaration, setDeclaration] = useState(false);
   const [erreurs, setErreurs] = useState<string[]>([]);
   const [messageApi, setMessageApi] = useState("");
+  const [manquantesApi, setManquantesApi] = useState<string[] | null>(null);
   const [enCours, demarrer] = useTransition();
 
   const fournies = new Set(pieces.map((p) => p.typePiece));
-  const manquantes = piecesRequises.filter((p) => !fournies.has(p));
+  const manquantesLocales = piecesRequises.filter((p) => !fournies.has(p));
+  const manquantes = manquantesApi ?? manquantesLocales;
 
   function soumettre() {
     const locales = [
       ...(declaration ? [] : ["declarationHonneur"]),
-      ...(pieces.length > 0 ? [] : ["pieces"]),
+      ...(manquantesLocales.length === 0 ? [] : ["pieces"]),
     ];
     setMessageApi("");
+    setManquantesApi(null);
     setErreurs(locales);
     if (locales.length > 0) return;
     demarrer(async () => {
@@ -45,6 +49,9 @@ export function DepotDemande({ demande, piecesRequises, pieces, deposer }: Depot
         return;
       }
       setErreurs(resultat.erreur.manques?.length ? resultat.erreur.manques : ["autre"]);
+      if (resultat.erreur.piecesManquantes?.length) {
+        setManquantesApi(resultat.erreur.piecesManquantes);
+      }
       setMessageApi(resultat.erreur.message);
     });
   }
@@ -63,9 +70,14 @@ export function DepotDemande({ demande, piecesRequises, pieces, deposer }: Depot
           </ul>
         ) : null}
       </div>
-      {manquantes.length > 0 && pieces.length > 0 ? (
+      {manquantes.length > 0 ? (
         <Alerte nature="avertissement" titre={t("manquantesTitre")}>
-          {t("manquantes", { liste: manquantes.join(", ") })}
+          <ul className="list-disc pl-6">
+            {manquantes.map((p) => (
+              <li key={p}>{p}</li>
+            ))}
+          </ul>
+          <p className="mt-1">{t("manquantes")}</p>
         </Alerte>
       ) : null}
 
