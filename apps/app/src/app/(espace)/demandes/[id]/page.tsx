@@ -32,12 +32,12 @@ export async function generateMetadata(): Promise<Metadata> {
 
 type Props = {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ deposee?: string }>;
+  searchParams: Promise<{ deposee?: string; depuis?: string }>;
 };
 
 /** Une demande déposée (US-03.4) : numéro, statut, document, pièces et prochaine étape. */
 export default async function DetailDemande({ params, searchParams }: Props) {
-  const [{ id }, { deposee }] = await Promise.all([params, searchParams]);
+  const [{ id }, { deposee, depuis }] = await Promise.all([params, searchParams]);
   if (!/^\d{1,18}$/.test(id)) notFound();
   const chemin = `/demandes/${id}`;
   let demande;
@@ -78,12 +78,108 @@ export default async function DetailDemande({ params, searchParams }: Props) {
     ? { cle: "signataireDecider", pour: "agent" as const }
     : etapeCalculee;
   const numero = demande.numero ?? "";
+  // Retour vers la file de travail d'où vient l'agent (fluidité du parcours, correctifs J4).
+  const retour =
+    depuis === "guichet"
+      ? { href: "/guichet", cle: "retourGuichet" }
+      : depuis === "decisions"
+        ? { href: "/decisions", cle: "retourDecisions" }
+        : { href: "/demandes", cle: "retourListe" };
+  /** L'agent a une action à mener ici : mise en page dossier + panneau d'action. */
+  const actionAgent = examen !== null || etatDecision?.peutDecider === true;
   const actionPayer =
     etape?.cle === "demandeurPayerFrais"
       ? "FRAIS"
       : etape?.cle === "demandeurPayerDroits"
         ? "DROITS"
         : null;
+
+  // Blocs de la fiche, disposés selon le profil (dossier + panneau d'action pour l'agent).
+  const blocInfos = (
+    <Carte>
+      <dl className="grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-[auto_1fr]">
+        <dt className="font-semibold">{t("statut")}</dt>
+        <dd>
+          <StatutDemande statut={demande.statut} fraisPayes={demande.fraisPayes} />
+        </dd>
+        <dt className="font-semibold">{t("document")}</dt>
+        <dd>{document ? `${document.libelleFr} (${document.code})` : demande.typeDocumentCode}</dd>
+        <dt className="font-semibold">{t("deposeLe")}</dt>
+        <dd>{demande.deposeLe ? formaterDateHeure(demande.deposeLe) : "—"}</dd>
+        <dt className="font-semibold">{t("demandeur")}</dt>
+        <dd>
+          {demande.demandeur.prenom} {demande.demandeur.nom}
+          {demande.demandeur.organisation ? ` · ${demande.demandeur.organisation}` : ""}
+        </dd>
+        {demande.motifRejet && !decisionRendue ? (
+          <>
+            <dt className="font-semibold">{t("motifRejet")}</dt>
+            <dd className="whitespace-pre-line">{demande.motifRejet}</dd>
+          </>
+        ) : null}
+      </dl>
+    </Carte>
+  );
+  const blocPieces = (
+    <Carte titre={t("pieces", { nombre: pieces.data.length })}>
+      <ListePieces demandeId={demande.id} pieces={pieces.data} />
+    </Carte>
+  );
+  const blocDecision =
+    etatDecision && decisionRendue ? (
+      <Carte titre={t("decision")}>
+        <DecisionRendue etat={etatDecision} />
+      </Carte>
+    ) : null;
+  const blocPaiements =
+    paiements.data.length > 0 ? (
+      <Carte titre={t("paiements.titre", { nombre: paiements.data.length })}>
+        <TableauPaiements paiements={paiements.data} />
+      </Carte>
+    ) : null;
+  const blocEtape = etape ? (
+    <Carte titre={t(`etape.titre.${etape.pour}`)}>
+      <p>
+        {t(`etape.${etape.cle}`, {
+          montant: aPayer != null ? formaterGnf(aPayer) : "—",
+          droits: document?.tarifs.droitsGnf != null ? formaterGnf(document.tarifs.droitsGnf) : "—",
+          signataire: etatDecision?.signataire ?? document?.signataire ?? "—",
+        })}
+      </p>
+      {examen ? (
+        <div className="mt-4 border-t border-bordure pt-4">
+          <ExamenRecevabilite
+            demandeId={demande.id}
+            numero={numero}
+            examen={examen}
+            piecesRequises={document?.piecesRequises ?? []}
+            declarer={declarer}
+          />
+        </div>
+      ) : null}
+      {etatDecision?.peutDecider ? (
+        <div className="mt-4 border-t border-bordure pt-4">
+          <PriseDecision
+            demandeId={demande.id}
+            numero={numero}
+            signataire={etatDecision.signataire}
+            droitsGnf={etatDecision.droitsGnf}
+            decider={rendreDecision}
+          />
+        </div>
+      ) : null}
+      {actionPayer && moi.permissions.includes("PAYER") ? (
+        <div className="mt-4">
+          <Bouton asChild taille="grande">
+            <Link href={`/demandes/${demande.id}/paiement`}>
+              <CreditCard aria-hidden="true" className="size-5" />
+              {t(`etape.actionPayer.${actionPayer}`)}
+            </Link>
+          </Bouton>
+        </div>
+      ) : null}
+    </Carte>
+  ) : null;
 
   return (
     <div className="flex flex-col gap-6">
@@ -97,96 +193,38 @@ export default async function DetailDemande({ params, searchParams }: Props) {
         description={document ? `${document.libelleFr} (${document.code})` : undefined}
         retour={
           <Link
-            href="/demandes"
+            href={retour.href}
             className="inline-flex min-h-11 items-center gap-2 text-royal underline-offset-4 hover:underline"
           >
             <ArrowLeft aria-hidden="true" className="size-4" />
-            {t("retourListe")}
+            {t(retour.cle)}
           </Link>
         }
       />
-      <Carte>
-        <dl className="grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-[auto_1fr]">
-          <dt className="font-semibold">{t("statut")}</dt>
-          <dd>
-            <StatutDemande statut={demande.statut} fraisPayes={demande.fraisPayes} />
-          </dd>
-          <dt className="font-semibold">{t("document")}</dt>
-          <dd>
-            {document ? `${document.libelleFr} (${document.code})` : demande.typeDocumentCode}
-          </dd>
-          <dt className="font-semibold">{t("deposeLe")}</dt>
-          <dd>{demande.deposeLe ? formaterDateHeure(demande.deposeLe) : "—"}</dd>
-          <dt className="font-semibold">{t("demandeur")}</dt>
-          <dd>
-            {demande.demandeur.prenom} {demande.demandeur.nom}
-            {demande.demandeur.organisation ? ` · ${demande.demandeur.organisation}` : ""}
-          </dd>
-          {demande.motifRejet && !decisionRendue ? (
-            <>
-              <dt className="font-semibold">{t("motifRejet")}</dt>
-              <dd className="whitespace-pre-line">{demande.motifRejet}</dd>
-            </>
-          ) : null}
-        </dl>
-      </Carte>
-      {etape ? (
-        <Carte titre={t(`etape.titre.${etape.pour}`)}>
-          <p>
-            {t(`etape.${etape.cle}`, {
-              montant: aPayer != null ? formaterGnf(aPayer) : "—",
-              droits:
-                document?.tarifs.droitsGnf != null ? formaterGnf(document.tarifs.droitsGnf) : "—",
-              signataire: etatDecision?.signataire ?? document?.signataire ?? "—",
-            })}
-          </p>
-          {examen ? (
-            <div className="mt-4 border-t border-bordure pt-4">
-              <ExamenRecevabilite
-                demandeId={demande.id}
-                numero={numero}
-                examen={examen}
-                piecesRequises={document?.piecesRequises ?? []}
-                declarer={declarer}
-              />
-            </div>
-          ) : null}
-          {etatDecision?.peutDecider ? (
-            <div className="mt-4 border-t border-bordure pt-4">
-              <PriseDecision
-                demandeId={demande.id}
-                numero={numero}
-                signataire={etatDecision.signataire}
-                droitsGnf={etatDecision.droitsGnf}
-                decider={rendreDecision}
-              />
-            </div>
-          ) : null}
-          {actionPayer && moi.permissions.includes("PAYER") ? (
-            <div className="mt-4">
-              <Bouton asChild taille="grande">
-                <Link href={`/demandes/${demande.id}/paiement`}>
-                  <CreditCard aria-hidden="true" className="size-5" />
-                  {t(`etape.actionPayer.${actionPayer}`)}
-                </Link>
-              </Bouton>
-            </div>
-          ) : null}
-        </Carte>
-      ) : null}
-      {etatDecision && decisionRendue ? (
-        <Carte titre={t("decision")}>
-          <DecisionRendue etat={etatDecision} />
-        </Carte>
-      ) : null}
-      {paiements.data.length > 0 ? (
-        <Carte titre={t("paiements.titre", { nombre: paiements.data.length })}>
-          <TableauPaiements paiements={paiements.data} />
-        </Carte>
-      ) : null}
-      <Carte titre={t("pieces", { nombre: pieces.data.length })}>
-        <ListePieces demandeId={demande.id} pieces={pieces.data} />
-      </Carte>
+      {actionAgent ? (
+        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_26rem]">
+          <div className="flex flex-col gap-6">
+            {blocInfos}
+            {blocPieces}
+            {blocDecision}
+            {blocPaiements}
+          </div>
+          <aside
+            aria-label={t("panneauAction")}
+            className="flex flex-col gap-6 lg:sticky lg:top-20"
+          >
+            {blocEtape}
+          </aside>
+        </div>
+      ) : (
+        <>
+          {blocInfos}
+          {blocEtape}
+          {blocDecision}
+          {blocPaiements}
+          {blocPieces}
+        </>
+      )}
     </div>
   );
 }

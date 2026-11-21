@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import fr from "../../messages/fr.json";
 import type { DemandeDto } from "@emine/api-client";
 import { MessageConnexion, motifDepuisParametres } from "./message-connexion";
-import { VueTableauDeBord } from "./vue-tableau-de-bord";
+import { actionAttendue, VueTableauDeBord } from "./vue-tableau-de-bord";
 
 function enFrancais(enfant: ReactNode) {
   return render(
@@ -104,6 +104,59 @@ describe("tableau de bord (gabarit du socle)", () => {
     expect(
       screen.getByRole("heading", { level: 2, name: "Dossiers à traiter" }),
     ).toBeInTheDocument();
+  });
+});
+
+describe("tableau de bord orienté action (correctifs J4)", () => {
+  it("dit au demandeur ce qu'il doit payer, avec le montant et un bouton direct", () => {
+    const decidee = demande({ id: 5, numero: "DEM-2026-000005", statut: "decision" });
+    enFrancais(
+      <VueTableauDeBord
+        prenom="Fodé"
+        nom="Bangoura"
+        profilLibelle="Investisseur"
+        interne={false}
+        demandes={[deposee, decidee]}
+        libelles={libelles}
+        aFaire={[
+          { demande: decidee, action: "DROITS", montantGnf: 15_000_000 },
+          { demande: deposee, action: "FRAIS", montantGnf: 5_000_000 },
+        ]}
+      />,
+    );
+    expect(screen.getByRole("heading", { name: "À faire maintenant (2)" })).toBeInTheDocument();
+    expect(screen.getByText(/droits à payer, 15\s000\s000\sGNF/)).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /Payer les droits · DEM-2026-000005/ }),
+    ).toHaveAttribute("href", "/demandes/5/paiement");
+    expect(screen.getByRole("link", { name: /Payer les frais · DEM-2026-000001/ })).toHaveAttribute(
+      "href",
+      "/demandes/2/paiement",
+    );
+  });
+
+  it("donne à l'agent ses files de travail selon ses droits", () => {
+    enFrancais(
+      <VueTableauDeBord
+        prenom="Ibrahima"
+        nom="Soumah"
+        profilLibelle="Ministre"
+        interne
+        taches={[{ cle: "decisions", valeur: 3 }]}
+      />,
+    );
+    expect(screen.getByRole("link", { name: /Décisions à prendre\s*3/ })).toHaveAttribute(
+      "href",
+      "/decisions",
+    );
+    expect(screen.queryByText("Déposées, à traiter")).not.toBeInTheDocument();
+  });
+
+  it("déduit l'action attendue du statut et des frais", () => {
+    expect(actionAttendue({ ...deposee, fraisPayes: false })).toBe("FRAIS");
+    expect(actionAttendue({ ...deposee, fraisPayes: true })).toBeNull();
+    expect(actionAttendue({ ...deposee, statut: "decision" })).toBe("DROITS");
+    expect(actionAttendue({ ...deposee, statut: "recevable" })).toBeNull();
   });
 });
 

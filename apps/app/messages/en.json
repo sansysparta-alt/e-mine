@@ -64,6 +64,30 @@
       "delivrees": "Documents issued",
       "aTraiter": "Submitted, to process",
       "total": "Total applications"
+    },
+    "aFaire": {
+      "titre": "{nombre, plural, one {To do now (#)} other {To do now (#)}}",
+      "explication": {
+        "FRAIS": "Application fee to pay: {montant}. The front desk will then review your file.",
+        "DROITS": "Approved: duties to pay, {montant}, to obtain your document.",
+        "COMPLEMENT": "Additional documents are requested."
+      },
+      "explicationSansMontant": {
+        "FRAIS": "Application fee to pay. The front desk will then review your file.",
+        "DROITS": "Approved: duties to pay to obtain your document.",
+        "COMPLEMENT": "Additional documents are requested."
+      },
+      "action": {
+        "FRAIS": "Pay the fee",
+        "DROITS": "Pay the duties",
+        "COMPLEMENT": "Complete"
+      }
+    },
+    "taches": {
+      "aExaminer": "To review at the front desk",
+      "aExaminerPrecision": "Fee paid, awaiting admissibility",
+      "decisions": "Decisions to take",
+      "decisionsPrecision": "Admissible applications you sign"
     }
   },
   "demande": {
@@ -125,20 +149,17 @@
       "retour": "Back to dashboard"
     },
     "pieces": {
-      "consigne": "Attach a file for each mandatory document (PDF, JPG or PNG, 10 MB maximum). Choose the file or drop it on the area: it is uploaded straight away.",
+      "consigne": "One PDF, JPG or PNG file of up to 10 MB per document. It is sent as soon as you choose it or drop it on the document’s row.",
       "fournie": "Provided",
       "obligatoire": "Mandatory",
       "facultative": "Optional",
-      "choisir": "Choose a file or drop it here",
-      "ajouterAutre": "Add another file",
-      "aide": "PDF, JPG or PNG, 10 MB maximum",
       "champ": "File for document “{piece}”",
       "envoi": "Uploading…",
       "consulter": "View",
       "retirer": "Remove",
       "ajoutee": "Document “{nom}” attached.",
       "retiree": "Document “{nom}” removed.",
-      "empreinte": "SHA-256 fingerprint {debut}…",
+      "empreinte": "SHA-256 fingerprint: {valeur}",
       "autre": "Other document",
       "erreurs": {
         "chargement": "The documents could not be loaded. Reload the page.",
@@ -148,7 +169,13 @@
         "DEM-003": "The application has already been submitted: its documents can no longer change.",
         "AUTH-001": "Your session has expired: please sign in again.",
         "autre": "The document could not be processed. Please try again."
-      }
+      },
+      "avancement": "{fournies} of {total} mandatory documents provided",
+      "avancementLibelle": "Mandatory documents provided",
+      "ajouter": "Add",
+      "remplacer": "Replace",
+      "deposerIci": "Drop the file for this document",
+      "remplacee": "Document replaced by “{nom}”."
     },
     "depot": {
       "piecesJointes": "Attached documents: {nombre}",
@@ -235,7 +262,10 @@
       }
     },
     "motifRejet": "Reason",
-    "decision": "Decision"
+    "decision": "Decision",
+    "retourGuichet": "Back to the front desk queue",
+    "retourDecisions": "Back to decisions to take",
+    "panneauAction": "Action to take"
   },
   "mesDemandes": {
     "titre": "My applications",
@@ -451,8 +481,8 @@
       }
     },
     "recu": {
-      "telecharger": "Download the receipt (PDF)",
-      "telechargerNumero": "Download receipt {numero} (PDF)"
+      "voir": "view the receipt",
+      "voirNumero": "View receipt {numero}"
     }
   },
   "statutsPaiement": {
@@ -555,7 +585,8 @@
         "recevableSuite": "It now awaits the signatory’s decision. You can review the next application.",
         "rejetee": "Application {numero} has been declared inadmissible.",
         "rejeteeSuite": "The applicant sees the reason on their application. You can review the next application."
-      }
+      },
+      "suivante": "Review the next one: {numero}"
     },
     "decision": {
       "signataire": "You decide as the signatory designated in the catalogue for this document: {signataire}.",
@@ -618,7 +649,8 @@
         "droits_payes": "Approval recorded for application {numero}: it is ready for issuance.",
         "rejetee": "Rejection recorded for application {numero}."
       },
-      "traiteeSuite": "The applicant sees the decision on their application. You can move on to the next one."
+      "traiteeSuite": "The applicant sees the decision on their application. You can move on to the next one.",
+      "suivante": "Decide the next one: {numero}"
     }
   },
   "audit": {

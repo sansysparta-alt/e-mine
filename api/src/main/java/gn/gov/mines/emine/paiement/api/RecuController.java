@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /** Reçu PDF d'un paiement confirmé (US-04.6), visible selon la RLS. */
@@ -34,7 +35,9 @@ class RecuController {
       produces = MediaType.APPLICATION_PDF_VALUE)
   @Operation(
       operationId = "telechargerRecu",
-      summary = "Reçu PDF REC-AAAA-NNNNNN d'un paiement confirmé (PAY-009 s'il ne l'est pas)",
+      summary =
+          "Reçu PDF REC-AAAA-NNNNNN d'un paiement confirmé (PAY-009 s'il ne l'est pas), à"
+              + " télécharger ou à afficher dans le visualiseur (inline=true)",
       responses =
           @ApiResponse(
               responseCode = "200",
@@ -43,13 +46,14 @@ class RecuController {
                       mediaType = MediaType.APPLICATION_PDF_VALUE,
                       schema = @Schema(type = "string", format = "binary"))))
   ResponseEntity<byte[]> recu(
-      @PathVariable @Pattern(regexp = "^PAY-[0-9]{4}-[0-9]{6}$") String reference) {
+      @PathVariable @Pattern(regexp = "^PAY-[0-9]{4}-[0-9]{6}$") String reference,
+      @RequestParam(defaultValue = "false") boolean inline) {
     ServiceRecus.RecuPdf recu = service.recu(reference);
     return ResponseEntity.ok()
         .contentType(MediaType.APPLICATION_PDF)
         .header(
             HttpHeaders.CONTENT_DISPOSITION,
-            ContentDisposition.attachment()
+            (inline ? ContentDisposition.inline() : ContentDisposition.attachment())
                 .filename("recu-" + recu.numero() + ".pdf")
                 .build()
                 .toString())

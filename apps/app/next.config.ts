@@ -37,6 +37,14 @@ const config: NextConfig = {
           { key: "Content-Security-Policy", value: "frame-ancestors 'self'" },
         ],
       },
+      {
+        // Reçus de paiement, consultés eux aussi dans le visualiseur (correctifs J4).
+        source: "/api/paiements/:reference/recu",
+        headers: [
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Content-Security-Policy", value: "frame-ancestors 'self'" },
+        ],
+      },
     ];
   },
 };

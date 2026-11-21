@@ -107,7 +107,7 @@ export function PriseDecision({
         aria-describedby={erreurSens ? `${id}-erreur-sens` : undefined}
       >
         <legend className="mb-2 font-semibold">{t("sens")}</legend>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3">
           {(["favorable", "rejet"] as const).map((s) => {
             const Icone = s === "favorable" ? CircleCheck : CircleX;
             const choisi = sens === s;

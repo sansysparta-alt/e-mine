@@ -129,7 +129,7 @@ export function ExamenRecevabilite({
         </Alerte>
       )}
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+      <div className="flex flex-col gap-3">
         {examen.peutEtreRecevable ? (
           <Bouton type="button" taille="grande" onClick={declarerRecevable} disabled={enCours}>
             <CircleCheck aria-hidden="true" className="size-5" />

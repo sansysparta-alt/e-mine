@@ -13,6 +13,8 @@ export type TableauFileProps = {
   maintenant: Date;
   /** Colonne « Frais » (file du guichet) ; inutile une fois la demande recevable. */
   avecFrais?: boolean;
+  /** File d'origine, pour que la fiche propose d'y revenir. */
+  depuis: "guichet" | "decisions";
 };
 
 const LienNext: ComposantLien = ({ href, children, ...props }) => (
@@ -34,6 +36,7 @@ export function TableauFile({
   legende,
   maintenant,
   avecFrais = true,
+  depuis,
 }: TableauFileProps) {
   const t = useTranslations("instruction.file");
   return (
@@ -42,7 +45,7 @@ export function TableauFile({
       lignes={demandes}
       cleLigne={(d) => d.id}
       Lien={LienNext}
-      lienLigne={(d) => `/demandes/${d.id}`}
+      lienLigne={(d) => `/demandes/${d.id}?depuis=${depuis}`}
       colonnes={[
         {
           cle: "numero",

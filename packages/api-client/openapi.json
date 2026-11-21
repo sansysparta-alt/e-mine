@@ -685,7 +685,7 @@
     "/api/v1/paiements/{reference}/recu" : {
       "get" : {
         "tags" : [ "Paiements" ],
-        "summary" : "Reçu PDF REC-AAAA-NNNNNN d'un paiement confirmé (PAY-009 s'il ne l'est pas)",
+        "summary" : "Reçu PDF REC-AAAA-NNNNNN d'un paiement confirmé (PAY-009 s'il ne l'est pas), à télécharger ou à afficher dans le visualiseur (inline=true)",
         "operationId" : "telechargerRecu",
         "parameters" : [ {
           "name" : "reference",
@@ -694,6 +694,14 @@
           "schema" : {
             "type" : "string",
             "pattern" : "^PAY-[0-9]{4}-[0-9]{6}$"
+          }
+        }, {
+          "name" : "inline",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
           }
         } ],
         "responses" : {

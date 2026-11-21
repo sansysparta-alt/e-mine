@@ -64,6 +64,30 @@
       "delivrees": "Documents délivrés",
       "aTraiter": "Déposées, à traiter",
       "total": "Total des demandes"
+    },
+    "aFaire": {
+      "titre": "{nombre, plural, one {À faire maintenant (#)} other {À faire maintenant (#)}}",
+      "explication": {
+        "FRAIS": "Frais de dossier à payer : {montant}. Le guichet examinera votre dossier ensuite.",
+        "DROITS": "Décision favorable : droits à payer, {montant}, pour obtenir votre document.",
+        "COMPLEMENT": "Un complément de pièces est demandé."
+      },
+      "explicationSansMontant": {
+        "FRAIS": "Frais de dossier à payer. Le guichet examinera votre dossier ensuite.",
+        "DROITS": "Décision favorable : droits à payer pour obtenir votre document.",
+        "COMPLEMENT": "Un complément de pièces est demandé."
+      },
+      "action": {
+        "FRAIS": "Payer les frais",
+        "DROITS": "Payer les droits",
+        "COMPLEMENT": "Compléter"
+      }
+    },
+    "taches": {
+      "aExaminer": "À examiner au guichet",
+      "aExaminerPrecision": "Frais payés, en attente de recevabilité",
+      "decisions": "Décisions à prendre",
+      "decisionsPrecision": "Demandes recevables dont vous êtes signataire"
     }
   },
   "demande": {
@@ -125,20 +149,17 @@
       "retour": "Revenir au tableau de bord"
     },
     "pieces": {
-      "consigne": "Joignez un fichier pour chaque pièce obligatoire (PDF, JPG ou PNG, 10 Mo au maximum). Choisissez le fichier ou glissez-le sur la zone : il est envoyé aussitôt.",
+      "consigne": "Un fichier PDF, JPG ou PNG de 10 Mo au maximum par pièce. Il est envoyé dès que vous le choisissez ou le glissez sur la ligne de la pièce.",
       "fournie": "Fournie",
       "obligatoire": "Obligatoire",
       "facultative": "Facultative",
-      "choisir": "Choisir un fichier ou le glisser ici",
-      "ajouterAutre": "Ajouter un autre fichier",
-      "aide": "PDF, JPG ou PNG, 10 Mo au maximum",
       "champ": "Fichier pour la pièce « {piece} »",
       "envoi": "Envoi en cours…",
-      "consulter": "Consulter",
+      "consulter": "Voir",
       "retirer": "Retirer",
       "ajoutee": "Pièce « {nom} » ajoutée.",
       "retiree": "Pièce « {nom} » retirée.",
-      "empreinte": "empreinte SHA-256 {debut}…",
+      "empreinte": "Empreinte SHA-256 : {valeur}",
       "autre": "Autre pièce",
       "erreurs": {
         "chargement": "Les pièces n'ont pas pu être chargées. Rechargez la page.",
@@ -148,7 +169,13 @@
         "DEM-003": "La demande a déjà été déposée : ses pièces ne peuvent plus changer.",
         "AUTH-001": "Votre session a expiré : reconnectez-vous.",
         "autre": "La pièce n'a pas pu être traitée. Réessayez."
-      }
+      },
+      "avancement": "{fournies} sur {total} pièces obligatoires fournies",
+      "avancementLibelle": "Pièces obligatoires fournies",
+      "ajouter": "Ajouter",
+      "remplacer": "Remplacer",
+      "deposerIci": "Déposez le fichier pour cette pièce",
+      "remplacee": "Pièce remplacée par « {nom} »."
     },
     "depot": {
       "piecesJointes": "Pièces jointes : {nombre}",
@@ -235,7 +262,10 @@
       }
     },
     "motifRejet": "Motif",
-    "decision": "Décision"
+    "decision": "Décision",
+    "retourGuichet": "Retour à la file du guichet",
+    "retourDecisions": "Retour aux décisions à prendre",
+    "panneauAction": "Action à mener"
   },
   "mesDemandes": {
     "titre": "Mes demandes",
@@ -451,8 +481,8 @@
       }
     },
     "recu": {
-      "telecharger": "Télécharger le reçu (PDF)",
-      "telechargerNumero": "Télécharger le reçu {numero} (PDF)"
+      "voir": "voir le reçu",
+      "voirNumero": "Voir le reçu {numero}"
     }
   },
   "statutsPaiement": {
@@ -555,7 +585,8 @@
         "recevableSuite": "Elle attend maintenant la décision du signataire. Vous pouvez examiner la demande suivante.",
         "rejetee": "La demande {numero} a été déclarée non recevable.",
         "rejeteeSuite": "Le demandeur voit le motif sur sa demande. Vous pouvez examiner la demande suivante."
-      }
+      },
+      "suivante": "Examiner la suivante : {numero}"
     },
     "decision": {
       "signataire": "Vous décidez en tant que signataire désigné par le catalogue pour ce document : {signataire}.",
@@ -618,7 +649,8 @@
         "droits_payes": "Décision favorable enregistrée pour la demande {numero} : elle est prête pour la délivrance.",
         "rejetee": "Rejet enregistré pour la demande {numero}."
       },
-      "traiteeSuite": "Le demandeur voit la décision sur sa demande. Vous pouvez passer à la suivante."
+      "traiteeSuite": "Le demandeur voit la décision sur sa demande. Vous pouvez passer à la suivante.",
+      "suivante": "Décider la suivante : {numero}"
     }
   },
   "audit": {
