@@ -70,7 +70,7 @@ class DemandeController {
           "Mes demandes (toutes pour un agent), paginées, filtrables par statut, document et"
               + " recherche, triables")
   PageDemandesDto lister(
-      @RequestParam(required = false) @Pattern(regexp = "^[a-z_]+$") String statut,
+      @RequestParam(required = false) List<@Pattern(regexp = "^[a-z_]+$") String> statut,
       @RequestParam(required = false) @Pattern(regexp = "^[A-Z]{3}$") String typeDocumentCode,
       @RequestParam(required = false) @Size(max = 100) String q,
       @RequestParam(required = false) @Pattern(regexp = "^(numero|date|statut)$") String tri,

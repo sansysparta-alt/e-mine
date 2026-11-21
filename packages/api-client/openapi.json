@@ -84,8 +84,11 @@
           "in" : "query",
           "required" : false,
           "schema" : {
-            "type" : "string",
-            "pattern" : "^[a-z_]+$"
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "pattern" : "^[a-z_]+$"
+            }
           }
         }, {
           "name" : "typeDocumentCode",

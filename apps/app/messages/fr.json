@@ -204,7 +204,7 @@
     "titre": "Mes demandes",
     "nouvelle": "Nouvelle demande",
     "filtreStatut": "Statut",
-    "tous": "Tous les statuts",
+    "tous": "Toutes",
     "filtrer": "Filtrer",
     "aucune": "Vous n'avez encore aucune demande.",
     "aucuneFiltre": "Aucune demande ne correspond à ces critères.",
@@ -229,6 +229,17 @@
       "libelle": "Rechercher une demande",
       "exemple": "Numéro ou document (ex. DEM-2026, permis)",
       "bouton": "Rechercher"
+    },
+    "plusDeFiltres": "Plus de filtres (par statut)",
+    "filtreDetail": "Filtrer par statut détaillé",
+    "filtres": {
+      "brouillons": "Brouillons",
+      "enCours": "En cours",
+      "actionRequise": "Action requise",
+      "terminees": "Terminées",
+      "aTraiter": "À traiter",
+      "attenteDemandeur": "En attente du demandeur",
+      "rejetees": "Rejetées"
     }
   },
   "session": {
