@@ -1,4 +1,4 @@
-import { Alerte } from "@emine/ui";
+import { Alerte, EnTetePage } from "@emine/ui";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
@@ -32,7 +32,7 @@ export default async function NouvelleDemande({ searchParams }: Props) {
   }
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-3xl sm:text-4xl">{t("titreNouvelle")}</h1>
+      <EnTetePage titre={t("titreNouvelle")} description={t("descriptionNouvelle")} />
       <FormulaireDemande
         demande={null}
         demandeur={{

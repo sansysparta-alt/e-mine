@@ -1,4 +1,5 @@
 import { ErreurApi, lireDemande, listerPieces } from "@emine/api-client";
+import { EnTetePage } from "@emine/ui";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
@@ -34,7 +35,7 @@ export default async function ModifierDemande({ params }: Props) {
   ]);
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-3xl sm:text-4xl">{t("titreBrouillon")}</h1>
+      <EnTetePage titre={t("titreBrouillon")} description={t("descriptionNouvelle")} />
       <FormulaireDemande
         demande={demande}
         demandeur={demande.demandeur}

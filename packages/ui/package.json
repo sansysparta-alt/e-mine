@@ -5,7 +5,8 @@
   "description": "Design system « Bleu Souverain » : jetons Tailwind et composants accessibles (WCAG AA)",
   "exports": {
     ".": "./src/index.ts",
-    "./theme.css": "./src/styles/theme.css"
+    "./theme.css": "./src/styles/theme.css",
+    "./icones": "./src/icones.ts"
   },
   "scripts": {
     "lint": "eslint .",

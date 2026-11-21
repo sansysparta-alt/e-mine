@@ -31,12 +31,6 @@
       }
     }
   },
-  "enTete": {
-    "marque": "e-mine",
-    "sousTitre": "Application de gestion",
-    "connecte": "Connecté : {nom}",
-    "deconnexion": "Se déconnecter"
-  },
   "tableauDeBord": {
     "titreOnglet": "Tableau de bord",
     "bonjour": "Bonjour, {prenom} {nom}",
@@ -62,6 +56,14 @@
         "titre": "Le service est momentanément indisponible.",
         "conseil": "Réessayez dans quelques minutes. Vos données ne sont pas perdues."
       }
+    },
+    "chiffres": {
+      "mesDemandes": "Mes demandes",
+      "brouillons": "Brouillons",
+      "enCours": "En cours de traitement",
+      "delivrees": "Documents délivrés",
+      "aTraiter": "Déposées, à traiter",
+      "total": "Total des demandes"
     }
   },
   "demande": {
@@ -167,7 +169,8 @@
     "restauration": {
       "titre": "Saisie non enregistrée restaurée.",
       "texte": "Vos dernières modifications, conservées sur cet appareil, ont été rétablies. Elles seront enregistrées à la prochaine étape."
-    }
+    },
+    "descriptionNouvelle": "Quatre étapes : demandeur, document, pièces, récapitulatif. Votre saisie est enregistrée au fil de l'eau."
   },
   "statuts": {
     "brouillon": "Brouillon",
@@ -196,7 +199,8 @@
       "titre": "Prochaine étape",
       "paiement": "Paiement des frais de dossier : {montant}. Le paiement en ligne sera proposé ici."
     },
-    "retour": "Revenir au tableau de bord"
+    "retour": "Revenir au tableau de bord",
+    "retourListe": "Retour aux demandes"
   },
   "mesDemandes": {
     "titre": "Mes demandes",
@@ -209,7 +213,20 @@
     "aucuneFiltre": "Aucune demande à ce statut.",
     "brouillonSansNumero": "Brouillon (numéro attribué au dépôt)",
     "deposeeLe": "déposée le {date}",
-    "creeeLe": "créée le {date}"
+    "creeeLe": "créée le {date}",
+    "titreInterne": "Demandes",
+    "description": "Suivez l'avancement de chaque demande. Un brouillon s'ouvre dans le formulaire.",
+    "colonnes": {
+      "numero": "Numéro",
+      "document": "Document",
+      "statut": "Statut",
+      "date": "Date"
+    },
+    "tri": {
+      "trier": "Trier par",
+      "croissant": "tri croissant",
+      "decroissant": "tri décroissant"
+    }
   },
   "session": {
     "avertissement": {
@@ -222,6 +239,34 @@
       "titre": "Votre session a expiré",
       "texte": "Reconnectez-vous pour continuer. Vos saisies en cours sont conservées sur cet appareil et vous reviendrez sur cette page.",
       "reconnecter": "Se reconnecter"
+    }
+  },
+  "navigation": {
+    "marque": "e-mine",
+    "sousTitre": "Mines et géologie",
+    "titre": "Navigation principale",
+    "ouvrirMenu": "Ouvrir le menu",
+    "fermerMenu": "Fermer le menu",
+    "reduireMenu": "Réduire le menu",
+    "deplierMenu": "Déplier le menu",
+    "deconnexion": "Se déconnecter",
+    "sections": {
+      "principal": "Principal",
+      "demarches": "Démarches"
+    },
+    "entrees": {
+      "tableauDeBord": "Tableau de bord",
+      "mesDemandes": "Mes demandes",
+      "demandes": "Demandes",
+      "nouvelleDemande": "Nouvelle demande"
+    }
+  },
+  "etats": {
+    "chargement": "Chargement en cours…",
+    "erreur": {
+      "titre": "Cette page n'a pas pu s'afficher.",
+      "description": "Une erreur inattendue est survenue. Vos données ne sont pas perdues.",
+      "reessayer": "Réessayer"
     }
   }
 }
