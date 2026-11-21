@@ -262,7 +262,10 @@
       }
     },
     "motifRejet": "Motif",
-    "decision": "Décision"
+    "decision": "Décision",
+    "retourGuichet": "Retour à la file du guichet",
+    "retourDecisions": "Retour aux décisions à prendre",
+    "panneauAction": "Action à mener"
   },
   "mesDemandes": {
     "titre": "Mes demandes",
@@ -582,7 +585,8 @@
         "recevableSuite": "Elle attend maintenant la décision du signataire. Vous pouvez examiner la demande suivante.",
         "rejetee": "La demande {numero} a été déclarée non recevable.",
         "rejeteeSuite": "Le demandeur voit le motif sur sa demande. Vous pouvez examiner la demande suivante."
-      }
+      },
+      "suivante": "Examiner la suivante : {numero}"
     },
     "decision": {
       "signataire": "Vous décidez en tant que signataire désigné par le catalogue pour ce document : {signataire}.",
@@ -645,7 +649,8 @@
         "droits_payes": "Décision favorable enregistrée pour la demande {numero} : elle est prête pour la délivrance.",
         "rejetee": "Rejet enregistré pour la demande {numero}."
       },
-      "traiteeSuite": "Le demandeur voit la décision sur sa demande. Vous pouvez passer à la suivante."
+      "traiteeSuite": "Le demandeur voit la décision sur sa demande. Vous pouvez passer à la suivante.",
+      "suivante": "Décider la suivante : {numero}"
     }
   },
   "audit": {

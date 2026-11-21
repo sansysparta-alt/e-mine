@@ -1,13 +1,14 @@
 import { compterDemandes, listerDemandes } from "@emine/api-client";
 import {
   Alerte,
+  Bouton,
   CarteChiffre,
   EnTetePage,
   EtatVide,
   FiltresPastilles,
   GrilleChiffres,
 } from "@emine/ui";
-import { CircleCheck, CircleX, Hourglass, Inbox } from "@emine/ui/icones";
+import { ArrowRight, CircleCheck, CircleX, Hourglass, Inbox } from "@emine/ui/icones";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -77,6 +78,8 @@ export default async function FileGuichet({ searchParams }: Props) {
     return chaine ? `/guichet?${chaine}` : "/guichet";
   };
   const legende = t(`onglets.${p.onglet}`);
+  /** Demande suivante à examiner (la plus ancienne), proposée juste après une déclaration. */
+  const suivante = p.onglet === "a-examiner" ? resultat.elements[0] : undefined;
 
   return (
     <div className="flex flex-col gap-6">
@@ -85,7 +88,17 @@ export default async function FileGuichet({ searchParams }: Props) {
           nature="succes"
           titre={t(`traitee.${p.traitee.resultat}`, { numero: p.traitee.numero })}
         >
-          {t(`traitee.${p.traitee.resultat}Suite`)}
+          <p>{t(`traitee.${p.traitee.resultat}Suite`)}</p>
+          {suivante ? (
+            <div className="mt-3">
+              <Bouton asChild>
+                <Link href={`/demandes/${suivante.id}?depuis=guichet`}>
+                  {t("suivante", { numero: suivante.numero ?? "" })}
+                  <ArrowRight aria-hidden="true" className="size-4" />
+                </Link>
+              </Bouton>
+            </div>
+          ) : null}
         </Alerte>
       ) : null}
       <EnTetePage titre={t("titre")} description={t("description")} />
@@ -172,6 +185,7 @@ export default async function FileGuichet({ searchParams }: Props) {
               libelles={libelles}
               legende={legende}
               maintenant={new Date()}
+              depuis="guichet"
             />
             <PaginationListe
               chemin="/guichet"

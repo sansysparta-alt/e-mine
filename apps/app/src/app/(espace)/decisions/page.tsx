@@ -1,6 +1,7 @@
 import { listerDemandes } from "@emine/api-client";
-import { Alerte, EnTetePage, EtatVide } from "@emine/ui";
-import { Stamp } from "@emine/ui/icones";
+import { Alerte, Bouton, EnTetePage, EtatVide } from "@emine/ui";
+import { ArrowRight, Stamp } from "@emine/ui/icones";
+import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
@@ -47,6 +48,8 @@ export default async function FileDecisions({ searchParams }: Props) {
     ),
   ]);
   const resultat = reponse.data;
+  /** Demande suivante à décider (la plus ancienne), proposée juste après une décision. */
+  const suivante = resultat.elements[0];
   const libelles = Object.fromEntries(documents.map((d) => [d.code, d.libelleFr]));
 
   return (
@@ -56,7 +59,17 @@ export default async function FileDecisions({ searchParams }: Props) {
           nature="succes"
           titre={t(`traitee.${p.traitee.resultat}`, { numero: p.traitee.numero })}
         >
-          {t("traiteeSuite")}
+          <p>{t("traiteeSuite")}</p>
+          {suivante ? (
+            <div className="mt-3">
+              <Bouton asChild>
+                <Link href={`/demandes/${suivante.id}?depuis=decisions`}>
+                  {t("suivante", { numero: suivante.numero ?? "" })}
+                  <ArrowRight aria-hidden="true" className="size-4" />
+                </Link>
+              </Bouton>
+            </div>
+          ) : null}
         </Alerte>
       ) : null}
       <EnTetePage
@@ -85,6 +98,7 @@ export default async function FileDecisions({ searchParams }: Props) {
             legende={t("titre")}
             maintenant={new Date()}
             avecFrais={false}
+            depuis="decisions"
           />
           <PaginationListe
             chemin="/decisions"

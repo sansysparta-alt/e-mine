@@ -262,7 +262,10 @@
       }
     },
     "motifRejet": "Reason",
-    "decision": "Decision"
+    "decision": "Decision",
+    "retourGuichet": "Back to the front desk queue",
+    "retourDecisions": "Back to decisions to take",
+    "panneauAction": "Action to take"
   },
   "mesDemandes": {
     "titre": "My applications",
@@ -582,7 +585,8 @@
         "recevableSuite": "It now awaits the signatory’s decision. You can review the next application.",
         "rejetee": "Application {numero} has been declared inadmissible.",
         "rejeteeSuite": "The applicant sees the reason on their application. You can review the next application."
-      }
+      },
+      "suivante": "Review the next one: {numero}"
     },
     "decision": {
       "signataire": "You decide as the signatory designated in the catalogue for this document: {signataire}.",
@@ -645,7 +649,8 @@
         "droits_payes": "Approval recorded for application {numero}: it is ready for issuance.",
         "rejetee": "Rejection recorded for application {numero}."
       },
-      "traiteeSuite": "The applicant sees the decision on their application. You can move on to the next one."
+      "traiteeSuite": "The applicant sees the decision on their application. You can move on to the next one.",
+      "suivante": "Decide the next one: {numero}"
     }
   },
   "audit": {
