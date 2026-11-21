@@ -1,6 +1,7 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Alerte } from "./alerte";
+import { CaseACocher } from "./case-a-cocher";
 import { Bouton } from "./bouton";
 import { Carte } from "./carte";
 import { LienEvitement } from "./lien-evitement";
@@ -68,5 +69,24 @@ describe("Carte et lien d'évitement", () => {
       "href",
       "#contenu",
     );
+  });
+});
+
+describe("CaseACocher", () => {
+  it("rend toute la ligne cliquable sur au moins 44 px et coche au clic sur le libellé", () => {
+    render(<CaseACocher>{"J'accepte"}</CaseACocher>);
+    const caseACocher = screen.getByRole("checkbox", { name: "J'accepte" });
+    const ligne = caseACocher.closest("label") as HTMLElement;
+    expect(ligne.className).toMatch(/min-h-11/);
+    expect(caseACocher.className).toMatch(/size-6/);
+    fireEvent.click(screen.getByText("J'accepte"));
+    expect(caseACocher).toBeChecked();
+  });
+
+  it("annonce l'erreur et la relie à la case", () => {
+    render(<CaseACocher erreur="Cochez cette case.">{"J'accepte"}</CaseACocher>);
+    const caseACocher = screen.getByRole("checkbox");
+    expect(caseACocher).toHaveAttribute("aria-invalid", "true");
+    expect(caseACocher).toHaveAccessibleDescription("Cochez cette case.");
   });
 });

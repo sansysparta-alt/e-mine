@@ -194,7 +194,7 @@ export function SectionPieces({ demandeId, piecesRequises, surChangement }: Sect
                 <p className="font-semibold">{p.typePiece}</p>
                 <a
                   href={`${url}/${p.id}/contenu`}
-                  className="break-all text-royal underline"
+                  className="inline-flex min-h-11 items-center break-all text-royal underline"
                   download={p.nomFichier}
                 >
                   {p.nomFichier}
