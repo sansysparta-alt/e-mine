@@ -74,6 +74,58 @@
         }
       }
     },
+    "/api/v1/paiements/notifications/tresorpay" : {
+      "post" : {
+        "tags" : [ "Paiements" ],
+        "summary" : "Notification signée de TrésorPay (serveur à serveur) : 200 si traitée ou déjà reçue, 401 PAY-004 si la signature est invalide, 404 PAY-005 si la référence est inconnue",
+        "operationId" : "recevoirNotificationTresorPay",
+        "parameters" : [ {
+          "name" : "X-TresorPay-Marchand",
+          "in" : "header",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "X-TresorPay-Horodatage",
+          "in" : "header",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "X-TresorPay-Signature",
+          "in" : "header",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "string",
+                "format" : "byte"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AccuseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/demandes" : {
       "get" : {
         "tags" : [ "Demandes" ],
@@ -699,9 +751,12 @@
           "deposeLe" : {
             "type" : [ "string", "null" ],
             "format" : "date-time"
+          },
+          "fraisPayes" : {
+            "type" : "boolean"
           }
         },
-        "required" : [ "creeLe", "demandeur", "deposeLe", "id", "numero", "prefectureId", "prefectureNom", "statut", "substanceCode", "substanceLibelle", "superficieHa", "typeDocumentCode" ]
+        "required" : [ "creeLe", "demandeur", "deposeLe", "fraisPayes", "id", "numero", "prefectureId", "prefectureNom", "statut", "substanceCode", "substanceLibelle", "superficieHa", "typeDocumentCode" ]
       },
       "Demandeur" : {
         "type" : "object",
@@ -720,6 +775,18 @@
           }
         },
         "required" : [ "email", "nom", "organisation", "prenom" ]
+      },
+      "AccuseDto" : {
+        "type" : "object",
+        "properties" : {
+          "recu" : {
+            "type" : "boolean"
+          },
+          "issue" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "issue", "recu" ]
       },
       "ChoixMoyenDto" : {
         "type" : "object",

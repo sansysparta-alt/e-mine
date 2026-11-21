@@ -116,6 +116,70 @@ public class PaiementRepository {
         .execute();
   }
 
+  /**
+   * Journalise une notification refusée (signature, marchand ou horodatage invalide) : aucun lien
+   * avec un paiement, aucun identifiant de transaction (qui pourrait bloquer la vraie
+   * notification).
+   */
+  public void journaliserNotificationRefusee(String payloadJson) {
+    dsl.insertInto(PAIEMENT_EVENEMENT)
+        .set(PAIEMENT_EVENEMENT.TYPE_EVENEMENT, "NOTIFICATION")
+        .set(PAIEMENT_EVENEMENT.PAYLOAD, JSONB.valueOf(payloadJson))
+        .set(PAIEMENT_EVENEMENT.SIGNATURE_VALIDE, false)
+        .set(PAIEMENT_EVENEMENT.TRAITE, false)
+        .execute();
+  }
+
+  /**
+   * Enregistre une notification vérifiée. Renvoie l'identifiant de l'événement, ou vide si cette
+   * transaction a déjà été reçue (contrainte {@code UNIQUE (transaction_id, type_evenement)} :
+   * idempotence et anti-rejeu).
+   */
+  public Optional<Long> enregistrerNotification(
+      String transactionId, String reference, String payloadJson) {
+    return dsl.insertInto(PAIEMENT_EVENEMENT)
+        .set(PAIEMENT_EVENEMENT.TRANSACTION_ID, transactionId)
+        .set(PAIEMENT_EVENEMENT.REFERENCE_RECUE, reference)
+        .set(PAIEMENT_EVENEMENT.TYPE_EVENEMENT, "NOTIFICATION")
+        .set(PAIEMENT_EVENEMENT.PAYLOAD, JSONB.valueOf(payloadJson))
+        .set(PAIEMENT_EVENEMENT.SIGNATURE_VALIDE, true)
+        .set(PAIEMENT_EVENEMENT.TRAITE, false)
+        .onConflictDoNothing()
+        .returning(PAIEMENT_EVENEMENT.ID)
+        .fetchOptional(PAIEMENT_EVENEMENT.ID);
+  }
+
+  /** Lie l'événement à son paiement et note s'il a été appliqué. */
+  public void marquerEvenement(long evenementId, UUID paiementId, boolean traite) {
+    dsl.update(PAIEMENT_EVENEMENT)
+        .set(PAIEMENT_EVENEMENT.PAIEMENT_ID, paiementId)
+        .set(PAIEMENT_EVENEMENT.TRAITE, traite)
+        .where(PAIEMENT_EVENEMENT.ID.eq(evenementId))
+        .execute();
+  }
+
+  /** Paiement de cette référence, verrouillé jusqu'à la fin de la transaction. */
+  public Optional<Paiement> verrouillerParReference(String reference) {
+    return dsl.selectFrom(PAIEMENT)
+        .where(PAIEMENT.REFERENCE.eq(reference))
+        .forUpdate()
+        .fetchOptional(PaiementRepository::versDomaine);
+  }
+
+  /**
+   * Résultat d'une notification appliqué au paiement ({@code transition_statut} contrôle le
+   * passage). Au passage à {@code paye}, la base attribue le reçu REC-AAAA-NNNNNN.
+   */
+  public void appliquerResultat(
+      UUID id, StatutPaiement statut, String transactionId, Long montantRecuGnf) {
+    dsl.update(PAIEMENT)
+        .set(PAIEMENT.STATUT, statut)
+        .set(PAIEMENT.TRANSACTION_EXTERNE_ID, transactionId)
+        .set(PAIEMENT.MONTANT_RECU_GNF, montantRecuGnf)
+        .where(PAIEMENT.ID.eq(id))
+        .execute();
+  }
+
   /** Annule un paiement (session impossible à ouvrir, par exemple). */
   public void annuler(UUID id) {
     dsl.update(PAIEMENT)

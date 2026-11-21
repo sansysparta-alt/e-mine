@@ -10,6 +10,7 @@ import java.time.Instant;
  * imbriqués) pour que le client TypeScript généré reflète exactement leur nullabilité.
  *
  * @param numero {@code DEM-AAAA-NNNNNN}, attribué au dépôt ; {@code null} pour un brouillon
+ * @param fraisPayes frais de dossier (ou attestation) payés, affiché « Frais payés »
  */
 record DemandeDto(
     long id,
@@ -23,7 +24,8 @@ record DemandeDto(
     @Schema(nullable = true) String substanceLibelle,
     @Schema(nullable = true) BigDecimal superficieHa,
     Instant creeLe,
-    @Schema(nullable = true) Instant deposeLe) {
+    @Schema(nullable = true) Instant deposeLe,
+    boolean fraisPayes) {
 
   /** Auteur de la demande. */
   record Demandeur(
@@ -46,6 +48,7 @@ record DemandeDto(
         d.substanceLibelle(),
         d.superficieHa(),
         d.creeLe(),
-        d.deposeLe());
+        d.deposeLe(),
+        d.fraisPayes());
   }
 }

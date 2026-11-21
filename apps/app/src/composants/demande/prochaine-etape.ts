@@ -33,12 +33,24 @@ const ETAPES_DEMANDEUR: Record<string, string> = {
   rejetee: "demandeurRejetee",
 };
 
-export function prochaineEtape(statut: string, profil: ProfilConsultation): ProchaineEtape | null {
+/** État de la demande utile au calcul (J3) : frais de dossier payés ou non. */
+export type EtatDemande = { fraisPayes?: boolean };
+
+export function prochaineEtape(
+  statut: string,
+  profil: ProfilConsultation,
+  etat: EtatDemande = {},
+): ProchaineEtape | null {
+  const fraisPayes = etat.fraisPayes === true;
   if (profil.interne) {
     if (!profil.permissions.includes("INSTRUIRE")) return null;
+    // V8 : la recevabilité exige les frais payés ; l'agent sait s'il peut déjà la déclarer.
+    if (statut === "deposee" && !fraisPayes) return { cle: "agentFraisAttendus", pour: "agent" };
     const cle = ETAPES_AGENT[statut];
     return cle ? { cle, pour: "agent" } : null;
   }
+  if (statut === "deposee" && fraisPayes)
+    return { cle: "demandeurAttenteGuichet", pour: "demandeur" };
   const cle = ETAPES_DEMANDEUR[statut];
   return cle ? { cle, pour: "demandeur" } : null;
 }

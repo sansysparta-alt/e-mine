@@ -2,6 +2,7 @@ package gn.gov.mines.emine.demande.infrastructure;
 
 import static gn.gov.mines.emine.shared.jooq.Tables.DEMANDE;
 import static gn.gov.mines.emine.shared.jooq.Tables.ORGANISATION;
+import static gn.gov.mines.emine.shared.jooq.Tables.PAIEMENT;
 import static gn.gov.mines.emine.shared.jooq.Tables.PREFECTURE;
 import static gn.gov.mines.emine.shared.jooq.Tables.SUBSTANCE;
 import static gn.gov.mines.emine.shared.jooq.Tables.TYPE_DOCUMENT;
@@ -9,7 +10,9 @@ import static gn.gov.mines.emine.shared.jooq.Tables.UTILISATEUR;
 
 import gn.gov.mines.emine.demande.domaine.CritereDemandes;
 import gn.gov.mines.emine.demande.domaine.DemandeDetail;
+import gn.gov.mines.emine.shared.jooq.enums.ObjetPaiement;
 import gn.gov.mines.emine.shared.jooq.enums.StatutDemande;
+import gn.gov.mines.emine.shared.jooq.enums.StatutPaiement;
 import gn.gov.mines.emine.shared.pagination.PageResultat;
 import gn.gov.mines.emine.shared.pagination.Pagination;
 import java.math.BigDecimal;
@@ -172,6 +175,21 @@ public class DemandeRepository {
         .fetchOptional(SUBSTANCE.ID);
   }
 
+  /**
+   * Frais de dossier (ou attestation, paiement unique) payés : condition de la recevabilité (V8),
+   * affichée « Frais payés » à côté du statut. Lecture soumise à la RLS du paiement.
+   */
+  static final Field<Boolean> FRAIS_PAYES =
+      DSL.field(
+              DSL.exists(
+                  DSL.selectOne()
+                      .from(PAIEMENT)
+                      .where(PAIEMENT.DEMANDE_ID.eq(DEMANDE.ID))
+                      .and(
+                          PAIEMENT.OBJET.in(ObjetPaiement.FRAIS_DOSSIER, ObjetPaiement.ATTESTATION))
+                      .and(PAIEMENT.STATUT.eq(StatutPaiement.paye))))
+          .as("frais_payes");
+
   SelectOnConditionStep<? extends Record> selection() {
     return dsl.select(
             DEMANDE.ID,
@@ -189,7 +207,8 @@ public class DemandeRepository {
             PREFECTURE.ID,
             PREFECTURE.NOM,
             SUBSTANCE.CODE,
-            SUBSTANCE.LIBELLE_FR)
+            SUBSTANCE.LIBELLE_FR,
+            FRAIS_PAYES)
         .from(DEMANDE)
         .join(TYPE_DOCUMENT)
         .on(TYPE_DOCUMENT.ID.eq(DEMANDE.TYPE_DOCUMENT_ID))
@@ -221,6 +240,7 @@ public class DemandeRepository {
         r.get(SUBSTANCE.LIBELLE_FR),
         r.get(DEMANDE.SUPERFICIE_HA),
         r.get(DEMANDE.CREATED_AT),
-        r.get(DEMANDE.DATE_DEPOT));
+        r.get(DEMANDE.DATE_DEPOT),
+        Boolean.TRUE.equals(r.get(FRAIS_PAYES)));
   }
 }

@@ -13,8 +13,15 @@ import org.springframework.test.context.DynamicPropertySource;
 @Import(PasserelleDeTest.Config.class)
 public abstract class TestIntegration {
 
+  /** Secret HMAC TrésorPay des tests uniquement (valeur fictive). */
+  public static final String SECRET_TRESORPAY = "secret-hmac-tests-integration";
+
+  public static final String MARCHAND_TRESORPAY = "MARCHAND-TEST-0001";
+
   @DynamicPropertySource
   static void baseDeDonnees(DynamicPropertyRegistry registry) {
     BaseDeDonneesDeTest.proprietes(registry);
+    registry.add("emine.tresorpay.secret-hmac", () -> SECRET_TRESORPAY);
+    registry.add("emine.tresorpay.marchand-id", () -> MARCHAND_TRESORPAY);
   }
 }

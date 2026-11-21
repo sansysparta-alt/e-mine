@@ -58,6 +58,9 @@ class ConfigurationSecurite {
                         "/api/v1/types-documents/*",
                         "/api/v1/referentiels/*")
                     .permitAll()
+                    // Notification TrésorPay (US-04.4) : authentifiée par sa signature HMAC
+                    .requestMatchers(HttpMethod.POST, "/api/v1/paiements/notifications/tresorpay")
+                    .permitAll()
                     .requestMatchers("/api/v1/**")
                     .authenticated()
                     .anyRequest()

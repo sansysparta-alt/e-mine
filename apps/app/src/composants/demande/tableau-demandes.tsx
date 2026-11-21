@@ -1,14 +1,8 @@
 import type { DemandeDto } from "@emine/api-client";
-import {
-  BadgeStatut,
-  type ComposantLien,
-  formaterDate,
-  type SensTri,
-  TableauDonnees,
-} from "@emine/ui";
+import { type ComposantLien, formaterDate, type SensTri, TableauDonnees } from "@emine/ui";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { tonStatut } from "./statut";
+import { StatutDemande } from "./statut-demande";
 
 export type TableauDemandesProps = {
   demandes: DemandeDto[];
@@ -45,7 +39,6 @@ export function TableauDemandes({
   triables = [],
 }: TableauDemandesProps) {
   const t = useTranslations("mesDemandes");
-  const tStatut = useTranslations("statuts");
   return (
     <TableauDonnees
       legende={legende}
@@ -76,11 +69,7 @@ export function TableauDemandes({
           cle: "statut",
           entete: t("colonnes.statut"),
           triable: triables.includes("statut"),
-          rendu: (d) => (
-            <BadgeStatut ton={tonStatut(d.statut)}>
-              {tStatut.has(d.statut) ? tStatut(d.statut) : d.statut}
-            </BadgeStatut>
-          ),
+          rendu: (d) => <StatutDemande statut={d.statut} fraisPayes={d.fraisPayes} />,
         },
         {
           cle: "date",

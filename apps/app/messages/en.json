@@ -199,7 +199,7 @@
         "agent": "Expected action",
         "demandeur": "Next step"
       },
-      "agentVerifier": "Check the file: review the attached documents, then declare the application admissible (the application fee must be paid) or request additional information from the applicant.",
+      "agentVerifier": "Review the file: the application fee has been paid. Check the attachments, then declare the application admissible or ask the applicant for additional documents.",
       "agentAttenteComplement": "Additional information was requested: the application is waiting for the applicant's documents.",
       "agentInstruire": "Review the application and give your opinion.",
       "agentDecision": "Opinion given: the signatory's decision is expected.",
@@ -215,6 +215,20 @@
       "actionPayer": {
         "FRAIS": "Pay the application fee",
         "DROITS": "Pay the duties"
+      },
+      "agentFraisAttendus": "Review the file. The application fee has not been paid yet: you will be able to declare the application admissible once it is paid, or ask the applicant for additional documents now.",
+      "demandeurAttenteGuichet": "Application fee paid. The one-stop shop officer is now reviewing your file; you will be informed of the decision."
+    },
+    "fraisPayes": "Fee paid",
+    "paiements": {
+      "titre": "{nombre, plural, one {Payment (#)} other {Payments (#)}}",
+      "legende": "Payments for this application, most recent first",
+      "colonnes": {
+        "reference": "Reference",
+        "objet": "Purpose",
+        "montant": "Amount",
+        "statut": "Status",
+        "date": "Date"
       }
     }
   },
