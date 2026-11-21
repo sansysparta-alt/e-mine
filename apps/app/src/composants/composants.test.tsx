@@ -28,6 +28,7 @@ function demande(partiel: Partial<DemandeDto>): DemandeDto {
     superficieHa: null,
     creeLe: "2026-11-20T09:00:00Z",
     deposeLe: null,
+    fraisPayes: false,
     ...partiel,
   };
 }

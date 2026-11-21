@@ -1,21 +1,14 @@
-import { ErreurApi, lireDemande, listerPieces } from "@emine/api-client";
-import {
-  Alerte,
-  BadgeStatut,
-  Bouton,
-  Carte,
-  EnTetePage,
-  formaterDateHeure,
-  formaterGnf,
-} from "@emine/ui";
+import { ErreurApi, lireDemande, listerPaiementsDemande, listerPieces } from "@emine/api-client";
+import { Alerte, Bouton, Carte, EnTetePage, formaterDateHeure, formaterGnf } from "@emine/ui";
 import { ArrowLeft, CreditCard } from "@emine/ui/icones";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { tonStatut } from "@/composants/demande/statut";
+import { StatutDemande } from "@/composants/demande/statut-demande";
 import { ListePieces } from "@/composants/documents/liste-pieces";
 import { prochaineEtape } from "@/composants/demande/prochaine-etape";
+import { TableauPaiements } from "@/composants/paiement/tableau-paiements";
 import { appelPage, chargerMoi, chargerReferentiels, optionsApi } from "@/serveur/donnees";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -43,18 +36,19 @@ export default async function DetailDemande({ params, searchParams }: Props) {
   }
   if (demande.statut === "brouillon") redirect(`/demandes/${id}/modifier`);
   const t = await getTranslations("detail");
-  const tStatut = await getTranslations("statuts");
-  const [moi, { documents }, pieces] = await Promise.all([
+  const [moi, { documents }, pieces, paiements] = await Promise.all([
     chargerMoi(),
     chargerReferentiels(),
     appelPage(chemin, async () => listerPieces(Number(id), await optionsApi())),
+    appelPage(chemin, async () => listerPaiementsDemande(Number(id), await optionsApi())),
   ]);
   const document = documents.find((d) => d.code === demande.typeDocumentCode);
   const aPayer = document?.tarifs.aPayerAuDepotGnf;
-  const etape = prochaineEtape(demande.statut, {
-    interne: moi.interne,
-    permissions: moi.permissions,
-  });
+  const etape = prochaineEtape(
+    demande.statut,
+    { interne: moi.interne, permissions: moi.permissions },
+    { fraisPayes: demande.fraisPayes },
+  );
   const numero = demande.numero ?? "";
   const actionPayer =
     etape?.cle === "demandeurPayerFrais"
@@ -87,9 +81,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
         <dl className="grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-[auto_1fr]">
           <dt className="font-semibold">{t("statut")}</dt>
           <dd>
-            <BadgeStatut ton={tonStatut(demande.statut)}>
-              {tStatut.has(demande.statut) ? tStatut(demande.statut) : demande.statut}
-            </BadgeStatut>
+            <StatutDemande statut={demande.statut} fraisPayes={demande.fraisPayes} />
           </dd>
           <dt className="font-semibold">{t("document")}</dt>
           <dd>
@@ -103,9 +95,6 @@ export default async function DetailDemande({ params, searchParams }: Props) {
             {demande.demandeur.organisation ? ` · ${demande.demandeur.organisation}` : ""}
           </dd>
         </dl>
-      </Carte>
-      <Carte titre={t("pieces", { nombre: pieces.data.length })}>
-        <ListePieces demandeId={demande.id} pieces={pieces.data} />
       </Carte>
       {etape ? (
         <Carte titre={t(`etape.titre.${etape.pour}`)}>
@@ -128,6 +117,14 @@ export default async function DetailDemande({ params, searchParams }: Props) {
           ) : null}
         </Carte>
       ) : null}
+      {paiements.data.length > 0 ? (
+        <Carte titre={t("paiements.titre", { nombre: paiements.data.length })}>
+          <TableauPaiements paiements={paiements.data} />
+        </Carte>
+      ) : null}
+      <Carte titre={t("pieces", { nombre: pieces.data.length })}>
+        <ListePieces demandeId={demande.id} pieces={pieces.data} />
+      </Carte>
     </div>
   );
 }

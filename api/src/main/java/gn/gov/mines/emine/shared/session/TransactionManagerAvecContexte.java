@@ -45,9 +45,17 @@ public class TransactionManagerAvecContexte extends JdbcTransactionManager {
     }
   }
 
+  /**
+   * Premier contexte non vide parmi les fournisseurs, dans l'ordre de priorité ({@code @Order}) :
+   * un fournisseur spécialisé (contexte système d'une notification vérifiée) passe avant celui de
+   * la requête HTTP ; à défaut, anonyme.
+   */
   private ContexteSession contexte() {
-    FournisseurContexteSession f = fournisseur.getIfAvailable();
-    ContexteSession ctx = f == null ? null : f.contexteCourant();
-    return ctx == null ? ContexteSession.ANONYME : ctx;
+    return fournisseur
+        .orderedStream()
+        .map(FournisseurContexteSession::contexteCourant)
+        .filter(java.util.Objects::nonNull)
+        .findFirst()
+        .orElse(ContexteSession.ANONYME);
   }
 }

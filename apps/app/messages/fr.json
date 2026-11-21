@@ -199,7 +199,7 @@
         "agent": "Action attendue",
         "demandeur": "Prochaine étape"
       },
-      "agentVerifier": "Vérifiez le dossier : contrôlez les pièces jointes, puis déclarez la demande recevable (les frais de dossier doivent être payés) ou demandez un complément au demandeur.",
+      "agentVerifier": "Vérifiez le dossier : les frais de dossier sont payés. Contrôlez les pièces jointes, puis déclarez la demande recevable ou demandez un complément au demandeur.",
       "agentAttenteComplement": "Un complément a été demandé : la demande attend les pièces du demandeur.",
       "agentInstruire": "Instruisez la demande et rendez votre avis.",
       "agentDecision": "Avis rendu : la décision du signataire est attendue.",
@@ -215,6 +215,20 @@
       "actionPayer": {
         "FRAIS": "Payer les frais de dossier",
         "DROITS": "Payer les droits"
+      },
+      "agentFraisAttendus": "Vérifiez le dossier. Les frais de dossier ne sont pas encore payés : vous pourrez déclarer la demande recevable dès leur paiement, ou demander dès maintenant un complément au demandeur.",
+      "demandeurAttenteGuichet": "Frais de dossier payés. L’agent du guichet unique examine maintenant votre dossier ; vous serez informé de sa décision."
+    },
+    "fraisPayes": "Frais payés",
+    "paiements": {
+      "titre": "{nombre, plural, one {Paiement (#)} other {Paiements (#)}}",
+      "legende": "Paiements de la demande, du plus récent au plus ancien",
+      "colonnes": {
+        "reference": "Référence",
+        "objet": "Objet",
+        "montant": "Montant",
+        "statut": "Statut",
+        "date": "Date"
       }
     }
   },

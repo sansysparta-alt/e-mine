@@ -24,7 +24,6 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -41,12 +40,28 @@ class RlsTest extends TestIntegration {
 
   private static final ThreadLocal<ContexteSession> COURANT = new ThreadLocal<>();
 
+  /**
+   * Fournisseur du test, consulté avant celui de la requête HTTP (les fournisseurs sont parcourus
+   * par ordre de priorité ; seul le contexte système d'une notification passe avant).
+   */
   @TestConfiguration
   static class Contexte {
     @Bean
-    @Primary
     FournisseurContexteSession fournisseurDeTest() {
-      return COURANT::get;
+      return new FournisseurDeTest();
+    }
+  }
+
+  static final class FournisseurDeTest
+      implements FournisseurContexteSession, org.springframework.core.Ordered {
+    @Override
+    public ContexteSession contexteCourant() {
+      return COURANT.get();
+    }
+
+    @Override
+    public int getOrder() {
+      return org.springframework.core.Ordered.HIGHEST_PRECEDENCE + 1;
     }
   }
 
