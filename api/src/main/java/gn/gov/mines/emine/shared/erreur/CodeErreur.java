@@ -35,6 +35,10 @@ public enum CodeErreur {
   DEM_005("DEM-005", HttpStatus.UNPROCESSABLE_CONTENT),
   /** Recevabilité impossible : frais de dossier non payés (trigger, V8). */
   DEM_006("DEM-006", HttpStatus.CONFLICT),
+  /**
+   * Recevabilité impossible : pièce obligatoire sans fichier ({@code details.piecesManquantes}).
+   */
+  DEM_007("DEM-007", HttpStatus.UNPROCESSABLE_CONTENT),
   /** Objet déjà payé pour cette demande (index {@code ux_paiement_paye}). */
   PAY_001("PAY-001", HttpStatus.CONFLICT),
   /** Trois tentatives de paiement en ligne atteintes aujourd'hui pour cet objet (US-04.3). */

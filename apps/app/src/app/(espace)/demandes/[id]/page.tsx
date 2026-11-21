@@ -1,4 +1,10 @@
-import { ErreurApi, lireDemande, listerPaiementsDemande, listerPieces } from "@emine/api-client";
+import {
+  ErreurApi,
+  examinerRecevabilite,
+  lireDemande,
+  listerPaiementsDemande,
+  listerPieces,
+} from "@emine/api-client";
 import { Alerte, Bouton, Carte, EnTetePage, formaterDateHeure, formaterGnf } from "@emine/ui";
 import { ArrowLeft, CreditCard } from "@emine/ui/icones";
 import type { Metadata } from "next";
@@ -8,7 +14,9 @@ import { getTranslations } from "next-intl/server";
 import { StatutDemande } from "@/composants/demande/statut-demande";
 import { ListePieces } from "@/composants/documents/liste-pieces";
 import { prochaineEtape } from "@/composants/demande/prochaine-etape";
+import { ExamenRecevabilite } from "@/composants/instruction/examen-recevabilite";
 import { TableauPaiements } from "@/composants/paiement/tableau-paiements";
+import { declarer } from "@/serveur/actions-instruction";
 import { appelPage, chargerMoi, chargerReferentiels, optionsApi } from "@/serveur/donnees";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -43,6 +51,12 @@ export default async function DetailDemande({ params, searchParams }: Props) {
     appelPage(chemin, async () => listerPaiementsDemande(Number(id), await optionsApi())),
   ]);
   const document = documents.find((d) => d.code === demande.typeDocumentCode);
+  // US-05.1 : l'agent qui instruit examine la recevabilité d'une demande déposée.
+  const examen =
+    demande.statut === "deposee" && moi.interne && moi.permissions.includes("INSTRUIRE")
+      ? (await appelPage(chemin, async () => examinerRecevabilite(Number(id), await optionsApi())))
+          .data
+      : null;
   const aPayer = document?.tarifs.aPayerAuDepotGnf;
   const etape = prochaineEtape(
     demande.statut,
@@ -94,6 +108,12 @@ export default async function DetailDemande({ params, searchParams }: Props) {
             {demande.demandeur.prenom} {demande.demandeur.nom}
             {demande.demandeur.organisation ? ` · ${demande.demandeur.organisation}` : ""}
           </dd>
+          {demande.motifRejet ? (
+            <>
+              <dt className="font-semibold">{t("motifRejet")}</dt>
+              <dd className="whitespace-pre-line">{demande.motifRejet}</dd>
+            </>
+          ) : null}
         </dl>
       </Carte>
       {etape ? (
@@ -105,6 +125,17 @@ export default async function DetailDemande({ params, searchParams }: Props) {
                 document?.tarifs.droitsGnf != null ? formaterGnf(document.tarifs.droitsGnf) : "—",
             })}
           </p>
+          {examen ? (
+            <div className="mt-4 border-t border-bordure pt-4">
+              <ExamenRecevabilite
+                demandeId={demande.id}
+                numero={numero}
+                examen={examen}
+                piecesRequises={document?.piecesRequises ?? []}
+                declarer={declarer}
+              />
+            </div>
+          ) : null}
           {actionPayer && moi.permissions.includes("PAYER") ? (
             <div className="mt-4">
               <Bouton asChild taille="grande">

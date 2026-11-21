@@ -13,7 +13,7 @@ describe("prochaine étape selon le profil", () => {
       pour: "agent",
     });
     expect(fr.detail.etape.agentVerifier).toMatch(/recevable/);
-    expect(fr.detail.etape.agentVerifier).toMatch(/complément/);
+    expect(fr.detail.etape.agentVerifier).toMatch(/non recevable/);
   });
 
   it("le demandeur voit le paiement des frais", () => {

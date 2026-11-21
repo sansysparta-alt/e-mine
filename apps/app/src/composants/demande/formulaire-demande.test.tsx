@@ -44,6 +44,7 @@ function demande(partiel: Partial<DemandeDto> = {}): DemandeDto {
     creeLe: "2026-11-20T10:00:00Z",
     deposeLe: null,
     fraisPayes: false,
+    motifRejet: null,
     ...partiel,
   };
 }

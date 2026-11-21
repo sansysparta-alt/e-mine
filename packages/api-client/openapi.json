@@ -129,7 +129,7 @@
     "/api/v1/demandes" : {
       "get" : {
         "tags" : [ "Demandes" ],
-        "summary" : "Mes demandes (toutes pour un agent), paginées, filtrables par statut, document et recherche, triables",
+        "summary" : "Mes demandes (toutes pour un agent), paginées, filtrables par statut, document, frais payés et recherche, triables",
         "operationId" : "listerDemandes",
         "parameters" : [ {
           "name" : "statut",
@@ -158,6 +158,13 @@
             "type" : "string",
             "maxLength" : 100,
             "minLength" : 0
+          }
+        }, {
+          "name" : "fraisPayes",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
           }
         }, {
           "name" : "tri",
@@ -226,6 +233,70 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/DemandeDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/demandes/{id}/recevabilite" : {
+      "get" : {
+        "tags" : [ "Instruction" ],
+        "summary" : "Conditions de la recevabilité : frais payés, pièces obligatoires fournies",
+        "operationId" : "examinerRecevabilite",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ExamenRecevabiliteDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Instruction" ],
+        "summary" : "Déclarer la demande recevable, ou non recevable avec un motif (10 à 2000 caractères)",
+        "operationId" : "declarerRecevabilite",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DeclarationRecevabiliteDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ResultatRecevabiliteDto"
                 }
               }
             }
@@ -783,9 +854,12 @@
           },
           "fraisPayes" : {
             "type" : "boolean"
+          },
+          "motifRejet" : {
+            "type" : [ "string", "null" ]
           }
         },
-        "required" : [ "creeLe", "demandeur", "deposeLe", "fraisPayes", "id", "numero", "prefectureId", "prefectureNom", "statut", "substanceCode", "substanceLibelle", "superficieHa", "typeDocumentCode" ]
+        "required" : [ "creeLe", "demandeur", "deposeLe", "fraisPayes", "id", "motifRejet", "numero", "prefectureId", "prefectureNom", "statut", "substanceCode", "substanceLibelle", "superficieHa", "typeDocumentCode" ]
       },
       "Demandeur" : {
         "type" : "object",
@@ -816,6 +890,31 @@
           }
         },
         "required" : [ "issue", "recu" ]
+      },
+      "DeclarationRecevabiliteDto" : {
+        "type" : "object",
+        "properties" : {
+          "recevable" : {
+            "type" : "boolean"
+          },
+          "motif" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "motif", "recevable" ]
+      },
+      "ResultatRecevabiliteDto" : {
+        "type" : "object",
+        "properties" : {
+          "demandeId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "statut" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "demandeId", "statut" ]
       },
       "ChoixMoyenDto" : {
         "type" : "object",
@@ -1101,6 +1200,27 @@
           }
         },
         "required" : [ "elements", "page", "taille", "total", "totalPages" ]
+      },
+      "ExamenRecevabiliteDto" : {
+        "type" : "object",
+        "properties" : {
+          "aExaminer" : {
+            "type" : "boolean"
+          },
+          "fraisPayes" : {
+            "type" : "boolean"
+          },
+          "piecesManquantes" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "peutEtreRecevable" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "aExaminer", "fraisPayes", "peutEtreRecevable", "piecesManquantes" ]
       },
       "APayerDto" : {
         "type" : "object",

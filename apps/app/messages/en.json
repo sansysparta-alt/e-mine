@@ -199,7 +199,7 @@
         "agent": "Expected action",
         "demandeur": "Next step"
       },
-      "agentVerifier": "Review the file: the application fee has been paid. Check the attachments, then declare the application admissible or ask the applicant for additional documents.",
+      "agentVerifier": "The application fee has been paid. Check the attached documents, then declare the application admissible or inadmissible.",
       "agentAttenteComplement": "Additional information was requested: the application is waiting for the applicant's documents.",
       "agentInstruire": "Review the application and give your opinion.",
       "agentDecision": "Opinion given: the signatory's decision is expected.",
@@ -211,12 +211,12 @@
       "demandeurPayerDroits": "A favourable decision was issued: pay the duties ({droits}) to obtain your document.",
       "demandeurDelivrance": "Duties paid: your document is being drawn up.",
       "demandeurDelivree": "Your document has been issued.",
-      "demandeurRejetee": "Your application was rejected. The reason is given in the decision.",
+      "demandeurRejetee": "Your application has been rejected. The reason is shown above.",
       "actionPayer": {
         "FRAIS": "Pay the application fee",
         "DROITS": "Pay the duties"
       },
-      "agentFraisAttendus": "Review the file. The application fee has not been paid yet: you will be able to declare the application admissible once it is paid, or ask the applicant for additional documents now.",
+      "agentFraisAttendus": "The application fee has not been paid yet: you can declare the application admissible once it is paid. If the file cannot succeed, declare it inadmissible and give the reason.",
       "demandeurAttenteGuichet": "Application fee paid. The one-stop shop officer is now reviewing your file; you will be informed of the decision."
     },
     "fraisPayes": "Fee paid",
@@ -231,7 +231,8 @@
         "date": "Date",
         "recu": "Receipt"
       }
-    }
+    },
+    "motifRejet": "Reason"
   },
   "mesDemandes": {
     "titre": "My applications",
@@ -299,13 +300,15 @@
     "deconnexion": "Sign out",
     "sections": {
       "principal": "Main",
-      "demarches": "Procedures"
+      "demarches": "Procedures",
+      "instruction": "Processing"
     },
     "entrees": {
       "tableauDeBord": "Dashboard",
       "mesDemandes": "My applications",
       "demandes": "Applications",
-      "nouvelleDemande": "New application"
+      "nouvelleDemande": "New application",
+      "fileGuichet": "Front desk queue"
     }
   },
   "etats": {
@@ -457,5 +460,95 @@
     "annule": "Cancelled",
     "remboursement_demande": "Refund requested",
     "rembourse": "Refunded"
+  },
+  "instruction": {
+    "motif": {
+      "obligatoire": "required",
+      "compteur": "{nombre} / {max} characters",
+      "erreurs": {
+        "court": "Explain the reason in at least 10 characters: the applicant will read it.",
+        "long": "The reason exceeds 2000 characters: shorten it."
+      }
+    },
+    "recevabilite": {
+      "controles": "Admissibility checks",
+      "fraisPayes": "Application fee paid",
+      "fraisNonPayes": "Application fee not paid",
+      "pieceFournie": "{piece}: provided",
+      "pieceManquante": "{piece}: missing",
+      "verification": "I have opened and checked each attached document: legible, complete and in the applicant’s name.",
+      "verificationRequise": "Tick this box after checking the documents.",
+      "pasEncoreTitre": "The application cannot be declared admissible yet",
+      "pasEncoreFrais": "The application fee has not been paid. You can declare it admissible as soon as the payment is confirmed.",
+      "pasEncorePieces": "A mandatory document has no file. If the file cannot succeed, declare it inadmissible and give the reason.",
+      "declarerRecevable": "Declare admissible",
+      "declarerNonRecevable": "Declare inadmissible…",
+      "enCours": "Saving…",
+      "echec": "The declaration was not saved",
+      "indisponible": "The service is temporarily unavailable. Try again in a moment.",
+      "dialogue": {
+        "titre": "Declare application {numero} inadmissible",
+        "explication": "The application will be rejected and the applicant informed. This decision cannot be undone.",
+        "motif": "Reason given to the applicant",
+        "aide": "Say precisely what is wrong (illegible document, non-compliant document…). At least 10 characters.",
+        "annuler": "Cancel",
+        "confirmer": "Confirm inadmissibility"
+      }
+    },
+    "file": {
+      "titre": "Front desk queue",
+      "description": "Submitted applications, oldest first. Open an application to check its admissibility.",
+      "chiffres": "Front desk key figures",
+      "cartes": {
+        "aExaminer": "To review",
+        "aExaminerPrecision": "Fee paid, awaiting your review",
+        "fraisAttendus": "Fee pending",
+        "fraisAttendusPrecision": "Submitted, application fee not paid",
+        "recevables": "Admissible",
+        "recevablesPrecision": "Awaiting the signatory’s decision",
+        "nonRecevables": "Rejected",
+        "nonRecevablesPrecision": "Inadmissible or rejected at decision"
+      },
+      "demandesDeposees": "Submitted applications",
+      "filtre": "Show",
+      "onglets": {
+        "a-examiner": "To review",
+        "frais-attendus": "Fee pending"
+      },
+      "aide": {
+        "a-examiner": "Oldest first: a wait of 5 days or more is highlighted.",
+        "frais-attendus": "These applications can be declared admissible once the fee is paid."
+      },
+      "recherche": {
+        "libelle": "Search for an application",
+        "exemple": "Number (DEM-2026-…) or document",
+        "bouton": "Search"
+      },
+      "colonnes": {
+        "numero": "Number",
+        "document": "Document",
+        "demandeur": "Applicant",
+        "depot": "Submitted on",
+        "frais": "Fee"
+      },
+      "attente": "{jours, plural, =0 {today} one {# day ago} other {# days ago}}",
+      "fraisPayes": "Paid",
+      "fraisAttendus": "Pending",
+      "elements": "applications",
+      "vide": {
+        "a-examiner": "No application to review",
+        "a-examinerDescription": "All applications with a paid fee have been reviewed.",
+        "frais-attendus": "No application awaiting payment",
+        "frais-attendusDescription": "All submitted applications have their fee paid.",
+        "recherche": "No application matches this search",
+        "toutesLesDemandes": "See all applications"
+      },
+      "traitee": {
+        "recevable": "Application {numero} has been declared admissible.",
+        "recevableSuite": "It now awaits the signatory’s decision. You can review the next application.",
+        "rejetee": "Application {numero} has been declared inadmissible.",
+        "rejeteeSuite": "The applicant sees the reason on their application. You can review the next application."
+      }
+    }
   }
 }
