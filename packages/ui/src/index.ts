@@ -16,8 +16,8 @@ export {
 export { classesChamp } from "./champ";
 export { Dialogue, type DialogueProps } from "./composants/dialogue";
 export { CaseACocher, type CaseACocherProps } from "./composants/case-a-cocher";
+export { BadgeStatut, type TonBadge, TONS_STATUT } from "./composants/badge-statut";
 export {
-  BadgeStatut,
   CarteChiffre,
   type CarteChiffreProps,
   EnTetePage,
@@ -26,7 +26,6 @@ export {
   EtatErreur,
   EtatVide,
   GrilleChiffres,
-  type TonBadge,
 } from "./composants/page";
 export {
   ChampRecherche,

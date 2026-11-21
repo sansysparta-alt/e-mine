@@ -1,7 +1,8 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { FileText, LayoutDashboard } from "lucide-react";
 import { GabaritApplication } from "./gabarit";
-import { BadgeStatut, EtatVide } from "./page";
+import { BadgeStatut } from "./badge-statut";
+import { EtatVide } from "./page";
 import { TableauDonnees } from "./liste";
 
 const libelles = {

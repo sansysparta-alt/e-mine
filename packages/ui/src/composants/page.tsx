@@ -1,4 +1,3 @@
-import { cva, type VariantProps } from "class-variance-authority";
 import { CircleAlert, Inbox, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { cn } from "../cn";
@@ -73,34 +72,6 @@ export function CarteChiffre({
 /** Grille responsive de chiffres clés (1 colonne sur mobile, jusqu'à 4). */
 export function GrilleChiffres({ children }: { children: ReactNode }) {
   return <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">{children}</div>;
-}
-
-const badge = cva(
-  "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-sm font-semibold whitespace-nowrap",
-  {
-    variants: {
-      ton: {
-        neutre: "border-bordure bg-fond text-texte-doux",
-        info: "border-azure/30 bg-ice text-royal",
-        succes: "border-succes/30 bg-succes-fond text-succes",
-        avertissement: "border-avertissement/30 bg-avertissement-fond text-avertissement",
-        danger: "border-danger/30 bg-danger-fond text-danger",
-      },
-    },
-    defaultVariants: { ton: "neutre" },
-  },
-);
-
-export type TonBadge = NonNullable<VariantProps<typeof badge>["ton"]>;
-
-/** Badge de statut : pastille et libellé (le sens ne repose pas sur la seule couleur). */
-export function BadgeStatut({ ton, children }: { ton?: TonBadge; children: ReactNode }) {
-  return (
-    <span className={badge({ ton })}>
-      <span aria-hidden="true" className="size-1.5 rounded-full bg-current" />
-      {children}
-    </span>
-  );
 }
 
 export type EtatVideProps = {
