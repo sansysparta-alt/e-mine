@@ -2,6 +2,8 @@ package gn.gov.mines.emine.auth.infrastructure;
 
 import gn.gov.mines.emine.auth.UtilisateurConnecte;
 import gn.gov.mines.emine.auth.UtilisateurCourant;
+import gn.gov.mines.emine.shared.erreur.CodeErreur;
+import gn.gov.mines.emine.shared.erreur.FabriqueProblemes;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,7 +11,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -27,10 +28,15 @@ class RattachementUtilisateurFilter extends OncePerRequestFilter {
 
   private final UtilisateurRepository utilisateurs;
   private final TransactionTemplate lecture;
+  private final FabriqueProblemes problemes;
 
-  RattachementUtilisateurFilter(UtilisateurRepository utilisateurs, TransactionTemplate lecture) {
+  RattachementUtilisateurFilter(
+      UtilisateurRepository utilisateurs,
+      TransactionTemplate lecture,
+      FabriqueProblemes problemes) {
     this.utilisateurs = utilisateurs;
     this.lecture = lecture;
+    this.problemes = problemes;
   }
 
   @Override
@@ -41,11 +47,7 @@ class RattachementUtilisateurFilter extends OncePerRequestFilter {
     if (auth instanceof JwtAuthenticationToken jeton) {
       Optional<UtilisateurConnecte> compte = rechercher(jeton.getToken().getSubject());
       if (compte.isEmpty()) {
-        ReponsesErreur.ecrire(
-            reponse,
-            HttpStatus.FORBIDDEN,
-            ReponsesErreur.COMPTE_NON_RATTACHE,
-            "Votre compte n'est pas encore activé sur e-mine. Contactez l'administrateur.");
+        problemes.ecrire(requete, reponse, CodeErreur.AUTH_003);
         return;
       }
       requete.setAttribute(ATTRIBUT, compte.get());

@@ -83,7 +83,7 @@
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
-      <scope>runtime</scope>
+      <!-- Portée compile : les erreurs SQL des triggers (HINT = code du catalogue) sont lues via PSQLException -->
     </dependency>
     <dependency>
       <groupId>org.springdoc</groupId>
