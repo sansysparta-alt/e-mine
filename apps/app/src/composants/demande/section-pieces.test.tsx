@@ -2,12 +2,7 @@ import type { PieceDto } from "@emine/api-client";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import fr from "../../../messages/fr.json";
-import {
-  controlerFichier,
-  formaterTaille,
-  SectionPieces,
-  TAILLE_MAX_OCTETS,
-} from "./section-pieces";
+import { controlerFichier, SectionPieces, TAILLE_MAX_OCTETS } from "./section-pieces";
 
 const eies: PieceDto = {
   id: 7,
@@ -51,7 +46,6 @@ describe("contrôles côté navigateur", () => {
     expect(
       controlerFichier({ name: "a.pdf", size: TAILLE_MAX_OCTETS + 1, type: "application/pdf" }),
     ).toBe("DOC-002");
-    expect(formaterTaille(2048)).toBe("2 Ko");
   });
 });
 

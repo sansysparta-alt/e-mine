@@ -7,7 +7,15 @@ import type {
   SubstanceDto,
   TypeDocumentDto,
 } from "@emine/api-client";
-import { Alerte, Bouton, Carte, classesChamp, formaterGnf } from "@emine/ui";
+import {
+  Alerte,
+  Bouton,
+  Carte,
+  classesChamp,
+  formaterGnf,
+  formaterHeure,
+  formaterSuperficie,
+} from "@emine/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { type ReactNode, useCallback, useEffect, useRef, useState, useTransition } from "react";
@@ -325,7 +333,7 @@ export function FormulaireDemande(props: FormulaireDemandeProps) {
               <dd>
                 {demande.superficieHa == null
                   ? t("document.nonPrecise")
-                  : t("document.hectares", { valeur: demande.superficieHa })}
+                  : formaterSuperficie(demande.superficieHa)}
               </dd>
               <dt className="font-semibold">{t("document.aPayer")}</dt>
               <dd>
@@ -414,11 +422,7 @@ function EtatEnregistrement({ etat }: { etat: Etat }) {
       {etat.nature === "enregistrement" ? t("enregistrement.enCours") : null}
       {etat.nature === "enregistre"
         ? t("enregistrement.fait", {
-            heure: etat.a.toLocaleTimeString("fr-FR", {
-              hour: "2-digit",
-              minute: "2-digit",
-              timeZone: "Africa/Conakry",
-            }),
+            heure: formaterHeure(etat.a),
           })
         : null}
     </p>
