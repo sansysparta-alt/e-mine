@@ -1,16 +1,21 @@
-import { Bouton } from "@emine/ui";
 import { useTranslations } from "next-intl";
+import { FormulaireDeconnexion } from "./session/formulaire-deconnexion";
+import { SurveillanceSession } from "./session/surveillance-session";
 
 export type EnTeteProps = {
   nomComplet: string;
   profil: string;
 };
 
-/** En-tête de l'espace connecté : marque, utilisateur et profil, déconnexion (formulaire POST). */
+/**
+ * En-tête de l'espace connecté : marque, utilisateur et profil, déconnexion (formulaire POST).
+ * Porte aussi la surveillance de la session (maintien pendant l'activité, avertissement).
+ */
 export function EnTete({ nomComplet, profil }: EnTeteProps) {
   const t = useTranslations("enTete");
   return (
     <header className="bg-navy text-white">
+      <SurveillanceSession />
       <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
         <p className="flex items-baseline gap-2">
           <span className="font-titre text-2xl font-bold">{t("marque")}</span>
@@ -21,11 +26,7 @@ export function EnTete({ nomComplet, profil }: EnTeteProps) {
             <span className="block font-semibold">{t("connecte", { nom: nomComplet })}</span>
             <span className="block text-ice">{profil}</span>
           </p>
-          <form action="/api/auth/logout" method="post">
-            <Bouton type="submit" variante="secondaire" className="border-white">
-              {t("deconnexion")}
-            </Bouton>
-          </form>
+          <FormulaireDeconnexion libelle={t("deconnexion")} />
         </div>
       </div>
     </header>

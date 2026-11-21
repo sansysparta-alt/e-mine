@@ -109,8 +109,11 @@
         "VAL-001": "Some information needs to be corrected.",
         "PERM-001": "Your profile does not allow submitting an application.",
         "DEM-002": "Application not found.",
-        "autre": "The draft could not be saved."
-      }
+        "autre": "The draft could not be saved.",
+        "AUTH-001": "Your session has expired."
+      },
+      "sessionExpiree": "Your entries are kept on this device. Sign in again to save them: you will come back to this page.",
+      "reconnecter": "Sign in again"
     },
     "erreurs": {
       "documentObligatoire": "Choose the requested document.",
@@ -161,6 +164,10 @@
       },
       "deposer": "Submit my application",
       "enCours": "Submitting…"
+    },
+    "restauration": {
+      "titre": "Unsaved entries restored.",
+      "texte": "Your latest changes, kept on this device, have been restored. They will be saved at the next step."
     }
   },
   "statuts": {
@@ -204,5 +211,18 @@
     "brouillonSansNumero": "Draft (number assigned on submission)",
     "deposeeLe": "submitted on {date}",
     "creeeLe": "created on {date}"
+  },
+  "session": {
+    "avertissement": {
+      "titre": "Your session is about to expire",
+      "texte": "Without any action, you will be signed out in 2 minutes to protect your data. Your current entries are kept.",
+      "rester": "Stay signed in",
+      "deconnecter": "Sign out"
+    },
+    "expiree": {
+      "titre": "Your session has expired",
+      "texte": "Sign in again to continue. Your current entries are kept on this device and you will come back to this page.",
+      "reconnecter": "Sign in again"
+    }
   }
 }
