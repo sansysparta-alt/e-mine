@@ -4,6 +4,7 @@ import {
   Inbox,
   LayoutDashboard,
   type LucideIcon,
+  ScrollText,
   Stamp,
 } from "@emine/ui/icones";
 
@@ -78,6 +79,19 @@ export const NAVIGATION: SectionConfig[] = [
         href: "/demandes/nouvelle",
         icone: FilePlus2,
         permission: "DEPOSER",
+      },
+    ],
+  },
+  {
+    cle: "administration",
+    entrees: [
+      {
+        cle: "journalAudit",
+        module: "audit",
+        href: "/journal-audit",
+        icone: ScrollText,
+        permission: "PARAMETRER",
+        interne: true,
       },
     ],
   },
