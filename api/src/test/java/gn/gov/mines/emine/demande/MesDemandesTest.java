@@ -157,8 +157,19 @@ class MesDemandesTest extends TestIntegration {
     assertThat(ids(liste(INVESTISSEUR, "INVESTISSEUR", "?q=exploitation&taille=100")))
         .contains(brouillonA)
         .doesNotContain(deposeeA);
-    // Les jokers LIKE sont pris littéralement.
-    assertThat(liste(INVESTISSEUR, "INVESTISSEUR", "?q=%25").path("total").asLong()).isZero();
+    // Les jokers LIKE (% et _) sont pris littéralement : aucun numéro ni document n'en contient.
+    for (String joker : new String[] {"%", "_"}) {
+      String corps =
+          mvc.perform(
+                  get("/api/v1/demandes")
+                      .param("q", joker)
+                      .with(jeton(INVESTISSEUR, "INVESTISSEUR")))
+              .andExpect(status().isOk())
+              .andReturn()
+              .getResponse()
+              .getContentAsString();
+      assertThat(JSON.readTree(corps).path("total").asLong()).as("q=" + joker).isZero();
+    }
   }
 
   @Test
