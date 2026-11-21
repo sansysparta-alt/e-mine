@@ -1,7 +1,9 @@
 package gn.gov.mines.emine.demande.application;
 
 import gn.gov.mines.emine.catalogue.Catalogue;
+import gn.gov.mines.emine.catalogue.TypeDocument;
 import gn.gov.mines.emine.demande.domaine.DemandeDetail;
+import gn.gov.mines.emine.demande.domaine.Piece;
 import gn.gov.mines.emine.demande.domaine.RegleDepot;
 import gn.gov.mines.emine.demande.infrastructure.DemandeRepository;
 import gn.gov.mines.emine.demande.infrastructure.PieceRepository;
@@ -37,12 +39,20 @@ public class ServiceDepot {
     if (!demande.estBrouillon()) {
       throw new ErreurMetier(CodeErreur.DEM_003, Map.of("id", id));
     }
-    if (catalogue.trouverActif(demande.typeDocumentCode()).isEmpty()) {
-      throw new ErreurMetier(CodeErreur.DEM_005, Map.of("code", demande.typeDocumentCode()));
-    }
-    List<String> manques = RegleDepot.manques(declarationAcceptee, pieces.lister(id).size());
+    TypeDocument type =
+        catalogue
+            .trouverActif(demande.typeDocumentCode())
+            .orElseThrow(
+                () ->
+                    new ErreurMetier(
+                        CodeErreur.DEM_005, Map.of("code", demande.typeDocumentCode())));
+    List<String> piecesManquantes =
+        RegleDepot.piecesManquantes(
+            type.piecesRequises(), pieces.lister(id).stream().map(Piece::typePiece).toList());
+    List<String> manques = RegleDepot.manques(declarationAcceptee, piecesManquantes);
     if (!manques.isEmpty()) {
-      throw new ErreurMetier(CodeErreur.DEM_004, Map.of("manques", manques));
+      throw new ErreurMetier(
+          CodeErreur.DEM_004, Map.of("manques", manques, "piecesManquantes", piecesManquantes));
     }
     if (demandes.deposer(id) == 0) {
       throw new ErreurMetier(CodeErreur.DEM_003, Map.of("id", id));

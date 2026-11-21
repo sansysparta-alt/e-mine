@@ -49,7 +49,7 @@ class DepotTest extends TestIntegration {
 
   @Test
   void leDepotAttribueLeNumeroEtPasseAuStatutDeposee() throws Exception {
-    long id = brouillonAvecPieces(2);
+    long id = brouillonComplet();
     JsonNode demande =
         lire(
             deposer(id, INVESTISSEUR, true)
@@ -78,27 +78,44 @@ class DepotTest extends TestIntegration {
   @Test
   void deuxDepotsSuccessifsOntDesNumerosConsecutifs() throws Exception {
     String premier =
-        lire(deposer(brouillonAvecPieces(1), INVESTISSEUR, true)).path("numero").asString();
-    String second =
-        lire(deposer(brouillonAvecPieces(1), INVESTISSEUR, true)).path("numero").asString();
+        lire(deposer(brouillonComplet(), INVESTISSEUR, true)).path("numero").asString();
+    String second = lire(deposer(brouillonComplet(), INVESTISSEUR, true)).path("numero").asString();
     assertThat(sequence(second)).isEqualTo(sequence(premier) + 1);
   }
 
   @Test
   void sansDeclarationNiPieceLeDepotEstRefuseAvecLesManques() throws Exception {
-    long id = brouillonAvecPieces(0);
+    long id = brouillonAvecPieces();
     deposer(id, INVESTISSEUR, false)
         .andExpect(status().isUnprocessableContent())
         .andExpect(jsonPath("$.code").value("DEM-004"))
         .andExpect(
             jsonPath("$.details.manques", containsInAnyOrder("declarationHonneur", "pieces")));
-    deposer(brouillonAvecPieces(1), INVESTISSEUR, false)
+    deposer(brouillonComplet(), INVESTISSEUR, false)
         .andExpect(jsonPath("$.details.manques[0]").value("declarationHonneur"));
   }
 
   @Test
+  void uneSeulePieceObligatoireManquanteBloqueLeDepotEtEstNommee() throws Exception {
+    long id = brouillonAvecPieces("Étude de faisabilité", "EIES", "Autre pièce");
+    deposer(id, INVESTISSEUR, true)
+        .andExpect(status().isUnprocessableContent())
+        .andExpect(jsonPath("$.code").value("DEM-004"))
+        .andExpect(jsonPath("$.details.manques[0]").value("pieces"))
+        .andExpect(jsonPath("$.details.piecesManquantes[0]").value("Plan de restauration"))
+        .andExpect(jsonPath("$.details.piecesManquantes.length()").value(1));
+  }
+
+  @Test
+  void lesPiecesSupplementairesSontFacultatives() throws Exception {
+    long id =
+        brouillonAvecPieces("Étude de faisabilité", "EIES", "Plan de restauration", "Autre pièce");
+    deposer(id, INVESTISSEUR, true).andExpect(status().isOk());
+  }
+
+  @Test
   void uneDemandeNeSeDeposeQuUneFois() throws Exception {
-    long id = brouillonAvecPieces(1);
+    long id = brouillonComplet();
     deposer(id, INVESTISSEUR, true).andExpect(status().isOk());
     deposer(id, INVESTISSEUR, true)
         .andExpect(status().isConflict())
@@ -107,7 +124,7 @@ class DepotTest extends TestIntegration {
 
   @Test
   void personneNeDeposeLaDemandeDUnAutre() throws Exception {
-    long id = brouillonAvecPieces(1);
+    long id = brouillonComplet();
     deposer(id, INVESTISSEUR_2, true)
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.code").value("DEM-002"));
@@ -119,7 +136,7 @@ class DepotTest extends TestIntegration {
   @Test
   void laDeclarationEstObligatoireDansLaRequete() throws Exception {
     mvc.perform(
-            post("/api/v1/demandes/" + brouillonAvecPieces(1) + "/depot")
+            post("/api/v1/demandes/" + brouillonComplet() + "/depot")
                 .with(jeton(INVESTISSEUR, "INVESTISSEUR"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{}"))
@@ -136,7 +153,14 @@ class DepotTest extends TestIntegration {
             .content("{\"declarationHonneur\": " + declaration + "}"));
   }
 
-  private long brouillonAvecPieces(int nombre) throws Exception {
+  /** Les trois pièces obligatoires du PEX dans le catalogue. */
+  static final String[] PIECES_PEX = {"Étude de faisabilité", "EIES", "Plan de restauration"};
+
+  private long brouillonComplet() throws Exception {
+    return brouillonAvecPieces(PIECES_PEX);
+  }
+
+  private long brouillonAvecPieces(String... types) throws Exception {
     long id =
         lire(mvc.perform(
                 post("/api/v1/demandes")
@@ -150,12 +174,13 @@ class DepotTest extends TestIntegration {
             c.prepareStatement(
                 "INSERT INTO piece_jointe (demande_id, type_piece, nom_fichier, mime_type,"
                     + " taille_octets, empreinte_sha256, stockage_cle, depose_par)"
-                    + " SELECT ?, 'EIES', 'eies.pdf', 'application/pdf', 1000, repeat('c', 64), ?,"
+                    + " SELECT ?, ?, 'piece.pdf', 'application/pdf', 1000, repeat('c', 64), ?,"
                     + " demandeur_id FROM demande WHERE id = ?")) {
-      for (int i = 0; i < nombre; i++) {
+      for (int i = 0; i < types.length; i++) {
         ps.setLong(1, id);
-        ps.setString(2, "depot/" + id + "/" + i + "/" + System.nanoTime());
-        ps.setLong(3, id);
+        ps.setString(2, types[i]);
+        ps.setString(3, "depot/" + id + "/" + i + "/" + System.nanoTime());
+        ps.setLong(4, id);
         ps.executeUpdate();
       }
     }
