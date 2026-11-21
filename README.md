@@ -54,6 +54,7 @@ Mot de passe commun : la valeur de `DEMO_PASSWORD` dans votre `.env`.
 | Investisseur (second) | `k.sylla@sahel-ressources.test` |
 | Agent guichet unique | `a.camara@e-mine.test` |
 | Directeur | `s.kouyate@e-mine.test` |
+| Ministre | `i.soumah@e-mine.test` |
 | Responsable fiscal | `m.diallo@e-mine.test` |
 | Administrateur technique | `o.bah@e-mine.test` |
 

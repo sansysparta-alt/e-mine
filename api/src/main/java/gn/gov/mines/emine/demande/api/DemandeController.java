@@ -68,12 +68,13 @@ class DemandeController {
       operationId = "listerDemandes",
       summary =
           "Mes demandes (toutes pour un agent), paginées, filtrables par statut, document,"
-              + " frais payés et recherche, triables")
+              + " frais payés, signataire et recherche, triables")
   PageDemandesDto lister(
       @RequestParam(required = false) List<@Pattern(regexp = "^[a-z_]+$") String> statut,
       @RequestParam(required = false) @Pattern(regexp = "^[A-Z]{3}$") String typeDocumentCode,
       @RequestParam(required = false) @Size(max = 100) String q,
       @RequestParam(required = false) Boolean fraisPayes,
+      @RequestParam(required = false) @Pattern(regexp = "^[A-Z_]{1,30}$") String signataireProfil,
       @RequestParam(required = false) @Pattern(regexp = "^(numero|date|statut)$") String tri,
       @RequestParam(required = false) @Pattern(regexp = "^(asc|desc)$") String sens,
       @RequestParam(required = false) Integer page,
@@ -86,7 +87,8 @@ class DemandeController {
     PageResultat<DemandeDto> resultat =
         service
             .lister(
-                new CritereDemandes(statut, typeDocumentCode, q, fraisPayes, colonne, croissant),
+                new CritereDemandes(
+                    statut, typeDocumentCode, q, fraisPayes, signataireProfil, colonne, croissant),
                 Pagination.de(page, taille))
             .map(DemandeDto::depuis);
     return new PageDemandesDto(

@@ -13,7 +13,9 @@ import java.util.List;
  * @param famille workflow du document (Titres miniers, Attestations…)
  * @param delaiJours délai réglementaire de traitement
  * @param piecesRequises pièces clés, découpées depuis {@code type_document.pieces_cles}
- * @param signataire signataire paramétré dans le catalogue (D4)
+ * @param signataire signataire paramétré dans le catalogue (D4), libellé affiché
+ * @param signataireProfil code du profil qui décide et signe ce document (D4, V9), par exemple
+ *     {@code MINISTRE}
  * @param tarifs montants en vigueur, en GNF entiers
  */
 public record TypeDocument(
@@ -27,6 +29,7 @@ public record TypeDocument(
     List<String> piecesRequises,
     String instruitPar,
     String signataire,
+    String signataireProfil,
     Tarifs tarifs) {
 
   public TypeDocument {

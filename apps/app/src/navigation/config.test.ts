@@ -23,6 +23,13 @@ describe("configuration unique de la navigation", () => {
     );
   });
 
+  it("montre les décisions à prendre seulement aux profils internes qui signent (US-05.4)", () => {
+    const ministre = navigationPour({ permissions: ["SIGNER"], interne: true });
+    expect(cles(ministre)).toEqual(["tableauDeBord", "mesDemandes", "decisions"]);
+    const guichet = navigationPour({ permissions: ["INSTRUIRE"], interne: true });
+    expect(cles(guichet)).not.toContain("decisions");
+  });
+
   it("chaque entrée a une adresse, une icône et un module", () => {
     for (const e of NAVIGATION.flatMap((s) => s.entrees)) {
       expect(e.href).toMatch(/^\//);

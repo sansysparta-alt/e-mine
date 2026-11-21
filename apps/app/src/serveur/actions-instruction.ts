@@ -1,6 +1,11 @@
 "use server";
 
-import { declarerRecevabilite, type ResultatRecevabiliteDto } from "@emine/api-client";
+import {
+  decider,
+  declarerRecevabilite,
+  type ResultatDecisionDto,
+  type ResultatRecevabiliteDto,
+} from "@emine/api-client";
 import { enTetesApi, lireSession } from "./api";
 import { type ResultatAction, versErreurFormulaire } from "./erreurs-formulaire";
 
@@ -18,6 +23,28 @@ export async function declarer(
     const reponse = await declarerRecevabilite(
       id,
       { recevable, motif: recevable ? null : motif },
+      { headers: await enTetesApi(session) },
+    );
+    return { ok: true, valeur: reponse.data };
+  } catch (e) {
+    return { ok: false, erreur: versErreurFormulaire(e) };
+  }
+}
+
+/**
+ * Rend la décision du signataire (US-05.4) : favorable (observations facultatives) ou rejet
+ * (motif obligatoire). L'API vérifie que l'utilisateur est le signataire du catalogue (D4).
+ */
+export async function rendreDecision(
+  id: number,
+  favorable: boolean,
+  motif: string | null,
+): Promise<ResultatAction<ResultatDecisionDto>> {
+  try {
+    const session = await lireSession();
+    const reponse = await decider(
+      id,
+      { favorable, motif: motif && motif.trim() ? motif.trim() : null },
       { headers: await enTetesApi(session) },
     );
     return { ok: true, valeur: reponse.data };

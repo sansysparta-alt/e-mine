@@ -23,23 +23,40 @@ export type ChampMotifProps = {
   surChangement: (valeur: string) => void;
   /** Message d'erreur affiché sous le champ et relié par `aria-describedby`. */
   erreur?: string;
+  /** Champ obligatoire (motif d'un refus) ou facultatif (observations) ; obligatoire par défaut. */
+  obligatoire?: boolean;
 };
 
 /**
  * Motif communiqué au demandeur (non-recevabilité, rejet) : zone de texte avec aide, compteur de
  * caractères et erreur reliée au champ.
  */
-export function ChampMotif({ id, libelle, aide, valeur, surChangement, erreur }: ChampMotifProps) {
+export function ChampMotif({
+  id,
+  libelle,
+  aide,
+  valeur,
+  surChangement,
+  erreur,
+  obligatoire = true,
+}: ChampMotifProps) {
   const t = useTranslations("instruction.motif");
   const longueur = valeur.trim().length;
   return (
     <div className="flex flex-col gap-1">
       <label htmlFor={id} className="font-semibold">
-        {libelle}{" "}
-        <span aria-hidden="true" className="text-danger">
-          *
-        </span>
-        <span className="sr-only">({t("obligatoire")})</span>
+        {libelle}
+        {obligatoire ? (
+          <>
+            {" "}
+            <span aria-hidden="true" className="text-danger">
+              *
+            </span>
+            <span className="sr-only">({t("obligatoire")})</span>
+          </>
+        ) : (
+          <span className="font-normal text-texte-doux"> ({t("facultatif")})</span>
+        )}
       </label>
       <p id={`${id}-aide`} className="text-sm text-texte-doux">
         {aide}
@@ -49,7 +66,7 @@ export function ChampMotif({ id, libelle, aide, valeur, surChangement, erreur }:
         value={valeur}
         onChange={(e) => surChangement(e.target.value)}
         rows={5}
-        required
+        required={obligatoire}
         aria-invalid={erreur ? true : undefined}
         aria-describedby={`${id}-aide ${id}-compteur${erreur ? ` ${id}-erreur` : ""}`}
         className={cn(classesChamp, "min-h-32 resize-y")}

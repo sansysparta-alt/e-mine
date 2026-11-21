@@ -45,7 +45,8 @@ class SeedTest extends TestIntegration {
             compter(
                 "SELECT count(*) FROM utilisateur WHERE keycloak_id::text LIKE"
                     + " '00000000-0000-4000-8000-%'"))
-        .isEqualTo(6);
+        .as("5 personas de la V1, un second investisseur et le Ministre (signataire, US-05.4)")
+        .isEqualTo(7);
   }
 
   @Test

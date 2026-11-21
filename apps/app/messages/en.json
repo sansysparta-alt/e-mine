@@ -217,7 +217,9 @@
         "DROITS": "Pay the duties"
       },
       "agentFraisAttendus": "The application fee has not been paid yet: you can declare the application admissible once it is paid. If the file cannot succeed, declare it inadmissible and give the reason.",
-      "demandeurAttenteGuichet": "Application fee paid. The one-stop shop officer is now reviewing your file; you will be informed of the decision."
+      "demandeurAttenteGuichet": "Application fee paid. The one-stop shop officer is now reviewing your file; you will be informed of the decision.",
+      "agentAttenteDecision": "Admissible application: the signatory’s decision ({signataire}) is awaited.",
+      "signataireDecider": "This application is admissible and you are its signatory. Review the file and the attached documents below, then give your decision."
     },
     "fraisPayes": "Fee paid",
     "paiements": {
@@ -232,7 +234,8 @@
         "recu": "Receipt"
       }
     },
-    "motifRejet": "Reason"
+    "motifRejet": "Reason",
+    "decision": "Decision"
   },
   "mesDemandes": {
     "titre": "My applications",
@@ -308,7 +311,8 @@
       "mesDemandes": "My applications",
       "demandes": "Applications",
       "nouvelleDemande": "New application",
-      "fileGuichet": "Front desk queue"
+      "fileGuichet": "Front desk queue",
+      "decisions": "Decisions to take"
     }
   },
   "etats": {
@@ -468,7 +472,8 @@
       "erreurs": {
         "court": "Explain the reason in at least 10 characters: the applicant will read it.",
         "long": "The reason exceeds 2000 characters: shorten it."
-      }
+      },
+      "facultatif": "optional"
     },
     "recevabilite": {
       "controles": "Admissibility checks",
@@ -549,6 +554,69 @@
         "rejetee": "Application {numero} has been declared inadmissible.",
         "rejeteeSuite": "The applicant sees the reason on their application. You can review the next application."
       }
+    },
+    "decision": {
+      "signataire": "You decide as the signatory designated in the catalogue for this document: {signataire}.",
+      "sens": "Your decision",
+      "sensRequis": "Choose a decision: approval or rejection.",
+      "options": {
+        "favorable": "Approval",
+        "favorableAide": "The document can be issued.",
+        "rejet": "Rejection",
+        "rejetAide": "The application is closed; the applicant reads the reason."
+      },
+      "consequence": {
+        "titre": "What will happen",
+        "droits": "The applicant will have to pay the duties ({montant}) before the document is issued.",
+        "sansDroits": "This document has no duties to pay: the application will be ready for issuance at once.",
+        "rejet": "The application will be rejected and the applicant will see the reason on it."
+      },
+      "motifRejet": "Reason for rejection given to the applicant",
+      "motifRejetAide": "Explain precisely why the application is rejected. At least 10 characters.",
+      "observations": "Remarks",
+      "observationsAide": "Conditions or remarks for the applicant.",
+      "enregistrer": "Record the decision…",
+      "enCours": "Saving…",
+      "echec": "The decision was not recorded",
+      "indisponible": "The service is temporarily unavailable. Try again in a moment.",
+      "confirmation": {
+        "titreFavorable": "Approval of application {numero}",
+        "titreRejet": "Rejection of application {numero}",
+        "annuler": "Back to the application",
+        "confirmer": "Confirm the decision",
+        "definitive": "This decision is final: it cannot be changed."
+      },
+      "rendue": {
+        "sens": "Outcome",
+        "favorable": "Approved",
+        "rejet": "Rejected",
+        "le": "Given on",
+        "par": "By",
+        "motif": "Reason",
+        "observations": "Remarks"
+      }
+    },
+    "decisions": {
+      "titre": "Decisions to take",
+      "description": "Admissible applications for which you are the signatory ({profil}), oldest first.",
+      "recherche": {
+        "libelle": "Search for an application",
+        "exemple": "Number (DEM-2026-…) or document",
+        "bouton": "Search"
+      },
+      "vide": {
+        "titre": "No decision pending",
+        "description": "Applications declared admissible by the front desk for the documents you sign will appear here.",
+        "recherche": "No application matches this search"
+      },
+      "nombre": "{nombre, plural, one {# application awaits your decision.} other {# applications await your decision.}}",
+      "elements": "applications",
+      "traitee": {
+        "decision": "Approval recorded for application {numero}.",
+        "droits_payes": "Approval recorded for application {numero}: it is ready for issuance.",
+        "rejetee": "Rejection recorded for application {numero}."
+      },
+      "traiteeSuite": "The applicant sees the decision on their application. You can move on to the next one."
     }
   }
 }

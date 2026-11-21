@@ -53,4 +53,12 @@ describe("prochaine étape selon le profil", () => {
       }
     }
   });
+
+  it("une demande recevable attend la décision du signataire (US-05.4)", () => {
+    expect(prochaineEtape("recevable", guichet)).toEqual({
+      cle: "agentAttenteDecision",
+      pour: "agent",
+    });
+    expect(fr.detail.etape.agentAttenteDecision).toMatch(/\{signataire\}/);
+  });
 });

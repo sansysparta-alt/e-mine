@@ -21,6 +21,7 @@ SELECT pr.id, o.id, v.nom, v.prenom, v.email, v.tel, v.kc::uuid, false
    ('00000000-0000-4000-8000-000000000109', 'INVESTISSEUR', 'NIF-TEST-0902', 'Sylla',    'Kadiatou', 'k.sylla@sahel-ressources.test',  '+224620000919'),
    ('00000000-0000-4000-8000-000000000002', 'GUICHET',      NULL,            'Camara',   'Aïcha',    'a.camara@e-mine.test',           '+224620000902'),
    ('00000000-0000-4000-8000-000000000007', 'DIRECTEUR',    NULL,            'Kouyaté',  'Sékou',    's.kouyate@e-mine.test',          '+224620000907'),
+   ('00000000-0000-4000-8000-000000000008', 'MINISTRE',     NULL,            'Soumah',   'Ibrahima', 'i.soumah@e-mine.test',           '+224620000908'),
    ('00000000-0000-4000-8000-000000000006', 'FISCAL',       NULL,            'Diallo',   'Mariama',  'm.diallo@e-mine.test',           '+224620000906'),
    ('00000000-0000-4000-8000-000000000001', 'ADMIN_TECH',   NULL,            'Bah',      'Ousmane',  'o.bah@e-mine.test',              '+224620000901')
   ) AS v(kc, profil, nif, nom, prenom, email, tel)

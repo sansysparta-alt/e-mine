@@ -1,6 +1,7 @@
 import {
   ErreurApi,
   examinerRecevabilite,
+  lireDecision,
   lireDemande,
   listerPaiementsDemande,
   listerPieces,
@@ -14,10 +15,15 @@ import { getTranslations } from "next-intl/server";
 import { StatutDemande } from "@/composants/demande/statut-demande";
 import { ListePieces } from "@/composants/documents/liste-pieces";
 import { prochaineEtape } from "@/composants/demande/prochaine-etape";
+import { DecisionRendue } from "@/composants/instruction/decision-rendue";
 import { ExamenRecevabilite } from "@/composants/instruction/examen-recevabilite";
+import { PriseDecision } from "@/composants/instruction/prise-decision";
 import { TableauPaiements } from "@/composants/paiement/tableau-paiements";
-import { declarer } from "@/serveur/actions-instruction";
+import { declarer, rendreDecision } from "@/serveur/actions-instruction";
 import { appelPage, chargerMoi, chargerReferentiels, optionsApi } from "@/serveur/donnees";
+
+/** Statuts où aucune décision ne peut encore exister (avant la recevabilité). */
+const STATUTS_SANS_DECISION = new Set(["brouillon", "deposee", "complement_requis"]);
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("detail");
@@ -57,12 +63,20 @@ export default async function DetailDemande({ params, searchParams }: Props) {
       ? (await appelPage(chemin, async () => examinerRecevabilite(Number(id), await optionsApi())))
           .data
       : null;
+  // US-05.4 : décision du signataire (formulaire s'il peut décider, décision rendue pour tous).
+  const etatDecision = STATUTS_SANS_DECISION.has(demande.statut)
+    ? null
+    : (await appelPage(chemin, async () => lireDecision(Number(id), await optionsApi()))).data;
+  const decisionRendue = etatDecision?.decisionFavorable != null;
   const aPayer = document?.tarifs.aPayerAuDepotGnf;
-  const etape = prochaineEtape(
+  const etapeCalculee = prochaineEtape(
     demande.statut,
     { interne: moi.interne, permissions: moi.permissions },
     { fraisPayes: demande.fraisPayes },
   );
+  const etape = etatDecision?.peutDecider
+    ? { cle: "signataireDecider", pour: "agent" as const }
+    : etapeCalculee;
   const numero = demande.numero ?? "";
   const actionPayer =
     etape?.cle === "demandeurPayerFrais"
@@ -108,7 +122,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
             {demande.demandeur.prenom} {demande.demandeur.nom}
             {demande.demandeur.organisation ? ` · ${demande.demandeur.organisation}` : ""}
           </dd>
-          {demande.motifRejet ? (
+          {demande.motifRejet && !decisionRendue ? (
             <>
               <dt className="font-semibold">{t("motifRejet")}</dt>
               <dd className="whitespace-pre-line">{demande.motifRejet}</dd>
@@ -123,6 +137,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
               montant: aPayer != null ? formaterGnf(aPayer) : "—",
               droits:
                 document?.tarifs.droitsGnf != null ? formaterGnf(document.tarifs.droitsGnf) : "—",
+              signataire: etatDecision?.signataire ?? document?.signataire ?? "—",
             })}
           </p>
           {examen ? (
@@ -136,6 +151,17 @@ export default async function DetailDemande({ params, searchParams }: Props) {
               />
             </div>
           ) : null}
+          {etatDecision?.peutDecider ? (
+            <div className="mt-4 border-t border-bordure pt-4">
+              <PriseDecision
+                demandeId={demande.id}
+                numero={numero}
+                signataire={etatDecision.signataire}
+                droitsGnf={etatDecision.droitsGnf}
+                decider={rendreDecision}
+              />
+            </div>
+          ) : null}
           {actionPayer && moi.permissions.includes("PAYER") ? (
             <div className="mt-4">
               <Bouton asChild taille="grande">
@@ -146,6 +172,11 @@ export default async function DetailDemande({ params, searchParams }: Props) {
               </Bouton>
             </div>
           ) : null}
+        </Carte>
+      ) : null}
+      {etatDecision && decisionRendue ? (
+        <Carte titre={t("decision")}>
+          <DecisionRendue etat={etatDecision} />
         </Carte>
       ) : null}
       {paiements.data.length > 0 ? (

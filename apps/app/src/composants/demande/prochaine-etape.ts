@@ -14,7 +14,7 @@ export type ProchaineEtape = {
 const ETAPES_AGENT: Record<string, string> = {
   deposee: "agentVerifier",
   complement_requis: "agentAttenteComplement",
-  recevable: "agentInstruire",
+  recevable: "agentAttenteDecision",
   en_instruction: "agentInstruire",
   avis_rendu: "agentDecision",
   decision: "agentAttenteDroits",
