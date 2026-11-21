@@ -143,6 +143,19 @@ describe("formulaire guidé", () => {
     expect(screen.getByText(/Brouillon enregistré à/)).toBeInTheDocument();
   });
 
+  it("enregistre un brouillon modifié et passe à l'étape suivante en un seul clic", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("[]", { status: 200 })),
+    );
+    const { enregistrer } = afficher({ demande: demande() });
+    fireEvent.change(screen.getByLabelText(/Superficie/), { target: { value: "12,5" } });
+    fireEvent.click(screen.getByRole("button", { name: "Enregistrer et continuer" }));
+    expect(await screen.findByRole("heading", { level: 2, name: "Pièces" })).toBeInTheDocument();
+    expect(enregistrer).toHaveBeenCalledTimes(1);
+    expect(enregistrer).toHaveBeenCalledWith(41, expect.objectContaining({ superficieHa: "12,5" }));
+  });
+
   it("affiche l'erreur de l'API sans changer de section", async () => {
     const enregistrer = vi.fn(async () => ({
       ok: false as const,
