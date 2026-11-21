@@ -70,10 +70,7 @@ export function SectionPieces({ demandeId, piecesRequises, surChangement }: Sect
         return (await r.json()) as PieceDto[];
       })
       .then((liste) => {
-        if (actif) {
-          setPieces(liste);
-          rappel.current?.(liste);
-        }
+        if (actif) setPieces(liste);
       })
       .catch((e: Erreur) => {
         if (actif) setErreurChargement(e);
@@ -83,12 +80,14 @@ export function SectionPieces({ demandeId, piecesRequises, surChangement }: Sect
     };
   }, [url]);
 
+  // Le parent (récapitulatif, dépôt) est prévenu après chaque changement de la liste, dans un
+  // effet : jamais pendant le rendu ni dans une fonction de mise à jour d'état (interdit par React).
+  useEffect(() => {
+    if (pieces !== null) rappel.current?.(pieces);
+  }, [pieces]);
+
   function mettreAJour(modifier: (liste: PieceDto[]) => PieceDto[]) {
-    setPieces((avant) => {
-      const liste = modifier(avant ?? []);
-      rappel.current?.(liste);
-      return liste;
-    });
+    setPieces((avant) => modifier(avant ?? []));
   }
 
   const types = [...piecesRequises, AUTRE_PIECE];

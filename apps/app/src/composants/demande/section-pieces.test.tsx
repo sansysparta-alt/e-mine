@@ -1,6 +1,7 @@
 import type { PieceDto } from "@emine/api-client";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
+import { StrictMode, useState } from "react";
 import fr from "../../../messages/fr.json";
 import { controlerFichier, SectionPieces, TAILLE_MAX_OCTETS } from "./section-pieces";
 
@@ -162,5 +163,46 @@ describe("écran des pièces (correctifs J2 C5–C7)", () => {
     fireEvent.click(within(bloc("EIES")).getByRole("button", { name: /Retirer/ }));
     await waitFor(() => expect(surChangement).toHaveBeenLastCalledWith([]));
     expect(within(bloc("EIES")).getByText("Obligatoire")).toBeInTheDocument();
+  });
+});
+
+describe("intégration dans le formulaire (correctif de rendu)", () => {
+  it("prévient le parent sans le mettre à jour pendant son propre rendu", async () => {
+    const erreurs = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (_url: string, init?: RequestInit) =>
+        init?.method === "POST" ? reponse(201, eies) : reponse(200, []),
+      ),
+    );
+    function Parent() {
+      const [nombre, setNombre] = useState(0);
+      return (
+        <>
+          <p>Pièces dans le parent : {nombre}</p>
+          <SectionPieces
+            demandeId={41}
+            piecesRequises={["EIES"]}
+            surChangement={(l) => setNombre(l.length)}
+          />
+        </>
+      );
+    }
+    render(
+      <StrictMode>
+        <NextIntlClientProvider locale="fr" messages={fr} timeZone="Africa/Conakry">
+          <Parent />
+        </NextIntlClientProvider>
+      </StrictMode>,
+    );
+    await screen.findByText("Pièces dans le parent : 0");
+    const fichier = new File(["%PDF-1.7"], "eies.pdf", { type: "application/pdf" });
+    fireEvent.change(screen.getByLabelText("Fichier pour la pièce « EIES »"), {
+      target: { files: [fichier] },
+    });
+    expect(await screen.findByText("Pièces dans le parent : 1")).toBeInTheDocument();
+    const messages = erreurs.mock.calls.map((c) => String(c[0]));
+    expect(messages.filter((m) => m.includes("Cannot update a component"))).toEqual([]);
+    erreurs.mockRestore();
   });
 });
