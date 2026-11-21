@@ -72,11 +72,12 @@ Module Java = `api/` (REST, DTO) · `application/` (cas d'usage, transactions) �
 
 ```bash
 pnpm infra:up / infra:down   # Docker Compose : PostgreSQL, Keycloak, MinIO, Mailpit (limites mémoire, ~4 Go Docker)
-pnpm dev                     # API (8080) + web (3000) + app (3001) via Turborepo
+pnpm dev                     # API (8080) + web (3000) + app (3001) + simulateur TrésorPay (8090) via Turborepo
 pnpm db:seed                 # personas de démo (après le 1er démarrage de l'API) · pnpm infra:keycloak:reset
 pnpm db:codegen              # jOOQ forcé (Testcontainers : infra ARRÊTÉE) · pnpm api:client (orval)
 pnpm lint && pnpm typecheck && pnpm test && pnpm format:check
 ./mvnw -pl api verify        # mvnw.cmd sous Windows ; ne pas lancer en même temps que infra:up
+./mvnw -pl simulateurs/tresorpay verify   # simulateur TrésorPay (contrat : docs/contrats/tresorpay.md)
 ```
 
 Poste de dev sous **Windows 11** : scripts multiplateformes (scripts `package.json`, pas de `make` ni de Bash obligatoire). API sur l'hôte : `SIGNATURE_MODE=pkcs12` ; SoftHSM2 tourne dans l'image Docker de l'API et en CI. Ports : `docs/05` §5.

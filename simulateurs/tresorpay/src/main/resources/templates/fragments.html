@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+  <head th:fragment="tete(titre)">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title th:text="${titre} + ' · Simulateur TrésorPay'">Simulateur TrésorPay</title>
+    <link rel="stylesheet" th:href="@{/simulateur.css}" />
+  </head>
+  <body>
+    <header th:fragment="bandeau" class="bandeau">
+      <div class="bandeau__contenu">
+        <a class="marque" th:href="@{/}">
+          <span class="marque__nom">TrésorPay</span>
+          <span class="marque__sous-titre">Simulateur</span>
+        </a>
+        <p class="etiquette-test" role="note">Environnement de test · aucun paiement réel</p>
+      </div>
+    </header>
+  </body>
+</html>
