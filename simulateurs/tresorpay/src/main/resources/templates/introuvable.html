@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments :: tete('Session introuvable')}"></head>
+  <body>
+    <header th:replace="~{fragments :: bandeau}"></header>
+    <main class="page page--etroite" id="contenu">
+      <section class="carte" aria-labelledby="titre">
+        <h1 id="titre">Session de paiement introuvable</h1>
+        <p>
+          Ce lien de paiement n’existe pas ou n’est plus disponible (le simulateur a peut-être été
+          redémarré). Revenez sur e-mine et relancez le paiement depuis votre demande.
+        </p>
+        <a class="bouton bouton--secondaire" th:href="@{/}">Accueil du simulateur</a>
+      </section>
+    </main>
+  </body>
+</html>

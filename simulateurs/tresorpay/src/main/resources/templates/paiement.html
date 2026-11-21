@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments :: tete('Paiement')}"></head>
+  <body>
+    <header th:replace="~{fragments :: bandeau}"></header>
+    <main class="page page--etroite" id="contenu">
+      <section class="carte" aria-labelledby="titre-paiement">
+        <p class="surtitre">Paiement à e-mine (démonstration)</p>
+        <h1 id="titre-paiement" class="montant" th:text="${@formats.gnf(paiement.montantGnf)}">
+          500 000 GNF
+        </h1>
+        <p class="libelle" th:text="${paiement.libelle}">Frais de dossier · DEM-2026-000001</p>
+
+        <dl class="details">
+          <div>
+            <dt>Référence</dt>
+            <dd class="chiffres" th:text="${paiement.reference}">PAY-2026-000001</dd>
+          </div>
+          <div>
+            <dt>Session valable jusqu’à</dt>
+            <dd>
+              <span th:text="${@formats.heure(paiement.expireLe)}">10:15</span>
+              (heure de Conakry)
+              <span
+                class="compte-a-rebours"
+                data-compte-a-rebours
+                th:attr="data-secondes=${secondesRestantes}"
+                aria-live="off"
+              ></span>
+            </dd>
+          </div>
+        </dl>
+
+        <form method="post" th:action="@{/payer/{id}(id=${paiement.id})}" data-formulaire-paiement>
+          <details class="scenarios" th:open="${scenarioChoisi.code != 'succes'}">
+            <summary>Scénarios de test</summary>
+            <fieldset>
+              <legend>Résultat à simuler</legend>
+              <label class="choix" th:each="s : ${scenarios}">
+                <input
+                  type="radio"
+                  name="scenario"
+                  th:value="${s.code}"
+                  th:checked="${s == scenarioChoisi}"
+                />
+                <span>
+                  <span class="choix__titre" th:text="${s.libelle}">Paiement accepté</span>
+                  <span class="choix__aide" th:text="${s.description}">Description</span>
+                </span>
+              </label>
+            </fieldset>
+          </details>
+
+          <button type="submit" class="bouton bouton--principal" data-bouton-payer>
+            <span data-texte-bouton th:text="'Payer ' + ${@formats.gnf(paiement.montantGnf)}"
+              >Payer</span
+            >
+          </button>
+        </form>
+
+        <form method="post" th:action="@{/payer/{id}/annuler(id=${paiement.id})}">
+          <button type="submit" class="bouton bouton--secondaire">
+            Annuler et revenir sur e-mine
+          </button>
+        </form>
+
+        <p class="note">
+          Aucune donnée bancaire n’est demandée : ce simulateur reproduit seulement les échanges
+          avec TrésorPay.
+        </p>
+      </section>
+    </main>
+    <script th:src="@{/paiement.js}" defer></script>
+  </body>
+</html>
