@@ -80,14 +80,15 @@ public class ServiceDemandes {
    */
   @Transactional(readOnly = true)
   public PageResultat<DemandeDetail> lister(CritereDemandes critere, Pagination pagination) {
-    StatutDemande filtre = null;
-    if (critere.statut() != null) {
-      filtre =
-          java.util.Arrays.stream(StatutDemande.values())
-              .filter(s -> s.getLiteral().equals(critere.statut()))
-              .findFirst()
-              .orElseThrow(() -> champInvalide("statut", "Statut inconnu."));
-    }
+    List<StatutDemande> filtre =
+        critere.statuts().stream()
+            .map(
+                statut ->
+                    java.util.Arrays.stream(StatutDemande.values())
+                        .filter(s -> s.getLiteral().equals(statut))
+                        .findFirst()
+                        .orElseThrow(() -> champInvalide("statut", "Statut inconnu.")))
+            .toList();
     return demandes.lister(filtre, critere, pagination);
   }
 

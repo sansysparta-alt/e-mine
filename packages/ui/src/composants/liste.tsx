@@ -179,7 +179,14 @@ export function TableauDonnees<T>({
   );
 }
 
-export type OptionFiltre = { valeur: string; libelle: string; href: string; actif: boolean };
+export type OptionFiltre = {
+  valeur: string;
+  libelle: string;
+  href: string;
+  actif: boolean;
+  /** Nombre d'éléments correspondants, affiché après le libellé. */
+  nombre?: number;
+};
 
 /** Filtres en pastilles (liens) : la valeur active est annoncée (`aria-current`). */
 export function FiltresPastilles({
@@ -207,6 +214,16 @@ export function FiltresPastilles({
               )}
             >
               {o.libelle}
+              {o.nombre !== undefined ? (
+                <span
+                  className={cn(
+                    "ml-2 rounded-full px-2 text-xs",
+                    o.actif ? "bg-white/20 text-white" : "bg-fond text-texte-doux",
+                  )}
+                >
+                  {o.nombre}
+                </span>
+              ) : null}
             </Lien>
           </li>
         ))}

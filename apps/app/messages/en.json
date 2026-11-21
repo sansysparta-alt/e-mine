@@ -204,7 +204,7 @@
     "titre": "My applications",
     "nouvelle": "New application",
     "filtreStatut": "Status",
-    "tous": "All statuses",
+    "tous": "All",
     "filtrer": "Filter",
     "aucune": "You have no application yet.",
     "aucuneFiltre": "No application matches these criteria.",
@@ -229,6 +229,17 @@
       "libelle": "Search an application",
       "exemple": "Number or document (e.g. DEM-2026, permit)",
       "bouton": "Search"
+    },
+    "plusDeFiltres": "More filters (by status)",
+    "filtreDetail": "Filter by detailed status",
+    "filtres": {
+      "brouillons": "Drafts",
+      "enCours": "In progress",
+      "actionRequise": "Action required",
+      "terminees": "Completed",
+      "aTraiter": "To process",
+      "attenteDemandeur": "Awaiting applicant",
+      "rejetees": "Rejected"
     }
   },
   "session": {

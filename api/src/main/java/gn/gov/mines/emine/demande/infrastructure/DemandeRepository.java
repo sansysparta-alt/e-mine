@@ -91,10 +91,10 @@ public class DemandeRepository {
    * la plus récente à la plus ancienne (date de dépôt, à défaut de création).
    */
   public PageResultat<DemandeDetail> lister(
-      StatutDemande statut, CritereDemandes critere, Pagination pagination) {
+      List<StatutDemande> statuts, CritereDemandes critere, Pagination pagination) {
     Condition condition = DEMANDE.DELETED_AT.isNull();
-    if (statut != null) {
-      condition = condition.and(DEMANDE.STATUT.eq(statut));
+    if (!statuts.isEmpty()) {
+      condition = condition.and(DEMANDE.STATUT.in(statuts));
     }
     if (critere.typeDocumentCode() != null) {
       condition = condition.and(TYPE_DOCUMENT.CODE.eq(critere.typeDocumentCode()));

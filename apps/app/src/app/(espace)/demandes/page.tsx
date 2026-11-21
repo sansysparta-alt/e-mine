@@ -1,14 +1,15 @@
-import { listerDemandes } from "@emine/api-client";
+import { compterDemandes, listerDemandes } from "@emine/api-client";
 import { Bouton, ChampRecherche, EnTetePage, EtatVide, FiltresPastilles } from "@emine/ui";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import {
-  lireParametres,
-  type Parametres,
-  STATUTS,
-  TRIS,
-} from "@/composants/demande/parametres-liste";
+  compter,
+  groupesPour,
+  statutsFiltres,
+  statutsVisibles,
+} from "@/composants/demande/filtres";
+import { lireParametres, type Parametres, TRIS } from "@/composants/demande/parametres-liste";
 import { TableauDemandes } from "@/composants/demande/tableau-demandes";
 import { PaginationListe } from "@/composants/liste/pagination-liste";
 import { appelPage, chargerMoi, chargerReferentiels, optionsApi } from "@/serveur/donnees";
@@ -28,13 +29,14 @@ export default async function MesDemandes({ searchParams }: Props) {
   const p = lireParametres(await searchParams);
   const t = await getTranslations("mesDemandes");
   const tStatut = await getTranslations("statuts");
-  const [moi, { documents }, reponse] = await Promise.all([
-    chargerMoi(),
+  const moi = await chargerMoi();
+  const statuts = statutsFiltres(moi.interne, p.groupe, p.statut);
+  const [{ documents }, reponse, compteursReponse] = await Promise.all([
     chargerReferentiels(),
     appelPage("/demandes", async () =>
       listerDemandes(
         {
-          statut: p.statut,
+          statut: statuts,
           q: p.q,
           tri: p.tri,
           sens: p.sens,
@@ -44,7 +46,9 @@ export default async function MesDemandes({ searchParams }: Props) {
         await optionsApi(),
       ),
     ),
+    appelPage("/demandes", async () => compterDemandes(await optionsApi())),
   ]);
+  const compteurs = compteursReponse.data;
   const resultat = reponse.data;
   const libelles = Object.fromEntries(documents.map((d) => [d.code, d.libelleFr]));
   const titre = moi.interne ? t("titreInterne") : t("titre");
@@ -58,6 +62,7 @@ export default async function MesDemandes({ searchParams }: Props) {
   const adresse = (changes: Partial<Record<keyof Parametres, string | undefined>>) => {
     const q = new URLSearchParams();
     const tout = {
+      groupe: p.groupe,
       statut: p.statut,
       q: p.q,
       tri: p.tri === "date" ? undefined : p.tri,
@@ -69,7 +74,9 @@ export default async function MesDemandes({ searchParams }: Props) {
     const chaine = q.toString();
     return chaine ? `/demandes?${chaine}` : "/demandes";
   };
-  const conserves = { statut: p.statut, q: p.q, tri: p.tri, sens: p.sens };
+  const conserves = { groupe: p.groupe, statut: p.statut, q: p.q, tri: p.tri, sens: p.sens };
+  const filtre = p.groupe ?? p.statut;
+  const tFiltres = await getTranslations("mesDemandes.filtres");
 
   return (
     <div className="flex flex-col gap-6">
@@ -79,7 +86,13 @@ export default async function MesDemandes({ searchParams }: Props) {
         valeur={p.q}
         placeholder={t("recherche.exemple")}
         boutonLibelle={t("recherche.bouton")}
-        conserver={{ statut: p.statut, tri: p.tri, sens: p.sens, taille: String(p.taille) }}
+        conserver={{
+          groupe: p.groupe,
+          statut: p.statut,
+          tri: p.tri,
+          sens: p.sens,
+          taille: String(p.taille),
+        }}
       />
       <FiltresPastilles
         libelle={t("filtreStatut")}
@@ -87,21 +100,40 @@ export default async function MesDemandes({ searchParams }: Props) {
           {
             valeur: "",
             libelle: t("tous"),
-            href: adresse({ statut: undefined }),
-            actif: !p.statut,
+            href: adresse({ groupe: undefined, statut: undefined }),
+            actif: !filtre,
+            nombre: compter(compteurs, statutsVisibles(moi.interne)),
           },
-          ...STATUTS.map((s) => ({
-            valeur: s,
-            libelle: tStatut(s),
-            href: adresse({ statut: s }),
-            actif: p.statut === s,
+          ...groupesPour(moi.interne).map((g) => ({
+            valeur: g.cle,
+            libelle: tFiltres(g.cle),
+            href: adresse({ groupe: g.cle, statut: undefined }),
+            actif: p.groupe === g.cle && !p.statut,
+            nombre: compter(compteurs, g.statuts),
           })),
         ]}
       />
+      <details className="group" open={p.statut ? true : undefined}>
+        <summary className="inline-flex min-h-11 cursor-pointer items-center gap-2 font-semibold text-royal">
+          {t("plusDeFiltres")}
+        </summary>
+        <div className="mt-2">
+          <FiltresPastilles
+            libelle={t("filtreDetail")}
+            options={statutsVisibles(moi.interne).map((s) => ({
+              valeur: s,
+              libelle: tStatut(s),
+              href: adresse({ groupe: undefined, statut: s }),
+              actif: p.statut === s,
+              nombre: compteurs[s] ?? 0,
+            }))}
+          />
+        </div>
+      </details>
       {resultat.total === 0 ? (
         <EtatVide
-          titre={p.statut || p.q ? t("aucuneFiltre") : t("aucune")}
-          action={p.statut || p.q ? undefined : nouvelle}
+          titre={filtre || p.q ? t("aucuneFiltre") : t("aucune")}
+          action={filtre || p.q ? undefined : nouvelle}
         />
       ) : (
         <div className="flex flex-col gap-4">

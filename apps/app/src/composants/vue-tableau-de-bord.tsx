@@ -86,7 +86,7 @@ export function VueTableauDeBord({
               libelle={t("chiffres.aTraiter")}
               valeur={c.aTraiter}
               icone={Hourglass}
-              href="/demandes?statut=deposee"
+              href="/demandes?groupe=aTraiter"
             />
             <CarteChiffre libelle={t("chiffres.enCours")} valeur={c.enCours} icone={FileText} />
             <CarteChiffre
@@ -113,7 +113,7 @@ export function VueTableauDeBord({
               libelle={t("chiffres.brouillons")}
               valeur={c.brouillons}
               icone={FilePen}
-              href="/demandes?statut=brouillon"
+              href="/demandes?groupe=brouillons"
             />
             <CarteChiffre libelle={t("chiffres.enCours")} valeur={c.enCours} icone={Hourglass} />
             <CarteChiffre

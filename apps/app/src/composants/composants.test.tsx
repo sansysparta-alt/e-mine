@@ -61,7 +61,7 @@ describe("tableau de bord (gabarit du socle)", () => {
     );
     expect(screen.getByRole("link", { name: /Brouillons\s*1/ })).toHaveAttribute(
       "href",
-      "/demandes?statut=brouillon",
+      "/demandes?groupe=brouillons",
     );
     const lien = screen.getByRole("link", { name: "DEM-2026-000001" });
     expect(lien).toHaveAttribute("href", "/demandes/2");
@@ -97,7 +97,7 @@ describe("tableau de bord (gabarit du socle)", () => {
     );
     expect(screen.getByRole("link", { name: /Déposées, à traiter\s*1/ })).toHaveAttribute(
       "href",
-      "/demandes?statut=deposee",
+      "/demandes?groupe=aTraiter",
     );
     expect(
       screen.getByRole("heading", { level: 2, name: "Dossiers à traiter" }),

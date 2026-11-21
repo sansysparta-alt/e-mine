@@ -92,6 +92,14 @@ class MesDemandesTest extends TestIntegration {
   }
 
   @Test
+  void plusieursStatutsSeFiltrentEnUneFois() throws Exception {
+    assertThat(ids(liste(INVESTISSEUR, "INVESTISSEUR", "?statut=brouillon,deposee&taille=100")))
+        .contains(brouillonA, deposeeA);
+    assertThat(ids(liste(INVESTISSEUR, "INVESTISSEUR", "?statut=recevable,delivree&taille=100")))
+        .doesNotContain(brouillonA, deposeeA);
+  }
+
+  @Test
   void unAgentInterneVoitToutesLesDemandes() throws Exception {
     assertThat(ids(liste(GUICHET, "GUICHET", "?taille=100")))
         .contains(brouillonA, deposeeA, brouillonB);
