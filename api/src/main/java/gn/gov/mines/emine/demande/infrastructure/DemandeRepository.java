@@ -4,6 +4,7 @@ import static gn.gov.mines.emine.shared.jooq.Tables.DEMANDE;
 import static gn.gov.mines.emine.shared.jooq.Tables.ORGANISATION;
 import static gn.gov.mines.emine.shared.jooq.Tables.PAIEMENT;
 import static gn.gov.mines.emine.shared.jooq.Tables.PREFECTURE;
+import static gn.gov.mines.emine.shared.jooq.Tables.PROFIL;
 import static gn.gov.mines.emine.shared.jooq.Tables.SUBSTANCE;
 import static gn.gov.mines.emine.shared.jooq.Tables.TYPE_DOCUMENT;
 import static gn.gov.mines.emine.shared.jooq.Tables.UTILISATEUR;
@@ -105,6 +106,14 @@ public class DemandeRepository {
     if (critere.fraisPayes() != null) {
       condition =
           condition.and(critere.fraisPayes() ? FRAIS_PAYES_COND : DSL.not(FRAIS_PAYES_COND));
+    }
+    if (critere.signataireProfil() != null) {
+      condition =
+          condition.and(
+              TYPE_DOCUMENT.SIGNATAIRE_PROFIL_ID.in(
+                  DSL.select(PROFIL.ID)
+                      .from(PROFIL)
+                      .where(PROFIL.CODE.eq(critere.signataireProfil()))));
     }
     if (critere.recherche() != null && !critere.recherche().isBlank()) {
       String motif = "%" + echapperLike(critere.recherche().strip()) + "%";

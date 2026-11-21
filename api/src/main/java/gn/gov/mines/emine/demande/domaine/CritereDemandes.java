@@ -10,6 +10,8 @@ import java.util.List;
  * @param recherche texte cherché dans le numéro et le document (sans casse), ou {@code null}
  * @param fraisPayes seulement les demandes dont les frais sont payés ({@code true}) ou non payés
  *     ({@code false}) ; {@code null} = toutes (file du guichet, US-05.1)
+ * @param signataireProfil seulement les documents dont ce profil est le signataire au catalogue
+ *     (file des décisions, US-05.4), ou {@code null}
  * @param tri colonne de tri
  * @param croissant sens du tri
  */
@@ -18,6 +20,7 @@ public record CritereDemandes(
     String typeDocumentCode,
     String recherche,
     Boolean fraisPayes,
+    String signataireProfil,
     Tri tri,
     boolean croissant) {
 

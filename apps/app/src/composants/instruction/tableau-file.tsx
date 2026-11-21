@@ -11,6 +11,8 @@ export type TableauFileProps = {
   legende: string;
   /** Date de référence du calcul de l'attente (rendu serveur). */
   maintenant: Date;
+  /** Colonne « Frais » (file du guichet) ; inutile une fois la demande recevable. */
+  avecFrais?: boolean;
 };
 
 const LienNext: ComposantLien = ({ href, children, ...props }) => (
@@ -23,10 +25,16 @@ const LienNext: ComposantLien = ({ href, children, ...props }) => (
 const ATTENTE_LONGUE_JOURS = 5;
 
 /**
- * File du guichet (US-05.1) : numéro, document, demandeur, dépôt et attente, frais ; la ligne
- * entière ouvre la fiche, où l'agent examine la recevabilité.
+ * File du guichet (US-05.1) ou des décisions (US-05.4) : numéro, document, demandeur, dépôt et
+ * attente, frais (guichet seulement) ; la ligne entière ouvre la fiche, où l'agent agit.
  */
-export function TableauFile({ demandes, libelles, legende, maintenant }: TableauFileProps) {
+export function TableauFile({
+  demandes,
+  libelles,
+  legende,
+  maintenant,
+  avecFrais = true,
+}: TableauFileProps) {
   const t = useTranslations("instruction.file");
   return (
     <TableauDonnees
@@ -82,16 +90,20 @@ export function TableauFile({ demandes, libelles, legende, maintenant }: Tableau
             );
           },
         },
-        {
-          cle: "frais",
-          entete: t("colonnes.frais"),
-          rendu: (d) =>
-            d.fraisPayes ? (
-              <BadgeStatut ton="succes">{t("fraisPayes")}</BadgeStatut>
-            ) : (
-              <BadgeStatut ton="avertissement">{t("fraisAttendus")}</BadgeStatut>
-            ),
-        },
+        ...(avecFrais
+          ? [
+              {
+                cle: "frais",
+                entete: t("colonnes.frais"),
+                rendu: (d: DemandeDto) =>
+                  d.fraisPayes ? (
+                    <BadgeStatut ton="succes">{t("fraisPayes")}</BadgeStatut>
+                  ) : (
+                    <BadgeStatut ton="avertissement">{t("fraisAttendus")}</BadgeStatut>
+                  ),
+              },
+            ]
+          : []),
       ]}
     />
   );

@@ -1,5 +1,6 @@
 package gn.gov.mines.emine.catalogue.infrastructure;
 
+import static gn.gov.mines.emine.shared.jooq.Tables.PROFIL;
 import static gn.gov.mines.emine.shared.jooq.Tables.TARIF;
 import static gn.gov.mines.emine.shared.jooq.Tables.TYPE_DOCUMENT;
 import static gn.gov.mines.emine.shared.jooq.Tables.WORKFLOW;
@@ -42,11 +43,14 @@ public class TypeDocumentRepository {
             TYPE_DOCUMENT.PIECES_CLES,
             TYPE_DOCUMENT.INSTRUIT_PAR,
             TYPE_DOCUMENT.SIGNE_PAR,
+            PROFIL.CODE,
             WORKFLOW.CODE,
             WORKFLOW.LIBELLE)
         .from(TYPE_DOCUMENT)
         .join(WORKFLOW)
         .on(WORKFLOW.ID.eq(TYPE_DOCUMENT.WORKFLOW_ID))
+        .join(PROFIL)
+        .on(PROFIL.ID.eq(TYPE_DOCUMENT.SIGNATAIRE_PROFIL_ID))
         .where(TYPE_DOCUMENT.ACTIF.isTrue())
         .and(TYPE_DOCUMENT.DELETED_AT.isNull())
         .orderBy(WORKFLOW.ID, TYPE_DOCUMENT.LIBELLE_FR, TYPE_DOCUMENT.CODE)
@@ -64,6 +68,7 @@ public class TypeDocumentRepository {
                   pieces(r.get(TYPE_DOCUMENT.PIECES_CLES)),
                   r.get(TYPE_DOCUMENT.INSTRUIT_PAR),
                   r.get(TYPE_DOCUMENT.SIGNE_PAR),
+                  r.get(PROFIL.CODE),
                   new TypeDocument.Tarifs(
                       t.get(ObjetPaiement.FRAIS_DOSSIER),
                       t.get(ObjetPaiement.DROITS),

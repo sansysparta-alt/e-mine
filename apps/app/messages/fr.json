@@ -217,7 +217,9 @@
         "DROITS": "Payer les droits"
       },
       "agentFraisAttendus": "Les frais de dossier ne sont pas encore payés : vous pourrez déclarer la demande recevable dès leur paiement. Si le dossier ne peut pas aboutir, déclarez-le non recevable en indiquant le motif.",
-      "demandeurAttenteGuichet": "Frais de dossier payés. L’agent du guichet unique examine maintenant votre dossier ; vous serez informé de sa décision."
+      "demandeurAttenteGuichet": "Frais de dossier payés. L’agent du guichet unique examine maintenant votre dossier ; vous serez informé de sa décision.",
+      "agentAttenteDecision": "Demande recevable : la décision du signataire ({signataire}) est attendue.",
+      "signataireDecider": "Cette demande est recevable et vous en êtes le signataire. Consultez le dossier et les pièces jointes ci-dessous, puis rendez votre décision."
     },
     "fraisPayes": "Frais payés",
     "paiements": {
@@ -232,7 +234,8 @@
         "recu": "Reçu"
       }
     },
-    "motifRejet": "Motif"
+    "motifRejet": "Motif",
+    "decision": "Décision"
   },
   "mesDemandes": {
     "titre": "Mes demandes",
@@ -308,7 +311,8 @@
       "mesDemandes": "Mes demandes",
       "demandes": "Demandes",
       "nouvelleDemande": "Nouvelle demande",
-      "fileGuichet": "File du guichet"
+      "fileGuichet": "File du guichet",
+      "decisions": "Décisions à prendre"
     }
   },
   "etats": {
@@ -468,7 +472,8 @@
       "erreurs": {
         "court": "Expliquez le motif en 10 caractères au moins : le demandeur le lira.",
         "long": "Le motif dépasse 2000 caractères : raccourcissez-le."
-      }
+      },
+      "facultatif": "facultatif"
     },
     "recevabilite": {
       "controles": "Contrôles de recevabilité",
@@ -549,6 +554,69 @@
         "rejetee": "La demande {numero} a été déclarée non recevable.",
         "rejeteeSuite": "Le demandeur voit le motif sur sa demande. Vous pouvez examiner la demande suivante."
       }
+    },
+    "decision": {
+      "signataire": "Vous décidez en tant que signataire désigné par le catalogue pour ce document : {signataire}.",
+      "sens": "Votre décision",
+      "sensRequis": "Choisissez une décision : favorable ou rejet.",
+      "options": {
+        "favorable": "Décision favorable",
+        "favorableAide": "Le document pourra être délivré.",
+        "rejet": "Rejet",
+        "rejetAide": "La demande est close ; le demandeur lit le motif."
+      },
+      "consequence": {
+        "titre": "Ce qui se passera",
+        "droits": "Le demandeur devra payer les droits ({montant}) avant la délivrance du document.",
+        "sansDroits": "Ce document n’a pas de droits à payer : la demande sera aussitôt prête pour la délivrance.",
+        "rejet": "La demande sera rejetée et le demandeur verra le motif sur sa demande."
+      },
+      "motifRejet": "Motif du rejet communiqué au demandeur",
+      "motifRejetAide": "Expliquez précisément la raison du rejet. 10 caractères au moins.",
+      "observations": "Observations",
+      "observationsAide": "Conditions ou remarques à porter à la connaissance du demandeur.",
+      "enregistrer": "Enregistrer la décision…",
+      "enCours": "Enregistrement…",
+      "echec": "La décision n’a pas été enregistrée",
+      "indisponible": "Le service est momentanément indisponible. Réessayez dans un instant.",
+      "confirmation": {
+        "titreFavorable": "Décision favorable pour la demande {numero}",
+        "titreRejet": "Rejet de la demande {numero}",
+        "annuler": "Revenir à la demande",
+        "confirmer": "Confirmer la décision",
+        "definitive": "Cette décision est définitive : elle ne pourra pas être modifiée."
+      },
+      "rendue": {
+        "sens": "Sens",
+        "favorable": "Favorable",
+        "rejet": "Rejet",
+        "le": "Rendue le",
+        "par": "Par",
+        "motif": "Motif",
+        "observations": "Observations"
+      }
+    },
+    "decisions": {
+      "titre": "Décisions à prendre",
+      "description": "Les demandes recevables dont vous êtes le signataire ({profil}), de la plus ancienne à la plus récente.",
+      "recherche": {
+        "libelle": "Rechercher une demande",
+        "exemple": "Numéro (DEM-2026-…) ou document",
+        "bouton": "Rechercher"
+      },
+      "vide": {
+        "titre": "Aucune décision en attente",
+        "description": "Les demandes déclarées recevables par le guichet pour les documents que vous signez apparaîtront ici.",
+        "recherche": "Aucune demande ne correspond à cette recherche"
+      },
+      "nombre": "{nombre, plural, one {# demande attend votre décision.} other {# demandes attendent votre décision.}}",
+      "elements": "demandes",
+      "traitee": {
+        "decision": "Décision favorable enregistrée pour la demande {numero}.",
+        "droits_payes": "Décision favorable enregistrée pour la demande {numero} : elle est prête pour la délivrance.",
+        "rejetee": "Rejet enregistré pour la demande {numero}."
+      },
+      "traiteeSuite": "Le demandeur voit la décision sur sa demande. Vous pouvez passer à la suivante."
     }
   }
 }

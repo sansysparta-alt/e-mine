@@ -2,6 +2,7 @@ package gn.gov.mines.emine.instruction;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import gn.gov.mines.emine.instruction.domaine.RegleMotif;
 import gn.gov.mines.emine.instruction.domaine.RegleRecevabilite;
 import gn.gov.mines.emine.instruction.domaine.RegleRecevabilite.Examen;
 import java.util.List;
@@ -24,11 +25,11 @@ class RegleRecevabiliteTest {
 
   @Test
   void leMotifFaitDeDixADeuxMilleCaracteresHorsEspaces() {
-    assertThat(RegleRecevabilite.problemeMotif(null)).isPresent();
-    assertThat(RegleRecevabilite.problemeMotif("   neuf car  ")).isPresent();
-    assertThat(RegleRecevabilite.problemeMotif("  dix caract  ")).isEmpty();
-    assertThat(RegleRecevabilite.problemeMotif("x".repeat(2000))).isEmpty();
-    assertThat(RegleRecevabilite.problemeMotif("x".repeat(2001))).isPresent();
+    assertThat(RegleMotif.probleme(null)).isPresent();
+    assertThat(RegleMotif.probleme("   neuf car  ")).isPresent();
+    assertThat(RegleMotif.probleme("  dix caract  ")).isEmpty();
+    assertThat(RegleMotif.probleme("x".repeat(2000))).isEmpty();
+    assertThat(RegleMotif.probleme("x".repeat(2001))).isPresent();
   }
 
   private static Examen examen(String statut, boolean frais, List<String> fournies) {

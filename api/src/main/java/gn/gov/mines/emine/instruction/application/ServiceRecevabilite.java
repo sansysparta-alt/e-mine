@@ -4,6 +4,7 @@ import gn.gov.mines.emine.catalogue.Catalogue;
 import gn.gov.mines.emine.catalogue.TypeDocument;
 import gn.gov.mines.emine.demande.Demandes;
 import gn.gov.mines.emine.demande.Demandes.DemandeResume;
+import gn.gov.mines.emine.instruction.domaine.RegleMotif;
 import gn.gov.mines.emine.instruction.domaine.RegleRecevabilite;
 import gn.gov.mines.emine.instruction.domaine.RegleRecevabilite.Examen;
 import gn.gov.mines.emine.instruction.infrastructure.InstructionRepository;
@@ -71,7 +72,7 @@ public class ServiceRecevabilite {
    */
   @Transactional
   public String declarerNonRecevable(long id, String motif) {
-    RegleRecevabilite.problemeMotif(motif)
+    RegleMotif.probleme(motif)
         .ifPresent(
             message -> {
               throw new ErreurMetier(

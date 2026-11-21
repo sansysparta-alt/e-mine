@@ -129,7 +129,7 @@
     "/api/v1/demandes" : {
       "get" : {
         "tags" : [ "Demandes" ],
-        "summary" : "Mes demandes (toutes pour un agent), paginées, filtrables par statut, document, frais payés et recherche, triables",
+        "summary" : "Mes demandes (toutes pour un agent), paginées, filtrables par statut, document, frais payés, signataire et recherche, triables",
         "operationId" : "listerDemandes",
         "parameters" : [ {
           "name" : "statut",
@@ -165,6 +165,14 @@
           "required" : false,
           "schema" : {
             "type" : "boolean"
+          }
+        }, {
+          "name" : "signataireProfil",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "^[A-Z_]{1,30}$"
           }
         }, {
           "name" : "tri",
@@ -402,6 +410,70 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/DemandeDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/demandes/{id}/decision" : {
+      "get" : {
+        "tags" : [ "Instruction" ],
+        "summary" : "Signataire attendu, décision possible ou non, décision rendue",
+        "operationId" : "lireDecision",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/EtatDecisionDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Instruction" ],
+        "summary" : "Décision favorable (observations facultatives) ou rejet (motif de 10 à 2000 caractères), par le signataire du catalogue",
+        "operationId" : "decider",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DecisionDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ResultatDecisionDto"
                 }
               }
             }
@@ -992,6 +1064,31 @@
         },
         "required" : [ "declarationHonneur" ]
       },
+      "DecisionDto" : {
+        "type" : "object",
+        "properties" : {
+          "favorable" : {
+            "type" : "boolean"
+          },
+          "motif" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "favorable", "motif" ]
+      },
+      "ResultatDecisionDto" : {
+        "type" : "object",
+        "properties" : {
+          "demandeId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "statut" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "demandeId", "statut" ]
+      },
       "PieceDto" : {
         "type" : "object",
         "properties" : {
@@ -1262,6 +1359,44 @@
           }
         },
         "required" : [ "disponible", "moyen" ]
+      },
+      "EtatDecisionDto" : {
+        "type" : "object",
+        "properties" : {
+          "aDecider" : {
+            "type" : "boolean"
+          },
+          "signataire" : {
+            "type" : "string"
+          },
+          "signataireProfil" : {
+            "type" : "string"
+          },
+          "peutDecider" : {
+            "type" : "boolean"
+          },
+          "droitsGnf" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "decisionFavorable" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "decisionMotif" : {
+            "type" : [ "string", "null" ]
+          },
+          "decisionRenduLe" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "decisionAuteur" : {
+            "type" : [ "string", "null" ]
+          },
+          "decisionAuteurProfil" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "aDecider", "decisionAuteur", "decisionAuteurProfil", "decisionFavorable", "decisionMotif", "decisionRenduLe", "droitsGnf", "peutDecider", "signataire", "signataireProfil" ]
       }
     }
   }
