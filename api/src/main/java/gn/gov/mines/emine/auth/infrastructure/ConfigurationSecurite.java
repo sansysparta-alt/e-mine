@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -49,6 +50,10 @@ class ConfigurationSecurite {
                         "/v3/api-docs/**",
                         "/swagger-ui/**",
                         "/swagger-ui.html")
+                    .permitAll()
+                    // Catalogue public des documents (US-02.1)
+                    .requestMatchers(
+                        HttpMethod.GET, "/api/v1/types-documents", "/api/v1/types-documents/*")
                     .permitAll()
                     .requestMatchers("/api/v1/**")
                     .authenticated()

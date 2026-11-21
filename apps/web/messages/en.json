@@ -9,6 +9,22 @@
   "accueil": {
     "titre": "Mining procedures online",
     "presentation": "Request one of the Ministry's 15 documents, pay online, track your file and check a document's authenticity with its QR code.",
-    "avertissement": "Demonstration platform: all data is fictitious."
+    "avertissement": "Demonstration platform: all data is fictitious.",
+    "lienCatalogue": "Browse the document catalogue"
+  },
+  "catalogue": {
+    "titre": "Document catalogue",
+    "presentation": "The 15 documents issued by the Ministry, with processing time, required documents, signatory and fees. Amounts in Guinean francs (demonstration data).",
+    "delai": "Processing time",
+    "jours": "{nombre} days",
+    "signataire": "Signatory",
+    "fraisDossier": "Application fee",
+    "droits": "Duties",
+    "paiementUnique": "Single payment",
+    "pieces": "Required documents",
+    "indisponible": {
+      "titre": "The catalogue is temporarily unavailable.",
+      "conseil": "Please try again in a few minutes."
+    }
   }
 }

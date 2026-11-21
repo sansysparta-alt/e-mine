@@ -10,6 +10,55 @@
     "description" : "Generated server url"
   } ],
   "paths" : {
+    "/api/v1/types-documents" : {
+      "get" : {
+        "tags" : [ "Catalogue" ],
+        "summary" : "Documents du catalogue (public)",
+        "operationId" : "listerTypesDocuments",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/TypeDocumentDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/types-documents/{code}" : {
+      "get" : {
+        "tags" : [ "Catalogue" ],
+        "summary" : "Un document du catalogue (public)",
+        "operationId" : "lireTypeDocument",
+        "parameters" : [ {
+          "name" : "code",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TypeDocumentDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/moi" : {
       "get" : {
         "tags" : [ "Authentification" ],
@@ -32,6 +81,80 @@
   },
   "components" : {
     "schemas" : {
+      "Famille" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "libelle" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "code", "libelle" ]
+      },
+      "Tarifs" : {
+        "type" : "object",
+        "properties" : {
+          "fraisDossierGnf" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "droitsGnf" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "attestationGnf" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "aPayerAuDepotGnf" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          }
+        },
+        "required" : [ "aPayerAuDepotGnf", "attestationGnf", "droitsGnf", "fraisDossierGnf" ]
+      },
+      "TypeDocumentDto" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "libelleFr" : {
+            "type" : "string"
+          },
+          "libelleEn" : {
+            "type" : [ "string", "null" ]
+          },
+          "famille" : {
+            "$ref" : "#/components/schemas/Famille"
+          },
+          "delaiJours" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "renouvelable" : {
+            "type" : "boolean"
+          },
+          "piecesRequises" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "instruitPar" : {
+            "type" : "string"
+          },
+          "signataire" : {
+            "type" : "string"
+          },
+          "tarifs" : {
+            "$ref" : "#/components/schemas/Tarifs"
+          }
+        },
+        "required" : [ "code", "delaiJours", "famille", "instruitPar", "libelleEn", "libelleFr", "piecesRequises", "renouvelable", "signataire", "tarifs" ]
+      },
       "MoiDto" : {
         "type" : "object",
         "properties" : {
