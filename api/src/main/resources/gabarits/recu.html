@@ -1,0 +1,164 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title th:text="'Reçu ' + ${recu.numero}">Reçu</title>
+    <style>
+      @page {
+        size: A4;
+        margin: 18mm 16mm 22mm 16mm;
+        @bottom-left {
+          content: "Document de démonstration · données fictives, sans valeur légale · reçu non signé";
+          font-family: Helvetica, sans-serif;
+          font-size: 7.5pt;
+          color: #3b4a66;
+        }
+        @bottom-right {
+          content: "Page " counter(page) " / " counter(pages);
+          font-family: Helvetica, sans-serif;
+          font-size: 7.5pt;
+          color: #3b4a66;
+        }
+      }
+      body {
+        font-family: Helvetica, sans-serif;
+        font-size: 10.5pt;
+        color: #0a1f44;
+        line-height: 1.45;
+      }
+      .entete {
+        width: 100%;
+        border-bottom: 2px solid #0a1f44;
+        padding-bottom: 10px;
+        margin-bottom: 18px;
+      }
+      .entete td {
+        vertical-align: top;
+      }
+      .marque {
+        font-size: 18pt;
+        font-weight: bold;
+        color: #0b3a8f;
+      }
+      .emetteur {
+        font-size: 9pt;
+        color: #3b4a66;
+      }
+      .titre {
+        text-align: right;
+      }
+      .titre .libelle {
+        font-size: 9pt;
+        letter-spacing: 1.5px;
+        color: #3b4a66;
+      }
+      .titre .numero {
+        font-size: 16pt;
+        font-weight: bold;
+      }
+      .montant {
+        background-color: #eaf2fc;
+        border: 1px solid #c3d3ea;
+        border-radius: 6px;
+        padding: 12px 16px;
+        margin-bottom: 18px;
+      }
+      .montant .libelle {
+        font-size: 9pt;
+        color: #3b4a66;
+      }
+      .montant .chiffres {
+        font-size: 20pt;
+        font-weight: bold;
+      }
+      .montant .lettres {
+        font-style: italic;
+      }
+      table.details {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 18px;
+      }
+      table.details th {
+        text-align: left;
+        font-weight: normal;
+        color: #3b4a66;
+        width: 38%;
+        padding: 6px 8px 6px 0;
+        border-bottom: 1px solid #c3d3ea;
+        vertical-align: top;
+      }
+      table.details td {
+        padding: 6px 0;
+        border-bottom: 1px solid #c3d3ea;
+        font-weight: bold;
+      }
+      .mention {
+        font-size: 9.5pt;
+      }
+    </style>
+  </head>
+  <body>
+    <table class="entete">
+      <tr>
+        <td>
+          <div class="marque">e-mine</div>
+          <div class="emetteur">Ministère des Mines et de la Géologie · Guichet unique</div>
+          <div class="emetteur">Plateforme de démonstration</div>
+        </td>
+        <td class="titre">
+          <div class="libelle">REÇU DE PAIEMENT</div>
+          <div class="numero" th:text="${recu.numero}">REC-2026-000001</div>
+          <div class="emetteur" th:text="'Payé le ' + ${datePaiement}">
+            Payé le 21/11/2026 à 10:03
+          </div>
+        </td>
+      </tr>
+    </table>
+
+    <div class="montant">
+      <div class="libelle">Montant reçu</div>
+      <div class="chiffres" th:text="${montant}">5 000 000 GNF</div>
+      <div class="lettres" th:text="${recu.montantEnLettres}">Cinq millions de francs guinéens</div>
+    </div>
+
+    <table class="details">
+      <tr>
+        <th>Objet</th>
+        <td th:text="${recu.objet}">Frais de dossier</td>
+      </tr>
+      <tr>
+        <th>Demande</th>
+        <td th:text="${recu.demandeNumero}">DEM-2026-000001</td>
+      </tr>
+      <tr>
+        <th>Document demandé</th>
+        <td th:text="${recu.document}">Permis d’exploitation (PEX)</td>
+      </tr>
+      <tr>
+        <th>Payé par</th>
+        <td th:text="${recu.payeur}">Fodé Bangoura</td>
+      </tr>
+      <tr th:if="${recu.organisation != null}">
+        <th>Organisation</th>
+        <td th:text="${recu.organisation}">Société fictive</td>
+      </tr>
+      <tr>
+        <th>Moyen de paiement</th>
+        <td th:text="${recu.moyen}">TrésorPay</td>
+      </tr>
+      <tr>
+        <th>Référence du paiement</th>
+        <td th:text="${recu.reference}">PAY-2026-000001</td>
+      </tr>
+      <tr th:if="${recu.transactionId != null}">
+        <th>Transaction</th>
+        <td th:text="${recu.transactionId}">TP-…</td>
+      </tr>
+    </table>
+
+    <p class="mention">
+      Le Trésor public a confirmé l’encaissement de ce montant au titre de la demande ci-dessus.
+      Conservez ce reçu : il peut vous être demandé pendant l’instruction de votre dossier.
+    </p>
+  </body>
+</html>

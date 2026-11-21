@@ -51,6 +51,8 @@ public enum CodeErreur {
   PAY_007("PAY-007", HttpStatus.CONFLICT),
   /** Moyen de paiement pas encore proposé (le virement arrive après la V1). */
   PAY_008("PAY-008", HttpStatus.UNPROCESSABLE_CONTENT),
+  /** Reçu pas encore disponible : le paiement n'est pas confirmé (US-04.6). */
+  PAY_009("PAY-009", HttpStatus.CONFLICT),
   /** Format de fichier non accepté (PDF, JPG ou PNG). */
   DOC_001("DOC-001", HttpStatus.UNSUPPORTED_MEDIA_TYPE),
   /** Fichier trop volumineux (10 Mo au plus). */

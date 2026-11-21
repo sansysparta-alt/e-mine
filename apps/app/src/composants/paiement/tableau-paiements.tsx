@@ -8,6 +8,7 @@ import {
 } from "@emine/ui";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { LienRecu } from "./lien-recu";
 import { tonStatutPaiement } from "./statut";
 
 const LienNext: ComposantLien = ({ href, children, ...props }) => (
@@ -62,6 +63,17 @@ export function TableauPaiements({ paiements }: { paiements: PaiementDto[] }) {
           cle: "date",
           entete: t("colonnes.date"),
           rendu: (p) => formaterDateHeure(p.datePaiement ?? p.creeLe),
+        },
+        {
+          cle: "recu",
+          entete: t("colonnes.recu"),
+          interactive: true,
+          rendu: (p) =>
+            p.recuNumero ? (
+              <LienRecu reference={p.reference} numero={p.recuNumero} variante="lien" />
+            ) : (
+              <span className="text-texte-doux">—</span>
+            ),
         },
       ]}
     />

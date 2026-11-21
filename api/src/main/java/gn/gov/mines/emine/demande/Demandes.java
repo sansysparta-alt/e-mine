@@ -26,7 +26,13 @@ public class Demandes {
         .map(
             d ->
                 new DemandeResume(
-                    d.id(), d.numero(), d.statut(), d.typeDocumentCode(), d.demandeur().id()));
+                    d.id(),
+                    d.numero(),
+                    d.statut(),
+                    d.typeDocumentCode(),
+                    d.demandeur().id(),
+                    (d.demandeur().prenom() + " " + d.demandeur().nom()).strip(),
+                    d.demandeur().organisation()));
   }
 
   /**
@@ -34,7 +40,15 @@ public class Demandes {
    *
    * @param numero {@code DEM-AAAA-NNNNNN}, {@code null} pour un brouillon
    * @param statut statut de la base ({@code deposee}, {@code decision}…)
+   * @param demandeurNom prénom et nom du demandeur
+   * @param organisation organisation du demandeur, {@code null} pour une personne physique
    */
   public record DemandeResume(
-      long id, String numero, String statut, String typeDocumentCode, long demandeurId) {}
+      long id,
+      String numero,
+      String statut,
+      String typeDocumentCode,
+      long demandeurId,
+      String demandeurNom,
+      String organisation) {}
 }

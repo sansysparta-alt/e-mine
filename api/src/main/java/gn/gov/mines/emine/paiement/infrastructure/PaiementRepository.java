@@ -222,6 +222,7 @@ public class PaiementRepository {
         r.getMontantRecuGnf(),
         r.getDatePaiement(),
         r.getRecuNumero(),
-        r.getCreatedAt());
+        r.getCreatedAt(),
+        r.getTransactionExterneId());
   }
 }

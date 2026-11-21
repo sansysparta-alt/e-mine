@@ -13,6 +13,7 @@ import java.util.UUID;
  * @param montantGnf montant dû, en GNF entiers
  * @param montantRecuGnf montant reçu, {@code null} tant que rien n'est encaissé
  * @param recuNumero {@code REC-AAAA-NNNNNN}, attribué par la base au passage à {@code paye}
+ * @param transactionExterneId identifiant de la transaction chez la passerelle, s'il est connu
  */
 public record Paiement(
     UUID id,
@@ -26,7 +27,8 @@ public record Paiement(
     Long montantRecuGnf,
     Instant datePaiement,
     String recuNumero,
-    Instant creeLe) {
+    Instant creeLe,
+    String transactionExterneId) {
 
   /** Paiement encore ouvert : il peut être remplacé (changement de moyen) ou confirmé. */
   public boolean ouvert() {

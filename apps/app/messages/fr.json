@@ -228,7 +228,8 @@
         "objet": "Objet",
         "montant": "Montant",
         "statut": "Statut",
-        "date": "Date"
+        "date": "Date",
+        "recu": "Reçu"
       }
     }
   },
@@ -416,7 +417,7 @@
       "issue": {
         "paye": {
           "titre": "Paiement confirmé",
-          "texte": "Merci. Votre paiement a été reçu par le Trésor public. L’agent du guichet peut maintenant examiner votre demande."
+          "texte": "Merci. Votre paiement a été reçu par le Trésor public et votre reçu est prêt. L’agent du guichet peut maintenant examiner votre demande."
         },
         "a_verifier": {
           "titre": "Paiement reçu, vérification en cours",
@@ -439,6 +440,10 @@
           "texte": "Le paiement n’a pas abouti. Revenez à votre demande pour connaître la suite."
         }
       }
+    },
+    "recu": {
+      "telecharger": "Télécharger le reçu (PDF)",
+      "telechargerNumero": "Télécharger le reçu {numero} (PDF)"
     }
   },
   "statutsPaiement": {

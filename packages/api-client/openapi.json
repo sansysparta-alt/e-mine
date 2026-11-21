@@ -539,6 +539,35 @@
         }
       }
     },
+    "/api/v1/paiements/{reference}/recu" : {
+      "get" : {
+        "tags" : [ "Paiements" ],
+        "summary" : "Reçu PDF REC-AAAA-NNNNNN d'un paiement confirmé (PAY-009 s'il ne l'est pas)",
+        "operationId" : "telechargerRecu",
+        "parameters" : [ {
+          "name" : "reference",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "^PAY-[0-9]{4}-[0-9]{6}$"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/pdf" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/moi" : {
       "get" : {
         "tags" : [ "Authentification" ],
