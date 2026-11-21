@@ -1,0 +1,175 @@
+/*
+ * e-mine · page de connexion Keycloak, couleurs « Bleu Souverain » (packages/ui/src/styles/theme.css).
+ * Style sobre et institutionnel : fond clair, carte blanche, bouton bleu royal, focus visible,
+ * champs de 44 px. Aucune image ni logo officiel (données de démonstration).
+ */
+:root {
+  --emine-navy: #0a1f44;
+  --emine-royal: #0b3a8f;
+  --emine-azure: #1e6fd9;
+  --emine-ice: #eaf2fc;
+  --emine-or: #c9a227;
+  --emine-texte-doux: #3b4a66;
+  --emine-bordure: #c3d3ea;
+  --emine-fond: #f6f9fe;
+  --emine-danger: #b42318;
+  --emine-danger-fond: #fef3f2;
+}
+
+html,
+body,
+.login-pf body {
+  background: var(--emine-fond) !important;
+  font-family: Calibri, Carlito, "Segoe UI", system-ui, sans-serif;
+  color: var(--emine-navy);
+}
+
+.login-pf-page {
+  padding-top: 8vh;
+}
+
+/* En-tête : marque e-mine (nom du realm en HTML, voir realm-emine.json « displayNameHtml ») */
+#kc-header-wrapper {
+  padding: 0 0 1.5rem;
+  color: var(--emine-navy);
+  font-family: Cambria, Caladea, Georgia, serif;
+  font-size: 1.75rem;
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: normal;
+}
+
+.emine-marque {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: left;
+}
+
+.emine-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.6rem;
+  background: var(--emine-or);
+  color: var(--emine-navy);
+  font-weight: 700;
+}
+
+.emine-marque small {
+  display: block;
+  font-family: Calibri, Carlito, "Segoe UI", system-ui, sans-serif;
+  font-size: 0.875rem;
+  color: var(--emine-texte-doux);
+}
+
+/* Carte du formulaire */
+.card-pf {
+  max-width: 28rem;
+  margin: 0 auto;
+  padding: 2rem 2rem 1.5rem;
+  border: 1px solid var(--emine-bordure);
+  border-top: 1px solid var(--emine-bordure);
+  border-radius: 0.75rem;
+  background: #fff;
+  box-shadow: 0 1px 3px rgb(10 31 68 / 8%);
+}
+
+#kc-page-title {
+  font-family: Cambria, Caladea, Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--emine-navy);
+}
+
+.login-pf-page .login-pf-header {
+  margin-bottom: 1.25rem;
+}
+
+label,
+.control-label,
+.pf-c-form__label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--emine-navy);
+}
+
+.form-control,
+.pf-c-form-control,
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  min-height: 2.75rem;
+  border: 2px solid var(--emine-bordure);
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  box-shadow: none;
+}
+
+.form-control:focus,
+input:focus,
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--emine-azure);
+  outline-offset: 2px;
+  border-color: var(--emine-royal);
+}
+
+.btn-primary,
+.pf-c-button.pf-m-primary,
+#kc-login {
+  min-height: 2.75rem;
+  border: 0;
+  border-radius: 0.5rem;
+  background: var(--emine-royal);
+  font-size: 1.0625rem;
+  font-weight: 600;
+}
+
+.btn-primary:hover,
+#kc-login:hover {
+  background: var(--emine-navy);
+}
+
+a,
+.login-pf-page a {
+  color: var(--emine-royal);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Messages : même style que le socle (fond léger, bordure fine, pas de barre épaisse) */
+.alert,
+.pf-c-alert {
+  border: 1px solid rgb(180 35 24 / 25%);
+  border-radius: 0.5rem;
+  background: var(--emine-danger-fond);
+  color: var(--emine-navy);
+  box-shadow: none;
+}
+
+.alert-error .pficon,
+.alert-error .pf-c-alert__icon {
+  color: var(--emine-danger);
+}
+
+/* Sélecteur de langue */
+#kc-locale-dropdown a,
+#kc-locale-dropdown button {
+  color: var(--emine-royal);
+}
+
+/* Mobile : carte pleine largeur, marges réduites */
+@media (max-width: 640px) {
+  .login-pf-page {
+    padding-top: 1.5rem;
+  }
+  .card-pf {
+    padding: 1.5rem 1rem;
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+  }
+}
