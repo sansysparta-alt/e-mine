@@ -411,7 +411,7 @@
     "/api/v1/demandes/{demandeId}/pieces/{pieceId}/contenu" : {
       "get" : {
         "tags" : [ "Demandes" ],
-        "summary" : "Télécharger une pièce jointe",
+        "summary" : "Télécharger une pièce jointe (ou l'afficher dans le visualiseur : inline=true)",
         "operationId" : "telechargerPiece",
         "parameters" : [ {
           "name" : "demandeId",
@@ -428,6 +428,14 @@
           "schema" : {
             "type" : "integer",
             "format" : "int64"
+          }
+        }, {
+          "name" : "inline",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
           }
         } ],
         "responses" : {
