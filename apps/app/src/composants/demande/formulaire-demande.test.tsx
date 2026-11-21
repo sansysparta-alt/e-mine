@@ -3,6 +3,8 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { NextIntlClientProvider } from "next-intl";
 import fr from "../../../messages/fr.json";
 import { DELAI_ENREGISTREMENT_MS, FormulaireDemande } from "./formulaire-demande";
+
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 import { depuisDemande, schemaBrouillon, versBrouillonDto } from "./schema";
 
 const pex: TypeDocumentDto = {
@@ -52,6 +54,7 @@ function afficher(props: Partial<Parameters<typeof FormulaireDemande>[0]> = {}) 
         prefectures={[{ id: 1, region: "Conakry", nom: "Conakry" }]}
         substances={[{ code: "OR", libelleFr: "Or", libelleEn: "Gold" }]}
         enregistrer={enregistrer}
+        deposer={vi.fn()}
         {...props}
       />
     </NextIntlClientProvider>,

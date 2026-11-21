@@ -1,6 +1,12 @@
 "use client";
 
-import type { DemandeDto, PrefectureDto, SubstanceDto, TypeDocumentDto } from "@emine/api-client";
+import type {
+  DemandeDto,
+  PieceDto,
+  PrefectureDto,
+  SubstanceDto,
+  TypeDocumentDto,
+} from "@emine/api-client";
 import { Alerte, Bouton, Carte, classesChamp, formaterGnf } from "@emine/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
@@ -15,6 +21,7 @@ import {
   schemaBrouillon,
   type ValeursBrouillon,
 } from "./schema";
+import { DepotDemande } from "./depot-demande";
 import { SectionPieces } from "./section-pieces";
 
 /** Délai de l'enregistrement automatique du brouillon (US-03.1). */
@@ -30,6 +37,9 @@ export type FormulaireDemandeProps = {
   substances: SubstanceDto[];
   typeInitial?: string;
   enregistrer: (id: number | null, v: ValeursBrouillon) => Promise<ResultatAction<DemandeDto>>;
+  deposer: (id: number, declaration: boolean) => Promise<ResultatAction<DemandeDto>>;
+  /** Pièces déjà jointes au brouillon (lues côté serveur). */
+  piecesInitiales?: PieceDto[];
 };
 
 type Etat =
@@ -48,6 +58,7 @@ export function FormulaireDemande(props: FormulaireDemandeProps) {
   const [demande, setDemande] = useState<DemandeDto | null>(props.demande);
   const [etape, setEtape] = useState<Etape>(props.demande ? "document" : "demandeur");
   const [etat, setEtat] = useState<Etat>({ nature: "repos" });
+  const [pieces, setPieces] = useState<PieceDto[]>(props.piecesInitiales ?? []);
   const [enCours, demarrer] = useTransition();
   const titreEtape = useRef<HTMLHeadingElement>(null);
 
@@ -255,7 +266,11 @@ export function FormulaireDemande(props: FormulaireDemandeProps) {
         ) : null}
 
         {etape === "pieces" && demande && document ? (
-          <SectionPieces demandeId={demande.id} piecesRequises={document.piecesRequises} />
+          <SectionPieces
+            demandeId={demande.id}
+            piecesRequises={document.piecesRequises}
+            surChangement={setPieces}
+          />
         ) : null}
 
         {etape === "recapitulatif" && demande && document ? (
@@ -287,6 +302,12 @@ export function FormulaireDemande(props: FormulaireDemandeProps) {
                   : formaterGnf(document.tarifs.aPayerAuDepotGnf)}
               </dd>
             </dl>
+            <DepotDemande
+              demande={demande}
+              piecesRequises={document.piecesRequises}
+              pieces={pieces}
+              deposer={props.deposer}
+            />
           </div>
         ) : null}
       </Carte>

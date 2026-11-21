@@ -1,9 +1,9 @@
-import { ErreurApi, lireDemande } from "@emine/api-client";
+import { ErreurApi, lireDemande, listerPieces } from "@emine/api-client";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { FormulaireDemande } from "@/composants/demande/formulaire-demande";
-import { enregistrerBrouillon } from "@/serveur/actions-demande";
+import { deposer, enregistrerBrouillon } from "@/serveur/actions-demande";
 import { appelPage, chargerReferentiels, optionsApi } from "@/serveur/donnees";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -27,8 +27,11 @@ export default async function ModifierDemande({ params }: Props) {
     if (e instanceof ErreurApi && e.code === "DEM-002") notFound();
     throw e;
   }
-  if (demande.statut !== "brouillon") redirect("/tableau-de-bord");
-  const referentiels = await chargerReferentiels();
+  if (demande.statut !== "brouillon") redirect(`/demandes/${id}`);
+  const [referentiels, pieces] = await Promise.all([
+    chargerReferentiels(),
+    appelPage(chemin, async () => listerPieces(Number(id), await optionsApi())),
+  ]);
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-3xl sm:text-4xl">{t("titreBrouillon")}</h1>
@@ -37,6 +40,8 @@ export default async function ModifierDemande({ params }: Props) {
         demandeur={demande.demandeur}
         {...referentiels}
         enregistrer={enregistrerBrouillon}
+        deposer={deposer}
+        piecesInitiales={pieces.data}
       />
     </div>
   );

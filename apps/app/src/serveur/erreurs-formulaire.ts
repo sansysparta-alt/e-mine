@@ -5,6 +5,8 @@ export type ErreurFormulaire = {
   code: string;
   message: string;
   champs: { champ: string; message: string }[];
+  /** Éléments manquants signalés au dépôt (DEM-004). */
+  manques?: string[];
 };
 
 export type ResultatAction<T> = { ok: true; valeur: T } | { ok: false; erreur: ErreurFormulaire };
@@ -15,7 +17,8 @@ export function versErreurFormulaire(e: unknown): ErreurFormulaire {
     const champs = Array.isArray(e.details["champs"])
       ? (e.details["champs"] as { champ: string; message: string }[])
       : [];
-    return { code: e.code ?? `HTTP-${e.status}`, message: e.message, champs };
+    const manques = Array.isArray(e.details["manques"]) ? (e.details["manques"] as string[]) : [];
+    return { code: e.code ?? `HTTP-${e.status}`, message: e.message, champs, manques };
   }
   console.error("Formulaire de demande : API injoignable", e);
   return { code: "INDISPONIBLE", message: "", champs: [] };

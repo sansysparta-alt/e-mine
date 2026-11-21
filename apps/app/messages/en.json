@@ -146,6 +146,49 @@
         "aucunFichier": "Choose a file first.",
         "autre": "The document could not be processed. Please try again."
       }
+    },
+    "depot": {
+      "piecesJointes": "Attached documents: {nombre}",
+      "manquantesTitre": "Some expected documents are not attached.",
+      "manquantes": "Not provided: {liste}. You can still submit: the front desk officer will check that the file is complete.",
+      "declaration": "I solemnly declare that the information provided is accurate and that the attached documents are authentic.",
+      "impossible": "The application cannot be submitted yet.",
+      "manques": {
+        "declarationHonneur": "Tick the solemn declaration.",
+        "pieces": "Attach at least one document (Attachments section).",
+        "autre": "Submission failed. Please try again."
+      },
+      "deposer": "Submit my application",
+      "enCours": "Submitting…"
     }
+  },
+  "statuts": {
+    "brouillon": "Draft",
+    "deposee": "Submitted",
+    "complement_requis": "Additional information required",
+    "recevable": "Admissible",
+    "en_instruction": "Under review",
+    "avis_rendu": "Opinion issued",
+    "decision": "Decision issued",
+    "droits_payes": "Duties paid",
+    "delivree": "Issued",
+    "archivee": "Archived",
+    "rejetee": "Rejected"
+  },
+  "detail": {
+    "titreOnglet": "My application",
+    "titre": "Application {numero}",
+    "confirmation": "Your application {numero} has been submitted.",
+    "confirmationSuite": "Keep this number: it identifies your file with the Ministry.",
+    "statut": "Status",
+    "document": "Document",
+    "deposeLe": "Submitted on",
+    "demandeur": "Applicant",
+    "pieces": "Attached documents ({nombre})",
+    "suite": {
+      "titre": "Next step",
+      "paiement": "Application fee payment: {montant}. Online payment will be offered here."
+    },
+    "retour": "Back to dashboard"
   }
 }

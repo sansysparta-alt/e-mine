@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { FormulaireDemande } from "@/composants/demande/formulaire-demande";
-import { enregistrerBrouillon } from "@/serveur/actions-demande";
+import { deposer, enregistrerBrouillon } from "@/serveur/actions-demande";
 import { chargerMoi, chargerReferentiels } from "@/serveur/donnees";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -44,6 +44,7 @@ export default async function NouvelleDemande({ searchParams }: Props) {
         {...referentiels}
         typeInitial={type && /^[A-Z]{3}$/.test(type) ? type : undefined}
         enregistrer={enregistrerBrouillon}
+        deposer={deposer}
       />
     </div>
   );
