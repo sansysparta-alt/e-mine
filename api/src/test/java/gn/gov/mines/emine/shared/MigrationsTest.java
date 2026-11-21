@@ -31,7 +31,7 @@ class MigrationsTest extends TestIntegration {
             .filter(MigrationInfo::isVersioned)
             .map(m -> m.getVersion().getVersion())
             .toList();
-    assertThat(versions).containsSequence("1", "2", "3", "4", "5");
+    assertThat(versions).containsSequence("1", "2", "3", "4", "5", "6", "7", "8");
     assertThat(flyway.info().pending()).isEmpty();
   }
 

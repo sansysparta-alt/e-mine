@@ -41,3 +41,8 @@ Thumbs.db
 .claude/settings.local.json
 *.tsbuildinfo
 next-env.d.ts
+# Fichiers de démonstration locaux (PDF de test fictifs)
+_demo/
+# Consignes générées automatiquement par `next dev` (Next 16)
+apps/web/AGENTS.md
+apps/app/AGENTS.md
