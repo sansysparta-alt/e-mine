@@ -42,6 +42,18 @@ describe("Alerte", () => {
     render(<Alerte titre="Vous êtes déconnecté" />);
     expect(screen.getByRole("status")).toHaveTextContent("Vous êtes déconnecté");
   });
+
+  it.each(["info", "succes", "avertissement", "erreur"] as const)(
+    "style sobre pour « %s » : bordure fine, pas de barre épaisse, icône décorative",
+    (nature) => {
+      const { container } = render(<Alerte nature={nature} titre="Message" />);
+      const boite = container.firstElementChild as HTMLElement;
+      expect(boite.className).not.toMatch(/border-l-\d|border-l-\[/);
+      expect(boite.className).toMatch(/(^|\s)border(\s|$)/);
+      const icone = boite.querySelector("svg");
+      expect(icone).toHaveAttribute("aria-hidden", "true");
+    },
+  );
 });
 
 describe("Carte et lien d'évitement", () => {
