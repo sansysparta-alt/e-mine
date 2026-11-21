@@ -5,6 +5,10 @@ import fr from "../../../messages/fr.json";
 import { DELAI_ENREGISTREMENT_MS, FormulaireDemande } from "./formulaire-demande";
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+
+// La saisie est gardée dans le sessionStorage : chaque test part d'un onglet vierge.
+beforeEach(() => sessionStorage.clear());
+import { cleSaisie } from "./sauvegarde-locale";
 import { depuisDemande, schemaBrouillon, versBrouillonDto } from "./schema";
 
 const pex: TypeDocumentDto = {
@@ -198,5 +202,49 @@ describe("formulaire guidé", () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+});
+
+describe("saisie jamais perdue (correctif A1)", () => {
+  beforeEach(() => sessionStorage.clear());
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("garde la saisie dans l'onglet et la restaure à la réouverture", async () => {
+    const premier = afficher({ demande: demande() });
+    fireEvent.change(screen.getByLabelText(/Superficie/), { target: { value: "77" } });
+    expect(sessionStorage.getItem(cleSaisie("f@x.test", 41))).toContain('"superficieHa":"77"');
+    premier.enregistrer.mockClear();
+    document.body.innerHTML = "";
+    afficher({ demande: demande() });
+    expect(await screen.findByText("Saisie non enregistrée restaurée.")).toBeInTheDocument();
+    expect(screen.getByLabelText(/Superficie/)).toHaveValue("77");
+  });
+
+  it("efface la copie locale une fois le brouillon enregistré", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("[]", { status: 200 })),
+    );
+    afficher({ demande: demande() });
+    fireEvent.change(screen.getByLabelText(/Superficie/), { target: { value: "5" } });
+    fireEvent.click(screen.getByRole("button", { name: "Enregistrer et continuer" }));
+    await screen.findByRole("heading", { level: 2, name: "Pièces" });
+    expect(sessionStorage.getItem(cleSaisie("f@x.test", 41))).toBeNull();
+  });
+
+  it("si la session a expiré, dit que la saisie est conservée et propose de se reconnecter", async () => {
+    const enregistrer = vi.fn(async () => ({
+      ok: false as const,
+      erreur: { code: "AUTH-001", message: "", champs: [] },
+    }));
+    afficher({ demande: demande(), enregistrer });
+    fireEvent.change(screen.getByLabelText(/Superficie/), { target: { value: "9" } });
+    fireEvent.click(screen.getByRole("button", { name: "Enregistrer et continuer" }));
+    expect(await screen.findByText("Votre session a expiré.")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Se reconnecter" })).toHaveAttribute(
+      "href",
+      expect.stringContaining("/api/auth/login?retour="),
+    );
+    expect(sessionStorage.getItem(cleSaisie("f@x.test", 41))).toContain('"superficieHa":"9"');
   });
 });
