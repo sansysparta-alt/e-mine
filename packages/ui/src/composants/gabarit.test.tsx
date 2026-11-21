@@ -98,6 +98,43 @@ describe("composants de liste et de page", () => {
     expect(screen.getByRole("cell")).toHaveTextContent("DEM-2026-000001");
   });
 
+  it("ligne cliquable : la ligne entière est un vrai lien, les actions gardent leur comportement", () => {
+    const action = vi.fn();
+    render(
+      <TableauDonnees
+        legende="Demandes"
+        lignes={[{ id: 7, numero: "DEM-2026-000007" }]}
+        cleLigne={(l) => l.id}
+        lienLigne={(l) => `/demandes/${l.id}`}
+        colonnes={[
+          { cle: "numero", entete: "Numéro", rendu: (l) => l.numero },
+          {
+            cle: "actions",
+            entete: "Actions",
+            interactive: true,
+            rendu: () => (
+              <button type="button" onClick={action}>
+                Archiver
+              </button>
+            ),
+          },
+        ]}
+      />,
+    );
+    const lien = screen.getByRole("link", { name: "DEM-2026-000007" });
+    expect(lien).toHaveAttribute("href", "/demandes/7");
+    expect(lien.className).toMatch(/after:absolute/);
+    expect(lien.className).toMatch(/after:inset-0/);
+    const ligne = lien.closest("tr") as HTMLElement;
+    expect(ligne.className).toMatch(/relative/);
+    expect(ligne.className).toMatch(/cursor-pointer/);
+    expect(ligne.className).toMatch(/hover:bg-fond/);
+    const bouton = screen.getByRole("button", { name: "Archiver" });
+    expect(bouton.parentElement?.className).toMatch(/relative z-10/);
+    fireEvent.click(bouton);
+    expect(action).toHaveBeenCalledTimes(1);
+  });
+
   it("badge : pastille décorative et libellé lisible", () => {
     render(<BadgeStatut ton="succes">Délivrée</BadgeStatut>);
     expect(screen.getByText("Délivrée")).toBeInTheDocument();

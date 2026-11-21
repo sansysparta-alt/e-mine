@@ -32,7 +32,10 @@ export function lienDemande(d: Pick<DemandeDto, "id" | "statut">): string {
   return d.statut === "brouillon" ? `/demandes/${d.id}/modifier` : `/demandes/${d.id}`;
 }
 
-/** Tableau des demandes (US-03.5) : numéro, document, statut et date, sur le socle. */
+/**
+ * Tableau des demandes (US-03.5) : numéro, document, statut et date, sur le socle ; la ligne
+ * entière ouvre la demande (formulaire pour un brouillon, fiche sinon).
+ */
 export function TableauDemandes({
   demandes,
   libelles,
@@ -51,6 +54,7 @@ export function TableauDemandes({
       tri={tri}
       lienTri={lienTri}
       Lien={LienNext}
+      lienLigne={lienDemande}
       libellesTri={{
         trier: t("tri.trier"),
         croissant: t("tri.croissant"),
@@ -61,14 +65,7 @@ export function TableauDemandes({
           cle: "numero",
           entete: t("colonnes.numero"),
           triable: triables.includes("numero"),
-          rendu: (d) => (
-            <Link
-              href={lienDemande(d)}
-              className="inline-flex min-h-11 items-center text-royal underline-offset-4 hover:underline"
-            >
-              {d.numero ?? t("brouillonSansNumero")}
-            </Link>
-          ),
+          rendu: (d) => d.numero ?? t("brouillonSansNumero"),
         },
         {
           cle: "document",
