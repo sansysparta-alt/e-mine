@@ -25,13 +25,13 @@ class MigrationsTest extends TestIntegration {
   @Autowired JdbcTemplate jdbc;
 
   @Test
-  void lesMigrationsV1aV4SontAppliquees() {
+  void lesMigrationsSontAppliquees() {
     List<String> versions =
         Arrays.stream(flyway.info().applied())
             .filter(MigrationInfo::isVersioned)
             .map(m -> m.getVersion().getVersion())
             .toList();
-    assertThat(versions).containsSequence("1", "2", "3", "4");
+    assertThat(versions).containsSequence("1", "2", "3", "4", "5");
     assertThat(flyway.info().pending()).isEmpty();
   }
 
@@ -80,11 +80,37 @@ class MigrationsTest extends TestIntegration {
       long utilisateur = creerUtilisateur(st, "v2.numero@exemple.test");
       ResultSet rs =
           st.executeQuery(
-              "INSERT INTO demande (type_document_id, demandeur_id) SELECT id, "
+              "INSERT INTO demande (type_document_id, demandeur_id, statut) SELECT id, "
                   + utilisateur
-                  + " FROM type_document WHERE code = 'PEX' RETURNING numero");
+                  + ", 'deposee' FROM type_document WHERE code = 'PEX' RETURNING numero");
       rs.next();
       assertThat(rs.getString(1)).matches("DEM-" + Year.now().getValue() + "-\\d{6}");
+      c.rollback();
+    }
+  }
+
+  @Test
+  void v5UnBrouillonNAPasDeNumeroLeDepotEnAttribueUn() throws SQLException {
+    try (Connection c = BaseDeDonneesDeTest.connexionOwner();
+        Statement st = c.createStatement()) {
+      c.setAutoCommit(false);
+      long utilisateur = creerUtilisateur(st, "v5.numero@exemple.test");
+      ResultSet rs =
+          st.executeQuery(
+              "INSERT INTO demande (type_document_id, demandeur_id) SELECT id, "
+                  + utilisateur
+                  + " FROM type_document WHERE code = 'PEX' RETURNING id, numero");
+      rs.next();
+      long id = rs.getLong(1);
+      assertThat(rs.getString(2)).isNull();
+      rs =
+          st.executeQuery(
+              "UPDATE demande SET statut = 'deposee' WHERE id = "
+                  + id
+                  + " RETURNING numero, date_depot IS NOT NULL");
+      rs.next();
+      assertThat(rs.getString(1)).matches("DEM-" + Year.now().getValue() + "-\\d{6}");
+      assertThat(rs.getBoolean(2)).isTrue();
       c.rollback();
     }
   }

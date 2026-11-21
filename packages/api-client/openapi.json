@@ -10,6 +10,99 @@
     "description" : "Generated server url"
   } ],
   "paths" : {
+    "/api/v1/demandes/{id}" : {
+      "get" : {
+        "tags" : [ "Demandes" ],
+        "summary" : "Une demande (les siennes, ou toutes pour un agent)",
+        "operationId" : "lireDemande",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DemandeDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "Demandes" ],
+        "summary" : "Enregistrer le brouillon",
+        "operationId" : "modifierBrouillon",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/BrouillonDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DemandeDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/demandes" : {
+      "post" : {
+        "tags" : [ "Demandes" ],
+        "summary" : "Créer une demande au statut brouillon",
+        "operationId" : "creerBrouillon",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/BrouillonDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Created",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DemandeDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/types-documents" : {
       "get" : {
         "tags" : [ "Catalogue" ],
@@ -59,6 +152,50 @@
         }
       }
     },
+    "/api/v1/referentiels/substances" : {
+      "get" : {
+        "tags" : [ "Catalogue" ],
+        "summary" : "Substances minérales (public)",
+        "operationId" : "listerSubstances",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/SubstanceDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/referentiels/prefectures" : {
+      "get" : {
+        "tags" : [ "Catalogue" ],
+        "summary" : "Préfectures (public)",
+        "operationId" : "listerPrefectures",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/PrefectureDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/moi" : {
       "get" : {
         "tags" : [ "Authentification" ],
@@ -81,6 +218,93 @@
   },
   "components" : {
     "schemas" : {
+      "BrouillonDto" : {
+        "type" : "object",
+        "properties" : {
+          "typeDocumentCode" : {
+            "type" : "string",
+            "minLength" : 1,
+            "pattern" : "^[A-Z]{3}$"
+          },
+          "prefectureId" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int32"
+          },
+          "substanceCode" : {
+            "type" : [ "string", "null" ],
+            "pattern" : "^[A-Z_]+$"
+          },
+          "superficieHa" : {
+            "type" : [ "number", "null" ],
+            "minimum" : 0.01
+          }
+        },
+        "required" : [ "prefectureId", "substanceCode", "superficieHa", "typeDocumentCode" ]
+      },
+      "DemandeDto" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "numero" : {
+            "type" : [ "string", "null" ]
+          },
+          "statut" : {
+            "type" : "string"
+          },
+          "typeDocumentCode" : {
+            "type" : "string"
+          },
+          "demandeur" : {
+            "$ref" : "#/components/schemas/Demandeur"
+          },
+          "prefectureId" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int32"
+          },
+          "prefectureNom" : {
+            "type" : [ "string", "null" ]
+          },
+          "substanceCode" : {
+            "type" : [ "string", "null" ]
+          },
+          "substanceLibelle" : {
+            "type" : [ "string", "null" ]
+          },
+          "superficieHa" : {
+            "type" : [ "number", "null" ]
+          },
+          "creeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "deposeLe" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "creeLe", "demandeur", "deposeLe", "id", "numero", "prefectureId", "prefectureNom", "statut", "substanceCode", "substanceLibelle", "superficieHa", "typeDocumentCode" ]
+      },
+      "Demandeur" : {
+        "type" : "object",
+        "properties" : {
+          "prenom" : {
+            "type" : "string"
+          },
+          "nom" : {
+            "type" : "string"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "organisation" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "email", "nom", "organisation", "prenom" ]
+      },
       "Famille" : {
         "type" : "object",
         "properties" : {
@@ -155,6 +379,37 @@
         },
         "required" : [ "code", "delaiJours", "famille", "instruitPar", "libelleEn", "libelleFr", "piecesRequises", "renouvelable", "signataire", "tarifs" ]
       },
+      "SubstanceDto" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "libelleFr" : {
+            "type" : "string"
+          },
+          "libelleEn" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "code", "libelleEn", "libelleFr" ]
+      },
+      "PrefectureDto" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "region" : {
+            "type" : "string"
+          },
+          "nom" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "id", "nom", "region" ]
+      },
       "MoiDto" : {
         "type" : "object",
         "properties" : {
@@ -171,6 +426,9 @@
           "email" : {
             "type" : "string"
           },
+          "organisation" : {
+            "type" : [ "string", "null" ]
+          },
           "profil" : {
             "$ref" : "#/components/schemas/Profil"
           },
@@ -184,7 +442,7 @@
             }
           }
         },
-        "required" : [ "email", "id", "interne", "nom", "permissions", "prenom", "profil" ]
+        "required" : [ "email", "id", "interne", "nom", "organisation", "permissions", "prenom", "profil" ]
       },
       "Profil" : {
         "type" : "object",

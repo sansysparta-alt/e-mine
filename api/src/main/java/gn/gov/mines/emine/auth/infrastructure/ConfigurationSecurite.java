@@ -51,9 +51,12 @@ class ConfigurationSecurite {
                         "/swagger-ui/**",
                         "/swagger-ui.html")
                     .permitAll()
-                    // Catalogue public des documents (US-02.1)
+                    // Catalogue public des documents (US-02.1) et référentiels du formulaire
                     .requestMatchers(
-                        HttpMethod.GET, "/api/v1/types-documents", "/api/v1/types-documents/*")
+                        HttpMethod.GET,
+                        "/api/v1/types-documents",
+                        "/api/v1/types-documents/*",
+                        "/api/v1/referentiels/*")
                     .permitAll()
                     .requestMatchers("/api/v1/**")
                     .authenticated()

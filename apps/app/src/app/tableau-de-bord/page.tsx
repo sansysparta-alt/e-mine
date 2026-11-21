@@ -46,6 +46,7 @@ export default async function TableauDeBord() {
             nom={resultat.moi.nom}
             profilLibelle={resultat.moi.profil.libelle}
             interne={resultat.moi.interne}
+            peutDeposer={resultat.moi.permissions.includes("DEPOSER")}
           />
         ) : (
           <Alerte nature="erreur" titre={t(`${resultat.erreur}.titre`)}>

@@ -1,4 +1,5 @@
-import { Carte } from "@emine/ui";
+import { Bouton, Carte } from "@emine/ui";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 
 export type VueTableauDeBordProps = {
@@ -6,13 +7,21 @@ export type VueTableauDeBordProps = {
   nom: string;
   profilLibelle: string;
   interne: boolean;
+  /** Droit « déposer » (US-01.6) : affiche le bouton de nouvelle demande. */
+  peutDeposer?: boolean;
 };
 
 /**
  * Tableau de bord (vide en J1) : salutation au nom de l'utilisateur, profil, et le bloc principal
  * adapté au type de profil (demandes pour un usager, dossiers à traiter pour un agent).
  */
-export function VueTableauDeBord({ prenom, nom, profilLibelle, interne }: VueTableauDeBordProps) {
+export function VueTableauDeBord({
+  prenom,
+  nom,
+  profilLibelle,
+  interne,
+  peutDeposer = false,
+}: VueTableauDeBordProps) {
   const t = useTranslations("tableauDeBord");
   const bloc = interne ? "dossiers" : "demandes";
   return (
@@ -24,6 +33,11 @@ export function VueTableauDeBord({ prenom, nom, profilLibelle, interne }: VueTab
       <Carte titre={t(`${bloc}.titre`)}>
         <p className="font-semibold">{t(`${bloc}.vide`)}</p>
         <p className="mt-1 text-texte-doux">{t(`${bloc}.aide`)}</p>
+        {peutDeposer ? (
+          <Bouton asChild className="mt-4">
+            <Link href="/demandes/nouvelle">{t("demandes.nouvelle")}</Link>
+          </Bouton>
+        ) : null}
       </Carte>
     </div>
   );
