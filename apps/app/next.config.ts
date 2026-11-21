@@ -26,6 +26,15 @@ const config: NextConfig = {
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
         ],
       },
+      {
+        // Visualiseur de documents (D9) : une pièce peut s'afficher dans un cadre de l'application
+        // elle-même, jamais dans un autre site. Règle placée après la précédente : elle l'emporte.
+        source: "/api/demandes/:id/pieces/:pieceId/contenu",
+        headers: [
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Content-Security-Policy", value: "frame-ancestors 'self'" },
+        ],
+      },
     ];
   },
 };

@@ -5,11 +5,14 @@ import gn.gov.mines.emine.auth.UtilisateurCourant;
 import gn.gov.mines.emine.catalogue.Catalogue;
 import gn.gov.mines.emine.catalogue.TypeDocument;
 import gn.gov.mines.emine.demande.domaine.Brouillon;
+import gn.gov.mines.emine.demande.domaine.CritereDemandes;
 import gn.gov.mines.emine.demande.domaine.DemandeDetail;
 import gn.gov.mines.emine.demande.infrastructure.DemandeRepository;
 import gn.gov.mines.emine.shared.erreur.CodeErreur;
 import gn.gov.mines.emine.shared.erreur.ErreurMetier;
 import gn.gov.mines.emine.shared.jooq.enums.StatutDemande;
+import gn.gov.mines.emine.shared.pagination.PageResultat;
+import gn.gov.mines.emine.shared.pagination.Pagination;
 import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Service;
@@ -71,24 +74,27 @@ public class ServiceDemandes {
     return lireVisible(id);
   }
 
-  /** Nombre maximal de demandes renvoyées par la liste (V1, sans pagination). */
-  public static final int LIMITE_LISTE = 200;
-
   /**
    * « Mes demandes » (US-03.5) : la RLS limite un usager à ses propres demandes ; un agent interne
    * voit toutes les demandes (base des files de travail de l'instruction).
    */
   @Transactional(readOnly = true)
-  public List<DemandeDetail> lister(String statut, String typeDocumentCode) {
+  public PageResultat<DemandeDetail> lister(CritereDemandes critere, Pagination pagination) {
     StatutDemande filtre = null;
-    if (statut != null) {
+    if (critere.statut() != null) {
       filtre =
           java.util.Arrays.stream(StatutDemande.values())
-              .filter(s -> s.getLiteral().equals(statut))
+              .filter(s -> s.getLiteral().equals(critere.statut()))
               .findFirst()
               .orElseThrow(() -> champInvalide("statut", "Statut inconnu."));
     }
-    return demandes.lister(filtre, typeDocumentCode, LIMITE_LISTE);
+    return demandes.lister(filtre, critere, pagination);
+  }
+
+  /** Nombre de demandes visibles par statut (tableau de bord). */
+  @Transactional(readOnly = true)
+  public Map<String, Long> compteurs() {
+    return demandes.compteursParStatut();
   }
 
   private DemandeDetail lireVisible(long id) {

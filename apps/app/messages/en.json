@@ -31,12 +31,6 @@
       }
     }
   },
-  "enTete": {
-    "marque": "e-mine",
-    "sousTitre": "Management application",
-    "connecte": "Signed in: {nom}",
-    "deconnexion": "Sign out"
-  },
   "tableauDeBord": {
     "titreOnglet": "Dashboard",
     "bonjour": "Hello, {prenom} {nom}",
@@ -62,6 +56,14 @@
         "titre": "The service is temporarily unavailable.",
         "conseil": "Please try again in a few minutes. Your data is not lost."
       }
+    },
+    "chiffres": {
+      "mesDemandes": "My applications",
+      "brouillons": "Drafts",
+      "enCours": "Being processed",
+      "delivrees": "Documents issued",
+      "aTraiter": "Submitted, to process",
+      "total": "Total applications"
     }
   },
   "demande": {
@@ -123,30 +125,28 @@
       "retour": "Back to dashboard"
     },
     "pieces": {
-      "attendues": "Documents expected for this application",
-      "fournie": "✓ {piece}: provided",
-      "manquante": "○ {piece}: to attach",
-      "ajouter": "Attach a document",
-      "type": "This document is",
-      "autre": "Other document",
-      "fichier": "File",
-      "aide": "PDF, JPG or PNG, 10 MB maximum.",
-      "joindre": "Attach file",
+      "consigne": "Attach a file for each mandatory document (PDF, JPG or PNG, 10 MB maximum). Choose the file or drop it on the area: it is uploaded straight away.",
+      "fournie": "Provided",
+      "obligatoire": "Mandatory",
+      "facultative": "Optional",
+      "choisir": "Choose a file or drop it here",
+      "ajouterAutre": "Add another file",
+      "aide": "PDF, JPG or PNG, 10 MB maximum",
+      "champ": "File for document “{piece}”",
       "envoi": "Uploading…",
+      "consulter": "View",
+      "retirer": "Remove",
       "ajoutee": "Document “{nom}” attached.",
       "retiree": "Document “{nom}” removed.",
-      "chargement": "Loading documents…",
-      "aucune": "No document attached yet.",
       "empreinte": "SHA-256 fingerprint {debut}…",
-      "retirer": "Remove",
-      "retirerLibelle": "Remove document {nom}",
+      "autre": "Other document",
       "erreurs": {
+        "chargement": "The documents could not be loaded. Reload the page.",
         "DOC-001": "Format not accepted: PDF, JPG or PNG only.",
         "DOC-002": "File too large: 10 MB maximum.",
         "DOC-003": "This document cannot be found.",
         "DEM-003": "The application has already been submitted: its documents can no longer change.",
         "AUTH-001": "Your session has expired: please sign in again.",
-        "aucunFichier": "Choose a file first.",
         "autre": "The document could not be processed. Please try again."
       }
     },
@@ -167,7 +167,8 @@
     "restauration": {
       "titre": "Unsaved entries restored.",
       "texte": "Your latest changes, kept on this device, have been restored. They will be saved at the next step."
-    }
+    },
+    "descriptionNouvelle": "Four steps: applicant, document, attachments, summary. Your entries are saved as you go."
   },
   "statuts": {
     "brouillon": "Draft",
@@ -196,7 +197,8 @@
       "titre": "Next step",
       "paiement": "Application fee payment: {montant}. Online payment will be offered here."
     },
-    "retour": "Back to dashboard"
+    "retour": "Back to dashboard",
+    "retourListe": "Back to applications"
   },
   "mesDemandes": {
     "titre": "My applications",
@@ -204,12 +206,30 @@
     "filtreStatut": "Status",
     "tous": "All statuses",
     "filtrer": "Filter",
-    "nombre": "{nombre, plural, =0 {No application} one {# application} other {# applications}}",
     "aucune": "You have no application yet.",
-    "aucuneFiltre": "No application with this status.",
+    "aucuneFiltre": "No application matches these criteria.",
     "brouillonSansNumero": "Draft (number assigned on submission)",
     "deposeeLe": "submitted on {date}",
-    "creeeLe": "created on {date}"
+    "creeeLe": "created on {date}",
+    "titreInterne": "Applications",
+    "description": "Follow the progress of each application. A draft opens in the form.",
+    "colonnes": {
+      "numero": "Number",
+      "document": "Document",
+      "statut": "Status",
+      "date": "Date"
+    },
+    "tri": {
+      "trier": "Sort by",
+      "croissant": "ascending",
+      "decroissant": "descending"
+    },
+    "elements": "applications",
+    "recherche": {
+      "libelle": "Search an application",
+      "exemple": "Number or document (e.g. DEM-2026, permit)",
+      "bouton": "Search"
+    }
   },
   "session": {
     "avertissement": {
@@ -223,5 +243,51 @@
       "texte": "Sign in again to continue. Your current entries are kept on this device and you will come back to this page.",
       "reconnecter": "Sign in again"
     }
+  },
+  "navigation": {
+    "marque": "e-mine",
+    "sousTitre": "Mines and geology",
+    "titre": "Main navigation",
+    "ouvrirMenu": "Open menu",
+    "fermerMenu": "Close menu",
+    "reduireMenu": "Collapse menu",
+    "deplierMenu": "Expand menu",
+    "deconnexion": "Sign out",
+    "sections": {
+      "principal": "Main",
+      "demarches": "Procedures"
+    },
+    "entrees": {
+      "tableauDeBord": "Dashboard",
+      "mesDemandes": "My applications",
+      "demandes": "Applications",
+      "nouvelleDemande": "New application"
+    }
+  },
+  "etats": {
+    "chargement": "Loading…",
+    "erreur": {
+      "titre": "This page could not be displayed.",
+      "description": "An unexpected error occurred. Your data is not lost.",
+      "reessayer": "Try again"
+    }
+  },
+  "pagination": {
+    "zone": "Pagination",
+    "afficher": "Show",
+    "parPage": "per page",
+    "resume": "{debut}–{fin} of {total} {elements}",
+    "precedente": "Prev.",
+    "suivante": "Next",
+    "page": "Page {numero}",
+    "pageSur": "Page {numero} of {total}"
+  },
+  "visualiseur": {
+    "consulter": "View",
+    "telecharger": "Download",
+    "pleinEcran": "Full screen",
+    "quitterPleinEcran": "Exit full screen",
+    "fermer": "Close document",
+    "formatNonAffichable": "This format cannot be displayed here. Use the Download button."
   }
 }

@@ -31,12 +31,6 @@
       }
     }
   },
-  "enTete": {
-    "marque": "e-mine",
-    "sousTitre": "Application de gestion",
-    "connecte": "Connecté : {nom}",
-    "deconnexion": "Se déconnecter"
-  },
   "tableauDeBord": {
     "titreOnglet": "Tableau de bord",
     "bonjour": "Bonjour, {prenom} {nom}",
@@ -62,6 +56,14 @@
         "titre": "Le service est momentanément indisponible.",
         "conseil": "Réessayez dans quelques minutes. Vos données ne sont pas perdues."
       }
+    },
+    "chiffres": {
+      "mesDemandes": "Mes demandes",
+      "brouillons": "Brouillons",
+      "enCours": "En cours de traitement",
+      "delivrees": "Documents délivrés",
+      "aTraiter": "Déposées, à traiter",
+      "total": "Total des demandes"
     }
   },
   "demande": {
@@ -123,30 +125,28 @@
       "retour": "Revenir au tableau de bord"
     },
     "pieces": {
-      "attendues": "Pièces attendues pour ce document",
-      "fournie": "✓ {piece} : fournie",
-      "manquante": "○ {piece} : à joindre",
-      "ajouter": "Joindre une pièce",
-      "type": "Cette pièce correspond à",
-      "autre": "Autre pièce",
-      "fichier": "Fichier",
-      "aide": "PDF, JPG ou PNG, 10 Mo au maximum.",
-      "joindre": "Joindre le fichier",
+      "consigne": "Joignez un fichier pour chaque pièce obligatoire (PDF, JPG ou PNG, 10 Mo au maximum). Choisissez le fichier ou glissez-le sur la zone : il est envoyé aussitôt.",
+      "fournie": "Fournie",
+      "obligatoire": "Obligatoire",
+      "facultative": "Facultative",
+      "choisir": "Choisir un fichier ou le glisser ici",
+      "ajouterAutre": "Ajouter un autre fichier",
+      "aide": "PDF, JPG ou PNG, 10 Mo au maximum",
+      "champ": "Fichier pour la pièce « {piece} »",
       "envoi": "Envoi en cours…",
+      "consulter": "Consulter",
+      "retirer": "Retirer",
       "ajoutee": "Pièce « {nom} » ajoutée.",
       "retiree": "Pièce « {nom} » retirée.",
-      "chargement": "Chargement des pièces…",
-      "aucune": "Aucune pièce jointe pour le moment.",
       "empreinte": "empreinte SHA-256 {debut}…",
-      "retirer": "Retirer",
-      "retirerLibelle": "Retirer la pièce {nom}",
+      "autre": "Autre pièce",
       "erreurs": {
+        "chargement": "Les pièces n'ont pas pu être chargées. Rechargez la page.",
         "DOC-001": "Format non accepté : PDF, JPG ou PNG uniquement.",
         "DOC-002": "Fichier trop volumineux : 10 Mo au maximum.",
         "DOC-003": "Cette pièce est introuvable.",
         "DEM-003": "La demande a déjà été déposée : ses pièces ne peuvent plus changer.",
         "AUTH-001": "Votre session a expiré : reconnectez-vous.",
-        "aucunFichier": "Choisissez d'abord un fichier.",
         "autre": "La pièce n'a pas pu être traitée. Réessayez."
       }
     },
@@ -167,7 +167,8 @@
     "restauration": {
       "titre": "Saisie non enregistrée restaurée.",
       "texte": "Vos dernières modifications, conservées sur cet appareil, ont été rétablies. Elles seront enregistrées à la prochaine étape."
-    }
+    },
+    "descriptionNouvelle": "Quatre étapes : demandeur, document, pièces, récapitulatif. Votre saisie est enregistrée au fil de l'eau."
   },
   "statuts": {
     "brouillon": "Brouillon",
@@ -196,7 +197,8 @@
       "titre": "Prochaine étape",
       "paiement": "Paiement des frais de dossier : {montant}. Le paiement en ligne sera proposé ici."
     },
-    "retour": "Revenir au tableau de bord"
+    "retour": "Revenir au tableau de bord",
+    "retourListe": "Retour aux demandes"
   },
   "mesDemandes": {
     "titre": "Mes demandes",
@@ -204,12 +206,30 @@
     "filtreStatut": "Statut",
     "tous": "Tous les statuts",
     "filtrer": "Filtrer",
-    "nombre": "{nombre, plural, =0 {Aucune demande} one {# demande} other {# demandes}}",
     "aucune": "Vous n'avez encore aucune demande.",
-    "aucuneFiltre": "Aucune demande à ce statut.",
+    "aucuneFiltre": "Aucune demande ne correspond à ces critères.",
     "brouillonSansNumero": "Brouillon (numéro attribué au dépôt)",
     "deposeeLe": "déposée le {date}",
-    "creeeLe": "créée le {date}"
+    "creeeLe": "créée le {date}",
+    "titreInterne": "Demandes",
+    "description": "Suivez l'avancement de chaque demande. Un brouillon s'ouvre dans le formulaire.",
+    "colonnes": {
+      "numero": "Numéro",
+      "document": "Document",
+      "statut": "Statut",
+      "date": "Date"
+    },
+    "tri": {
+      "trier": "Trier par",
+      "croissant": "tri croissant",
+      "decroissant": "tri décroissant"
+    },
+    "elements": "demandes",
+    "recherche": {
+      "libelle": "Rechercher une demande",
+      "exemple": "Numéro ou document (ex. DEM-2026, permis)",
+      "bouton": "Rechercher"
+    }
   },
   "session": {
     "avertissement": {
@@ -223,5 +243,51 @@
       "texte": "Reconnectez-vous pour continuer. Vos saisies en cours sont conservées sur cet appareil et vous reviendrez sur cette page.",
       "reconnecter": "Se reconnecter"
     }
+  },
+  "navigation": {
+    "marque": "e-mine",
+    "sousTitre": "Mines et géologie",
+    "titre": "Navigation principale",
+    "ouvrirMenu": "Ouvrir le menu",
+    "fermerMenu": "Fermer le menu",
+    "reduireMenu": "Réduire le menu",
+    "deplierMenu": "Déplier le menu",
+    "deconnexion": "Se déconnecter",
+    "sections": {
+      "principal": "Principal",
+      "demarches": "Démarches"
+    },
+    "entrees": {
+      "tableauDeBord": "Tableau de bord",
+      "mesDemandes": "Mes demandes",
+      "demandes": "Demandes",
+      "nouvelleDemande": "Nouvelle demande"
+    }
+  },
+  "etats": {
+    "chargement": "Chargement en cours…",
+    "erreur": {
+      "titre": "Cette page n'a pas pu s'afficher.",
+      "description": "Une erreur inattendue est survenue. Vos données ne sont pas perdues.",
+      "reessayer": "Réessayer"
+    }
+  },
+  "pagination": {
+    "zone": "Pagination",
+    "afficher": "Afficher",
+    "parPage": "par page",
+    "resume": "{debut}–{fin} sur {total} {elements}",
+    "precedente": "Préc.",
+    "suivante": "Suiv.",
+    "page": "Page {numero}",
+    "pageSur": "Page {numero} sur {total}"
+  },
+  "visualiseur": {
+    "consulter": "Consulter",
+    "telecharger": "Télécharger",
+    "pleinEcran": "Plein écran",
+    "quitterPleinEcran": "Quitter le plein écran",
+    "fermer": "Fermer le document",
+    "formatNonAffichable": "Ce format ne peut pas être affiché ici. Utilisez le bouton Télécharger."
   }
 }
