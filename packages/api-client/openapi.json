@@ -53,9 +53,15 @@
           },
           "interne" : {
             "type" : "boolean"
+          },
+          "permissions" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           }
         },
-        "required" : [ "email", "id", "interne", "nom", "prenom", "profil" ]
+        "required" : [ "email", "id", "interne", "nom", "permissions", "prenom", "profil" ]
       },
       "Profil" : {
         "type" : "object",
