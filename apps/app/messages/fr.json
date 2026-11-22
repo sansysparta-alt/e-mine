@@ -1130,6 +1130,11 @@
       "non-atteinte": "non atteinte",
       "aVous": "à vous d’agir",
       "attenteDemandeur": "en attente du demandeur"
+    },
+    "precisions": {
+      "avis": "Avis attendus : {profils}",
+      "examenTechnique": "Examen technique par les services, puis décision : {signataire}",
+      "decision": "Décision attendue : {signataire}"
     }
   }
 }

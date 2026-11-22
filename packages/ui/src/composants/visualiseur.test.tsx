@@ -76,4 +76,17 @@ describe("visualiseur de documents", () => {
     fireEvent.click(screen.getByRole("button", { name: "Consulter" }));
     expect(screen.getByRole("img", { name: "plan.png" })).toHaveAttribute("src", pdf.urlAffichage);
   });
+
+  it("se ferme par un bouton « Fermer » visible ou par un clic à côté du panneau", () => {
+    const { container } = render(<Banc document={pdf} />);
+    fireEvent.click(screen.getByRole("button", { name: "Consulter" }));
+    expect(screen.getByRole("button", { name: "Fermer le document" })).toHaveTextContent(
+      "Fermer le document",
+    );
+    const fond = container.querySelector("div[aria-hidden='true'].fixed");
+    expect(fond).not.toBeNull();
+    fireEvent.click(fond!);
+    expect(screen.queryByTitle("eies.pdf")).not.toBeInTheDocument();
+    expect(screen.getByText("Liste toujours visible")).toBeInTheDocument();
+  });
 });
