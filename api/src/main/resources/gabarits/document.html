@@ -1,0 +1,240 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title th:text="${d.libelleDocument} + ' ' + ${d.numero}">Document</title>
+    <meta name="subject" th:content="'Document officiel délivré par e-mine · ' + ${d.numero}" />
+    <meta name="author" content="e-mine · Ministère des Mines et de la Géologie" />
+    <style>
+      @page {
+        size: A4;
+        margin: 18mm 18mm 24mm 18mm;
+        @bottom-left {
+          content: "Document de démonstration · données fictives, sans valeur légale";
+          font-family: Carlito;
+          font-size: 8pt;
+          color: #3b4a66;
+        }
+        @bottom-right {
+          content: "Page " counter(page) " / " counter(pages);
+          font-family: Carlito;
+          font-size: 8pt;
+          color: #3b4a66;
+        }
+      }
+      body {
+        font-family: Carlito;
+        font-size: 11.5pt;
+        color: #0a1f44;
+        line-height: 1.45;
+      }
+      .entete {
+        width: 100%;
+        border-bottom: 2px solid #0a1f44;
+        padding-bottom: 10px;
+      }
+      .entete td {
+        vertical-align: middle;
+      }
+      .embleme {
+        width: 54px;
+        height: 54px;
+        border: 2px solid #0b3a8f;
+        border-radius: 27px;
+        text-align: center;
+        line-height: 50px;
+        font-weight: bold;
+        font-size: 13pt;
+        color: #0b3a8f;
+      }
+      .etat {
+        font-size: 10pt;
+        letter-spacing: 1px;
+        font-weight: bold;
+      }
+      .devise {
+        font-size: 8.5pt;
+        color: #3b4a66;
+      }
+      .ministere {
+        font-size: 10pt;
+      }
+      .reference {
+        text-align: right;
+        font-size: 9.5pt;
+        color: #3b4a66;
+      }
+      .reference .numero {
+        font-size: 13pt;
+        font-weight: bold;
+        color: #0a1f44;
+      }
+      h1 {
+        text-align: center;
+        font-size: 21pt;
+        margin: 26px 0 4px 0;
+        color: #0a1f44;
+      }
+      .sous-titre {
+        text-align: center;
+        font-size: 10pt;
+        letter-spacing: 1.5px;
+        color: #3b4a66;
+        margin-bottom: 22px;
+      }
+      .demo {
+        border: 1px solid #c9a227;
+        background-color: #fffaeb;
+        color: #93370d;
+        font-size: 9pt;
+        padding: 6px 10px;
+        margin-bottom: 18px;
+        text-align: center;
+      }
+      .corps p {
+        margin: 0 0 10px 0;
+        text-align: justify;
+      }
+      table.details {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 14px 0 18px 0;
+      }
+      table.details th {
+        text-align: left;
+        width: 38%;
+        font-weight: bold;
+        padding: 6px 8px;
+        border-bottom: 1px solid #c3d3ea;
+        color: #3b4a66;
+      }
+      table.details td {
+        padding: 6px 8px;
+        border-bottom: 1px solid #c3d3ea;
+      }
+      .observations {
+        border: 1px solid #c3d3ea;
+        background-color: #f6f9fe;
+        padding: 8px 10px;
+        margin-bottom: 18px;
+      }
+      table.pied {
+        width: 100%;
+        margin-top: 26px;
+      }
+      table.pied td {
+        vertical-align: top;
+      }
+      .verification {
+        width: 46%;
+        font-size: 8.5pt;
+        color: #3b4a66;
+      }
+      .verification img {
+        width: 34mm;
+        height: 34mm;
+      }
+      .code {
+        font-size: 8pt;
+        word-wrap: break-word;
+      }
+      .signature {
+        text-align: left;
+        padding-left: 12px;
+      }
+      .signature .fonction {
+        font-weight: bold;
+        font-size: 12pt;
+      }
+      .signature .cadre {
+        margin-top: 8px;
+        border: 1px solid #0b3a8f;
+        padding: 8px 10px;
+        font-size: 9pt;
+        color: #0b3a8f;
+      }
+    </style>
+  </head>
+  <body>
+    <table class="entete">
+      <tr>
+        <td style="width: 64px">
+          <div class="embleme">RG</div>
+        </td>
+        <td>
+          <div class="etat">RÉPUBLIQUE DE GUINÉE</div>
+          <div class="devise">Travail · Justice · Solidarité</div>
+          <div class="ministere">Ministère des Mines et de la Géologie</div>
+        </td>
+        <td class="reference">
+          <div>N°</div>
+          <div class="numero" th:text="${d.numero}">PEX-2026-0001</div>
+          <div th:text="'Délivré le ' + ${delivreLe}">Délivré le 21/11/2026</div>
+        </td>
+      </tr>
+    </table>
+
+    <h1 th:text="${d.libelleDocument}">Permis d'exploitation</h1>
+    <div class="sous-titre" th:text="'DOCUMENT OFFICIEL · ' + ${d.codeType}">DOCUMENT OFFICIEL</div>
+
+    <div class="demo">
+      Plateforme e-mine en démonstration : ce document est établi avec des données fictives et un
+      certificat de test. Il n'a aucune valeur légale.
+    </div>
+
+    <div class="corps">
+      <p>
+        <span th:text="'Le ' + ${d.signataireFonction}">Le Ministre</span>, vu la demande
+        <strong th:text="${d.demandeNumero}">DEM-2026-000001</strong> déposée sur la plateforme
+        e-mine et la décision favorable rendue le <span th:text="${decisionLe}">21/11/2026</span>,
+        délivre le présent document à :
+      </p>
+    </div>
+
+    <table class="details">
+      <tr>
+        <th>Titulaire</th>
+        <td th:text="${d.titulaire}">Prénom Nom</td>
+      </tr>
+      <tr th:if="${d.organisation != null}">
+        <th>Organisation</th>
+        <td th:text="${d.organisation}">Société</td>
+      </tr>
+      <tr>
+        <th>Document</th>
+        <td th:text="${d.libelleDocument} + ' (' + ${d.codeType} + ')'">Permis</td>
+      </tr>
+      <tr>
+        <th>Numéro du document</th>
+        <td th:text="${d.numero}">PEX-2026-0001</td>
+      </tr>
+      <tr>
+        <th>Demande d'origine</th>
+        <td th:text="${d.demandeNumero}">DEM-2026-000001</td>
+      </tr>
+    </table>
+
+    <div class="observations" th:if="${d.observations != null}">
+      <strong>Observations du signataire</strong>
+      <div th:text="${d.observations}">Observations</div>
+    </div>
+
+    <table class="pied">
+      <tr>
+        <td class="verification">
+          <img th:src="${qr}" alt="QR de vérification" />
+          <div><strong>Vérifier ce document</strong></div>
+          <div>Scannez le QR ou ouvrez l'adresse :</div>
+          <div class="code" th:text="${d.urlVerification}">https://…/verifier/…</div>
+        </td>
+        <td class="signature">
+          <div class="fonction" th:text="'Le ' + ${d.signataireFonction}">Le Ministre</div>
+          <div th:text="${d.signataireNom}">Prénom Nom</div>
+          <div class="cadre">
+            Document signé électroniquement (PAdES). La signature et l'intégrité du fichier se
+            vérifient dans un lecteur PDF et sur la page publique de vérification.
+          </div>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
