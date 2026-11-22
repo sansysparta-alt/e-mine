@@ -156,12 +156,13 @@ class EnvoiNotificationsTest extends TestIntegration {
             c.prepareStatement(
                 "INSERT INTO notification (destinataire_id, canal, modele, demande_id, contenu)"
                     + " SELECT u.id, ?::canal_notification, 'COMPLEMENT_DEMANDE', ?,"
-                    + " jsonb_build_object('dateLimite', now() + interval '5 days',"
+                    + " fn_contenu_demande(?) || jsonb_build_object('dateLimite', now() + interval '5 days',"
                     + " 'pieces', jsonb_build_array('EIES'))"
                     + " FROM utilisateur u WHERE u.keycloak_id = ?::uuid RETURNING id")) {
       ps.setString(1, canal);
       ps.setLong(2, demande);
-      ps.setString(3, keycloakId);
+      ps.setLong(3, demande);
+      ps.setString(4, keycloakId);
       ResultSet rs = ps.executeQuery();
       rs.next();
       return rs.getLong(1);

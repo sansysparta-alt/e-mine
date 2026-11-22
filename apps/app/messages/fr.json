@@ -492,7 +492,8 @@
       "demandes": "Demandes",
       "nouvelleDemande": "Nouvelle demande",
       "journalAudit": "Journal d’audit",
-      "aTraiter": "À traiter"
+      "aTraiter": "À traiter",
+      "notifications": "Notifications"
     }
   },
   "etats": {
@@ -1141,6 +1142,22 @@
       "avis": "Avis attendus : {profils}",
       "examenTechnique": "Examen technique par les services, puis décision : {signataire}",
       "decision": "Décision attendue : {signataire}"
+    }
+  },
+  "notifications": {
+    "titre": "Notifications",
+    "description": "Les messages envoyés à chaque étape de vos dossiers, aussi reçus par SMS et e-mail.",
+    "descriptionNonLues": "{nombre, plural, =1 {1 notification non lue.} other {# notifications non lues.}} Ouvrez une notification pour voir le dossier concerné.",
+    "toutMarquerLu": "Tout marquer comme lu",
+    "nonLue": "Non lue",
+    "elements": "notifications",
+    "vide": {
+      "titre": "Aucune notification",
+      "description": "Chaque étape de vos dossiers vous sera signalée ici, ainsi que par SMS et par e-mail."
+    },
+    "cloche": {
+      "sansNonLues": "Notifications",
+      "avecNonLues": "Notifications, {nombre, plural, =1 {1 non lue} other {# non lues}}"
     }
   }
 }

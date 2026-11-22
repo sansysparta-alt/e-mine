@@ -1,12 +1,21 @@
 package gn.gov.mines.emine.notification.infrastructure;
 
+import static gn.gov.mines.emine.shared.jooq.Tables.DEMANDE;
+import static gn.gov.mines.emine.shared.jooq.Tables.NOTIFICATION;
+
 import gn.gov.mines.emine.notification.domaine.NotificationAEnvoyer;
+import gn.gov.mines.emine.notification.domaine.NotificationInterne;
+import gn.gov.mines.emine.shared.jooq.enums.CanalNotification;
+import gn.gov.mines.emine.shared.pagination.PageResultat;
+import gn.gov.mines.emine.shared.pagination.Pagination;
+import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.jooq.DSLContext;
 import org.jooq.JSONB;
 import org.jooq.Record;
+import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.json.JsonMapper;
@@ -44,6 +53,76 @@ public class NotificationRepository {
   public String enregistrerResultat(long id, String erreur) {
     return dsl.resultQuery("SELECT fn_notification_resultat(?, ?)", id, erreur)
         .fetchOne(0, String.class);
+  }
+
+  /**
+   * Notifications de l'application du destinataire connecté (la RLS ne montre que les siennes), des
+   * plus récentes aux plus anciennes.
+   */
+  public PageResultat<NotificationInterne> lister(Pagination pagination) {
+    long total = dsl.fetchCount(NOTIFICATION, NOTIFICATION.CANAL.eq(CanalNotification.interne));
+    List<NotificationInterne> elements =
+        dsl.select(
+                NOTIFICATION.ID,
+                NOTIFICATION.MODELE,
+                NOTIFICATION.CONTENU,
+                NOTIFICATION.DEMANDE_ID,
+                DEMANDE.NUMERO,
+                NOTIFICATION.CREATED_AT,
+                NOTIFICATION.LUE_LE)
+            .from(NOTIFICATION)
+            .leftJoin(DEMANDE)
+            .on(DEMANDE.ID.eq(NOTIFICATION.DEMANDE_ID))
+            .where(NOTIFICATION.CANAL.eq(CanalNotification.interne))
+            .orderBy(NOTIFICATION.CREATED_AT.desc(), NOTIFICATION.ID.desc())
+            .limit(pagination.taille())
+            .offset(pagination.decalage())
+            .fetch(
+                r ->
+                    new NotificationInterne(
+                        r.get(NOTIFICATION.ID),
+                        r.get(NOTIFICATION.MODELE),
+                        contenu(r.get(NOTIFICATION.CONTENU)),
+                        r.get(NOTIFICATION.DEMANDE_ID),
+                        r.get(DEMANDE.NUMERO),
+                        r.get(NOTIFICATION.CREATED_AT),
+                        r.get(NOTIFICATION.LUE_LE)));
+    return new PageResultat<>(elements, pagination.page(), pagination.taille(), total);
+  }
+
+  /** Nombre de notifications non lues du destinataire connecté. */
+  public long nonLues() {
+    return dsl.fetchCount(
+        NOTIFICATION,
+        NOTIFICATION.CANAL.eq(CanalNotification.interne).and(NOTIFICATION.LUE_LE.isNull()));
+  }
+
+  /** Marque comme lue une notification du destinataire connecté ; faux si elle n'existe pas. */
+  public boolean marquerLue(long id, Instant maintenant) {
+    int lignes =
+        dsl.update(NOTIFICATION)
+            .set(
+                NOTIFICATION.LUE_LE,
+                DSL.coalesce(NOTIFICATION.LUE_LE, DSL.val(maintenant, NOTIFICATION.LUE_LE)))
+            .where(NOTIFICATION.ID.eq(id).and(NOTIFICATION.CANAL.eq(CanalNotification.interne)))
+            .execute();
+    return lignes == 1;
+  }
+
+  /** Marque comme lues toutes les notifications du destinataire connecté ; renvoie leur nombre. */
+  public int marquerToutesLues(Instant maintenant) {
+    return dsl.update(NOTIFICATION)
+        .set(NOTIFICATION.LUE_LE, maintenant)
+        .where(NOTIFICATION.CANAL.eq(CanalNotification.interne).and(NOTIFICATION.LUE_LE.isNull()))
+        .execute();
+  }
+
+  /**
+   * Alerte J-2 des références de paiement proches de l'expiration (une seule par paiement) ;
+   * renvoie le nombre d'alertes écrites.
+   */
+  public int alerterReferencesExpirantes() {
+    return dsl.resultQuery("SELECT fn_alerter_references_expirantes()").fetchOne(0, Integer.class);
   }
 
   private static NotificationAEnvoyer versNotification(Record r) {

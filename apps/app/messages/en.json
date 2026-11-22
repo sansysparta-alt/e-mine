@@ -492,7 +492,8 @@
       "demandes": "Applications",
       "nouvelleDemande": "New application",
       "journalAudit": "Audit log",
-      "aTraiter": "To do"
+      "aTraiter": "To do",
+      "notifications": "Notifications"
     }
   },
   "etats": {
@@ -1141,6 +1142,22 @@
       "avis": "Opinions pending: {profils}",
       "examenTechnique": "Technical review by the services, then decision: {signataire}",
       "decision": "Decision pending: {signataire}"
+    }
+  },
+  "notifications": {
+    "titre": "Notifications",
+    "description": "Messages sent at each step of your files, also received by text message and e-mail.",
+    "descriptionNonLues": "{nombre, plural, =1 {1 unread notification.} other {# unread notifications.}} Open a notification to see the related file.",
+    "toutMarquerLu": "Mark all as read",
+    "nonLue": "Unread",
+    "elements": "notifications",
+    "vide": {
+      "titre": "No notifications",
+      "description": "You will be notified here, by text message and by e-mail at each step of your files."
+    },
+    "cloche": {
+      "sansNonLues": "Notifications",
+      "avecNonLues": "Notifications, {nombre, plural, =1 {1 unread} other {# unread}}"
     }
   }
 }

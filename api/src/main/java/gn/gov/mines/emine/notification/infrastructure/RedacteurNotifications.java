@@ -59,6 +59,27 @@ public class RedacteurNotifications {
     return new Message(sujet, corps, sms, lien, texte(modeles, "commun.lien"));
   }
 
+  /**
+   * Titre et texte d'une notification du centre de notifications de l'application : l'objet de
+   * l'e-mail et son texte, sans formule de politesse. Un modèle illisible donne un titre générique
+   * plutôt qu'une erreur (la liste reste consultable).
+   */
+  public Message redigerPourApplication(NotificationAEnvoyer n) {
+    ResourceBundle modeles = modeles(n.langue());
+    try {
+      Map<String, String> valeurs = valeurs(n);
+      return new Message(
+          remplir(texte(modeles, n.modele() + ".sujet"), valeurs),
+          remplir(texte(modeles, n.modele() + ".texte"), valeurs),
+          null,
+          null,
+          null);
+    } catch (IllegalStateException e) {
+      String titre = n.numeroDemande() == null ? "e-mine" : "e-mine · " + n.numeroDemande();
+      return new Message(titre, "", null, null, null);
+    }
+  }
+
   /** Textes communs de l'e-mail (pied de page…) dans la langue donnée. */
   public String commun(String langue, String cle) {
     return texte(modeles(langue), "commun." + cle);
@@ -83,6 +104,16 @@ public class RedacteurNotifications {
   static Map<String, String> valeurs(NotificationAEnvoyer n) {
     Map<String, String> v = new HashMap<>();
     n.contenu().forEach((cle, valeur) -> v.put(cle, formater(cle, valeur)));
+    // Valeurs bilingues (« document_fr », « document_en ») : celle de la langue du destinataire,
+    // le français à défaut.
+    String suffixe = "en".equals(n.langue()) ? "_en" : "_fr";
+    n.contenu().keySet().stream()
+        .filter(cle -> cle.endsWith("_fr"))
+        .forEach(
+            cle -> {
+              String base = cle.substring(0, cle.length() - 3);
+              v.put(base, v.getOrDefault(base + suffixe, v.get(cle)));
+            });
     if (n.numeroDemande() != null) {
       v.put("numero", n.numeroDemande());
     }

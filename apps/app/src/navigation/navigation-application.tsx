@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
+import { ClocheNotifications } from "@/composants/notification/cloche-notifications";
 import { FormulaireDeconnexion } from "@/composants/session/formulaire-deconnexion";
 import { SurveillanceSession } from "@/composants/session/surveillance-session";
 import { entreeActive, navigationPour, type Profil } from "./config";
@@ -18,6 +19,8 @@ const LienNext: ComposantLien = ({ href, children, ...props }) => (
 export type NavigationApplicationProps = {
   utilisateur: { nomComplet: string; profil: string };
   profil: Profil;
+  /** Notifications non lues au chargement (la cloche se met ensuite à jour seule). */
+  nonLues?: number;
   children: ReactNode;
 };
 
@@ -28,6 +31,7 @@ export type NavigationApplicationProps = {
 export function NavigationApplication({
   utilisateur,
   profil,
+  nonLues = 0,
   children,
 }: NavigationApplicationProps) {
   const t = useTranslations("navigation");
@@ -43,6 +47,7 @@ export function NavigationApplication({
       sousTitre={t("sousTitre")}
       titre={active ? libelle(active.cle, active.cleInterne) : t("marque")}
       utilisateur={utilisateur}
+      actionsEntete={profil.interne ? null : <ClocheNotifications initial={nonLues} />}
       actionUtilisateur={<FormulaireDeconnexion libelle={t("deconnexion")} />}
       libelles={{
         navigation: t("titre"),

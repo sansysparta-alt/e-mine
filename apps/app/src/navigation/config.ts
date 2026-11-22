@@ -1,4 +1,5 @@
 import {
+  Bell,
   FilePlus2,
   FileText,
   Inbox,
@@ -47,6 +48,14 @@ export const NAVIGATION: SectionConfig[] = [
         module: "demande",
         href: "/demandes",
         icone: FileText,
+      },
+      // Centre de notifications du demandeur (US-07.2) : les agents ne reçoivent pas de notification.
+      {
+        cle: "notifications",
+        module: "notification",
+        href: "/notifications",
+        icone: Bell,
+        interne: false,
       },
     ],
   },

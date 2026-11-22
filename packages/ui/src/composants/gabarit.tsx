@@ -27,6 +27,8 @@ export type GabaritApplicationProps = {
   utilisateur: UtilisateurGabarit;
   /** Action de l'utilisateur (déconnexion), dans la barre du haut. */
   actionUtilisateur?: ReactNode;
+  /** Actions de la barre du haut placées avant l'utilisateur (centre de notifications…). */
+  actionsEntete?: ReactNode;
   libelles: {
     navigation: string;
     ouvrirMenu: string;
@@ -93,6 +95,7 @@ export function GabaritApplication({
   titre,
   utilisateur,
   actionUtilisateur,
+  actionsEntete,
   libelles,
   Lien = LienParDefaut,
   children,
@@ -263,6 +266,7 @@ export function GabaritApplication({
           </button>
           <p className="min-w-0 flex-1 truncate font-titre text-lg font-bold text-navy">{titre}</p>
           <div className="flex items-center gap-3">
+            {actionsEntete}
             <div className="hidden items-center gap-3 sm:flex">
               <span
                 aria-hidden="true"
