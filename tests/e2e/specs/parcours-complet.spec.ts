@@ -144,7 +144,8 @@ test("parcours V1 : dépôt, paiements, recevabilité, décision, délivrance, v
     .getByLabel(/Motif de la révocation/)
     .fill("Document retiré lors de la démonstration de bout en bout.");
   await directeur.getByRole("button", { name: "Révoquer définitivement" }).click();
-  await expect(directeur.getByText(/NON VALIDE/)).toBeVisible();
+  // Attendre la confirmation de la révocation : le dialogue contient déjà « NON VALIDE ».
+  await expect(directeur.getByText(/est révoqué : sa vérification affiche/)).toBeVisible();
 
   await visiteur.reload();
   await expect(visiteur.getByRole("heading", { name: "NON VALIDE" })).toBeVisible();
