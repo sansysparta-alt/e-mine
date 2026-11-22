@@ -10,7 +10,15 @@ import {
   listerPaiementsDemande,
   listerPieces,
 } from "@emine/api-client";
-import { Alerte, Bouton, Carte, EnTetePage, formaterDateHeure, formaterGnf } from "@emine/ui";
+import {
+  Alerte,
+  Bouton,
+  Carte,
+  EnTetePage,
+  formaterDateHeure,
+  formaterGnf,
+  joursCalendairesDepuis,
+} from "@emine/ui";
 import { ArrowLeft, CreditCard } from "@emine/ui/icones";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -42,6 +50,17 @@ import {
   signerEtDelivrer,
 } from "@/serveur/actions-instruction";
 import { appelPage, chargerMoi, chargerReferentiels, optionsApi } from "@/serveur/donnees";
+
+/** Statuts d'une demande en cours : le temps d'attente à l'étape s'affiche. */
+const STATUTS_EN_COURS = new Set([
+  "deposee",
+  "complement_requis",
+  "recevable",
+  "en_instruction",
+  "avis_rendu",
+  "decision",
+  "droits_payes",
+]);
 
 /** Statuts où le document délivré existe (US-06.4). */
 const STATUTS_DELIVRES = new Set(["delivree", "archivee"]);
@@ -166,6 +185,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
     document: recherche.document,
   });
   const tTravail = await getTranslations("travail");
+  const tDates = await getTranslations("dates");
   // Retour vers la file de travail d'où vient l'agent (correctifs J4 et J5).
   const retour = groupeSerie
     ? { href: `/a-traiter?groupe=${groupeSerie.cle}`, cle: "retourTravail" }
@@ -194,6 +214,18 @@ export default async function DetailDemande({ params, searchParams }: Props) {
         <dd>{document ? `${document.libelleFr} (${document.code})` : demande.typeDocumentCode}</dd>
         <dt className="font-semibold">{t("deposeLe")}</dt>
         <dd>{demande.deposeLe ? formaterDateHeure(demande.deposeLe) : "—"}</dd>
+        {STATUTS_EN_COURS.has(demande.statut) ? (
+          <>
+            <dt className="font-semibold">{tDates("etapeDepuis")}</dt>
+            <dd>
+              {formaterDateHeure(demande.etapeDepuis)}
+              <span className="text-texte-doux">
+                {" · "}
+                {tDates("attente", { jours: joursCalendairesDepuis(demande.etapeDepuis) })}
+              </span>
+            </dd>
+          </>
+        ) : null}
         <dt className="font-semibold">{t("demandeur")}</dt>
         <dd>
           {demande.demandeur.prenom} {demande.demandeur.nom}

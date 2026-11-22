@@ -1,8 +1,20 @@
 import type { DemandeDto } from "@emine/api-client";
-import { type ComposantLien, formaterDate, type SensTri, TableauDonnees } from "@emine/ui";
+import { type ComposantLien, type SensTri, TableauDonnees } from "@emine/ui";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { DateAttente } from "./date-attente";
 import { StatutDemande } from "./statut-demande";
+
+/** Statuts pour lesquels le temps d'attente à l'étape a un sens. */
+const STATUTS_EN_COURS = new Set([
+  "deposee",
+  "complement_requis",
+  "recevable",
+  "en_instruction",
+  "avis_rendu",
+  "decision",
+  "droits_payes",
+]);
 
 export type TableauDemandesProps = {
   demandes: DemandeDto[];
@@ -78,10 +90,14 @@ export function TableauDemandes({
           cle: "date",
           entete: t("colonnes.date"),
           triable: triables.includes("date"),
-          rendu: (d) =>
-            d.deposeLe
-              ? t("deposeeLe", { date: formaterDate(d.deposeLe) })
-              : t("creeeLe", { date: formaterDate(d.creeLe) }),
+          rendu: (d) => (
+            <DateAttente
+              deposeLe={d.deposeLe}
+              creeLe={d.creeLe}
+              etapeDepuis={d.etapeDepuis}
+              avecAttente={STATUTS_EN_COURS.has(d.statut)}
+            />
+          ),
         },
       ]}
     />

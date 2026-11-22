@@ -1,8 +1,9 @@
 import type { DemandeDto } from "@emine/api-client";
-import { BadgeStatut, type ComposantLien, formaterDate, TableauDonnees } from "@emine/ui";
+import { BadgeStatut, type ComposantLien, TableauDonnees } from "@emine/ui";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { actionPour, adresseFiche, type CleGroupe, joursAttente } from "./file-travail";
+import { DateAttente } from "../demande/date-attente";
+import { actionPour, adresseFiche, type CleGroupe } from "./file-travail";
 
 export type TableauTravailProps = {
   demandes: DemandeDto[];
@@ -20,9 +21,6 @@ const LienNext: ComposantLien = ({ href, children, ...props }) => (
     {children}
   </Link>
 );
-
-/** Attente au-delà de laquelle le dossier est signalé (délai à surveiller). */
-const ATTENTE_LONGUE_JOURS = 5;
 
 /**
  * Dossiers d'une file de travail : numéro, document, demandeur, dépôt et attente, **action
@@ -72,24 +70,15 @@ export function TableauTravail({
         {
           cle: "depot",
           entete: t("colonnes.depot"),
-          rendu: (d) => {
-            if (!d.deposeLe) return "—";
-            const jours = joursAttente(d.deposeLe, maintenant);
-            return (
-              <span className="flex flex-col">
-                <span>{formaterDate(d.deposeLe)}</span>
-                <span
-                  className={
-                    jours >= ATTENTE_LONGUE_JOURS
-                      ? "text-sm font-semibold text-avertissement"
-                      : "text-sm text-texte-doux"
-                  }
-                >
-                  {t("attente", { jours })}
-                </span>
-              </span>
-            );
-          },
+          rendu: (d) => (
+            <DateAttente
+              deposeLe={d.deposeLe}
+              creeLe={d.creeLe}
+              etapeDepuis={d.etapeDepuis}
+              avecAttente
+              maintenant={maintenant}
+            />
+          ),
         },
         {
           cle: "action",

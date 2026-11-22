@@ -164,7 +164,8 @@ class ATraiterTest extends TestIntegration {
   @Test
   void chaqueDemandeDitSiElleEstATraiterParLeProfilConnecte() throws Exception {
     mvc.perform(get("/api/v1/demandes/" + pexADecider).with(jeton(MINISTRE, "MINISTRE")))
-        .andExpect(jsonPath("$.aTraiterParMoi").value(true));
+        .andExpect(jsonPath("$.aTraiterParMoi").value(true))
+        .andExpect(jsonPath("$.etapeDepuis").isNotEmpty());
     mvc.perform(get("/api/v1/demandes/" + pexADecider).with(jeton(DIRECTEUR, "DIRECTEUR")))
         .andExpect(jsonPath("$.aTraiterParMoi").value(false));
     mvc.perform(get("/api/v1/demandes/" + fraisDus).with(jeton(INVESTISSEUR, "INVESTISSEUR")))

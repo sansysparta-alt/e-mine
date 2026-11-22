@@ -796,7 +796,6 @@
       "signer": "To sign",
       "fraisAttendus": "Fee pending"
     },
-    "attente": "{jours, plural, =0 {today} one {# day ago} other {# days ago}}",
     "elements": "files",
     "vide": {
       "tout": "Nothing to do for now",
@@ -860,5 +859,11 @@
       "rejetee": "Rejected",
       "archivee": "Archived"
     }
+  },
+  "dates": {
+    "deposeeLe": "Submitted on {date}",
+    "creeeLe": "Created on {date}",
+    "attente": "{jours, plural, =0 {Waiting since today} one {Waiting for # day} other {Waiting for # days}}",
+    "etapeDepuis": "At this step since"
   }
 }

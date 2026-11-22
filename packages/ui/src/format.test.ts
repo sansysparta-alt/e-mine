@@ -38,3 +38,14 @@ describe("formats français du socle", () => {
     expect(n(formaterTaille(2.4 * 1024 * 1024))).toBe("2,4 Mo");
   });
 });
+
+describe("jours calendaires (heure de Conakry)", () => {
+  it("compte la veille comme 1 jour, même moins de 24 heures plus tard", async () => {
+    const { joursCalendairesDepuis } = await import("./format");
+    const maintenant = new Date("2026-11-22T08:00:00Z");
+    expect(joursCalendairesDepuis("2026-11-21T22:00:00Z", maintenant)).toBe(1);
+    expect(joursCalendairesDepuis("2026-11-22T00:30:00Z", maintenant)).toBe(0);
+    expect(joursCalendairesDepuis("2026-11-15T12:00:00Z", maintenant)).toBe(7);
+    expect(joursCalendairesDepuis("2026-11-23T12:00:00Z", maintenant)).toBe(0);
+  });
+});

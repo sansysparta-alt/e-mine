@@ -12,6 +12,7 @@ export {
   formaterSuperficie,
   formaterTaille,
   FUSEAU,
+  joursCalendairesDepuis,
 } from "./format";
 export { classesChamp } from "./champ";
 export { Dialogue, type DialogueProps } from "./composants/dialogue";

@@ -102,6 +102,7 @@ Poste de dev sous **Windows 11** : scripts multiplateformes (scripts `package.js
   - *Recherche* : `RechercheListe` (résultats pendant la saisie, court délai, adresse mise à jour).
   - *Règle « À traiter »* : « À traiter » = ce que **le profil connecté** doit faire maintenant (demandeur : payer les frais, payer les droits, compléter ; guichet : examiner les demandes dont les frais sont payés ; signataire : décider puis signer **ses** documents au catalogue). Une seule définition, **côté API** (`RegleATraiter`, `GET /demandes/a-traiter`, filtres `aTraiter`/`groupe`) ; écrans et tableaux de bord ne la recodent jamais. Les listes utilisent les **vues exclusives** de l'API (`GET /demandes/vues`, paramètre `vue`) : chaque demande est dans une seule vue et « Toutes » = la somme. L'API n'envoie jamais un brouillon à un agent.
   - *Prochaine étape* : ce qui est proposé dépend du profil qui consulte (action attendue pour l'agent, démarche pour l'usager).
+  - *Dates et temps d'attente* : jamais un « aujourd'hui » seul sous une date. On affiche la date (« Déposée le JJ/MM/AAAA ») et, **séparément**, le temps d'attente **à l'étape actuelle** (« En attente depuis 1 jour »), en jours calendaires à l'heure de Conakry (`joursCalendairesDepuis` de `packages/ui`, `etapeDepuis` fourni par l'API), signalé à partir de 5 jours ; composant `DateAttente`.
 - **Git** : branches `us-04.3-paiement-tresorpay`, `fix/…`, `tech/…` ; Conventional Commits en français avec l'ID de story (`feat(paiement): redirection TrésorPay (US-04.3)`) ; une PR par story.
 
 ## Règles impératives
