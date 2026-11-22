@@ -23,9 +23,8 @@ public abstract class TestIntegration {
   static void baseDeDonnees(DynamicPropertyRegistry registry) {
     BaseDeDonneesDeTest.proprietes(registry);
     registry.add("emine.tresorpay.secret-hmac", () -> SECRET_TRESORPAY);
-    // Les tests appellent la relance des compléments eux-mêmes (US-05.2).
-    registry.add("emine.complements.relance.active", () -> "false");
-    // Pas de planificateur : les tests appellent eux-mêmes les tâches (envoi des notifications…).
+    // Pas de planificateur : les tests appellent eux-mêmes les tâches (envoi des notifications,
+    // relance des compléments…), mais toutes les tâches sont déclarées comme en production.
     registry.add("emine.planification.active", () -> "false");
     registry.add("emine.tresorpay.marchand-id", () -> MARCHAND_TRESORPAY);
     registry.add("emine.signature.pkcs12-chemin", () -> CertificatDeTest.chemin().toString());
