@@ -6,6 +6,7 @@ import {
   lireDocumentDelivre,
   lireAvis,
   lireComplements,
+  lireSuivi,
   compterATraiter,
   lireEtatDelivrance,
   listerDemandes,
@@ -29,6 +30,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { ATTENTE_LONGUE_JOURS } from "@/composants/demande/date-attente";
+import { FriseSuivi } from "@/composants/demande/frise-suivi";
 import { StatutDemande } from "@/composants/demande/statut-demande";
 import { ListePieces } from "@/composants/documents/liste-pieces";
 import { prochaineEtape } from "@/composants/demande/prochaine-etape";
@@ -127,11 +129,13 @@ export default async function DetailDemande({ params, searchParams }: Props) {
   }
   if (demande.statut === "brouillon") redirect(`/demandes/${id}/modifier`);
   const t = await getTranslations("detail");
-  const [moi, { documents }, pieces, paiements] = await Promise.all([
+  const [moi, { documents }, pieces, paiements, suivi] = await Promise.all([
     chargerMoi(),
     chargerReferentiels(),
     appelPage(chemin, async () => listerPieces(Number(id), await optionsApi())),
     appelPage(chemin, async () => listerPaiementsDemande(Number(id), await optionsApi())),
+    // US-07.3 : frise de suivi calculée par l'API (une seule définition des étapes).
+    appelPage(chemin, async () => lireSuivi(Number(id), await optionsApi())),
   ]);
   // Passages dans le traitement en série : visibles de tous les agents (correctifs ergonomie).
   const passages = moi.interne
@@ -245,6 +249,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
   const tDates = await getTranslations("dates");
   const tComplement = await getTranslations("instruction.complement");
   const tAvis = await getTranslations("instruction.avis");
+  const tSuivi = await getTranslations("suivi");
   // Retour vers la file de travail d'où vient l'agent (correctifs J4 et J5).
   const retour = groupeSerie
     ? { href: `/a-traiter?groupe=${groupeSerie.cle}`, cle: "retourTravail" }
@@ -353,6 +358,17 @@ export default async function DetailDemande({ params, searchParams }: Props) {
           </>
         ) : null}
       </dl>
+    </Carte>
+  );
+  const blocSuivi = (
+    <Carte titre={tSuivi("titre")}>
+      <FriseSuivi
+        etapes={suivi.data.etapes}
+        interne={moi.interne}
+        paiementUnique={
+          document?.tarifs.fraisDossierGnf == null && document?.tarifs.attestationGnf != null
+        }
+      />
     </Carte>
   );
   const blocPassages = passages ? <HistoriquePassages historique={passages} /> : null;
@@ -542,6 +558,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
           </Link>
         }
       />
+      {blocSuivi}
       {actionAgent ? (
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_26rem]">
           <div className="flex flex-col gap-6">

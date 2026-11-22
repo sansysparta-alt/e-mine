@@ -75,6 +75,10 @@ test("parcours V1 : dépôt, paiements, recevabilité, décision, délivrance, v
     /DEM-\d{4}-\d{6}/,
   )?.[0];
   expect(numero).toBeTruthy();
+  // US-07.3 : la frise de suivi lui dit où en est son dossier et que c'est à lui d'agir.
+  const frise = investisseur.getByRole("list", { name: "Suivi de la demande" });
+  await expect(frise.getByRole("listitem").nth(1)).toContainText("Paiement des frais");
+  await expect(frise.getByRole("listitem").nth(1)).toContainText("à vous d’agir");
 
   // 2. Il paie les frais de dossier par TrésorPay (simulé).
   await payerParTresorPay(investisseur, /Payer les frais de dossier/);

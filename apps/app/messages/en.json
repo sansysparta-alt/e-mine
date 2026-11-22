@@ -1108,5 +1108,28 @@
     "horsDelai": "Catalogue time limit exceeded",
     "echeance": "{jours, plural, =0 {Due today} one {Due in # day} other {Due in # days}}",
     "delaiSuspendu": "Deadline suspended (additional information)"
+  },
+  "suivi": {
+    "titre": "Application tracking",
+    "etapes": {
+      "depot": "Filing",
+      "paiement-frais": "Fee payment",
+      "paiement": "Payment",
+      "controle": "File check",
+      "instruction": "Review",
+      "paiement-droits": "Duties payment",
+      "signe": "Signed document"
+    },
+    "etats": {
+      "faiteLe": "on {date}",
+      "rejeteeLe": "rejected on {date}",
+      "faite": "done",
+      "en-cours": "in progress",
+      "a-venir": "upcoming",
+      "sans-objet": "not applicable",
+      "non-atteinte": "not reached",
+      "aVous": "your action is needed",
+      "attenteDemandeur": "awaiting the applicant"
+    }
   }
 }
