@@ -15,16 +15,22 @@ export type CleGroupe = (typeof CLES_GROUPE)[number];
 /** Action attendue de l'agent sur un dossier ; null = rien à faire (information). */
 export type ActionAttendue = "examiner" | "decider" | "signer";
 
+/** Paramètres de la liste des demandes (API) qui définissent un groupe. */
+export type ParametresGroupe = {
+  aTraiter?: boolean;
+  groupe?: string;
+  statut?: string[];
+  fraisPayes?: boolean;
+};
+
 export type Groupe = {
   cle: CleGroupe;
-  /** Statuts de la base retenus. */
-  statuts: string[];
-  /** Filtre « frais payés » (guichet), s'il s'applique. */
-  fraisPayes?: boolean;
-  /** Seulement les documents dont l'utilisateur est le signataire au catalogue (D4). */
-  signataire: boolean;
+  /** Filtre de l'API : la règle « À traiter » est calculée par l'API (une seule définition). */
+  params: ParametresGroupe;
   /** Le groupe se traite en série (bouton « Commencer le traitement »). */
   actionnable: boolean;
+  /** Nombre de dossiers, donné par l'API (compteur « à traiter »), s'il est connu. */
+  nombre?: number;
 };
 
 export type ProfilTravail = {
@@ -33,50 +39,49 @@ export type ProfilTravail = {
   profil: { code: string };
 };
 
+/** Réponse de l'API « à traiter » (même règle que la liste filtrée). */
+export type CompteurATraiter = { total: number; groupes: { cle: string; nombre: number }[] };
+
+const CLES_AGENT: readonly string[] = ["a-examiner", "a-decider", "a-signer"];
+
 /**
- * Groupes proposés selon le profil : le guichet examine la recevabilité (et suit les frais
- * attendus), le signataire décide puis signe. Liste vide pour un profil sans file de travail.
+ * Groupes de la file de travail de l'agent, construits à partir du compteur « à traiter » de l'API
+ * (la règle n'existe qu'une fois, côté API) : « Tout » s'il a plusieurs groupes, ses groupes, et
+ * pour le guichet le suivi des frais attendus (information, pas une action).
  */
-export function groupesPour(p: ProfilTravail): Groupe[] {
+export function groupesDepuis(aTraiter: CompteurATraiter, p: ProfilTravail): Groupe[] {
   if (!p.interne) return [];
+  const api = aTraiter.groupes.filter((g) => CLES_AGENT.includes(g.cle));
   const groupes: Groupe[] = [];
-  if (p.permissions.includes("INSTRUIRE")) {
-    groupes.push(
-      {
-        cle: "a-examiner",
-        statuts: ["deposee"],
-        fraisPayes: true,
-        signataire: false,
-        actionnable: true,
-      },
-      {
-        cle: "frais-attendus",
-        statuts: ["deposee"],
-        fraisPayes: false,
-        signataire: false,
-        actionnable: false,
-      },
-    );
+  if (api.length > 1) {
+    groupes.push({
+      cle: "tout",
+      params: { aTraiter: true },
+      actionnable: true,
+      nombre: aTraiter.total,
+    });
   }
-  if (p.permissions.includes("SIGNER")) {
-    groupes.push(
-      { cle: "tout", statuts: ["recevable", "droits_payes"], signataire: true, actionnable: true },
-      { cle: "a-decider", statuts: ["recevable"], signataire: true, actionnable: true },
-      { cle: "a-signer", statuts: ["droits_payes"], signataire: true, actionnable: true },
-    );
+  for (const g of api) {
+    groupes.push({
+      cle: g.cle as CleGroupe,
+      params: { groupe: g.cle },
+      actionnable: true,
+      nombre: g.nombre,
+    });
+  }
+  if (p.permissions.includes("INSTRUIRE")) {
+    groupes.push({
+      cle: "frais-attendus",
+      params: { statut: ["deposee"], fraisPayes: false },
+      actionnable: false,
+    });
   }
   return groupes;
 }
 
 /** Paramètres de la liste des demandes (API) pour un groupe : du plus ancien au plus récent. */
-export function parametresListe(groupe: Groupe, profilCode: string) {
-  return {
-    statut: groupe.statuts,
-    ...(groupe.fraisPayes === undefined ? {} : { fraisPayes: groupe.fraisPayes }),
-    ...(groupe.signataire ? { signataireProfil: profilCode } : {}),
-    tri: "date" as const,
-    sens: "asc" as const,
-  };
+export function parametresListe(groupe: Groupe) {
+  return { ...groupe.params, tri: "date" as const, sens: "asc" as const };
 }
 
 /** Action attendue de l'agent selon le statut (et les frais pour une demande déposée). */

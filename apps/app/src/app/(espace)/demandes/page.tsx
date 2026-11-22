@@ -1,14 +1,9 @@
-import { compterDemandes, listerDemandes } from "@emine/api-client";
+import { compterDemandes, compterVues, listerDemandes } from "@emine/api-client";
 import { Bouton, EnTetePage, EtatVide, FiltresPastilles } from "@emine/ui";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import {
-  compter,
-  groupesPour,
-  statutsFiltres,
-  statutsVisibles,
-} from "@/composants/demande/filtres";
+import { cleLibelleVue, statutsVisibles } from "@/composants/demande/filtres";
 import { lireParametres, type Parametres, TRIS } from "@/composants/demande/parametres-liste";
 import { TableauDemandes } from "@/composants/demande/tableau-demandes";
 import { PaginationListe } from "@/composants/liste/pagination-liste";
@@ -31,13 +26,19 @@ export default async function MesDemandes({ searchParams }: Props) {
   const t = await getTranslations("mesDemandes");
   const tStatut = await getTranslations("statuts");
   const moi = await chargerMoi();
-  const statuts = statutsFiltres(moi.interne, p.groupe, p.statut);
+  // Vues exclusives du profil, calculées par l'API (règle « À traiter » unique) : la somme des
+  // pastilles est exactement « Toutes ».
+  const vues = (await appelPage("/demandes", async () => compterVues(await optionsApi()))).data;
+  const vue = !p.statut && vues.vues.some((v) => v.cle === p.groupe) ? p.groupe : undefined;
+  const statutDetail =
+    p.statut && statutsVisibles(moi.interne).includes(p.statut) ? p.statut : undefined;
   const [{ documents }, reponse, compteursReponse] = await Promise.all([
     chargerReferentiels(),
     appelPage("/demandes", async () =>
       listerDemandes(
         {
-          statut: statuts,
+          statut: statutDetail ? [statutDetail] : undefined,
+          vue,
           q: p.q,
           tri: p.tri,
           sens: p.sens,
@@ -103,14 +104,14 @@ export default async function MesDemandes({ searchParams }: Props) {
             libelle: t("tous"),
             href: adresse({ groupe: undefined, statut: undefined }),
             actif: !filtre,
-            nombre: compter(compteurs, statutsVisibles(moi.interne)),
+            nombre: vues.total,
           },
-          ...groupesPour(moi.interne).map((g) => ({
-            valeur: g.cle,
-            libelle: tFiltres(g.cle),
-            href: adresse({ groupe: g.cle, statut: undefined }),
-            actif: p.groupe === g.cle && !p.statut,
-            nombre: compter(compteurs, g.statuts),
+          ...vues.vues.map((v) => ({
+            valeur: v.cle,
+            libelle: tFiltres(cleLibelleVue(v.cle, moi.interne)),
+            href: adresse({ groupe: v.cle, statut: undefined }),
+            actif: vue === v.cle,
+            nombre: v.nombre,
           })),
         ]}
       />

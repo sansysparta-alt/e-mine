@@ -8,7 +8,7 @@ import { BarreSerie } from "./barre-serie";
 import {
   actionPour,
   adresseApresAction,
-  groupesPour,
+  groupesDepuis,
   lireParametresTravail,
   parametresListe,
   positionDansFile,
@@ -46,24 +46,31 @@ function dossier(id: number, statut: string, fraisPayes = true): DemandeDto {
 }
 
 describe("file de travail selon le profil (correctifs J5)", () => {
-  it("propose des groupes métier par profil, et aucun au demandeur", () => {
-    expect(groupesPour(ministre).map((g) => g.cle)).toEqual(["tout", "a-decider", "a-signer"]);
-    expect(groupesPour(guichet).map((g) => g.cle)).toEqual(["a-examiner", "frais-attendus"]);
+  it("construit les groupes à partir du compteur de l'API (règle unique)", () => {
+    const signataire = {
+      total: 3,
+      groupes: [
+        { cle: "a-decider", nombre: 1 },
+        { cle: "a-signer", nombre: 2 },
+      ],
+    };
+    const groupes = groupesDepuis(signataire, ministre);
+    expect(groupes.map((g) => g.cle)).toEqual(["tout", "a-decider", "a-signer"]);
+    expect(groupes.map((g) => g.nombre)).toEqual([3, 1, 2]);
+    expect(parametresListe(groupes[0]!)).toEqual({ aTraiter: true, tri: "date", sens: "asc" });
+    expect(parametresListe(groupes[1]!)).toMatchObject({ groupe: "a-decider" });
+    const auGuichet = groupesDepuis(
+      { total: 1, groupes: [{ cle: "a-examiner", nombre: 1 }] },
+      guichet,
+    );
+    expect(auGuichet.map((g) => g.cle)).toEqual(["a-examiner", "frais-attendus"]);
+    expect(auGuichet[1]).toMatchObject({ actionnable: false });
     expect(
-      groupesPour({ interne: false, permissions: ["DEPOSER"], profil: { code: "INVESTISSEUR" } }),
+      groupesDepuis(
+        { total: 1, groupes: [{ cle: "payer-frais", nombre: 1 }] },
+        { interne: false, permissions: ["DEPOSER"], profil: { code: "INVESTISSEUR" } },
+      ),
     ).toEqual([]);
-  });
-
-  it("demande à l'API les seuls dossiers du signataire, du plus ancien au plus récent", () => {
-    const [tout] = groupesPour(ministre);
-    expect(parametresListe(tout!, "MINISTRE")).toEqual({
-      statut: ["recevable", "droits_payes"],
-      signataireProfil: "MINISTRE",
-      tri: "date",
-      sens: "asc",
-    });
-    const [aExaminer] = groupesPour(guichet);
-    expect(parametresListe(aExaminer!, "GUICHET")).toMatchObject({ fraisPayes: true });
   });
 
   it("dit l'action attendue de chaque dossier", () => {
@@ -75,7 +82,10 @@ describe("file de travail selon le profil (correctifs J5)", () => {
   });
 
   it("ignore un groupe qui n'est pas celui du profil", () => {
-    const groupes = groupesPour(guichet);
+    const groupes = groupesDepuis(
+      { total: 1, groupes: [{ cle: "a-examiner", nombre: 1 }] },
+      guichet,
+    );
     expect(lireParametresTravail({ groupe: "a-signer" }, groupes).groupe.cle).toBe("a-examiner");
     expect(
       lireParametresTravail(

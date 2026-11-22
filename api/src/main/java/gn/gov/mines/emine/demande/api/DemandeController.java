@@ -75,6 +75,9 @@ class DemandeController {
       @RequestParam(required = false) @Size(max = 100) String q,
       @RequestParam(required = false) Boolean fraisPayes,
       @RequestParam(required = false) @Pattern(regexp = "^[A-Z_]{1,30}$") String signataireProfil,
+      @RequestParam(required = false) Boolean aTraiter,
+      @RequestParam(required = false) @Pattern(regexp = "^[a-z-]{1,20}$") String vue,
+      @RequestParam(required = false) @Pattern(regexp = "^[a-z-]{1,20}$") String groupe,
       @RequestParam(required = false) @Pattern(regexp = "^(numero|date|statut)$") String tri,
       @RequestParam(required = false) @Pattern(regexp = "^(asc|desc)$") String sens,
       @RequestParam(required = false) Integer page,
@@ -88,7 +91,18 @@ class DemandeController {
         service
             .lister(
                 new CritereDemandes(
-                    statut, typeDocumentCode, q, fraisPayes, signataireProfil, colonne, croissant),
+                    statut,
+                    typeDocumentCode,
+                    q,
+                    fraisPayes,
+                    signataireProfil,
+                    groupe != null || Boolean.TRUE.equals(aTraiter)
+                        ? service.filtreATraiter(groupe)
+                        : null,
+                    vue == null ? null : service.vue(vue),
+                    false,
+                    colonne,
+                    croissant),
                 Pagination.de(page, taille))
             .map(DemandeDto::depuis);
     return new PageDemandesDto(
@@ -106,6 +120,54 @@ class DemandeController {
   Map<String, Long> compteurs() {
     return service.compteurs();
   }
+
+  @GetMapping("/a-traiter")
+  @Operation(
+      operationId = "compterATraiter",
+      summary =
+          "Ce que le profil connecté doit faire maintenant : nombre de demandes par groupe"
+              + " (même règle que le filtre aTraiter de la liste)")
+  ATraiterDto aTraiter() {
+    List<GroupeDto> groupes =
+        service.aTraiter().entrySet().stream()
+            .map(e -> new GroupeDto(e.getKey().cle(), e.getValue()))
+            .toList();
+    return new ATraiterDto(groupes.stream().mapToLong(GroupeDto::nombre).sum(), groupes);
+  }
+
+  @GetMapping("/vues")
+  @Operation(
+      operationId = "compterVues",
+      summary =
+          "Vues de la liste selon le profil (À traiter, En attente du demandeur, En cours…) :"
+              + " exclusives, leur somme est le total")
+  VuesDto vues() {
+    List<GroupeDto> vues =
+        service.vues().entrySet().stream()
+            .map(e -> new GroupeDto(e.getKey().cle(), e.getValue()))
+            .toList();
+    return new VuesDto(vues.stream().mapToLong(GroupeDto::nombre).sum(), vues);
+  }
+
+  /**
+   * Vues du profil connecté.
+   *
+   * @param total nombre de demandes visibles (somme des vues, exclusives)
+   * @param vues vues du profil dans l'ordre d'affichage ({@code a-traiter}, {@code en-cours}…)
+   */
+  record VuesDto(long total, List<GroupeDto> vues) {}
+
+  /**
+   * « À traiter » du profil connecté.
+   *
+   * @param total nombre de demandes à traiter, tous groupes confondus
+   * @param groupes groupes du profil, dans l'ordre d'affichage ({@code a-examiner}, {@code
+   *     a-decider}, {@code payer-frais}…), vide s'il n'a rien à faire
+   */
+  record ATraiterDto(long total, List<GroupeDto> groupes) {}
+
+  /** Un groupe « à traiter » et son nombre de demandes. */
+  record GroupeDto(String cle, long nombre) {}
 
   /** Une page de demandes (modèle de pagination du socle). */
   record PageDemandesDto(

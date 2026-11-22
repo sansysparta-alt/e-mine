@@ -175,6 +175,29 @@
             "pattern" : "^[A-Z_]{1,30}$"
           }
         }, {
+          "name" : "aTraiter",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "vue",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "^[a-z-]{1,20}$"
+          }
+        }, {
+          "name" : "groupe",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "^[a-z-]{1,20}$"
+          }
+        }, {
           "name" : "tri",
           "in" : "query",
           "required" : false,
@@ -1092,6 +1115,25 @@
         }
       }
     },
+    "/api/v1/demandes/vues" : {
+      "get" : {
+        "tags" : [ "Demandes" ],
+        "summary" : "Vues de la liste selon le profil (À traiter, En attente du demandeur, En cours…) : exclusives, leur somme est le total",
+        "operationId" : "compterVues",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/VuesDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/demandes/compteurs" : {
       "get" : {
         "tags" : [ "Demandes" ],
@@ -1108,6 +1150,25 @@
                     "type" : "integer",
                     "format" : "int64"
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/demandes/a-traiter" : {
+      "get" : {
+        "tags" : [ "Demandes" ],
+        "summary" : "Ce que le profil connecté doit faire maintenant : nombre de demandes par groupe (même règle que le filtre aTraiter de la liste)",
+        "operationId" : "compterATraiter",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ATraiterDto"
                 }
               }
             }
@@ -1867,6 +1928,51 @@
           }
         },
         "required" : [ "aDecider", "decisionAuteur", "decisionAuteurProfil", "decisionFavorable", "decisionMotif", "decisionRenduLe", "droitsGnf", "peutDecider", "signataire", "signataireProfil" ]
+      },
+      "GroupeDto" : {
+        "type" : "object",
+        "properties" : {
+          "cle" : {
+            "type" : "string"
+          },
+          "nombre" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "cle", "nombre" ]
+      },
+      "VuesDto" : {
+        "type" : "object",
+        "properties" : {
+          "total" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "vues" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/GroupeDto"
+            }
+          }
+        },
+        "required" : [ "total", "vues" ]
+      },
+      "ATraiterDto" : {
+        "type" : "object",
+        "properties" : {
+          "total" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "groupes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/GroupeDto"
+            }
+          }
+        },
+        "required" : [ "groupes", "total" ]
       }
     }
   }

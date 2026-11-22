@@ -100,9 +100,11 @@ class MesDemandesTest extends TestIntegration {
   }
 
   @Test
-  void unAgentInterneVoitToutesLesDemandes() throws Exception {
+  void unAgentInterneVoitLesDemandesDeposeesMaisJamaisLesBrouillons() throws Exception {
+    // Règle du socle (correctifs J2 bis), appliquée par l'API depuis les correctifs J5.
     assertThat(ids(liste(GUICHET, "GUICHET", "?taille=100")))
-        .contains(brouillonA, deposeeA, brouillonB);
+        .contains(deposeeA)
+        .doesNotContain(brouillonA, brouillonB);
   }
 
   @Test

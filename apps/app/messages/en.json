@@ -311,12 +311,12 @@
     "plusDeFiltres": "More filters (by status)",
     "filtreDetail": "Filter by detailed status",
     "filtres": {
+      "a-faire": "To do",
+      "a-traiter": "To process",
+      "attente-demandeur": "Awaiting the applicant",
+      "en-cours": "In progress",
       "brouillons": "Drafts",
-      "enCours": "In progress",
-      "actionRequise": "Action required",
       "terminees": "Completed",
-      "aTraiter": "To process",
-      "attenteDemandeur": "Awaiting applicant",
       "rejetees": "Rejected"
     }
   },
