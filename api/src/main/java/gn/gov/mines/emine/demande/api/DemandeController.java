@@ -201,6 +201,41 @@ class DemandeController {
     return DemandeDto.depuis(service.lire(id));
   }
 
+  @GetMapping("/{id}/suivi")
+  @Operation(
+      operationId = "lireSuivi",
+      summary =
+          "Frise de suivi en 6 étapes (dépôt, paiement des frais, contrôle, instruction, paiement"
+              + " des droits, document signé), avec la date de chaque étape franchie")
+  SuiviDto suivi(@PathVariable long id) {
+    return new SuiviDto(
+        service.suivi(id).stream()
+            .map(
+                e ->
+                    new EtapeSuiviDto(
+                        e.etape().cle(), e.etat().cle(), e.date(), e.actionDemandeur()))
+            .toList());
+  }
+
+  /** Frise de suivi (US-07.3), étapes dans l'ordre du circuit. */
+  record SuiviDto(List<EtapeSuiviDto> etapes) {}
+
+  /**
+   * Une étape de la frise.
+   *
+   * @param cle {@code depot}, {@code paiement-frais}, {@code controle}, {@code instruction}, {@code
+   *     paiement-droits}, {@code signe}
+   * @param etat {@code faite}, {@code en-cours}, {@code a-venir}, {@code sans-objet}, {@code
+   *     rejetee}, {@code non-atteinte}
+   * @param date date à laquelle l'étape a été franchie (ou rejetée)
+   * @param actionDemandeur étape en cours dont l'action revient au demandeur
+   */
+  record EtapeSuiviDto(
+      String cle,
+      String etat,
+      @io.swagger.v3.oas.annotations.media.Schema(nullable = true) java.time.Instant date,
+      boolean actionDemandeur) {}
+
   @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @PreAuthorize("hasAuthority('PERM_DEPOSER')")

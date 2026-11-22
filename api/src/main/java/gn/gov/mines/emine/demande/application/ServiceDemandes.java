@@ -11,9 +11,11 @@ import gn.gov.mines.emine.demande.domaine.GroupeATraiter;
 import gn.gov.mines.emine.demande.domaine.Indicateurs;
 import gn.gov.mines.emine.demande.domaine.Periode;
 import gn.gov.mines.emine.demande.domaine.RegleATraiter;
+import gn.gov.mines.emine.demande.domaine.RegleSuivi;
 import gn.gov.mines.emine.demande.domaine.VueDemandes;
 import gn.gov.mines.emine.demande.infrastructure.DemandeRepository;
 import gn.gov.mines.emine.demande.infrastructure.IndicateursRepository;
+import gn.gov.mines.emine.demande.infrastructure.SuiviRepository;
 import gn.gov.mines.emine.shared.erreur.CodeErreur;
 import gn.gov.mines.emine.shared.erreur.ErreurMetier;
 import gn.gov.mines.emine.shared.jooq.enums.StatutDemande;
@@ -35,16 +37,19 @@ public class ServiceDemandes {
 
   private final DemandeRepository demandes;
   private final IndicateursRepository indicateurs;
+  private final SuiviRepository suivis;
   private final Catalogue catalogue;
   private final UtilisateurCourant utilisateurCourant;
 
   public ServiceDemandes(
       DemandeRepository demandes,
       IndicateursRepository indicateurs,
+      SuiviRepository suivis,
       Catalogue catalogue,
       UtilisateurCourant utilisateurCourant) {
     this.demandes = demandes;
     this.indicateurs = indicateurs;
+    this.suivis = suivis;
     this.catalogue = catalogue;
     this.utilisateurCourant = utilisateurCourant;
   }
@@ -91,6 +96,18 @@ public class ServiceDemandes {
     if (demandes.supprimerBrouillon(id, java.time.Instant.now()) == 0) {
       throw new ErreurMetier(CodeErreur.DEM_003, Map.of("id", id));
     }
+  }
+
+  /** Frise de suivi d'une demande visible (US-07.3) ; DEM-002 si elle ne l'est pas. */
+  @Transactional(readOnly = true)
+  public List<RegleSuivi.EtapeSuivi> suivi(long id) {
+    return suivis
+        .lire(
+            id,
+            code ->
+                catalogue.trouverActif(code).map(t -> t.tarifs().droitsGnf() != null).orElse(false))
+        .map(l -> RegleSuivi.suivi(l.situation()))
+        .orElseThrow(() -> new ErreurMetier(CodeErreur.DEM_002, Map.of("id", id)));
   }
 
   @Transactional(readOnly = true)

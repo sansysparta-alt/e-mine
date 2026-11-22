@@ -1108,5 +1108,28 @@
     "horsDelai": "Délai du catalogue dépassé",
     "echeance": "{jours, plural, =0 {Échéance aujourd’hui} one {Échéance dans # jour} other {Échéance dans # jours}}",
     "delaiSuspendu": "Délai suspendu (complément)"
+  },
+  "suivi": {
+    "titre": "Suivi de la demande",
+    "etapes": {
+      "depot": "Dépôt",
+      "paiement-frais": "Paiement des frais",
+      "paiement": "Paiement",
+      "controle": "Contrôle du dossier",
+      "instruction": "Instruction",
+      "paiement-droits": "Paiement des droits",
+      "signe": "Document signé"
+    },
+    "etats": {
+      "faiteLe": "le {date}",
+      "rejeteeLe": "rejetée le {date}",
+      "faite": "faite",
+      "en-cours": "en cours",
+      "a-venir": "à venir",
+      "sans-objet": "sans objet",
+      "non-atteinte": "non atteinte",
+      "aVous": "à vous d’agir",
+      "attenteDemandeur": "en attente du demandeur"
+    }
   }
 }

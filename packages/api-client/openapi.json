@@ -1328,6 +1328,34 @@
         }
       }
     },
+    "/api/v1/demandes/{id}/suivi" : {
+      "get" : {
+        "tags" : [ "Demandes" ],
+        "summary" : "Frise de suivi en 6 étapes (dépôt, paiement des frais, contrôle, instruction, paiement des droits, document signé), avec la date de chaque étape franchie",
+        "operationId" : "lireSuivi",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SuiviDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/demandes/{id}/paiements/a-payer" : {
       "get" : {
         "tags" : [ "Paiements" ],
@@ -2411,6 +2439,37 @@
           }
         },
         "required" : [ "elements", "page", "taille", "total", "totalPages" ]
+      },
+      "EtapeSuiviDto" : {
+        "type" : "object",
+        "properties" : {
+          "cle" : {
+            "type" : "string"
+          },
+          "etat" : {
+            "type" : "string"
+          },
+          "date" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "actionDemandeur" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "actionDemandeur", "cle", "date", "etat" ]
+      },
+      "SuiviDto" : {
+        "type" : "object",
+        "properties" : {
+          "etapes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/EtapeSuiviDto"
+            }
+          }
+        },
+        "required" : [ "etapes" ]
       },
       "ExamenRecevabiliteDto" : {
         "type" : "object",
