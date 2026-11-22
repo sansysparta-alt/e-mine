@@ -62,6 +62,70 @@ Aucune question n'est en attente.
 
 Les PR sont empilées : fusionner dans cet ordre. Après chaque fusion, GitHub rebascule la PR suivante sur `main`.
 
+## Remarques du porteur du projet (texte de la demande, résumé fidèle)
+
+Exigence générale : l'ergonomie est une **exigence**. Elle doit être sobre, institutionnelle, cohérente d'un écran à l'autre et adaptée à chaque profil. Les parcours doivent être **fluides** : chaque utilisateur doit savoir quoi faire et à quel moment.
+
+- **A1** « Passer ce dossier » : tracer le nombre de dossiers passés et demander un motif court.
+- **A2** Libellés de statut par profil : un seul badge par ligne, une table unique par profil, en FR et en EN, réutilisée partout.
+- **A3** Une seule règle « À traiter », calculée par l'API et identique pour `/demandes` et `/a-traiter` ; un test par profil prouve que les nombres sont les mêmes.
+- **A4** Dates : « Déposée le JJ/MM/AAAA » et, séparément, « En attente depuis N jour(s) » pour l'étape actuelle.
+- **A5** Tableau de bord des décideurs (Ministre, Directeur), orienté pilotage :
+  - les dossiers en retard sur les délais du catalogue, avec une alerte bien visible ;
+  - le délai moyen, les encaissements et la répartition par document ;
+  - une courte liste « à traiter » ;
+  - aucune bordure sans signification sur une carte.
+- **A6** Listes par profil :
+  - un texte d'introduction adapté au profil ;
+  - une colonne Demandeur pour les agents ;
+  - les mêmes colonnes de base que `/a-traiter` ;
+  - « Plus de filtres » intégré à la rangée de pastilles.
+- **A7** Formulaire :
+  - supprimer l'étape Demandeur ;
+  - un vrai indicateur de progression (coche, ligne de liaison, une étape non atteinte n'a pas l'air cliquable) ;
+  - moins d'espace vide ;
+  - un lien pour revenir ou abandonner le brouillon.
+- **A8** Tableau de bord investisseur : un bloc « Ce que je dois faire » en tête, avec des boutons directs ; des totaux qui s'additionnent (les rejetées manquaient).
+- **A9** Mes demandes (investisseur) :
+  - un brouillon s'affiche « Brouillon », avec Reprendre et Supprimer ;
+  - « Télécharger » donne directement le PDF signé d'une demande délivrée ;
+  - les mêmes nombres partout.
+- **A10** Tableau de bord du guichet : des indicateurs de rôle (compléments attendus, frais attendus, traités aujourd'hui, en retard) à la place de « Documents délivrés » ; une grille équilibrée.
+- **Règle générale** : chaque carte de tableau de bord affiche sa période et ouvre la liste filtrée correspondante.
+- **B** : Claude fait lui-même la revue de tous les écrans pour chaque profil (investisseur, guichet, Directeur, Ministre) :
+  - points à vérifier : libellés, alignements, espacements, hiérarchie, cohérence, états vides, messages, accessibilité, mobile ;
+  - il corrige tout ce qu'il trouve et tranche selon les règles de l'art.
+- **Livrable final attendu** :
+  - un compte rendu court ;
+  - la liste de ce que Claude a trouvé par lui-même ;
+  - l'ordre de fusion ;
+  - les vérifications dans le navigateur, profil par profil.
+
+Remarques plus anciennes (sprints J4 et J5), toujours valables :
+
+- Ouverture d'un fichier : on choisit d'abord de **voir** (visualiseur) ou de **télécharger**, et ce partout.
+- L'export de dossiers doit être compact et professionnel.
+- Ministre : ses dossiers doivent être **groupés** pour faciliter le traitement. Le traitement se fait **en série** : on ouvre un dossier, on agit, on enchaîne sur le suivant.
+- La page de signature doit être pratique.
+
+## Préférences et règles de travail apprises en cours de route
+
+- Le porteur veut une **ergonomie soignée dès la première version**, sans avoir à la rappeler : appliquer le socle de `CLAUDE.md` sur chaque écran.
+- Il teste lui-même dans le navigateur : toujours lui fournir le tableau des vérifications (adresse · compte · action · résultat attendu).
+- Il fusionne lui-même les PR dans l'ordre, puis vérifie. Ne jamais attendre une fusion pour enchaîner.
+- **Une PR par correctif**, empilée sur la précédente, avec le titre « (correctifs ergonomie n/8) ». La description contient les critères et les preuves (le test qui prouve chaque point) et la contre-épreuve. Ajouter une entrée « Correctifs ergonomie · n » au journal `docs/02` §6.
+- Commits : Conventional Commits en français, avec la ligne `Co-Authored-By` ; les corps de PR se terminent par la ligne « Generated with Claude Code ».
+- **Jamais** lire `.env` ni contourner un refus de permission (un script qui lisait `DEMO_PASSWORD` a été refusé, à juste titre).
+- Le poste est sous Windows :
+  - lancer Vitest avec `--maxWorkers=2` (sinon « spawn UNKNOWN ») ;
+  - lancer les tests Maven par petits lots (`-Dtest=… -Djacoco.skip=true`), à cause de la mémoire ;
+  - les heredocs Bash contenant des apostrophes échouent : écrire les scripts d'édition Python dans le scratchpad, avec `newline='\n'`.
+- Après une modification de l'API :
+  - lancer `OpenApiTest`, qui exporte `packages/api-client/openapi.json`, puis `pnpm api:client` ;
+  - le jOOQ est régénéré par `mvnw compile` quand une migration change ;
+  - `ModularityTest` doit rester vert.
+- `pnpm dev` tourne peut-être en arrière-plan. L'API ne recharge pas le Java à chaud : la redémarrer pour tester dans le navigateur.
+
 ## Reprendre
 
 ```bash
