@@ -27,7 +27,7 @@ class RelanceComplements {
   private static final Logger LOG = LoggerFactory.getLogger(RelanceComplements.class);
 
   @Bean
-  RecurringTask<Void> relanceComplements(
+  RecurringTask<Void> tacheRelanceComplements(
       ServiceComplements service,
       @Value("${emine.complements.relance.intervalle:PT1H}") Duration intervalle) {
     return Tasks.recurring("relance-complements", FixedDelay.of(intervalle))
