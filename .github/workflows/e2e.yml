@@ -1,0 +1,95 @@
+# e-mine — test de bout en bout du parcours V1 (US-07.4) : pile complète sur le runner (PostgreSQL,
+# Keycloak, MinIO, Mailpit, API, simulateur TrésorPay, site public, application), puis Playwright.
+# Toutes les valeurs viennent de .env.example (fictives) ; le certificat de signature est généré à
+# la volée (pnpm signature:certificat) et n'est jamais versionné.
+name: E2E
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  parcours:
+    name: Parcours complet (Playwright)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: maven
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "26"
+          cache: pnpm
+
+      - name: Variables de démonstration (fictives)
+        run: cp .env.example .env
+      - run: pnpm install --frozen-lockfile
+
+      - name: Infrastructure (PostgreSQL, Keycloak, MinIO, Mailpit)
+        run: pnpm infra:up
+      - name: Certificat de signature de démonstration
+        run: pnpm signature:certificat
+
+      - name: Build de l'API et du simulateur (tests faits par le workflow CI)
+        run: ./mvnw -B -ntp -pl simulateurs/tresorpay,api package -DskipTests
+      - name: Lancement des services Java (API, simulateur)
+        run: |
+          (cd api && nohup java -jar target/emine-api-0.1.0-SNAPSHOT.jar > ../api.log 2>&1 &)
+          (cd simulateurs/tresorpay && nohup java -jar target/emine-simulateur-tresorpay-*.jar > ../../tresorpay.log 2>&1 &)
+          for i in $(seq 1 90); do
+            if curl -fs http://localhost:8080/actuator/health > /dev/null && curl -fs http://localhost:8090/ > /dev/null; then
+              echo "API et simulateur prêts"; exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::L'API ou le simulateur n'a pas démarré"; tail -n 80 api.log tresorpay.log; exit 1
+      - name: Personas de démonstration
+        run: pnpm db:seed
+
+      - name: Build et démarrage du site public et de l'application
+        run: |
+          pnpm build
+          (cd apps/web && nohup pnpm start > ../../web.log 2>&1 &)
+          (cd apps/app && nohup pnpm start > ../../app.log 2>&1 &)
+          for i in $(seq 1 60); do
+            if curl -fs http://localhost:3000/ > /dev/null && curl -fs http://localhost:3001/ > /dev/null; then
+              echo "Site et application prêts"; exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::Le site ou l'application n'a pas démarré"; tail -n 80 web.log app.log; exit 1
+
+      - name: Navigateur Playwright
+        run: pnpm --filter @emine/e2e exec playwright install --with-deps chromium
+      - name: Parcours complet
+        env:
+          CI: "true"
+        run: pnpm e2e
+
+      - name: Rapport, traces et journaux
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-rapport
+          path: |
+            tests/e2e/playwright-report/
+            tests/e2e/test-results/
+            api.log
+            tresorpay.log
+            web.log
+            app.log
+          retention-days: 7
