@@ -55,7 +55,6 @@ test("parcours V1 : dépôt, paiements, recevabilité, décision, délivrance, v
   // 1. L'investisseur dépose un permis d'exploitation avec ses pièces obligatoires.
   const investisseur = await connecter(browser, COMPTES.investisseur);
   await investisseur.goto("/demandes/nouvelle");
-  await investisseur.getByRole("button", { name: "Enregistrer et continuer" }).click();
   await investisseur.locator("#typeDocumentCode").selectOption("PEX");
   await investisseur.getByRole("button", { name: "Enregistrer et continuer" }).click();
   for (const piece of ["Étude de faisabilité", "EIES", "Plan de restauration"]) {

@@ -2,7 +2,8 @@ import type { BrouillonDto, DemandeDto } from "@emine/api-client";
 import { z } from "zod";
 
 /** Les quatre sections du formulaire guidé (V1 : sans périmètre cartographique). */
-export const ETAPES = ["demandeur", "document", "pieces", "recapitulatif"] as const;
+/** Étapes du formulaire (correctifs ergonomie : l'étape « Demandeur », sans saisie, est supprimée). */
+export const ETAPES = ["document", "pieces", "recapitulatif"] as const;
 export type Etape = (typeof ETAPES)[number];
 
 const SUPERFICIE = /^\d{1,10}([.,]\d{1,2})?$/;
@@ -28,7 +29,6 @@ export type ValeursBrouillon = z.infer<typeof schemaBrouillon>;
 
 /** Champs à valider avant de quitter chaque section. */
 export const CHAMPS_PAR_ETAPE: Record<Etape, (keyof ValeursBrouillon)[]> = {
-  demandeur: [],
   document: ["typeDocumentCode", "prefectureId", "substanceCode", "superficieHa"],
   pieces: [],
   recapitulatif: [],
