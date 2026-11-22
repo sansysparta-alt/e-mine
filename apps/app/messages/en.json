@@ -138,7 +138,7 @@
       "delai": "Average issuing time",
       "delaiValeur": "{jours} d",
       "delaiAucun": "—",
-      "delaiPrecision": "From submission to issue, in calendar days",
+      "delaiPrecision": "From filing to delivery, filing day included, excluding additional information",
       "encaissements": "Collections",
       "encaissementsPrecision": "Fees and duties paid",
       "bloques": {
