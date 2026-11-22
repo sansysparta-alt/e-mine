@@ -10,7 +10,8 @@
     "titre": "Mining procedures online",
     "presentation": "Request one of the Ministry's 15 documents, pay online, track your file and check a document's authenticity with its QR code.",
     "avertissement": "Demonstration platform: all data is fictitious.",
-    "lienCatalogue": "Browse the document catalogue"
+    "lienCatalogue": "Browse the document catalogue",
+    "lienVerifier": "Verify a document"
   },
   "catalogue": {
     "titre": "Document catalogue",
@@ -25,6 +26,60 @@
     "indisponible": {
       "titre": "The catalogue is temporarily unavailable.",
       "conseil": "Please try again in a few minutes."
+    }
+  },
+  "verification": {
+    "titre": "Verify a document",
+    "autre": "Verify another document",
+    "confidentialite": "This page shows no personal data: only what tells you whether the document is authentic. Demonstration platform, fictitious data.",
+    "saisie": {
+      "presentation": "Scan the document's QR code with your phone, or enter below the verification code printed under the QR code.",
+      "libelle": "Verification code or address read from the QR code",
+      "aide": "32 characters (digits and letters a to f). You can also paste the full address.",
+      "bouton": "Verify",
+      "erreur": "This is not a valid verification code: check what you typed."
+    },
+    "authentique": {
+      "titre": "Authentic document",
+      "texte": "This document was issued by the e-mine platform and has not been revoked."
+    },
+    "nonValide": {
+      "titre": "NOT VALID",
+      "texte": "This document has been revoked by the administration: it must no longer be accepted."
+    },
+    "inconnu": {
+      "titre": "No document matches this code",
+      "texte": "Check the code, or scan the QR code again. A document missing from the register must not be accepted."
+    },
+    "indisponible": {
+      "titre": "Verification temporarily impossible",
+      "texte": "The service is not responding. Try again in a few minutes."
+    },
+    "details": {
+      "titre": "Document",
+      "document": "Document type",
+      "numero": "Number",
+      "delivreLe": "Issued on",
+      "signataire": "Signatory",
+      "empreinte": "SHA-256 fingerprint"
+    },
+    "fichier": {
+      "titre": "Compare the file you are shown",
+      "explication": "Choose the PDF file: its fingerprint is computed on your device, the file is not sent. The slightest change alters the fingerprint.",
+      "choisir": "Choose the PDF file",
+      "champ": "PDF file to compare with the issued document",
+      "identique": {
+        "titre": "The file is identical to the issued document",
+        "texte": "“{nom}” has not been changed since it was issued."
+      },
+      "different": {
+        "titre": "The file does not match the issued document",
+        "texte": "“{nom}” has been changed, or it is not the right document. Do not accept it."
+      },
+      "illisible": {
+        "titre": "The file could not be read",
+        "texte": "Choose the PDF file again."
+      }
     }
   }
 }

@@ -10,7 +10,8 @@
     "titre": "Les démarches minières en ligne",
     "presentation": "Demandez l'un des 15 documents du Ministère, payez en ligne, suivez votre dossier et vérifiez l'authenticité d'un document grâce à son QR code.",
     "avertissement": "Plateforme de démonstration : toutes les données sont fictives.",
-    "lienCatalogue": "Consulter le catalogue des documents"
+    "lienCatalogue": "Consulter le catalogue des documents",
+    "lienVerifier": "Vérifier un document"
   },
   "catalogue": {
     "titre": "Catalogue des documents",
@@ -25,6 +26,60 @@
     "indisponible": {
       "titre": "Le catalogue est momentanément indisponible.",
       "conseil": "Réessayez dans quelques minutes."
+    }
+  },
+  "verification": {
+    "titre": "Vérifier un document",
+    "autre": "Vérifier un autre document",
+    "confidentialite": "Cette page ne montre aucune donnée personnelle : seulement ce qui permet de savoir si le document est authentique. Plateforme de démonstration, données fictives.",
+    "saisie": {
+      "presentation": "Scannez le QR du document avec votre téléphone, ou saisissez ci-dessous le code de vérification imprimé sous le QR.",
+      "libelle": "Code de vérification ou adresse lue par le QR",
+      "aide": "32 caractères (chiffres et lettres de a à f). Vous pouvez aussi coller l'adresse complète.",
+      "bouton": "Vérifier",
+      "erreur": "Ce n'est pas un code de vérification valide : vérifiez la saisie."
+    },
+    "authentique": {
+      "titre": "Document authentique",
+      "texte": "Ce document a bien été délivré par la plateforme e-mine et n'a pas été révoqué."
+    },
+    "nonValide": {
+      "titre": "NON VALIDE",
+      "texte": "Ce document a été révoqué par l'administration : il ne doit plus être accepté."
+    },
+    "inconnu": {
+      "titre": "Aucun document ne correspond à ce code",
+      "texte": "Vérifiez le code, ou scannez à nouveau le QR. Un document absent du registre ne doit pas être accepté."
+    },
+    "indisponible": {
+      "titre": "Vérification momentanément impossible",
+      "texte": "Le service ne répond pas. Réessayez dans quelques minutes."
+    },
+    "details": {
+      "titre": "Document",
+      "document": "Type de document",
+      "numero": "Numéro",
+      "delivreLe": "Délivré le",
+      "signataire": "Signataire",
+      "empreinte": "Empreinte SHA-256"
+    },
+    "fichier": {
+      "titre": "Comparer le fichier que l'on vous présente",
+      "explication": "Choisissez le fichier PDF : son empreinte est calculée sur votre appareil, le fichier n'est pas envoyé. La moindre modification change l'empreinte.",
+      "choisir": "Choisir le fichier PDF",
+      "champ": "Fichier PDF à comparer avec le document délivré",
+      "identique": {
+        "titre": "Le fichier est identique au document délivré",
+        "texte": "« {nom} » n'a pas été modifié depuis sa délivrance."
+      },
+      "different": {
+        "titre": "Le fichier ne correspond pas au document délivré",
+        "texte": "« {nom} » a été modifié, ou ce n'est pas le bon document. Ne l'acceptez pas."
+      },
+      "illisible": {
+        "titre": "Le fichier n'a pas pu être lu",
+        "texte": "Choisissez à nouveau le fichier PDF."
+      }
     }
   }
 }
