@@ -2113,9 +2113,17 @@
           "deposeLe" : {
             "type" : "string",
             "format" : "date-time"
+          },
+          "remplaceeLe" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "remplaceeParId" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
           }
         },
-        "required" : [ "deposeLe", "empreinteSha256", "id", "nomFichier", "tailleOctets", "typeMime", "typePiece" ]
+        "required" : [ "deposeLe", "empreinteSha256", "id", "nomFichier", "remplaceeLe", "remplaceeParId", "tailleOctets", "typeMime", "typePiece" ]
       },
       "VerificationDto" : {
         "type" : "object",

@@ -388,7 +388,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
   );
   const blocPassages = passages ? <HistoriquePassages historique={passages} /> : null;
   const blocPieces = (
-    <Carte titre={t("pieces", { nombre: pieces.data.length })}>
+    <Carte titre={t("pieces", { nombre: pieces.data.filter((p) => p.remplaceeLe == null).length })}>
       <ListePieces demandeId={demande.id} pieces={pieces.data} />
     </Carte>
   );

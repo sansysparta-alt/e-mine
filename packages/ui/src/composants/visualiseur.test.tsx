@@ -78,12 +78,13 @@ describe("visualiseur de documents", () => {
   });
 
   it("se ferme par un bouton « Fermer » visible ou par un clic à côté du panneau", () => {
-    const { container } = render(<Banc document={pdf} />);
+    render(<Banc document={pdf} />);
     fireEvent.click(screen.getByRole("button", { name: "Consulter" }));
     expect(screen.getByRole("button", { name: "Fermer le document" })).toHaveTextContent(
       "Fermer le document",
     );
-    const fond = container.querySelector("div[aria-hidden='true'].fixed");
+    // Rendu par un portail dans <body>, au-dessus de toute la page.
+    const fond = document.body.querySelector(":scope > div[aria-hidden='true'].fixed");
     expect(fond).not.toBeNull();
     fireEvent.click(fond!);
     expect(screen.queryByTitle("eies.pdf")).not.toBeInTheDocument();

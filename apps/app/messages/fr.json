@@ -377,7 +377,12 @@
     "delaiDepasse": "dépassé",
     "delaiReste": "{jours, plural, =0 {dernier jour} one {il reste # jour} other {il reste # jours}}",
     "delaiDepasseDe": "{jours, plural, one {dépassé de # jour} other {dépassé de # jours}}",
-    "delaiSuspendu": "suspendu pendant le complément"
+    "delaiSuspendu": "suspendu pendant le complément",
+    "piecesVersions": {
+      "nouvelleVersion": "nouvelle version du {date}",
+      "remplacee": "Version remplacée le {date}",
+      "anciennes": "Versions précédentes : {piece}"
+    }
   },
   "mesDemandes": {
     "titre": "Mes demandes",
@@ -751,7 +756,8 @@
         "erreurs": {
           "court": "Écrivez votre réponse en 10 caractères au moins.",
           "long": "Votre réponse dépasse 2000 caractères : raccourcissez-la."
-        }
+        },
+        "remplacement": "Une pièce déjà au dossier sera remplacée par celle que vous joignez ; l’ancienne version reste consultable. Une pièce nouvelle s’ajoute au dossier."
       },
       "sansReponse": {
         "titre": "Délai de réponse dépassé",

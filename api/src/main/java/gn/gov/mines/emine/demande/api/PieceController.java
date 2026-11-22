@@ -106,7 +106,9 @@ class PieceController {
       String typeMime,
       long tailleOctets,
       String empreinteSha256,
-      Instant deposeLe) {
+      Instant deposeLe,
+      @io.swagger.v3.oas.annotations.media.Schema(nullable = true) Instant remplaceeLe,
+      @io.swagger.v3.oas.annotations.media.Schema(nullable = true) Long remplaceeParId) {
 
     static PieceDto depuis(Piece p) {
       return new PieceDto(
@@ -116,7 +118,9 @@ class PieceController {
           p.typeMime(),
           p.tailleOctets(),
           p.empreinteSha256(),
-          p.deposeLe());
+          p.deposeLe(),
+          p.remplaceeLe(),
+          p.remplaceeParId());
     }
   }
 }
