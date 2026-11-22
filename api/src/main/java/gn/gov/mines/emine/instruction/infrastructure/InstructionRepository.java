@@ -63,11 +63,19 @@ public class InstructionRepository {
 
   /** Recevable → rejetée à la décision, avec le motif communiqué au demandeur. */
   public int rejeter(long id, String motif) {
+    return rejeterDepuis(id, StatutDemande.recevable, motif);
+  }
+
+  /**
+   * Rejet motivé depuis un statut donné (décision, clôture d'un complément sans réponse), avec le
+   * motif communiqué au demandeur.
+   */
+  public int rejeterDepuis(long id, StatutDemande de, String motif) {
     return dsl.update(DEMANDE)
         .set(DEMANDE.STATUT, StatutDemande.rejetee)
         .set(DEMANDE.MOTIF_REJET, motif)
         .where(DEMANDE.ID.eq(id))
-        .and(DEMANDE.STATUT.eq(StatutDemande.recevable))
+        .and(DEMANDE.STATUT.eq(de))
         .and(DEMANDE.DELETED_AT.isNull())
         .execute();
   }

@@ -18,9 +18,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Pièces jointes d'une demande (US-03.2) : ajout tant que la demande est un brouillon, contrôle du
- * format (signature du fichier) et de la taille, empreinte SHA-256, stockage MinIO. Pas d'analyse
- * antivirus en V1 ({@code antivirus_ok} reste vide, ClamAV au plan complet).
+ * Pièces jointes d'une demande (US-03.2) : ajout tant que la demande est un brouillon, ou pendant
+ * un complément demandé par un agent (US-05.2 : seules les pièces ajoutées depuis la demande de
+ * complément peuvent alors être retirées), contrôle du format (signature du fichier) et de la
+ * taille, empreinte SHA-256, stockage MinIO. Pas d'analyse antivirus en V1 ({@code antivirus_ok}
+ * reste vide, ClamAV au plan complet).
  */
 @Service
 public class ServicePieces {
@@ -46,7 +48,7 @@ public class ServicePieces {
 
   @Transactional
   public Piece ajouter(long demandeId, String typePiece, String nomOriginal, byte[] contenu) {
-    brouillonVisible(demandeId);
+    modifiable(demandeId);
     if (contenu.length == 0) {
       throw new ErreurMetier(CodeErreur.DOC_001, Map.of("raison", "vide"));
     }
@@ -90,8 +92,12 @@ public class ServicePieces {
 
   @Transactional
   public void retirer(long demandeId, long pieceId) {
-    brouillonVisible(demandeId);
-    if (pieces.retirer(demandeId, pieceId) == 0) {
+    DemandeDetail demande = modifiable(demandeId);
+    int retirees =
+        demande.estBrouillon()
+            ? pieces.retirer(demandeId, pieceId)
+            : pieces.retirerPendantComplement(demandeId, pieceId);
+    if (retirees == 0) {
       throw new ErreurMetier(CodeErreur.DOC_003, Map.of("id", pieceId));
     }
   }
@@ -111,9 +117,12 @@ public class ServicePieces {
         .orElseThrow(() -> new ErreurMetier(CodeErreur.DEM_002, Map.of("id", demandeId)));
   }
 
-  private void brouillonVisible(long demandeId) {
-    if (!visible(demandeId).estBrouillon()) {
+  /** Brouillon, ou complément demandé : les pièces se modifient (DEM-003 sinon). */
+  private DemandeDetail modifiable(long demandeId) {
+    DemandeDetail demande = visible(demandeId);
+    if (!demande.estBrouillon() && !"complement_requis".equals(demande.statut())) {
       throw new ErreurMetier(CodeErreur.DEM_003, Map.of("id", demandeId));
     }
+    return demande;
   }
 }

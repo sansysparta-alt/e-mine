@@ -314,13 +314,13 @@
         "demandeur": "Prochaine étape"
       },
       "agentVerifier": "Les frais de dossier sont payés. Contrôlez les pièces jointes, puis déclarez la demande recevable ou non recevable.",
-      "agentAttenteComplement": "Un complément a été demandé : la demande attend les pièces du demandeur.",
+      "agentAttenteComplement": "Un complément a été demandé : la demande attend la réponse du demandeur jusqu’au {limite}. Le délai de traitement est suspendu.",
       "agentInstruire": "Instruisez la demande et rendez votre avis.",
       "agentDecision": "Avis rendu : la décision du signataire est attendue.",
       "agentAttenteDroits": "Décision favorable rendue : la demande attend le paiement des droits par le demandeur.",
       "agentDelivrer": "La demande est prête pour la délivrance : le document peut être établi, signé et délivré.",
       "demandeurPayerFrais": "Réglez les frais de dossier ({montant}) pour que l’agent du guichet puisse examiner votre demande.",
-      "demandeurCompleter": "Un complément est demandé : joignez les pièces indiquées par l'agent du guichet.",
+      "demandeurCompleter": "Un complément est demandé : joignez les pièces indiquées et envoyez votre réponse avant le {limite}.",
       "demandeurInstruction": "Votre demande est en cours d'instruction par les services du Ministère.",
       "demandeurPayerDroits": "Une décision favorable a été rendue : payez les droits ({droits}) pour obtenir votre document.",
       "demandeurDelivrance": "Votre demande est prête pour la délivrance : votre document est en cours d’établissement.",
@@ -334,7 +334,8 @@
       "demandeurAttenteGuichet": "Frais de dossier payés. L’agent du guichet unique examine maintenant votre dossier ; vous serez informé de sa décision.",
       "agentAttenteDecision": "Demande recevable : la décision du signataire ({signataire}) est attendue.",
       "signataireDecider": "Cette demande est recevable et vous en êtes le signataire. Consultez le dossier et les pièces jointes ci-dessous, puis rendez votre décision.",
-      "signataireDelivrer": "Les droits sont payés : vous pouvez signer et délivrer le document. Vérifiez une dernière fois le dossier ci-contre."
+      "signataireDelivrer": "Les droits sont payés : vous pouvez signer et délivrer le document. Vérifiez une dernière fois le dossier ci-contre.",
+      "agentSansReponse": "Le demandeur n’a pas répondu dans le délai : relancez-le ou clôturez le dossier."
     },
     "fraisPayes": "Frais payés",
     "paiements": {
@@ -638,7 +639,7 @@
       "verificationRequise": "Cochez cette case après avoir vérifié les pièces.",
       "pasEncoreTitre": "La demande ne peut pas encore être déclarée recevable",
       "pasEncoreFrais": "Les frais de dossier ne sont pas payés. Vous pourrez la déclarer recevable dès que le paiement sera confirmé.",
-      "pasEncorePieces": "Une pièce obligatoire n’a pas de fichier. Si le dossier ne peut pas aboutir, déclarez-le non recevable en indiquant le motif.",
+      "pasEncorePieces": "Une pièce obligatoire n’a pas de fichier. Demandez un complément au demandeur ; si le dossier ne peut pas aboutir, déclarez-le non recevable en indiquant le motif.",
       "declarerRecevable": "Déclarer recevable",
       "declarerNonRecevable": "Déclarer non recevable…",
       "enCours": "Enregistrement…",
@@ -692,6 +693,66 @@
         "par": "Par",
         "motif": "Motif",
         "observations": "Observations"
+      }
+    },
+    "complement": {
+      "titre": "Complément demandé",
+      "demandeLe": "Demandé le",
+      "demandeLeValeur": "{date}, par {auteur}",
+      "motif": "Ce qui est demandé",
+      "piecesDemandees": "Pièces à fournir",
+      "dateLimite": "Réponse attendue avant le",
+      "relanceLe": "relance envoyée le {date}",
+      "demande": {
+        "bouton": "Demander un complément…",
+        "titre": "Demander un complément pour la demande {numero}",
+        "explication": "Le demandeur en sera informé et aura 5 jours pour répondre. Le délai de traitement est suspendu jusqu’à sa réponse ; la demande vous reviendra ensuite.",
+        "pieces": "Pièces à fournir",
+        "piecesAide": "Cochez les pièces attendues. Les pièces obligatoires sans fichier sont déjà cochées.",
+        "autre": "Autre pièce attendue (facultatif)",
+        "motif": "Ce que le demandeur doit faire",
+        "motifAide": "Soyez précis : ce qui manque ou ne convient pas, et ce qui est attendu. 10 caractères au moins.",
+        "annuler": "Annuler",
+        "confirmer": "Envoyer la demande de complément",
+        "enCours": "Envoi…",
+        "echec": "La demande de complément n’a pas été envoyée"
+      },
+      "reponse": {
+        "message": "Votre réponse",
+        "messageAide": "Ajoutez une précision pour l’agent si nécessaire.",
+        "messageAideObligatoire": "Répondez à la demande de l’agent. 10 caractères au moins.",
+        "piecesManquantes": "Joignez d’abord : {pieces}.",
+        "envoyer": "Envoyer ma réponse",
+        "enCours": "Envoi…",
+        "echec": "Votre réponse n’a pas été envoyée",
+        "envoyee": "Votre réponse a été transmise",
+        "envoyeeSuite": "Votre demande est de nouveau entre les mains des services du Ministère. Le délai de traitement reprend.",
+        "erreurs": {
+          "court": "Écrivez votre réponse en 10 caractères au moins.",
+          "long": "Votre réponse dépasse 2000 caractères : raccourcissez-la."
+        }
+      },
+      "sansReponse": {
+        "titre": "Délai de réponse dépassé",
+        "explication": "Le demandeur n’a pas répondu avant le {date}. Relancez-le (nouveau délai de 5 jours) ou clôturez le dossier.",
+        "relancer": "Relancer le demandeur",
+        "clore": "Clôturer le dossier…",
+        "enCours": "Enregistrement…",
+        "echec": "L’action n’a pas été enregistrée",
+        "dialogue": {
+          "titre": "Clôturer la demande {numero} sans réponse",
+          "explication": "La demande sera rejetée et le demandeur en sera informé. Cette décision ne peut pas être annulée.",
+          "motif": "Motif communiqué au demandeur",
+          "aide": "Rappelez ce qui était demandé et l’absence de réponse dans le délai. 10 caractères au moins.",
+          "annuler": "Annuler",
+          "confirmer": "Clôturer le dossier"
+        }
+      },
+      "historique": {
+        "titre": "Compléments ({nombre})",
+        "repondu": "Réponse reçue le {date}",
+        "clos": "Clôturé sans réponse le {date}",
+        "enAttente": "En attente de réponse"
       }
     }
   },
@@ -876,7 +937,8 @@
       "a-examiner": "À examiner",
       "frais-attendus": "Frais attendus",
       "a-decider": "À décider",
-      "a-signer": "À signer"
+      "a-signer": "À signer",
+      "sans-reponse": "Sans réponse"
     },
     "commencer": "{nombre, plural, one {Commencer le traitement (# dossier)} other {Commencer le traitement (# dossiers)}}",
     "continuer": "{nombre, plural, one {Continuer : # dossier restant} other {Continuer : # dossiers restants}}",
@@ -888,11 +950,12 @@
       "bouton": "Rechercher"
     },
     "aide": {
-      "tout": "Décisions et signatures qui vous reviennent, les plus anciennes d’abord.",
+      "tout": "Tout ce qui vous revient maintenant, les dossiers les plus anciens d’abord.",
       "a-examiner": "Frais payés : vérifiez les pièces et prononcez la recevabilité. Une attente de 5 jours ou plus est signalée.",
       "frais-attendus": "Pour information : ces demandes pourront être examinées dès le paiement des frais.",
       "a-decider": "Demandes recevables dont vous êtes le signataire : rendez votre décision.",
-      "a-signer": "Droits payés : signez et délivrez le document."
+      "a-signer": "Droits payés : signez et délivrez le document.",
+      "sans-reponse": "Compléments demandés par votre service, restés sans réponse au-delà du délai de 5 jours : relancez le demandeur ou clôturez le dossier."
     },
     "colonnes": {
       "numero": "Numéro",
@@ -916,7 +979,9 @@
       "rejetee": "Demande {numero} rejetée.",
       "decision": "Décision favorable enregistrée pour la demande {numero}.",
       "droits_payes": "Décision favorable enregistrée pour la demande {numero} : elle est prête pour la délivrance.",
-      "delivree": "Document {document} signé et délivré pour la demande {numero}."
+      "delivree": "Document {document} signé et délivré pour la demande {numero}.",
+      "complement_requis": "Complément demandé pour la demande {numero}.",
+      "relance": "Demandeur relancé pour la demande {numero} : nouveau délai de 5 jours."
     },
     "serie": {
       "libelle": "Traitement en série",
@@ -982,7 +1047,8 @@
       "attenteSignature": "En attente de signature",
       "delivree": "Délivrée",
       "rejetee": "Rejetée",
-      "archivee": "Archivée"
+      "archivee": "Archivée",
+      "sansReponse": "Sans réponse"
     }
   },
   "dates": {

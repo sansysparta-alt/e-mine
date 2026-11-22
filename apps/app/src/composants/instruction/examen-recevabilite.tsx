@@ -13,6 +13,7 @@ import {
   type ResultatAction as Resultat,
 } from "../travail/file-travail";
 import { ChampMotif, erreurMotif } from "./champ-motif";
+import { DemandeComplement, type DemandeComplementProps } from "./complements";
 
 export type ExamenRecevabiliteProps = {
   demandeId: number;
@@ -27,6 +28,8 @@ export type ExamenRecevabiliteProps = {
   ) => Promise<ResultatAction<ResultatRecevabiliteDto>>;
   /** Traitement en série : après la déclaration, le dossier suivant de la file s'ouvre. */
   serie?: ContexteSerie | null;
+  /** Demande de complément au demandeur (US-05.2). */
+  demanderComplement?: DemandeComplementProps["demander"];
 };
 
 /**
@@ -42,6 +45,7 @@ export function ExamenRecevabilite({
   piecesRequises,
   declarer,
   serie,
+  demanderComplement,
 }: ExamenRecevabiliteProps) {
   const t = useTranslations("instruction.recevabilite");
   const tMotif = useTranslations("instruction.motif");
@@ -147,6 +151,19 @@ export function ExamenRecevabilite({
             <CircleCheck aria-hidden="true" className="size-5" />
             {enCours && !dialogue ? t("enCours") : t("declarerRecevable")}
           </Bouton>
+        ) : null}
+        {demanderComplement ? (
+          <DemandeComplement
+            demandeId={demandeId}
+            numero={numero}
+            piecesProposees={piecesRequises}
+            piecesCochees={examen.piecesManquantes}
+            demander={demanderComplement}
+            groupe="a-examiner"
+            serie={serie}
+            principal={!examen.peutEtreRecevable && examen.fraisPayes}
+            desactive={enCours}
+          />
         ) : null}
         <Bouton
           type="button"

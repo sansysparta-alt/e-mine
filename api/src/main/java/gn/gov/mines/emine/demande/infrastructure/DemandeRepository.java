@@ -1,5 +1,6 @@
 package gn.gov.mines.emine.demande.infrastructure;
 
+import static gn.gov.mines.emine.shared.jooq.Tables.COMPLEMENT;
 import static gn.gov.mines.emine.shared.jooq.Tables.DEMANDE;
 import static gn.gov.mines.emine.shared.jooq.Tables.HISTORIQUE_STATUT_DEMANDE;
 import static gn.gov.mines.emine.shared.jooq.Tables.ORGANISATION;
@@ -204,6 +205,23 @@ public class DemandeRepository {
       case PAYER_DROITS -> DEMANDE.STATUT.eq(StatutDemande.decision);
       case COMPLETER -> DEMANDE.STATUT.eq(StatutDemande.complement_requis);
       case A_EXAMINER -> DEMANDE.STATUT.eq(StatutDemande.deposee).and(FRAIS_PAYES_COND);
+      case SANS_REPONSE ->
+          DEMANDE
+              .STATUT
+              .eq(StatutDemande.complement_requis)
+              .and(
+                  DSL.exists(
+                      DSL.selectOne()
+                          .from(COMPLEMENT)
+                          .join(UTILISATEUR)
+                          .on(UTILISATEUR.ID.eq(COMPLEMENT.DEMANDE_PAR))
+                          .join(PROFIL)
+                          .on(PROFIL.ID.eq(UTILISATEUR.PROFIL_ID))
+                          .where(COMPLEMENT.DEMANDE_ID.eq(DEMANDE.ID))
+                          .and(COMPLEMENT.REPONDU_LE.isNull())
+                          .and(COMPLEMENT.CLOS_LE.isNull())
+                          .and(COMPLEMENT.DATE_LIMITE.lt(MAINTENANT_BASE))
+                          .and(PROFIL.CODE.eq(profilCode))));
       case A_DECIDER -> DEMANDE.STATUT.eq(StatutDemande.recevable).and(signataire);
       case A_SIGNER -> DEMANDE.STATUT.eq(StatutDemande.droits_payes).and(signataire);
     };
@@ -241,9 +259,14 @@ public class DemandeRepository {
         Integer.class, jusqua, depuis);
   }
 
+  /** Instant courant de la base (délais de réponse des compléments). */
+  static final Field<java.time.Instant> MAINTENANT_BASE =
+      DSL.field("now()", COMPLEMENT.DATE_LIMITE.getDataType());
+
   /**
    * Dossier en retard : en cours, et le délai du catalogue ({@code type_document.delai_jours}) est
-   * dépassé, compté en jours calendaires depuis le dépôt. Suppose la jointure sur le catalogue.
+   * dépassé, compté en jours calendaires depuis le dépôt, hors jours passés en complément (délai
+   * suspendu, US-05.2). Suppose la jointure sur le catalogue.
    */
   static Condition conditionEnRetard(Instant maintenant) {
     return DEMANDE
@@ -252,6 +275,8 @@ public class DemandeRepository {
         .and(DEMANDE.DATE_DEPOT.isNotNull())
         .and(
             joursCalendaires(DEMANDE.DATE_DEPOT, DSL.val(maintenant, DEMANDE.DATE_DEPOT))
+                .minus(
+                    Routines.fnJoursSuspendus(DEMANDE.ID, DSL.val(maintenant, DEMANDE.DATE_DEPOT)))
                 .gt(TYPE_DOCUMENT.DELAI_JOURS.cast(Integer.class)));
   }
 

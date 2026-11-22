@@ -22,6 +22,8 @@ public abstract class TestIntegration {
   static void baseDeDonnees(DynamicPropertyRegistry registry) {
     BaseDeDonneesDeTest.proprietes(registry);
     registry.add("emine.tresorpay.secret-hmac", () -> SECRET_TRESORPAY);
+    // Les tests appellent la relance des compléments eux-mêmes (US-05.2).
+    registry.add("emine.complements.relance.active", () -> "false");
     registry.add("emine.tresorpay.marchand-id", () -> MARCHAND_TRESORPAY);
     registry.add("emine.signature.pkcs12-chemin", () -> CertificatDeTest.chemin().toString());
     registry.add("emine.signature.pkcs12-mot-de-passe", () -> CertificatDeTest.MOT_DE_PASSE);

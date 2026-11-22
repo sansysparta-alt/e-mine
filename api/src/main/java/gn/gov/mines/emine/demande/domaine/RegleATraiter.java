@@ -11,7 +11,8 @@ import java.util.Set;
  *   <li>demandeur (droit « déposer », profil externe) : payer les frais, payer les droits,
  *       compléter — sur ses propres demandes (RLS) ;
  *   <li>agent qui instruit (droit « instruire ») : examiner la recevabilité des demandes dont les
- *       frais sont payés ;
+ *       frais sont payés ; relancer ou clore les compléments demandés par son profil restés sans
+ *       réponse dans le délai (US-05.2) ;
  *   <li>signataire (droit « signer », profil interne) : décider puis signer, seulement pour les
  *       documents dont son profil est le signataire au catalogue (D4).
  * </ul>
@@ -31,7 +32,7 @@ public final class RegleATraiter {
               GroupeATraiter.PAYER_FRAIS, GroupeATraiter.PAYER_DROITS, GroupeATraiter.COMPLETER));
     }
     if (interne && permissions.contains("INSTRUIRE")) {
-      groupes.add(GroupeATraiter.A_EXAMINER);
+      groupes.addAll(List.of(GroupeATraiter.A_EXAMINER, GroupeATraiter.SANS_REPONSE));
     }
     if (interne && permissions.contains("SIGNER")) {
       groupes.addAll(List.of(GroupeATraiter.A_DECIDER, GroupeATraiter.A_SIGNER));

@@ -171,4 +171,70 @@ public final class DemandesDeTest {
       changerStatut(demande, "droits_payes");
     }
   }
+
+  /**
+   * Complément ouvert il y a {@code joursAvant} jours par l'agent (identifiant Keycloak) : la
+   * demande passe de {@code origine} à « complément requis » ; la base pose le délai de 5 jours.
+   */
+  public static void complementOuvert(
+      long demande, String agentKeycloakId, String origine, int joursAvant, String... pieces)
+      throws SQLException {
+    changerStatut(demande, "complement_requis");
+    try (Connection c = BaseDeDonneesDeTest.connexionOwner();
+        PreparedStatement ps =
+            c.prepareStatement(
+                "INSERT INTO complement (demande_id, demande_par, statut_origine, motif,"
+                    + " pieces_demandees, demande_le, date_limite)"
+                    + " SELECT ?, u.id, ?::statut_demande, 'Merci de compléter le dossier.', ?,"
+                    + " now() - make_interval(days => ?), now()"
+                    + " FROM utilisateur u WHERE u.keycloak_id = ?::uuid")) {
+      ps.setLong(1, demande);
+      ps.setString(2, origine);
+      ps.setArray(3, c.createArrayOf("text", pieces));
+      ps.setInt(4, joursAvant);
+      ps.setString(5, agentKeycloakId);
+      ps.executeUpdate();
+    }
+  }
+
+  /** Réponse au complément ouvert il y a {@code joursAvant} jours, inscrite hors RLS. */
+  public static void complementRepondu(long demande, int joursAvant) throws SQLException {
+    try (Connection c = BaseDeDonneesDeTest.connexionOwner();
+        PreparedStatement ps =
+            c.prepareStatement(
+                "UPDATE complement co SET repondu_le = now() - make_interval(days => ?),"
+                    + " repondu_par = d.demandeur_id FROM demande d"
+                    + " WHERE d.id = co.demande_id AND co.demande_id = ?"
+                    + " AND co.repondu_le IS NULL AND co.clos_le IS NULL")) {
+      ps.setInt(1, joursAvant);
+      ps.setLong(2, demande);
+      ps.executeUpdate();
+    }
+  }
+
+  /** Date de dépôt de la demande ramenée à {@code joursAvant} jours. */
+  public static void deposeeIlYA(long demande, int joursAvant) throws SQLException {
+    try (Connection c = BaseDeDonneesDeTest.connexionOwner();
+        PreparedStatement ps =
+            c.prepareStatement(
+                "UPDATE demande SET date_depot = now() - make_interval(days => ?) WHERE id = ?")) {
+      ps.setInt(1, joursAvant);
+      ps.setLong(2, demande);
+      ps.executeUpdate();
+    }
+  }
+
+  /** Nombre de notifications d'un modèle pour la demande, lu hors RLS. */
+  public static int notifications(long demande, String modele) throws SQLException {
+    try (Connection c = BaseDeDonneesDeTest.connexionOwner();
+        PreparedStatement ps =
+            c.prepareStatement(
+                "SELECT count(*) FROM notification WHERE demande_id = ? AND modele = ?")) {
+      ps.setLong(1, demande);
+      ps.setString(2, modele);
+      ResultSet rs = ps.executeQuery();
+      rs.next();
+      return rs.getInt(1);
+    }
+  }
 }

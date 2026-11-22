@@ -1,7 +1,13 @@
 "use server";
 
 import {
+  cloreComplement,
+  type ComplementDto,
   decider,
+  demanderComplement,
+  relancerComplement,
+  repondreComplement,
+  type ResultatComplementDto,
   declarerRecevabilite,
   delivrer,
   type DocumentDelivreDto,
@@ -81,6 +87,78 @@ export async function revoquer(
   try {
     const session = await lireSession();
     const reponse = await revoquerDocument(
+      id,
+      { motif: motif.trim() },
+      { headers: await enTetesApi(session) },
+    );
+    return { ok: true, valeur: reponse.data };
+  } catch (e) {
+    return { ok: false, erreur: versErreurFormulaire(e) };
+  }
+}
+
+/**
+ * Demande un complément au demandeur (US-05.2) : motif obligatoire, pièces attendues facultatives.
+ * L'API vérifie le droit « instruire » et l'étape de la demande.
+ */
+export async function demanderUnComplement(
+  id: number,
+  motif: string,
+  pieces: string[],
+): Promise<ResultatAction<ComplementDto>> {
+  try {
+    const session = await lireSession();
+    const reponse = await demanderComplement(
+      id,
+      { motif: motif.trim(), pieces },
+      { headers: await enTetesApi(session) },
+    );
+    return { ok: true, valeur: reponse.data };
+  } catch (e) {
+    return { ok: false, erreur: versErreurFormulaire(e) };
+  }
+}
+
+/**
+ * Réponse du demandeur au complément (US-05.2) : l'API vérifie que chaque pièce demandée est jointe
+ * (ou qu'une réponse écrite est donnée) et renvoie la demande à l'étape d'où il a été demandé.
+ */
+export async function repondreAuComplement(
+  id: number,
+  message: string | null,
+): Promise<ResultatAction<ResultatComplementDto>> {
+  try {
+    const session = await lireSession();
+    const reponse = await repondreComplement(
+      id,
+      { message: message && message.trim() ? message.trim() : null },
+      { headers: await enTetesApi(session) },
+    );
+    return { ok: true, valeur: reponse.data };
+  } catch (e) {
+    return { ok: false, erreur: versErreurFormulaire(e) };
+  }
+}
+
+/** Relance le demandeur après le délai de réponse : nouveau délai de 5 jours (US-05.2). */
+export async function relancerDemandeur(id: number): Promise<ResultatAction<ComplementDto>> {
+  try {
+    const session = await lireSession();
+    const reponse = await relancerComplement(id, { headers: await enTetesApi(session) });
+    return { ok: true, valeur: reponse.data };
+  } catch (e) {
+    return { ok: false, erreur: versErreurFormulaire(e) };
+  }
+}
+
+/** Clôt le dossier sans réponse après le délai, avec un motif communiqué au demandeur (US-05.2). */
+export async function cloreSansReponse(
+  id: number,
+  motif: string,
+): Promise<ResultatAction<ResultatComplementDto>> {
+  try {
+    const session = await lireSession();
+    const reponse = await cloreComplement(
       id,
       { motif: motif.trim() },
       { headers: await enTetesApi(session) },

@@ -708,6 +708,174 @@
         }
       }
     },
+    "/api/v1/demandes/{id}/complements" : {
+      "get" : {
+        "tags" : [ "Instruction" ],
+        "summary" : "Compléments de la demande et actions possibles pour l'utilisateur connecté",
+        "operationId" : "lireComplements",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/EtatComplementsDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Instruction" ],
+        "summary" : "Demander un complément : motif (10 à 2000 caractères) et pièces attendues ; délai de réponse de 5 jours",
+        "operationId" : "demanderComplement",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DemandeComplementDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ComplementDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/demandes/{id}/complements/reponse" : {
+      "post" : {
+        "tags" : [ "Instruction" ],
+        "summary" : "Répondre au complément : pièces demandées jointes, ou réponse écrite si aucune pièce n'est demandée",
+        "operationId" : "repondreComplement",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ReponseComplementDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ResultatComplementDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/demandes/{id}/complements/relance" : {
+      "post" : {
+        "tags" : [ "Instruction" ],
+        "summary" : "Relancer le demandeur après le délai de réponse : nouveau délai de 5 jours",
+        "operationId" : "relancerComplement",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ComplementDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/demandes/{id}/complements/cloture" : {
+      "post" : {
+        "tags" : [ "Instruction" ],
+        "summary" : "Clore le dossier sans réponse après le délai : la demande est rejetée avec le motif",
+        "operationId" : "cloreComplement",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ClotureComplementDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ResultatComplementDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/demandes/{demandeId}/pieces" : {
       "get" : {
         "tags" : [ "Demandes" ],
@@ -1685,6 +1853,106 @@
         },
         "required" : [ "demandeId", "statut" ]
       },
+      "DemandeComplementDto" : {
+        "type" : "object",
+        "properties" : {
+          "motif" : {
+            "type" : [ "string", "null" ]
+          },
+          "pieces" : {
+            "type" : [ "array", "null" ],
+            "items" : {
+              "type" : "string"
+            }
+          }
+        },
+        "required" : [ "motif", "pieces" ]
+      },
+      "ComplementDto" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "ouvert" : {
+            "type" : "boolean"
+          },
+          "statutOrigine" : {
+            "type" : "string"
+          },
+          "motif" : {
+            "type" : "string"
+          },
+          "piecesDemandees" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "demandeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "dateLimite" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "relanceLe" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "reponduLe" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "reponse" : {
+            "type" : [ "string", "null" ]
+          },
+          "closLe" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "auteur" : {
+            "type" : "string"
+          },
+          "auteurProfil" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "auteur", "auteurProfil", "closLe", "dateLimite", "demandeLe", "id", "motif", "ouvert", "piecesDemandees", "relanceLe", "reponduLe", "reponse", "statutOrigine" ]
+      },
+      "ReponseComplementDto" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "message" ]
+      },
+      "ResultatComplementDto" : {
+        "type" : "object",
+        "properties" : {
+          "demandeId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "statut" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "demandeId", "statut" ]
+      },
+      "ClotureComplementDto" : {
+        "type" : "object",
+        "properties" : {
+          "motif" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "motif" ]
+      },
       "PieceDto" : {
         "type" : "object",
         "properties" : {
@@ -2134,6 +2402,33 @@
           }
         },
         "required" : [ "aDecider", "decisionAuteur", "decisionAuteurProfil", "decisionFavorable", "decisionMotif", "decisionRenduLe", "droitsGnf", "peutDecider", "signataire", "signataireProfil" ]
+      },
+      "EtatComplementsDto" : {
+        "type" : "object",
+        "properties" : {
+          "complements" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ComplementDto"
+            }
+          },
+          "peutDemander" : {
+            "type" : "boolean"
+          },
+          "peutRepondre" : {
+            "type" : "boolean"
+          },
+          "delaiDepasse" : {
+            "type" : "boolean"
+          },
+          "piecesJointesDepuis" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        },
+        "required" : [ "complements", "delaiDepasse", "peutDemander", "peutRepondre", "piecesJointesDepuis" ]
       },
       "GroupeDto" : {
         "type" : "object",
