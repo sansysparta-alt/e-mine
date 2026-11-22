@@ -192,10 +192,13 @@ export function FiltresPastilles({
   libelle,
   options,
   Lien = LienParDefaut,
+  fin,
 }: {
   libelle: string;
   options: OptionFiltre[];
   Lien?: ComposantLien;
+  /** Élément ajouté au bout de la rangée (ex. « Plus de filtres »), aligné sur les pastilles. */
+  fin?: ReactNode;
 }) {
   return (
     <nav aria-label={libelle}>
@@ -226,6 +229,7 @@ export function FiltresPastilles({
             </Lien>
           </li>
         ))}
+        {fin ? <li className="relative">{fin}</li> : null}
       </ul>
     </nav>
   );

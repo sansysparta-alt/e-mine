@@ -72,6 +72,25 @@
             }
           }
         }
+      },
+      "delete" : {
+        "tags" : [ "Demandes" ],
+        "summary" : "Supprimer un brouillon (suppression logique ; une demande déposée ne se supprime pas)",
+        "operationId" : "supprimerBrouillon",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        }
       }
     },
     "/api/v1/paiements/notifications/tresorpay" : {

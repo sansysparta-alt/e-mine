@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -179,6 +180,17 @@ class DemandeController {
       summary = "Une demande (les siennes, ou toutes pour un agent)")
   DemandeDto lire(@PathVariable long id) {
     return DemandeDto.depuis(service.lire(id));
+  }
+
+  @DeleteMapping("/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @PreAuthorize("hasAuthority('PERM_DEPOSER')")
+  @Operation(
+      operationId = "supprimerBrouillon",
+      summary =
+          "Supprimer un brouillon (suppression logique ; une demande déposée ne se supprime pas)")
+  void supprimer(@PathVariable long id) {
+    service.supprimerBrouillon(id);
   }
 
   @PostMapping("/{id}/depot")

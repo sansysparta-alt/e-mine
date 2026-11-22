@@ -80,6 +80,19 @@ public class DemandeRepository {
   }
 
   /**
+   * Supprime un brouillon (suppression logique : {@code deleted_at}, jamais physique). Renvoie 0 si
+   * la demande n'est plus un brouillon.
+   */
+  public int supprimerBrouillon(long id, java.time.Instant le) {
+    return dsl.update(DEMANDE)
+        .set(DEMANDE.DELETED_AT, le)
+        .where(DEMANDE.ID.eq(id))
+        .and(DEMANDE.STATUT.eq(StatutDemande.brouillon))
+        .and(DEMANDE.DELETED_AT.isNull())
+        .execute();
+  }
+
+  /**
    * Dépose un brouillon : statut {@code deposee} et déclaration horodatée. Le numéro et la date de
    * dépôt sont posés par le trigger {@code fn_demande_avant} (V5). Renvoie 0 si la demande n'est
    * plus un brouillon.

@@ -1,7 +1,8 @@
 import type { DemandeDto } from "@emine/api-client";
-import { type ComposantLien, type SensTri, TableauDonnees } from "@emine/ui";
+import { type ColonneTableau, type ComposantLien, type SensTri, TableauDonnees } from "@emine/ui";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { ActionsDemande } from "./actions-demande";
 import { DateAttente } from "./date-attente";
 import { StatutDemande } from "./statut-demande";
 
@@ -25,7 +26,10 @@ export type TableauDemandesProps = {
   lienTri?: (colonne: string) => string;
   /** Colonnes triables (selon ce que l'API sait trier). */
   triables?: string[];
-  /** Profil interne : libellés de statut de l'agent (sinon ceux du demandeur). */
+  /**
+   * Profil interne : libellés de statut de l'agent et colonne Demandeur ; sinon libellés du
+   * demandeur et colonne Actions (reprendre ou supprimer un brouillon, télécharger un document).
+   */
   interne?: boolean;
 };
 
@@ -41,8 +45,10 @@ export function lienDemande(d: Pick<DemandeDto, "id" | "statut">): string {
 }
 
 /**
- * Tableau des demandes (US-03.5) : numéro, document, statut et date, sur le socle ; la ligne
- * entière ouvre la demande (formulaire pour un brouillon, fiche sinon).
+ * Tableau des demandes (US-03.5, correctifs ergonomie) : mêmes colonnes de base que « À traiter »
+ * (numéro, document, demandeur pour les agents, dépôt et attente à l'étape, statut selon le
+ * profil) ; pour le demandeur, une colonne d'actions directes. La ligne entière ouvre la demande
+ * (formulaire pour un brouillon, fiche sinon) ; les actions passent au-dessus du lien de ligne.
  */
 export function TableauDemandes({
   demandes,
@@ -54,6 +60,64 @@ export function TableauDemandes({
   interne = false,
 }: TableauDemandesProps) {
   const t = useTranslations("mesDemandes");
+  const colonnes: ColonneTableau<DemandeDto>[] = [
+    {
+      cle: "numero",
+      entete: t("colonnes.numero"),
+      triable: triables.includes("numero"),
+      rendu: (d) => <span className="font-semibold">{d.numero ?? t("brouillon")}</span>,
+    },
+    {
+      cle: "document",
+      entete: t("colonnes.document"),
+      rendu: (d) => libelles[d.typeDocumentCode] ?? d.typeDocumentCode,
+    },
+  ];
+  if (interne) {
+    colonnes.push({
+      cle: "demandeur",
+      entete: t("colonnes.demandeur"),
+      rendu: (d) => (
+        <span className="flex flex-col">
+          <span>
+            {d.demandeur.prenom} {d.demandeur.nom}
+          </span>
+          {d.demandeur.organisation ? (
+            <span className="text-sm text-texte-doux">{d.demandeur.organisation}</span>
+          ) : null}
+        </span>
+      ),
+    });
+  }
+  colonnes.push(
+    {
+      cle: "date",
+      entete: t("colonnes.date"),
+      triable: triables.includes("date"),
+      rendu: (d) => (
+        <DateAttente
+          deposeLe={d.deposeLe}
+          creeLe={d.creeLe}
+          etapeDepuis={d.etapeDepuis}
+          avecAttente={STATUTS_EN_COURS.has(d.statut)}
+        />
+      ),
+    },
+    {
+      cle: "statut",
+      entete: t("colonnes.statut"),
+      triable: triables.includes("statut"),
+      rendu: (d) => <StatutDemande demande={d} interne={interne} />,
+    },
+  );
+  if (!interne) {
+    colonnes.push({
+      cle: "actions",
+      entete: t("colonnes.actions"),
+      interactive: true,
+      rendu: (d) => <ActionsDemande demande={d} />,
+    });
+  }
   return (
     <TableauDonnees
       legende={legende}
@@ -68,38 +132,7 @@ export function TableauDemandes({
         croissant: t("tri.croissant"),
         decroissant: t("tri.decroissant"),
       }}
-      colonnes={[
-        {
-          cle: "numero",
-          entete: t("colonnes.numero"),
-          triable: triables.includes("numero"),
-          rendu: (d) => d.numero ?? t("brouillonSansNumero"),
-        },
-        {
-          cle: "document",
-          entete: t("colonnes.document"),
-          rendu: (d) => libelles[d.typeDocumentCode] ?? d.typeDocumentCode,
-        },
-        {
-          cle: "statut",
-          entete: t("colonnes.statut"),
-          triable: triables.includes("statut"),
-          rendu: (d) => <StatutDemande demande={d} interne={interne} />,
-        },
-        {
-          cle: "date",
-          entete: t("colonnes.date"),
-          triable: triables.includes("date"),
-          rendu: (d) => (
-            <DateAttente
-              deposeLe={d.deposeLe}
-              creeLe={d.creeLe}
-              etapeDepuis={d.etapeDepuis}
-              avecAttente={STATUTS_EN_COURS.has(d.statut)}
-            />
-          ),
-        },
-      ]}
+      colonnes={colonnes}
     />
   );
 }

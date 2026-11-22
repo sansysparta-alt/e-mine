@@ -4,8 +4,10 @@ import static gn.gov.mines.emine.support.Personas.GUICHET;
 import static gn.gov.mines.emine.support.Personas.INVESTISSEUR;
 import static gn.gov.mines.emine.support.Personas.INVESTISSEUR_2;
 import static gn.gov.mines.emine.support.Personas.jeton;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -91,10 +93,12 @@ class BrouillonTest extends TestIntegration {
   }
 
   @Test
-  void unAgentInterneVoitLaDemandeMaisNePeutPasDeposer() throws Exception {
+  void unAgentInterneNeVoitPasLeBrouillonEtNePeutPasDeposer() throws Exception {
     long id = idCree("{\"typeDocumentCode\": \"PEX\"}");
+    // Règle du socle : un brouillon reste privé à son auteur (correctifs ergonomie).
     mvc.perform(get("/api/v1/demandes/" + id).with(jeton(GUICHET, "GUICHET")))
-        .andExpect(status().isOk());
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.code").value("DEM-002"));
     mvc.perform(
             post("/api/v1/demandes")
                 .with(jeton(GUICHET, "GUICHET"))
@@ -118,6 +122,37 @@ class BrouillonTest extends TestIntegration {
                 .content("{\"typeDocumentCode\": \"PEX\"}"))
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.code").value("DEM-003"));
+  }
+
+  @Test
+  void lUsagerSupprimeSonBrouillonQuiDisparaitDeSesDemandes() throws Exception {
+    long id = idCree("{\"typeDocumentCode\": \"PRE\"}");
+    mvc.perform(delete("/api/v1/demandes/" + id).with(jeton(INVESTISSEUR, "INVESTISSEUR")))
+        .andExpect(status().isNoContent());
+    mvc.perform(get("/api/v1/demandes/" + id).with(jeton(INVESTISSEUR, "INVESTISSEUR")))
+        .andExpect(status().isNotFound());
+    try (Connection c = BaseDeDonneesDeTest.connexionOwner();
+        Statement st = c.createStatement()) {
+      var rs = st.executeQuery("SELECT deleted_at IS NOT NULL FROM demande WHERE id = " + id);
+      rs.next();
+      assertThat(rs.getBoolean(1)).as("suppression logique, jamais physique").isTrue();
+    }
+  }
+
+  @Test
+  void uneDemandeDeposeeOuCelleDUnAutreNeSeSupprimePas() throws Exception {
+    long depose = idCree("{\"typeDocumentCode\": \"COR\"}");
+    try (Connection c = BaseDeDonneesDeTest.connexionOwner();
+        Statement st = c.createStatement()) {
+      st.executeUpdate("UPDATE demande SET statut = 'deposee' WHERE id = " + depose);
+    }
+    mvc.perform(delete("/api/v1/demandes/" + depose).with(jeton(INVESTISSEUR, "INVESTISSEUR")))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("DEM-003"));
+    long brouillon = idCree("{\"typeDocumentCode\": \"PRE\"}");
+    mvc.perform(delete("/api/v1/demandes/" + brouillon).with(jeton(INVESTISSEUR_2, "INVESTISSEUR")))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.code").value("DEM-002"));
   }
 
   @Test
