@@ -120,6 +120,23 @@ Poste de dev sous **Windows 11** : scripts multiplateformes (scripts `package.js
 
 **Feu vert par sprint.** Le porteur du projet lance un sprint (`/sprint J1`) : ce feu vert couvre **toutes les stories du sprint**. Une conversation par sprint ; `/clear` seulement en fin de sprint.
 
+**Principes (tous les sprints)**
+1. **Qualité dès le premier jet** : le porteur ne repasse pas derrière Claude. Avant de rendre un écran, Claude fait lui-même la revue faite sur la V1 :
+   - libellés adaptés au profil, un seul badge clair ;
+   - chiffres identiques d'un écran à l'autre ;
+   - aucune phrase qui ne concerne pas le profil connecté, aucun clic inutile ;
+   - états vides et erreurs soignés ;
+   - mobile et clavier.
+2. **Cohérence avec l'existant** : réutiliser le socle (gabarit, navigation par configuration, file « À traiter », traitement à la chaîne, badges, pagination, visualiseur, formats). Un nouvel écran doit avoir l'air d'avoir toujours été là. Un besoin qui ne rentre pas dans le socle **fait évoluer le socle**, jamais un cas à part.
+3. **Vision** : une plateforme de l'État, sobre et professionnelle. Le **circuit réel du Ministère** fait foi :
+   - aucune décision administrative automatique ;
+   - chaque action est tracée ;
+   - l'usager voit toujours où en est son dossier et ce qu'il doit faire.
+4. **Aller au-delà de la demande** : une meilleure solution, une incohérence ou un risque, même hors du périmètre du sprint, est corrigé si c'est petit, sinon proposé dans le compte rendu. Claude reste le dernier à trancher, selon les règles de l'art.
+5. **Efficacité** :
+   - enchaîner sans s'arrêter et regrouper les questions en une seule fois ;
+   - économiser la consommation : lire des extraits plutôt que des fichiers entiers, écrire des comptes rendus courts.
+
 **Début de sprint (une seule interruption)**
 1. Relire toutes les stories du sprint (`docs/07` pour la V1, sinon `docs/03` + `docs/04`), les décisions et le code existant.
 2. Poser **en une seule fois** les questions qui relèvent du porteur du projet (voir « Quand demander »), et proposer l'**ordre des stories** (et les pistes parallèles en worktrees si utile).
