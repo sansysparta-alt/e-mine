@@ -41,7 +41,7 @@ async function chargerDemandes(moi: Profil): Promise<{
     const options = await optionsApi();
     const total = async (params: Parameters<typeof listerDemandes>[0]) =>
       (await listerDemandes({ ...params, taille: 10 }, options)).data;
-    const [demandes, compteurs, documents, fraisDus, aAgir, aExaminer, decisions] =
+    const [demandes, compteurs, documents, fraisDus, aAgir, aExaminer, decisions, aSigner] =
       await Promise.all([
         listerDemandes({ taille: 10 }, options),
         compterDemandes(options),
@@ -58,6 +58,9 @@ async function chargerDemandes(moi: Profil): Promise<{
         moi.interne && moi.permissions.includes("SIGNER")
           ? total({ statut: ["recevable"], signataireProfil: moi.profil.code })
           : null,
+        moi.interne && moi.permissions.includes("SIGNER")
+          ? total({ statut: ["droits_payes"], signataireProfil: moi.profil.code })
+          : null,
       ]);
     const tarifs = Object.fromEntries(documents.data.map((d) => [d.code, d.tarifs]));
     const aFaire: ActionAFaire[] = [...(aAgir?.elements ?? []), ...(fraisDus?.elements ?? [])]
@@ -73,6 +76,7 @@ async function chargerDemandes(moi: Profil): Promise<{
     const taches: TacheAgent[] = [
       ...(aExaminer ? [{ cle: "aExaminer" as const, valeur: aExaminer.total }] : []),
       ...(decisions ? [{ cle: "decisions" as const, valeur: decisions.total }] : []),
+      ...(aSigner ? [{ cle: "aSigner" as const, valeur: aSigner.total }] : []),
     ];
     return {
       demandes: demandes.data.elements,

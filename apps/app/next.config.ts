@@ -45,6 +45,14 @@ const config: NextConfig = {
           { key: "Content-Security-Policy", value: "frame-ancestors 'self'" },
         ],
       },
+      {
+        // Documents délivrés (US-06.4), consultés dans le visualiseur.
+        source: "/api/demandes/:id/document/contenu",
+        headers: [
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Content-Security-Policy", value: "frame-ancestors 'self'" },
+        ],
+      },
     ];
   },
 };

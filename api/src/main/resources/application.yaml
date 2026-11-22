@@ -87,3 +87,8 @@ emine:
     pkcs12-chemin: ${SIGNATURE_PKCS12_PATH:./infra/signature/certificat-test.p12}
     pkcs12-mot-de-passe: ${SIGNATURE_PKCS12_PASSWORD:}
     lieu: Conakry
+  # Délivrance (US-06.3) : documents signés archivés dans ce compartiment ; le QR mène à la page
+  # publique de vérification du site (apps/web).
+  delivrance:
+    compartiment: ${S3_BUCKET_DOCUMENTS:emine-documents}
+    url-publique: ${PUBLIC_WEB_URL:http://localhost:3000}

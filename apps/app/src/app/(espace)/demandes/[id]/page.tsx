@@ -3,6 +3,8 @@ import {
   examinerRecevabilite,
   lireDecision,
   lireDemande,
+  lireDocumentDelivre,
+  lireEtatDelivrance,
   listerPaiementsDemande,
   listerPieces,
 } from "@emine/api-client";
@@ -15,12 +17,17 @@ import { getTranslations } from "next-intl/server";
 import { StatutDemande } from "@/composants/demande/statut-demande";
 import { ListePieces } from "@/composants/documents/liste-pieces";
 import { prochaineEtape } from "@/composants/demande/prochaine-etape";
+import { DocumentDelivre } from "@/composants/delivrance/document-delivre";
+import { SignerDelivrer } from "@/composants/delivrance/signer-delivrer";
 import { DecisionRendue } from "@/composants/instruction/decision-rendue";
 import { ExamenRecevabilite } from "@/composants/instruction/examen-recevabilite";
 import { PriseDecision } from "@/composants/instruction/prise-decision";
 import { TableauPaiements } from "@/composants/paiement/tableau-paiements";
-import { declarer, rendreDecision } from "@/serveur/actions-instruction";
+import { declarer, rendreDecision, signerEtDelivrer } from "@/serveur/actions-instruction";
 import { appelPage, chargerMoi, chargerReferentiels, optionsApi } from "@/serveur/donnees";
+
+/** Statuts où le document délivré existe (US-06.4). */
+const STATUTS_DELIVRES = new Set(["delivree", "archivee"]);
 
 /** Statuts où aucune décision ne peut encore exister (avant la recevabilité). */
 const STATUTS_SANS_DECISION = new Set(["brouillon", "deposee", "complement_requis"]);
@@ -68,6 +75,23 @@ export default async function DetailDemande({ params, searchParams }: Props) {
     ? null
     : (await appelPage(chemin, async () => lireDecision(Number(id), await optionsApi()))).data;
   const decisionRendue = etatDecision?.decisionFavorable != null;
+  // US-06.3 : le signataire du catalogue signe et délivre quand les droits sont payés.
+  const etatDelivrance =
+    demande.statut === "droits_payes" && moi.interne && moi.permissions.includes("SIGNER")
+      ? (await appelPage(chemin, async () => lireEtatDelivrance(Number(id), await optionsApi())))
+          .data
+      : null;
+  // US-06.4 : le document délivré, consultable par qui voit la demande.
+  let documentDelivre = null;
+  if (STATUTS_DELIVRES.has(demande.statut)) {
+    try {
+      documentDelivre = (
+        await appelPage(chemin, async () => lireDocumentDelivre(Number(id), await optionsApi()))
+      ).data;
+    } catch (e) {
+      if (!(e instanceof ErreurApi && e.code === "DOC-005")) throw e;
+    }
+  }
   const aPayer = document?.tarifs.aPayerAuDepotGnf;
   const etapeCalculee = prochaineEtape(
     demande.statut,
@@ -76,7 +100,9 @@ export default async function DetailDemande({ params, searchParams }: Props) {
   );
   const etape = etatDecision?.peutDecider
     ? { cle: "signataireDecider", pour: "agent" as const }
-    : etapeCalculee;
+    : etatDelivrance?.peutDelivrer
+      ? { cle: "signataireDelivrer", pour: "agent" as const }
+      : etapeCalculee;
   const numero = demande.numero ?? "";
   // Retour vers la file de travail d'où vient l'agent (fluidité du parcours, correctifs J4).
   const retour =
@@ -86,7 +112,8 @@ export default async function DetailDemande({ params, searchParams }: Props) {
         ? { href: "/decisions", cle: "retourDecisions" }
         : { href: "/demandes", cle: "retourListe" };
   /** L'agent a une action à mener ici : mise en page dossier + panneau d'action. */
-  const actionAgent = examen !== null || etatDecision?.peutDecider === true;
+  const actionAgent =
+    examen !== null || etatDecision?.peutDecider === true || etatDelivrance?.peutDelivrer === true;
   const actionPayer =
     etape?.cle === "demandeurPayerFrais"
       ? "FRAIS"
@@ -125,6 +152,11 @@ export default async function DetailDemande({ params, searchParams }: Props) {
       <ListePieces demandeId={demande.id} pieces={pieces.data} />
     </Carte>
   );
+  const blocDocument = documentDelivre ? (
+    <Carte titre={t("documentDelivre")}>
+      <DocumentDelivre demandeId={demande.id} document={documentDelivre} />
+    </Carte>
+  ) : null;
   const blocDecision =
     etatDecision && decisionRendue ? (
       <Carte titre={t("decision")}>
@@ -168,6 +200,17 @@ export default async function DetailDemande({ params, searchParams }: Props) {
           />
         </div>
       ) : null}
+      {etatDelivrance?.peutDelivrer ? (
+        <div className="mt-4 border-t border-bordure pt-4">
+          <SignerDelivrer
+            demandeId={demande.id}
+            numero={numero}
+            document={document?.libelleFr ?? demande.typeDocumentCode}
+            signataire={etatDelivrance.signataire}
+            signerEtDelivrer={signerEtDelivrer}
+          />
+        </div>
+      ) : null}
       {actionPayer && moi.permissions.includes("PAYER") ? (
         <div className="mt-4">
           <Bouton asChild taille="grande">
@@ -205,6 +248,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_26rem]">
           <div className="flex flex-col gap-6">
             {blocInfos}
+            {blocDocument}
             {blocPieces}
             {blocDecision}
             {blocPaiements}
@@ -219,6 +263,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
       ) : (
         <>
           {blocInfos}
+          {blocDocument}
           {blocEtape}
           {blocDecision}
           {blocPaiements}

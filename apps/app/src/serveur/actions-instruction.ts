@@ -3,6 +3,8 @@
 import {
   decider,
   declarerRecevabilite,
+  delivrer,
+  type DocumentDelivreDto,
   type ResultatDecisionDto,
   type ResultatRecevabiliteDto,
 } from "@emine/api-client";
@@ -47,6 +49,20 @@ export async function rendreDecision(
       { favorable, motif: motif && motif.trim() ? motif.trim() : null },
       { headers: await enTetesApi(session) },
     );
+    return { ok: true, valeur: reponse.data };
+  } catch (e) {
+    return { ok: false, erreur: versErreurFormulaire(e) };
+  }
+}
+
+/**
+ * Signe et délivre le document (US-06.3) : l'API vérifie que l'utilisateur est le signataire du
+ * catalogue (D4) et que les droits sont payés.
+ */
+export async function signerEtDelivrer(id: number): Promise<ResultatAction<DocumentDelivreDto>> {
+  try {
+    const session = await lireSession();
+    const reponse = await delivrer(id, { headers: await enTetesApi(session) });
     return { ok: true, valeur: reponse.data };
   } catch (e) {
     return { ok: false, erreur: versErreurFormulaire(e) };

@@ -23,5 +23,7 @@ public abstract class TestIntegration {
     BaseDeDonneesDeTest.proprietes(registry);
     registry.add("emine.tresorpay.secret-hmac", () -> SECRET_TRESORPAY);
     registry.add("emine.tresorpay.marchand-id", () -> MARCHAND_TRESORPAY);
+    registry.add("emine.signature.pkcs12-chemin", () -> CertificatDeTest.chemin().toString());
+    registry.add("emine.signature.pkcs12-mot-de-passe", () -> CertificatDeTest.MOT_DE_PASSE);
   }
 }
