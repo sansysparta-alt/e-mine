@@ -74,6 +74,7 @@ Module Java = `api/` (REST, DTO) · `application/` (cas d'usage, transactions) �
 pnpm infra:up / infra:down   # Docker Compose : PostgreSQL, Keycloak, MinIO, Mailpit (limites mémoire, ~4 Go Docker)
 pnpm dev                     # API (8080) + web (3000) + app (3001) + simulateur TrésorPay (8090) via Turborepo
 pnpm db:seed                 # personas de démo (après le 1er démarrage de l'API) · pnpm infra:keycloak:reset
+pnpm signature:certificat    # certificat PKCS#12 de démonstration (infra/signature/, exclu de Git)
 pnpm db:codegen              # jOOQ forcé (Testcontainers : infra ARRÊTÉE) · pnpm api:client (orval)
 pnpm lint && pnpm typecheck && pnpm test && pnpm format:check
 ./mvnw -pl api verify        # mvnw.cmd sous Windows ; ne pas lancer en même temps que infra:up

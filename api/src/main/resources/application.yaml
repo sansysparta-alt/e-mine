@@ -80,3 +80,10 @@ emine:
     url-application: ${APP_URL:http://localhost:3001}
     tolerance-horodatage: 5m
     delai-reponse: 5s
+  # Signature des documents délivrés (US-06.2) : PAdES-BASELINE-B, certificat de test en V1
+  # (pnpm signature:certificat, exclu de Git) ; pkcs11 (SoftHSM2) au plan complet.
+  signature:
+    mode: ${SIGNATURE_MODE:pkcs12}
+    pkcs12-chemin: ${SIGNATURE_PKCS12_PATH:./infra/signature/certificat-test.p12}
+    pkcs12-mot-de-passe: ${SIGNATURE_PKCS12_PASSWORD:}
+    lieu: Conakry

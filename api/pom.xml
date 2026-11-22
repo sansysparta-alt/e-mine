@@ -28,6 +28,8 @@
     <openhtmltopdf.version>1.1.108</openhtmltopdf.version>
     <!-- QR des documents délivrés (stack docs/02 : ZXing, US-06.1) -->
     <zxing.version>3.5.4</zxing.version>
+    <!-- Signature PAdES des documents délivrés (stack docs/02 : EU DSS, US-06.2) -->
+    <dss.version>6.5.1</dss.version>
     <spotless.version>3.10.3</spotless.version>
     <jacoco.version>0.8.14</jacoco.version>
     <exec-maven-plugin.version>3.7.0</exec-maven-plugin.version>
@@ -39,6 +41,13 @@
 
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+        <artifactId>dss-bom</artifactId>
+        <version>${dss.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
       <dependency>
         <groupId>org.springframework.modulith</groupId>
         <artifactId>spring-modulith-bom</artifactId>
@@ -137,11 +146,42 @@
       <version>${zxing.version}</version>
     </dependency>
     <dependency>
+      <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+      <artifactId>dss-pades-pdfbox</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+      <artifactId>dss-token</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+      <artifactId>dss-utils-apache-commons</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+      <artifactId>dss-crl-parser-stream</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+      <artifactId>dss-cms-object</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.springdoc</groupId>
       <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
       <version>${springdoc.version}</version>
     </dependency>
 
+    <!-- Validation des signatures dans les tests (US-06.2) : même bibliothèque EU DSS -->
+    <dependency>
+      <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+      <artifactId>dss-validation</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+      <artifactId>dss-policy-jaxb</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
