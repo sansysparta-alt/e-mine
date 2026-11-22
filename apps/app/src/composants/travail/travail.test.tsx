@@ -42,6 +42,7 @@ function dossier(id: number, statut: string, fraisPayes = true): DemandeDto {
     deposeLe: "2026-11-15T10:00:00Z",
     fraisPayes,
     motifRejet: null,
+    aTraiterParMoi: false,
   };
 }
 

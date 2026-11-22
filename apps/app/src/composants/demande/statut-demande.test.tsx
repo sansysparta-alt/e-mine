@@ -1,31 +1,29 @@
 import { render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import fr from "../../../messages/fr.json";
-import { afficherFraisPayes, StatutDemande } from "./statut-demande";
+import { StatutDemande } from "./statut-demande";
 
-function afficher(statut: string, fraisPayes: boolean) {
-  render(
+function afficher(statut: string, fraisPayes: boolean, aTraiterParMoi: boolean, interne: boolean) {
+  return render(
     <NextIntlClientProvider locale="fr" messages={fr} timeZone="Africa/Conakry">
-      <StatutDemande statut={statut} fraisPayes={fraisPayes} />
+      <StatutDemande demande={{ statut, fraisPayes, aTraiterParMoi }} interne={interne} />
     </NextIntlClientProvider>,
   );
 }
 
-describe("StatutDemande (décision J3 : « Déposée · Frais payés »)", () => {
-  it("affiche « Déposée » et « Frais payés » quand les frais sont payés", () => {
-    afficher("deposee", true);
-    expect(screen.getByText("Déposée")).toBeInTheDocument();
-    expect(screen.getByText("Frais payés")).toBeInTheDocument();
-  });
-
-  it("n'affiche pas « Frais payés » tant que rien n'est payé", () => {
-    afficher("deposee", false);
-    expect(screen.getByText("Déposée")).toBeInTheDocument();
+describe("StatutDemande : un seul badge, libellé selon le profil", () => {
+  it("l'investisseur lit « En cours de vérification », le guichet « À examiner »", () => {
+    const { unmount } = afficher("deposee", true, false, false);
+    expect(screen.getByText("En cours de vérification")).toBeInTheDocument();
     expect(screen.queryByText("Frais payés")).not.toBeInTheDocument();
+    unmount();
+    afficher("deposee", true, true, true);
+    expect(screen.getByText("À examiner")).toBeInTheDocument();
   });
 
-  it("n'encombre plus le statut une fois la demande recevable", () => {
-    expect(afficherFraisPayes("recevable", true)).toBe(false);
-    expect(afficherFraisPayes("complement_requis", true)).toBe(true);
+  it("n'affiche qu'un seul badge par demande", () => {
+    const { container } = afficher("decision", true, true, false);
+    expect(screen.getByText("Droits à payer")).toBeInTheDocument();
+    expect(container.querySelectorAll("svg")).toHaveLength(1);
   });
 });

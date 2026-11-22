@@ -30,6 +30,7 @@ function demande(partiel: Partial<DemandeDto>): DemandeDto {
     deposeLe: null,
     fraisPayes: false,
     motifRejet: null,
+    aTraiterParMoi: false,
     ...partiel,
   };
 }
@@ -70,7 +71,7 @@ describe("tableau de bord (gabarit du socle)", () => {
     expect(
       screen.getByRole("link", { name: "Brouillon (numéro attribué au dépôt)" }),
     ).toHaveAttribute("href", "/demandes/3/modifier");
-    expect(screen.getByText("Déposée")).toBeInTheDocument();
+    expect(screen.getByText("Frais à payer")).toBeInTheDocument();
     expect(screen.getByText("déposée le 20/11/2026")).toBeInTheDocument();
   });
 

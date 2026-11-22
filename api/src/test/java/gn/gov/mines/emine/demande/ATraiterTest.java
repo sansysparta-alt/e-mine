@@ -162,6 +162,23 @@ class ATraiterTest extends TestIntegration {
   }
 
   @Test
+  void chaqueDemandeDitSiElleEstATraiterParLeProfilConnecte() throws Exception {
+    mvc.perform(get("/api/v1/demandes/" + pexADecider).with(jeton(MINISTRE, "MINISTRE")))
+        .andExpect(jsonPath("$.aTraiterParMoi").value(true));
+    mvc.perform(get("/api/v1/demandes/" + pexADecider).with(jeton(DIRECTEUR, "DIRECTEUR")))
+        .andExpect(jsonPath("$.aTraiterParMoi").value(false));
+    mvc.perform(get("/api/v1/demandes/" + fraisDus).with(jeton(INVESTISSEUR, "INVESTISSEUR")))
+        .andExpect(jsonPath("$.aTraiterParMoi").value(true));
+    mvc.perform(get("/api/v1/demandes/" + fraisDus).with(jeton(GUICHET, "GUICHET")))
+        .andExpect(jsonPath("$.aTraiterParMoi").value(false));
+    JsonNode liste =
+        lire(
+            get("/api/v1/demandes").param("aTraiter", "true").param("taille", "100"),
+            jeton(GUICHET, "GUICHET"));
+    liste.path("elements").forEach(e -> assertThat(e.path("aTraiterParMoi").asBoolean()).isTrue());
+  }
+
+  @Test
   void unProfilSansActionNARienATraiter() throws Exception {
     mvc.perform(get("/api/v1/demandes/a-traiter").with(jeton(FISCAL, "FISCAL")))
         .andExpect(status().isOk())

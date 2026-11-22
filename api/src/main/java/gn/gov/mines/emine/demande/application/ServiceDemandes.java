@@ -94,7 +94,8 @@ public class ServiceDemandes {
             .toList();
     // Règle du socle appliquée par l'API : un agent ne voit jamais les brouillons des usagers.
     boolean interne = utilisateurCourant.get().map(UtilisateurConnecte::interne).orElse(false);
-    return demandes.lister(filtre, interne ? critere.sansBrouillons() : critere, pagination);
+    return demandes.lister(
+        filtre, interne ? critere.sansBrouillons() : critere, pagination, filtreMoi());
   }
 
   /**
@@ -159,9 +160,17 @@ public class ServiceDemandes {
     return compteurs;
   }
 
+  /** Filtre « à traiter » du profil connecté, ou {@code null} hors requête utilisateur. */
+  private RegleATraiter.Filtre filtreMoi() {
+    return utilisateurCourant
+        .get()
+        .map(moi -> new RegleATraiter.Filtre(groupesDe(moi), moi.profilCode()))
+        .orElse(null);
+  }
+
   private DemandeDetail lireVisible(long id) {
     return demandes
-        .lire(id)
+        .lire(id, filtreMoi())
         .orElseThrow(() -> new ErreurMetier(CodeErreur.DEM_002, Map.of("id", id)));
   }
 

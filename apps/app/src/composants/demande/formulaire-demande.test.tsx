@@ -45,6 +45,7 @@ function demande(partiel: Partial<DemandeDto> = {}): DemandeDto {
     deposeLe: null,
     fraisPayes: false,
     motifRejet: null,
+    aTraiterParMoi: false,
     ...partiel,
   };
 }

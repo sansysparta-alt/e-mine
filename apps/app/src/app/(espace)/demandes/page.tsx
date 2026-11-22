@@ -140,6 +140,7 @@ export default async function MesDemandes({ searchParams }: Props) {
       ) : (
         <div className="flex flex-col gap-4">
           <TableauDemandes
+            interne={moi.interne}
             demandes={resultat.elements}
             libelles={libelles}
             legende={titre}
