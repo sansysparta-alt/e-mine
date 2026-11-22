@@ -153,3 +153,13 @@ describe("révocation (US-06.6)", () => {
     expect(refresh).toHaveBeenCalled();
   });
 });
+
+describe("profils de révocation (module sans « use client »)", () => {
+  it("réserve la révocation au Directeur et à la Brigade internes", async () => {
+    const { peutRevoquer } = await import("./revocation");
+    expect(peutRevoquer({ interne: true, profil: { code: "DIRECTEUR" } })).toBe(true);
+    expect(peutRevoquer({ interne: true, profil: { code: "BRIGADE" } })).toBe(true);
+    expect(peutRevoquer({ interne: true, profil: { code: "MINISTRE" } })).toBe(false);
+    expect(peutRevoquer({ interne: false, profil: { code: "DIRECTEUR" } })).toBe(false);
+  });
+});
