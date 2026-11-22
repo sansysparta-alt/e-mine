@@ -43,9 +43,10 @@
       "toutes": "See all my applications ({nombre})"
     },
     "dossiers": {
-      "titre": "Files to process",
+      "titre": "Latest applications",
       "vide": "No files to process at the moment.",
-      "aide": "Requests submitted by applicants will appear here."
+      "aide": "Requests submitted by applicants will appear here.",
+      "toutes": "See all applications ({nombre})"
     },
     "erreurs": {
       "compteNonActive": {
@@ -90,6 +91,13 @@
       "decisionsPrecision": "Admissible applications you sign",
       "aSigner": "Documents to sign",
       "aSignerPrecision": "Duties paid, ready to be issued"
+    },
+    "travail": {
+      "titre": "{nombre, plural, =0 {Files to process} other {Files to process (#)}}",
+      "voirTout": "See the whole queue",
+      "commencer": "{nombre, plural, one {Start processing (#)} other {Start processing (#)}}",
+      "vide": "Nothing to do for now",
+      "videAide": "Files awaiting your action will appear here."
     }
   },
   "demande": {
@@ -266,10 +274,9 @@
     },
     "motifRejet": "Reason",
     "decision": "Decision",
-    "retourGuichet": "Back to the front desk queue",
-    "retourDecisions": "Back to decisions to take",
     "panneauAction": "Action to take",
-    "documentDelivre": "Issued document"
+    "documentDelivre": "Issued document",
+    "retourTravail": "Back to “To do”"
   },
   "mesDemandes": {
     "titre": "My applications",
@@ -346,9 +353,8 @@
       "mesDemandes": "My applications",
       "demandes": "Applications",
       "nouvelleDemande": "New application",
-      "fileGuichet": "Front desk queue",
-      "decisions": "Decisions and signatures",
-      "journalAudit": "Audit log"
+      "journalAudit": "Audit log",
+      "aTraiter": "To do"
     }
   },
   "etats": {
@@ -536,62 +542,6 @@
         "confirmer": "Confirm inadmissibility"
       }
     },
-    "file": {
-      "titre": "Front desk queue",
-      "description": "Submitted applications, oldest first. Open an application to check its admissibility.",
-      "chiffres": "Front desk key figures",
-      "cartes": {
-        "aExaminer": "To review",
-        "aExaminerPrecision": "Fee paid, awaiting your review",
-        "fraisAttendus": "Fee pending",
-        "fraisAttendusPrecision": "Submitted, application fee not paid",
-        "recevables": "Admissible",
-        "recevablesPrecision": "Awaiting the signatory’s decision",
-        "nonRecevables": "Rejected",
-        "nonRecevablesPrecision": "Inadmissible or rejected at decision"
-      },
-      "demandesDeposees": "Submitted applications",
-      "filtre": "Show",
-      "onglets": {
-        "a-examiner": "To review",
-        "frais-attendus": "Fee pending"
-      },
-      "aide": {
-        "a-examiner": "Oldest first: a wait of 5 days or more is highlighted.",
-        "frais-attendus": "These applications can be declared admissible once the fee is paid."
-      },
-      "recherche": {
-        "libelle": "Search for an application",
-        "exemple": "Number (DEM-2026-…) or document",
-        "bouton": "Search"
-      },
-      "colonnes": {
-        "numero": "Number",
-        "document": "Document",
-        "demandeur": "Applicant",
-        "depot": "Submitted on",
-        "frais": "Fee"
-      },
-      "attente": "{jours, plural, =0 {today} one {# day ago} other {# days ago}}",
-      "fraisPayes": "Paid",
-      "fraisAttendus": "Pending",
-      "elements": "applications",
-      "vide": {
-        "a-examiner": "No application to review",
-        "a-examinerDescription": "All applications with a paid fee have been reviewed.",
-        "frais-attendus": "No application awaiting payment",
-        "frais-attendusDescription": "All submitted applications have their fee paid.",
-        "recherche": "No application matches this search",
-        "toutesLesDemandes": "See all applications"
-      },
-      "traitee": {
-        "recevable": "Application {numero} has been declared admissible.",
-        "recevableSuite": "It now awaits the signatory’s decision. You can review the next application.",
-        "rejetee": "Application {numero} has been declared inadmissible.",
-        "rejeteeSuite": "The applicant sees the reason on their application. You can review the next application."
-      },
-      "suivante": "Review the next one: {numero}"
-    },
     "decision": {
       "signataire": "You decide as the signatory designated in the catalogue for this document: {signataire}.",
       "sens": "Your decision",
@@ -632,44 +582,6 @@
         "motif": "Reason",
         "observations": "Remarks"
       }
-    },
-    "decisions": {
-      "titre": "Decisions and signatures",
-      "description": "Applications you sign ({profil}): to decide, then to sign and issue once the duties are paid.",
-      "recherche": {
-        "libelle": "Search for an application",
-        "exemple": "Number (DEM-2026-…) or document",
-        "bouton": "Search"
-      },
-      "vide": {
-        "a-decider": "No decision pending",
-        "a-deciderDescription": "Applications declared admissible by the front desk for the documents you sign will appear here.",
-        "a-signer": "No document to sign",
-        "a-signerDescription": "Applications whose duties are paid will appear here, ready to be signed and issued.",
-        "recherche": "No application matches this search"
-      },
-      "nombre": {
-        "a-decider": "{nombre, plural, one {# application awaits your decision.} other {# applications await your decision.}}",
-        "a-signer": "{nombre, plural, one {# document awaits your signature.} other {# documents await your signature.}}"
-      },
-      "elements": "applications",
-      "traitee": {
-        "decision": "Approval recorded for application {numero}.",
-        "droits_payes": "Approval recorded for application {numero}: it is ready for issuance.",
-        "rejetee": "Rejection recorded for application {numero}.",
-        "delivree": "Document {document} signed and issued for application {numero}."
-      },
-      "traiteeSuite": "The applicant sees the decision on their application. You can move on to the next one.",
-      "suivante": {
-        "a-decider": "Decide the next one: {numero}",
-        "a-signer": "Sign the next one: {numero}"
-      },
-      "filtre": "Show",
-      "onglets": {
-        "a-decider": "To decide",
-        "a-signer": "To sign"
-      },
-      "traiteeSuiteDelivree": "The applicant sees it in their space; it can be checked publicly with its QR code."
     }
   },
   "audit": {
@@ -842,6 +754,82 @@
       "echec": "The document was not revoked",
       "indisponible": "The service is temporarily unavailable. Try again in a moment.",
       "succes": "Document {numero} is revoked: its verification shows “NOT VALID”."
+    }
+  },
+  "travail": {
+    "titre": "To do",
+    "description": "Files awaiting your action, oldest first. Start processing: after each action, the next file opens.",
+    "filtre": "Show",
+    "groupes": {
+      "tout": "All",
+      "a-examiner": "To review",
+      "frais-attendus": "Fee pending",
+      "a-decider": "To decide",
+      "a-signer": "To sign"
+    },
+    "commencer": "{nombre, plural, one {Start processing (# file)} other {Start processing (# files)}}",
+    "continuer": "{nombre, plural, one {Continue: # file left} other {Continue: # files left}}",
+    "fileVide": "No file left in this queue: everything is done.",
+    "suivantOuvert": "Here is the next file: {numero}.",
+    "recherche": {
+      "libelle": "Search for a file",
+      "exemple": "Number (DEM-2026-…) or document",
+      "bouton": "Search"
+    },
+    "aide": {
+      "tout": "Decisions and signatures that fall to you, oldest first.",
+      "a-examiner": "Fee paid: check the documents and rule on admissibility. A wait of 5 days or more is highlighted.",
+      "frais-attendus": "For information: these applications can be reviewed once the fee is paid.",
+      "a-decider": "Admissible applications you sign: give your decision.",
+      "a-signer": "Duties paid: sign and issue the document."
+    },
+    "colonnes": {
+      "numero": "Number",
+      "document": "Document",
+      "demandeur": "Applicant",
+      "depot": "Submitted on",
+      "action": "Expected action"
+    },
+    "actions": {
+      "examiner": "To review",
+      "decider": "To decide",
+      "signer": "To sign",
+      "fraisAttendus": "Fee pending"
+    },
+    "attente": "{jours, plural, =0 {today} one {# day ago} other {# days ago}}",
+    "elements": "files",
+    "vide": {
+      "tout": "Nothing to do for now",
+      "a-examiner": "No application to review",
+      "frais-attendus": "No application awaiting payment",
+      "a-decider": "No decision to take",
+      "a-signer": "No document to sign",
+      "description": "New files will appear here as soon as they await your action.",
+      "recherche": "No file matches this search"
+    },
+    "fait": {
+      "recevable": "Application {numero} declared admissible.",
+      "rejetee": "Application {numero} rejected.",
+      "decision": "Approval recorded for application {numero}.",
+      "droits_payes": "Approval recorded for application {numero}: it is ready for issuance.",
+      "delivree": "Document {document} signed and issued for application {numero}."
+    },
+    "serie": {
+      "libelle": "Batch processing",
+      "groupe": "Batch processing: {groupe}",
+      "groupes": {
+        "tout": "All",
+        "a-examiner": "To review",
+        "frais-attendus": "Fee pending",
+        "a-decider": "To decide",
+        "a-signer": "To sign"
+      },
+      "position": "file {position} of {total}",
+      "horsFile": "{total, plural, =0 {no file left in the queue} one {# file in the queue} other {# files in the queue}}",
+      "precedent": "Previous",
+      "passer": "Skip this file",
+      "suivant": "Next file",
+      "quitter": "Stop processing"
     }
   }
 }

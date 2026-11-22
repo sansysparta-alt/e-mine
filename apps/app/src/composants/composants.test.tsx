@@ -102,7 +102,7 @@ describe("tableau de bord (gabarit du socle)", () => {
       "/demandes?groupe=aTraiter",
     );
     expect(
-      screen.getByRole("heading", { level: 2, name: "Dossiers à traiter" }),
+      screen.getByRole("heading", { level: 2, name: "Dernières demandes" }),
     ).toBeInTheDocument();
   });
 });
@@ -147,7 +147,7 @@ describe("tableau de bord orienté action (correctifs J4)", () => {
     );
     expect(screen.getByRole("link", { name: /Décisions à prendre\s*3/ })).toHaveAttribute(
       "href",
-      "/decisions",
+      "/a-traiter?groupe=a-decider",
     );
     expect(screen.queryByText("Déposées, à traiter")).not.toBeInTheDocument();
   });

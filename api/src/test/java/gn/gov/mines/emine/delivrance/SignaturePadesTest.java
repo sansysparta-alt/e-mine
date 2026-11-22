@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.interactive.digitalsignature.PDSignature;
@@ -36,7 +37,8 @@ import org.junit.jupiter.api.TestInstance;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SignaturePadesTest {
 
-  private static final Instant MAINTENANT = Instant.parse("2026-11-22T09:30:00Z");
+  /** Heure de signature : l'heure d'exécution (une date fixe finit par précéder le certificat). */
+  private static final Instant MAINTENANT = Instant.now().truncatedTo(ChronoUnit.SECONDS);
 
   private DocumentSigne signe;
 

@@ -15,19 +15,20 @@ describe("configuration unique de la navigation", () => {
     expect(fiscal.map((s) => s.cle)).toEqual(["principal"]); // sections vides retirées
   });
 
-  it("montre la file du guichet seulement aux agents internes qui instruisent (US-05.1)", () => {
-    const agent = navigationPour({ permissions: ["INSTRUIRE"], interne: true });
-    expect(cles(agent)).toEqual(["tableauDeBord", "mesDemandes", "fileGuichet"]);
+  it("montre « À traiter » aux agents internes qui instruisent ou signent (correctifs J5)", () => {
+    for (const droit of ["INSTRUIRE", "SIGNER"]) {
+      expect(cles(navigationPour({ permissions: [droit], interne: true }))).toEqual([
+        "tableauDeBord",
+        "mesDemandes",
+        "aTraiter",
+      ]);
+    }
     expect(cles(navigationPour({ permissions: ["INSTRUIRE"], interne: false }))).not.toContain(
-      "fileGuichet",
+      "aTraiter",
     );
-  });
-
-  it("montre les décisions à prendre seulement aux profils internes qui signent (US-05.4)", () => {
-    const ministre = navigationPour({ permissions: ["SIGNER"], interne: true });
-    expect(cles(ministre)).toEqual(["tableauDeBord", "mesDemandes", "decisions"]);
-    const guichet = navigationPour({ permissions: ["INSTRUIRE"], interne: true });
-    expect(cles(guichet)).not.toContain("decisions");
+    expect(cles(navigationPour({ permissions: ["ENCAISSER"], interne: true }))).not.toContain(
+      "aTraiter",
+    );
   });
 
   it("montre le journal d'audit seulement à l'administrateur interne (US-11.7)", () => {

@@ -66,7 +66,9 @@ describe("examen de recevabilité (US-05.1)", () => {
     fireEvent.click(screen.getByRole("button", { name: /Déclarer recevable/ }));
     await waitFor(() => expect(declarer).toHaveBeenCalledWith(41, true, null));
     await waitFor(() =>
-      expect(push).toHaveBeenCalledWith("/guichet?traitee=DEM-2026-000041&resultat=recevable"),
+      expect(push).toHaveBeenCalledWith(
+        "/a-traiter?groupe=a-examiner&traitee=DEM-2026-000041&resultat=recevable",
+      ),
     );
   });
 
@@ -88,7 +90,9 @@ describe("examen de recevabilité (US-05.1)", () => {
       expect(declarer).toHaveBeenCalledWith(41, false, "L'EIES n'est pas signée."),
     );
     await waitFor(() =>
-      expect(push).toHaveBeenCalledWith("/guichet?traitee=DEM-2026-000041&resultat=rejetee"),
+      expect(push).toHaveBeenCalledWith(
+        "/a-traiter?groupe=a-examiner&traitee=DEM-2026-000041&resultat=rejetee",
+      ),
     );
   });
 

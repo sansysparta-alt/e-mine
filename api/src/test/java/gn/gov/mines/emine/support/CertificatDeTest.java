@@ -39,6 +39,11 @@ public final class CertificatDeTest {
                         "2048",
                         "-sigalg",
                         "SHA256withRSA",
+                        // Valide depuis la veille : une signature datée de « maintenant » ne
+                        // précède
+                        // jamais le début de validité, quelle que soit l'heure d'exécution.
+                        "-startdate",
+                        "-1d",
                         "-validity",
                         "30",
                         "-dname",

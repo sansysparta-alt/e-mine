@@ -1,0 +1,196 @@
+/**
+ * File de travail de l'agent (correctifs J5, parcours fluides) : une seule page « À traiter », des
+ * groupes définis selon le profil (règle du socle : filtres métier par profil), l'action attendue
+ * pour chaque dossier, et le traitement en série (dossier suivant ouvert après chaque action).
+ */
+export const CLES_GROUPE = [
+  "tout",
+  "a-examiner",
+  "frais-attendus",
+  "a-decider",
+  "a-signer",
+] as const;
+export type CleGroupe = (typeof CLES_GROUPE)[number];
+
+/** Action attendue de l'agent sur un dossier ; null = rien à faire (information). */
+export type ActionAttendue = "examiner" | "decider" | "signer";
+
+export type Groupe = {
+  cle: CleGroupe;
+  /** Statuts de la base retenus. */
+  statuts: string[];
+  /** Filtre « frais payés » (guichet), s'il s'applique. */
+  fraisPayes?: boolean;
+  /** Seulement les documents dont l'utilisateur est le signataire au catalogue (D4). */
+  signataire: boolean;
+  /** Le groupe se traite en série (bouton « Commencer le traitement »). */
+  actionnable: boolean;
+};
+
+export type ProfilTravail = {
+  interne: boolean;
+  permissions: string[];
+  profil: { code: string };
+};
+
+/**
+ * Groupes proposés selon le profil : le guichet examine la recevabilité (et suit les frais
+ * attendus), le signataire décide puis signe. Liste vide pour un profil sans file de travail.
+ */
+export function groupesPour(p: ProfilTravail): Groupe[] {
+  if (!p.interne) return [];
+  const groupes: Groupe[] = [];
+  if (p.permissions.includes("INSTRUIRE")) {
+    groupes.push(
+      {
+        cle: "a-examiner",
+        statuts: ["deposee"],
+        fraisPayes: true,
+        signataire: false,
+        actionnable: true,
+      },
+      {
+        cle: "frais-attendus",
+        statuts: ["deposee"],
+        fraisPayes: false,
+        signataire: false,
+        actionnable: false,
+      },
+    );
+  }
+  if (p.permissions.includes("SIGNER")) {
+    groupes.push(
+      { cle: "tout", statuts: ["recevable", "droits_payes"], signataire: true, actionnable: true },
+      { cle: "a-decider", statuts: ["recevable"], signataire: true, actionnable: true },
+      { cle: "a-signer", statuts: ["droits_payes"], signataire: true, actionnable: true },
+    );
+  }
+  return groupes;
+}
+
+/** Paramètres de la liste des demandes (API) pour un groupe : du plus ancien au plus récent. */
+export function parametresListe(groupe: Groupe, profilCode: string) {
+  return {
+    statut: groupe.statuts,
+    ...(groupe.fraisPayes === undefined ? {} : { fraisPayes: groupe.fraisPayes }),
+    ...(groupe.signataire ? { signataireProfil: profilCode } : {}),
+    tri: "date" as const,
+    sens: "asc" as const,
+  };
+}
+
+/** Action attendue de l'agent selon le statut (et les frais pour une demande déposée). */
+export function actionPour(statut: string, fraisPayes: boolean): ActionAttendue | null {
+  if (statut === "deposee") return fraisPayes ? "examiner" : null;
+  if (statut === "recevable") return "decider";
+  if (statut === "droits_payes") return "signer";
+  return null;
+}
+
+/** Groupe où revenir après chaque type d'action, hors traitement en série. */
+export const GROUPE_PAR_ACTION: Record<ActionAttendue, CleGroupe> = {
+  examiner: "a-examiner",
+  decider: "a-decider",
+  signer: "a-signer",
+};
+
+const RESULTATS = ["recevable", "rejetee", "decision", "droits_payes", "delivree"] as const;
+export type ResultatAction = (typeof RESULTATS)[number];
+const NUMERO = /^DEM-\d{4}-\d{6}$/;
+const NUMERO_DOCUMENT = /^[A-Z]{3}-\d{4}-\d{4,}$/;
+const TAILLES = [10, 20, 50, 100];
+
+/** Action qui vient d'être menée (message de confirmation), lue dans l'adresse et validée. */
+export type ActionFaite = { numero: string; resultat: ResultatAction; document?: string };
+
+export function lireActionFaite(p: {
+  numero?: string;
+  resultat?: string;
+  document?: string;
+}): ActionFaite | undefined {
+  const resultat = RESULTATS.find((r) => r === p.resultat);
+  if (!p.numero || !NUMERO.test(p.numero) || !resultat) return undefined;
+  return {
+    numero: p.numero,
+    resultat,
+    ...(p.document && NUMERO_DOCUMENT.test(p.document) ? { document: p.document } : {}),
+  };
+}
+
+export type ParametresTravail = {
+  groupe?: string;
+  q?: string;
+  page?: string;
+  taille?: string;
+  traitee?: string;
+  resultat?: string;
+  document?: string;
+};
+
+/** Paramètres de la page « À traiter », validés contre les groupes du profil. */
+export function lireParametresTravail(p: ParametresTravail, groupes: Groupe[]) {
+  const groupe = groupes.find((g) => g.cle === p.groupe) ?? groupes[0];
+  if (!groupe) throw new Error("Aucune file de travail pour ce profil");
+  const page = Math.max(1, Number.parseInt(p.page ?? "1", 10) || 1);
+  const tailleDemandee = Number.parseInt(p.taille ?? "", 10);
+  const taille = TAILLES.includes(tailleDemandee) ? tailleDemandee : 20;
+  const q = p.q?.trim().slice(0, 100) || undefined;
+  const faite = lireActionFaite({ numero: p.traitee, resultat: p.resultat, document: p.document });
+  return { groupe, page, taille, q, faite };
+}
+
+/** Adresse d'un dossier ouvert depuis la file (traitement en série). */
+export function adresseFiche(id: number, groupe: CleGroupe): string {
+  return `/demandes/${id}?file=${groupe}`;
+}
+
+/** Position du dossier dans la file et dossiers voisins (identifiants dans l'ordre de la file). */
+export function positionDansFile(ids: number[], courant: number) {
+  const index = ids.indexOf(courant);
+  if (index < 0) return { dansLaFile: false as const, total: ids.length, premier: ids[0] ?? null };
+  return {
+    dansLaFile: true as const,
+    total: ids.length,
+    position: index + 1,
+    precedent: index > 0 ? (ids[index - 1] ?? null) : null,
+    suivant: index + 1 < ids.length ? (ids[index + 1] ?? null) : null,
+  };
+}
+
+/**
+ * Contexte du traitement en série transmis aux actions (recevabilité, décision, signature) :
+ * groupe de la file et dossier à ouvrir ensuite (null = c'était le dernier).
+ */
+export type ContexteSerie = { groupe: CleGroupe; suivant: number | null };
+
+/**
+ * Adresse où aller après une action réussie : le dossier suivant de la file (avec la confirmation
+ * de ce qui vient d'être fait), sinon la page « À traiter » avec cette confirmation.
+ */
+export function adresseApresAction(
+  serie: ContexteSerie | null,
+  groupeParDefaut: CleGroupe,
+  faite: ActionFaite,
+): string {
+  const q = new URLSearchParams();
+  if (serie?.suivant != null) {
+    q.set("file", serie.groupe);
+    q.set("fait", faite.numero);
+    q.set("resultat", faite.resultat);
+    if (faite.document) q.set("document", faite.document);
+    return `/demandes/${serie.suivant}?${q.toString()}`;
+  }
+  q.set("groupe", serie?.groupe ?? groupeParDefaut);
+  q.set("traitee", faite.numero);
+  q.set("resultat", faite.resultat);
+  if (faite.document) q.set("document", faite.document);
+  return `/a-traiter?${q.toString()}`;
+}
+
+const JOUR_MS = 24 * 60 * 60 * 1000;
+
+/** Nombre de jours entiers écoulés depuis le dépôt (0 le jour même). */
+export function joursAttente(deposeLe: string, maintenant: Date = new Date()): number {
+  const ecart = maintenant.getTime() - new Date(deposeLe).getTime();
+  return Math.max(0, Math.floor(ecart / JOUR_MS));
+}

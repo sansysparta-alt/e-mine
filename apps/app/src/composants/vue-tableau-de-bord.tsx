@@ -20,11 +20,14 @@ import {
   FileText,
   Hourglass,
   Inbox,
+  Play,
   Stamp,
 } from "@emine/ui/icones";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { TableauDemandes } from "./demande/tableau-demandes";
+import { adresseFiche, type CleGroupe } from "./travail/file-travail";
+import { TableauTravail } from "./travail/tableau-travail";
 
 /** Nombre de demandes récentes affichées sur le tableau de bord. */
 export const DEMANDES_RECENTES = 5;
@@ -43,9 +46,9 @@ export type ActionAFaire = {
 export type TacheAgent = { cle: "aExaminer" | "decisions" | "aSigner"; valeur: number };
 
 const TACHES: Record<TacheAgent["cle"], { href: string; icone: typeof Inbox }> = {
-  aExaminer: { href: "/guichet", icone: Inbox },
-  decisions: { href: "/decisions", icone: Stamp },
-  aSigner: { href: "/decisions?onglet=a-signer", icone: FileSignature },
+  aExaminer: { href: "/a-traiter?groupe=a-examiner", icone: Inbox },
+  decisions: { href: "/a-traiter?groupe=a-decider", icone: Stamp },
+  aSigner: { href: "/a-traiter?groupe=a-signer", icone: FileSignature },
 };
 
 /** Déduit l'action attendue du demandeur d'après le statut (et les frais payés). */
@@ -73,6 +76,11 @@ export type VueTableauDeBordProps = {
   aFaire?: ActionAFaire[];
   /** Agent : ses files de travail selon ses droits (guichet, décisions). */
   taches?: TacheAgent[];
+  /**
+   * Agent qui instruit ou signe : les premiers dossiers de sa file de travail (correctifs J5), au
+   * lieu de toutes les demandes ; le tableau de bord propose de commencer le traitement.
+   */
+  travail?: { groupe: CleGroupe; dossiers: DemandeDto[]; total: number };
 };
 
 /** Compteurs par statut déduits d'une liste (quand l'API ne les fournit pas). */
@@ -113,6 +121,7 @@ export function VueTableauDeBord({
   libelles = {},
   aFaire = [],
   taches = [],
+  travail,
 }: VueTableauDeBordProps) {
   const t = useTranslations("tableauDeBord");
   const c = chiffres(compteurs ?? compteursDe(demandes));
@@ -213,12 +222,6 @@ export function VueTableauDeBord({
               icone={CircleCheck}
               href="/demandes?statut=delivree"
             />
-            <CarteChiffre
-              libelle={t("chiffres.total")}
-              valeur={nombre}
-              icone={FileText}
-              href="/demandes"
-            />
           </>
         ) : (
           <>
@@ -249,30 +252,67 @@ export function VueTableauDeBord({
           </>
         )}
       </GrilleChiffres>
-      <section aria-labelledby="demandes-recentes" className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 id="demandes-recentes" className="text-xl">
-            {t(`${bloc}.titre`)}
-          </h2>
+      {interne && travail ? (
+        <section aria-labelledby="dossiers-a-traiter" className="flex flex-col gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 id="dossiers-a-traiter" className="text-xl">
+              {t("travail.titre", { nombre: travail.total })}
+            </h2>
+            {travail.dossiers[0] ? (
+              <div className="flex flex-wrap items-center gap-3">
+                <Link
+                  href={`/a-traiter?groupe=${travail.groupe}`}
+                  className="inline-flex min-h-11 items-center text-royal underline"
+                >
+                  {t("travail.voirTout")}
+                </Link>
+                <Bouton asChild>
+                  <Link href={adresseFiche(travail.dossiers[0].id, travail.groupe)}>
+                    <Play aria-hidden="true" className="size-4" />
+                    {t("travail.commencer", { nombre: travail.total })}
+                  </Link>
+                </Bouton>
+              </div>
+            ) : null}
+          </div>
+          {travail.dossiers.length > 0 ? (
+            <TableauTravail
+              demandes={travail.dossiers}
+              libelles={libelles}
+              legende={t("travail.titre", { nombre: travail.total })}
+              groupe={travail.groupe}
+              maintenant={new Date()}
+            />
+          ) : (
+            <EtatVide titre={t("travail.vide")} description={t("travail.videAide")} />
+          )}
+        </section>
+      ) : (
+        <section aria-labelledby="demandes-recentes" className="flex flex-col gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 id="demandes-recentes" className="text-xl">
+              {t(`${bloc}.titre`)}
+            </h2>
+            {demandes.length > 0 ? (
+              <Link
+                href="/demandes"
+                className="inline-flex min-h-11 items-center text-royal underline"
+              >
+                {interne ? t("dossiers.toutes", { nombre }) : t("demandes.toutes", { nombre })}
+              </Link>
+            ) : null}
+          </div>
           {demandes.length > 0 ? (
-            <Link
-              href="/demandes"
-              className="inline-flex min-h-11 items-center text-royal underline"
-            >
-              {t("demandes.toutes", { nombre })}
-            </Link>
-          ) : null}
-        </div>
-        {demandes.length > 0 ? (
-          <TableauDemandes
-            demandes={demandes.slice(0, DEMANDES_RECENTES)}
-            libelles={libelles}
-            legende={t(`${bloc}.titre`)}
-          />
-        ) : (
-          <EtatVide titre={t(`${bloc}.vide`)} description={t(`${bloc}.aide`)} action={nouvelle} />
-        )}
-      </section>
+            <TableauDemandes
+              demandes={demandes.slice(0, DEMANDES_RECENTES)}
+              libelles={libelles}
+              legende={t(`${bloc}.titre`)}
+            />
+          ) : (
+            <EtatVide titre={t(`${bloc}.vide`)} description={t(`${bloc}.aide`)} action={nouvelle} />
+          )}
+        </section>
+      )}
     </div>
   );
 }

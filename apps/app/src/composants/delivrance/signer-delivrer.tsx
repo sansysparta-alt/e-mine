@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import type { ResultatAction } from "@/serveur/erreurs-formulaire";
+import { adresseApresAction, type ContexteSerie } from "../travail/file-travail";
 
 export type SignerDelivrerProps = {
   demandeId: number;
@@ -16,6 +17,8 @@ export type SignerDelivrerProps = {
   /** Signataire du catalogue (D4), rappelé à la personne qui signe. */
   signataire: string;
   signerEtDelivrer: (id: number) => Promise<ResultatAction<DocumentDelivreDto>>;
+  /** Traitement en série : après la délivrance, le dossier suivant de la file s'ouvre. */
+  serie?: ContexteSerie | null;
 };
 
 /**
@@ -29,6 +32,7 @@ export function SignerDelivrer({
   document,
   signataire,
   signerEtDelivrer,
+  serie,
 }: SignerDelivrerProps) {
   const t = useTranslations("delivrance.signer");
   const router = useRouter();
@@ -41,13 +45,13 @@ export function SignerDelivrer({
     demarrer(async () => {
       const resultat = await signerEtDelivrer(demandeId);
       if (resultat.ok) {
-        const q = new URLSearchParams({
-          onglet: "a-signer",
-          traitee: numero,
-          resultat: "delivree",
-          document: resultat.valeur.numero,
-        });
-        router.push(`/decisions?${q.toString()}`);
+        router.push(
+          adresseApresAction(serie ?? null, "a-signer", {
+            numero,
+            resultat: "delivree",
+            document: resultat.valeur.numero,
+          }),
+        );
         return;
       }
       setConfirmation(false);

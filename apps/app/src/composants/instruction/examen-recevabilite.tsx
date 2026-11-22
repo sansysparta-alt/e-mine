@@ -7,6 +7,11 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { type ReactNode, useId, useState, useTransition } from "react";
 import type { ResultatAction } from "@/serveur/erreurs-formulaire";
+import {
+  adresseApresAction,
+  type ContexteSerie,
+  type ResultatAction as Resultat,
+} from "../travail/file-travail";
 import { ChampMotif, erreurMotif } from "./champ-motif";
 
 export type ExamenRecevabiliteProps = {
@@ -20,6 +25,8 @@ export type ExamenRecevabiliteProps = {
     recevable: boolean,
     motif: string | null,
   ) => Promise<ResultatAction<ResultatRecevabiliteDto>>;
+  /** Traitement en série : après la déclaration, le dossier suivant de la file s'ouvre. */
+  serie?: ContexteSerie | null;
 };
 
 /**
@@ -34,6 +41,7 @@ export function ExamenRecevabilite({
   examen,
   piecesRequises,
   declarer,
+  serie,
 }: ExamenRecevabiliteProps) {
   const t = useTranslations("instruction.recevabilite");
   const tMotif = useTranslations("instruction.motif");
@@ -53,8 +61,12 @@ export function ExamenRecevabilite({
     demarrer(async () => {
       const resultat = await declarer(demandeId, recevable, recevable ? null : motif.trim());
       if (resultat.ok) {
-        const q = new URLSearchParams({ traitee: numero, resultat: resultat.valeur.statut });
-        router.push(`/guichet?${q.toString()}`);
+        router.push(
+          adresseApresAction(serie ?? null, "a-examiner", {
+            numero,
+            resultat: resultat.valeur.statut as Resultat,
+          }),
+        );
         return;
       }
       const champ = resultat.erreur.champs.find((c) => c.champ === "motif");
