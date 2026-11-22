@@ -59,15 +59,23 @@
       }
     },
     "chiffres": {
-      "mesDemandes": "Mes demandes",
-      "brouillons": "Brouillons",
+      "titreDemandeur": "Mes demandes en chiffres",
+      "toutes": "Toutes mes demandes",
+      "aFaire": "À faire",
       "enCours": "En cours de traitement",
+      "brouillons": "Brouillons",
       "delivrees": "Documents délivrés",
-      "aTraiter": "Déposées, à traiter",
-      "total": "Total des demandes"
+      "rejetees": "Demandes rejetées",
+      "vues": {
+        "a-traiter": "À traiter",
+        "attente-demandeur": "En attente du demandeur",
+        "en-cours": "En cours",
+        "terminees": "Terminées",
+        "rejetees": "Rejetées"
+      }
     },
     "aFaire": {
-      "titre": "{nombre, plural, one {À faire maintenant (#)} other {À faire maintenant (#)}}",
+      "titre": "{nombre, plural, one {Ce que je dois faire (#)} other {Ce que je dois faire (#)}}",
       "explication": {
         "FRAIS": "Frais de dossier à payer : {montant}. Le guichet examinera votre dossier ensuite.",
         "DROITS": "Décision favorable : droits à payer, {montant}, pour obtenir votre document.",
@@ -82,15 +90,9 @@
         "FRAIS": "Payer les frais",
         "DROITS": "Payer les droits",
         "COMPLEMENT": "Compléter"
-      }
-    },
-    "taches": {
-      "aExaminer": "À examiner au guichet",
-      "aExaminerPrecision": "Frais payés, en attente de recevabilité",
-      "decisions": "Décisions à prendre",
-      "decisionsPrecision": "Demandes recevables dont vous êtes signataire",
-      "aSigner": "Documents à signer",
-      "aSignerPrecision": "Droits payés, prêts à être délivrés"
+      },
+      "vide": "Rien à faire de votre côté pour le moment",
+      "videAide": "Vos demandes suivent leur cours. Vous serez prévenu par e-mail dès qu'une action sera attendue de vous."
     },
     "travail": {
       "titre": "{nombre, plural, =0 {Dossiers à traiter} other {Dossiers à traiter (#)}}",
@@ -98,6 +100,59 @@
       "commencer": "{nombre, plural, one {Commencer le traitement (#)} other {Commencer le traitement (#)}}",
       "vide": "Rien à traiter pour le moment",
       "videAide": "Les dossiers qui attendent votre action apparaîtront ici."
+    },
+    "periodes": {
+      "titre": "Période des indicateurs",
+      "mois": "Ce mois-ci",
+      "30-jours": "30 derniers jours",
+      "annee": "Année en cours",
+      "aCeJour": "À ce jour",
+      "aujourdhui": "Aujourd'hui"
+    },
+    "guichet": {
+      "complements": "Compléments attendus",
+      "complementsPrecision": "Pièces demandées au demandeur",
+      "frais": "Frais attendus",
+      "fraisPrecision": "Demandes déposées, frais non payés",
+      "traites": "Traités aujourd’hui",
+      "traitesPrecision": "Dossiers dont vous avez changé le statut",
+      "retard": "En retard",
+      "retardPrecision": "Délai du catalogue dépassé"
+    },
+    "pilotage": {
+      "titre": "Pilotage",
+      "retard": {
+        "titre": "{nombre, plural, one {# dossier en retard sur le délai du catalogue} other {# dossiers en retard sur les délais du catalogue}}",
+        "texte": "Délai compté en jours calendaires depuis le dépôt, à ce jour.",
+        "lien": "Voir les dossiers en retard",
+        "aucun": "Aucun dossier en retard à ce jour",
+        "aucunTexte": "Tous les dossiers en cours respectent les délais du catalogue."
+      },
+      "aTraiter": "À décider ou à signer",
+      "aTraiterPrecision": "Documents dont vous êtes signataire",
+      "delivrees": "Documents délivrés",
+      "delai": "Délai moyen de délivrance",
+      "delaiValeur": "{jours} j",
+      "delaiAucun": "—",
+      "delaiPrecision": "Du dépôt à la délivrance, en jours calendaires",
+      "encaissements": "Encaissements",
+      "encaissementsPrecision": "Frais et droits payés"
+    },
+    "repartition": {
+      "titre": "Répartition par document",
+      "aide": "En cours et en retard : à ce jour. Délivrés, délai moyen et encaissements : {periode}.",
+      "colonnes": {
+        "document": "Document",
+        "enCours": "En cours",
+        "enRetard": "En retard",
+        "delivrees": "Délivrés",
+        "delai": "Délai moyen",
+        "encaissements": "Encaissements"
+      },
+      "jours": "{jours} j",
+      "sansDelai": "—",
+      "vide": "Aucune activité sur la période",
+      "videAide": "Choisissez une période plus longue pour voir la répartition."
     }
   },
   "demande": {
@@ -347,6 +402,16 @@
         "confirmer": "Supprimer le brouillon",
         "enCours": "Suppression…"
       }
+    },
+    "filtresTableau": {
+      "titre": "Filtres actifs",
+      "effacer": "Effacer ce filtre",
+      "enRetard": "En retard (à ce jour)",
+      "traiteParMoi": "Traités par vous aujourd’hui",
+      "periode": "Entrés dans ce statut : {periode}",
+      "fraisNonPayes": "Frais non payés",
+      "fraisPayes": "Frais payés",
+      "document": "Document : {libelle}"
     }
   },
   "session": {

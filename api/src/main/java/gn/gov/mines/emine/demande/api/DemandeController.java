@@ -69,7 +69,8 @@ class DemandeController {
       operationId = "listerDemandes",
       summary =
           "Mes demandes (toutes pour un agent), paginées, filtrables par statut, document,"
-              + " frais payés, signataire et recherche, triables")
+              + " frais payés, signataire, recherche et indicateur du tableau de bord (en retard,"
+              + " traités aujourd'hui, entrés dans leur statut pendant la période), triables")
   PageDemandesDto lister(
       @RequestParam(required = false) List<@Pattern(regexp = "^[a-z_]+$") String> statut,
       @RequestParam(required = false) @Pattern(regexp = "^[A-Z]{3}$") String typeDocumentCode,
@@ -79,6 +80,9 @@ class DemandeController {
       @RequestParam(required = false) Boolean aTraiter,
       @RequestParam(required = false) @Pattern(regexp = "^[a-z-]{1,20}$") String vue,
       @RequestParam(required = false) @Pattern(regexp = "^[a-z-]{1,20}$") String groupe,
+      @RequestParam(required = false) Boolean enRetard,
+      @RequestParam(required = false) Boolean traiteParMoi,
+      @RequestParam(required = false) @Pattern(regexp = "^[a-z0-9-]{1,20}$") String periode,
       @RequestParam(required = false) @Pattern(regexp = "^(numero|date|statut)$") String tri,
       @RequestParam(required = false) @Pattern(regexp = "^(asc|desc)$") String sens,
       @RequestParam(required = false) Integer page,
@@ -101,6 +105,7 @@ class DemandeController {
                         ? service.filtreATraiter(groupe)
                         : null,
                     vue == null ? null : service.vue(vue),
+                    service.pilotage(enRetard, traiteParMoi, periode),
                     false,
                     colonne,
                     croissant),
@@ -120,6 +125,18 @@ class DemandeController {
       summary = "Nombre de demandes visibles par statut (tableau de bord)")
   Map<String, Long> compteurs() {
     return service.compteurs();
+  }
+
+  @GetMapping("/indicateurs")
+  @Operation(
+      operationId = "lireIndicateurs",
+      summary =
+          "Indicateurs du tableau de bord : retards sur les délais du catalogue et attentes (à ce"
+              + " jour), traités aujourd'hui, délivrances, délai moyen et encaissements sur la"
+              + " période (mois en cours par défaut), répartition par document")
+  IndicateursDto indicateurs(
+      @RequestParam(required = false) @Pattern(regexp = "^[a-z0-9-]{1,20}$") String periode) {
+    return IndicateursDto.depuis(service.indicateurs(periode));
   }
 
   @GetMapping("/a-traiter")

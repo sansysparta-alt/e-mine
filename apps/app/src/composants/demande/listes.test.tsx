@@ -3,7 +3,9 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import { NextIntlClientProvider } from "next-intl";
 import type { ReactNode } from "react";
 import fr from "../../../messages/fr.json";
+import { FiltresActifs } from "../liste/filtres-actifs";
 import { PlusDeFiltres } from "../liste/plus-de-filtres";
+import { lireParametres } from "./parametres-liste";
 import { TableauDemandes } from "./tableau-demandes";
 
 const refresh = vi.fn();
@@ -132,5 +134,45 @@ describe("« Plus de filtres » dans la rangée des pastilles", () => {
       "href",
       "/demandes",
     );
+  });
+});
+
+describe("filtres ouverts depuis le tableau de bord (correctifs ergonomie)", () => {
+  it("garde seulement les filtres connus de l'adresse", () => {
+    const p = lireParametres({
+      enRetard: "1",
+      traiteParMoi: "true",
+      periode: "30-jours",
+      fraisPayes: "false",
+      document: "PEX",
+    });
+    expect(p).toMatchObject({
+      enRetard: "1",
+      traiteParMoi: "1",
+      periode: "30-jours",
+      fraisPayes: "false",
+      document: "PEX",
+    });
+    const inconnus = lireParametres({ enRetard: "oui", periode: "siecle", document: "pex" });
+    expect(inconnus.enRetard).toBeUndefined();
+    expect(inconnus.periode).toBeUndefined();
+    expect(inconnus.document).toBeUndefined();
+  });
+
+  it("affiche chaque filtre actif avec de quoi l'effacer", () => {
+    afficher(
+      <FiltresActifs
+        titre="Filtres actifs"
+        libelleEffacer="Effacer ce filtre"
+        filtres={[
+          { cle: "enRetard", libelle: "En retard (à ce jour)", effacer: "/demandes" },
+          { cle: "document", libelle: "Document : PEX", effacer: "/demandes?enRetard=1" },
+        ]}
+      />,
+    );
+    expect(screen.getByText("En retard (à ce jour)")).toBeVisible();
+    expect(
+      screen.getByRole("link", { name: "Effacer ce filtre : Document : PEX" }),
+    ).toHaveAttribute("href", "/demandes?enRetard=1");
   });
 });

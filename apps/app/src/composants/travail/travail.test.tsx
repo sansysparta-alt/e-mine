@@ -167,8 +167,21 @@ describe("tableau de bord de l'agent", () => {
         prenom="Ibrahima"
         nom="Soumah"
         profilLibelle="Ministre"
-        interne
-        taches={[{ cle: "decisions", valeur: 1 }]}
+        profil="decideur"
+        aTraiterTotal={1}
+        indicateurs={{
+          periode: "mois",
+          debut: "2026-11-01T00:00:00Z",
+          fin: "2026-11-22T10:00:00Z",
+          enRetard: 0,
+          complementsAttendus: 0,
+          fraisAttendus: 0,
+          traitesAujourdhui: 0,
+          delivrees: 0,
+          delaiMoyenJours: null,
+          encaissementsGnf: 0,
+          parDocument: [],
+        }}
         travail={{ groupe: "tout", dossiers: [dossier(4, "recevable")], total: 1 }}
       />,
     );

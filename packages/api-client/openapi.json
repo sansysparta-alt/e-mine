@@ -148,7 +148,7 @@
     "/api/v1/demandes" : {
       "get" : {
         "tags" : [ "Demandes" ],
-        "summary" : "Mes demandes (toutes pour un agent), paginées, filtrables par statut, document, frais payés, signataire et recherche, triables",
+        "summary" : "Mes demandes (toutes pour un agent), paginées, filtrables par statut, document, frais payés, signataire, recherche et indicateur du tableau de bord (en retard, traités aujourd'hui, entrés dans leur statut pendant la période), triables",
         "operationId" : "listerDemandes",
         "parameters" : [ {
           "name" : "statut",
@@ -215,6 +215,28 @@
           "schema" : {
             "type" : "string",
             "pattern" : "^[a-z-]{1,20}$"
+          }
+        }, {
+          "name" : "enRetard",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "traiteParMoi",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "periode",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "^[a-z0-9-]{1,20}$"
           }
         }, {
           "name" : "tri",
@@ -1153,6 +1175,34 @@
         }
       }
     },
+    "/api/v1/demandes/indicateurs" : {
+      "get" : {
+        "tags" : [ "Demandes" ],
+        "summary" : "Indicateurs du tableau de bord : retards sur les délais du catalogue et attentes (à ce jour), traités aujourd'hui, délivrances, délai moyen et encaissements sur la période (mois en cours par défaut), répartition par document",
+        "operationId" : "lireIndicateurs",
+        "parameters" : [ {
+          "name" : "periode",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "^[a-z0-9-]{1,20}$"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/IndicateursDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/demandes/compteurs" : {
       "get" : {
         "tags" : [ "Demandes" ],
@@ -1983,6 +2033,86 @@
           }
         },
         "required" : [ "total", "vues" ]
+      },
+      "IndicateursDto" : {
+        "type" : "object",
+        "properties" : {
+          "periode" : {
+            "type" : "string"
+          },
+          "debut" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "fin" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "enRetard" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "complementsAttendus" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "fraisAttendus" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "traitesAujourdhui" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "delivrees" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "delaiMoyenJours" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "encaissementsGnf" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "parDocument" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ParDocumentDto"
+            }
+          }
+        },
+        "required" : [ "complementsAttendus", "debut", "delaiMoyenJours", "delivrees", "enRetard", "encaissementsGnf", "fin", "fraisAttendus", "parDocument", "periode", "traitesAujourdhui" ]
+      },
+      "ParDocumentDto" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "enCours" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "enRetard" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "delivrees" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "delaiMoyenJours" : {
+            "type" : [ "number", "null" ],
+            "format" : "double"
+          },
+          "encaissementsGnf" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "code", "delaiMoyenJours", "delivrees", "enCours", "enRetard", "encaissementsGnf" ]
       },
       "ATraiterDto" : {
         "type" : "object",

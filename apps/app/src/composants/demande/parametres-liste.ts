@@ -18,9 +18,18 @@ export const STATUTS = [
 export const TRIS = ["numero", "date", "statut"] as const;
 const TAILLES = [10, 20, 50, 100];
 
+/** Périodes des indicateurs du tableau de bord (clés de l'API). */
+export const PERIODES_LISTE = ["mois", "30-jours", "annee"] as const;
+
 export type Parametres = {
   groupe?: string;
   statut?: string;
+  /** Filtres ouverts depuis une carte du tableau de bord. */
+  enRetard?: string;
+  traiteParMoi?: string;
+  periode?: string;
+  fraisPayes?: string;
+  document?: string;
   q?: string;
   tri?: string;
   sens?: string;
@@ -40,5 +49,23 @@ export function lireParametres(p: Parametres) {
   const tailleDemandee = Number.parseInt(p.taille ?? "", 10);
   const taille = TAILLES.includes(tailleDemandee) ? tailleDemandee : 20;
   const q = p.q?.trim().slice(0, 100) || undefined;
-  return { groupe, statut, tri, sens, page, taille, q };
+  const enRetard = p.enRetard === "1" || p.enRetard === "true" ? "1" : undefined;
+  const traiteParMoi = p.traiteParMoi === "1" || p.traiteParMoi === "true" ? "1" : undefined;
+  const periode = PERIODES_LISTE.find((x) => x === p.periode);
+  const fraisPayes = p.fraisPayes === "true" || p.fraisPayes === "false" ? p.fraisPayes : undefined;
+  const document = p.document && /^[A-Z]{3}$/.test(p.document) ? p.document : undefined;
+  return {
+    groupe,
+    statut,
+    tri,
+    sens,
+    page,
+    taille,
+    q,
+    enRetard,
+    traiteParMoi,
+    periode,
+    fraisPayes,
+    document,
+  };
 }

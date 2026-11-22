@@ -15,12 +15,14 @@ import gn.gov.mines.emine.demande.domaine.DemandeDetail;
 import gn.gov.mines.emine.demande.domaine.GroupeATraiter;
 import gn.gov.mines.emine.demande.domaine.RegleATraiter;
 import gn.gov.mines.emine.demande.domaine.VueDemandes;
+import gn.gov.mines.emine.shared.jooq.Routines;
 import gn.gov.mines.emine.shared.jooq.enums.ObjetPaiement;
 import gn.gov.mines.emine.shared.jooq.enums.StatutDemande;
 import gn.gov.mines.emine.shared.jooq.enums.StatutPaiement;
 import gn.gov.mines.emine.shared.pagination.PageResultat;
 import gn.gov.mines.emine.shared.pagination.Pagination;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -144,6 +146,9 @@ public class DemandeRepository {
     if (critere.vue() != null) {
       condition = condition.and(conditionVue(critere.vue()));
     }
+    if (critere.pilotage() != null) {
+      condition = condition.and(conditionPilotage(critere.pilotage()));
+    }
     if (critere.recherche() != null && !critere.recherche().isBlank()) {
       String motif = "%" + echapperLike(critere.recherche().strip()) + "%";
       condition =
@@ -200,6 +205,64 @@ public class DemandeRepository {
       case A_DECIDER -> DEMANDE.STATUT.eq(StatutDemande.recevable).and(signataire);
       case A_SIGNER -> DEMANDE.STATUT.eq(StatutDemande.droits_payes).and(signataire);
     };
+  }
+
+  /** Filtres d'un indicateur du tableau de bord (correctifs ergonomie). */
+  static Condition conditionPilotage(CritereDemandes.Pilotage p) {
+    Condition c = DSL.trueCondition();
+    if (p.enRetard()) {
+      c = c.and(conditionEnRetard(p.maintenant()));
+    }
+    if (p.traiteParMoiDepuis() != null) {
+      c = c.and(conditionTraiteParMoi(p.traiteParMoiDepuis()));
+    }
+    if (p.etapeDepuis() != null) {
+      c = c.and(ETAPE_DEPUIS_BRUT.ge(p.etapeDepuis()));
+    }
+    return c;
+  }
+
+  /** Statuts d'une demande en cours de traitement (ni brouillon, ni terminée, ni rejetée). */
+  static final List<StatutDemande> STATUTS_EN_COURS =
+      VueDemandes.STATUTS_ACTIFS.stream().map(StatutDemande::lookupLiteral).toList();
+
+  /**
+   * Nombre de jours calendaires, à l'heure de Conakry, entre deux instants (décision du porteur :
+   * délais comptés depuis le dépôt, en jours calendaires).
+   */
+  static Field<Integer> joursCalendaires(Field<Instant> depuis, Field<Instant> jusqua) {
+    return DSL.field(
+        "(({0} at time zone 'Africa/Conakry')::date - ({1} at time zone 'Africa/Conakry')::date)",
+        Integer.class, jusqua, depuis);
+  }
+
+  /**
+   * Dossier en retard : en cours, et le délai du catalogue ({@code type_document.delai_jours}) est
+   * dépassé, compté en jours calendaires depuis le dépôt. Suppose la jointure sur le catalogue.
+   */
+  static Condition conditionEnRetard(Instant maintenant) {
+    return DEMANDE
+        .STATUT
+        .in(STATUTS_EN_COURS)
+        .and(DEMANDE.DATE_DEPOT.isNotNull())
+        .and(
+            joursCalendaires(DEMANDE.DATE_DEPOT, DSL.val(maintenant, DEMANDE.DATE_DEPOT))
+                .gt(TYPE_DOCUMENT.DELAI_JOURS.cast(Integer.class)));
+  }
+
+  /** Le profil connecté a changé le statut du dossier depuis cet instant (historique en base). */
+  static Condition conditionTraiteParMoi(Instant depuis) {
+    return DEMANDE
+        .STATUT
+        .ne(StatutDemande.brouillon)
+        .and(
+            DSL.exists(
+                DSL.selectOne()
+                    .from(HISTORIQUE_STATUT_DEMANDE)
+                    .where(HISTORIQUE_STATUT_DEMANDE.DEMANDE_ID.eq(DEMANDE.ID))
+                    .and(HISTORIQUE_STATUT_DEMANDE.AUTEUR_ID.eq(Routines.fnCurrentUserId()))
+                    .and(HISTORIQUE_STATUT_DEMANDE.ANCIEN_STATUT.isNotNull())
+                    .and(HISTORIQUE_STATUT_DEMANDE.CREATED_AT.ge(depuis))));
   }
 
   /** Condition d'une vue : exclusive des autres vues du même profil. */
@@ -317,12 +380,13 @@ public class DemandeRepository {
   static final Field<Boolean> FRAIS_PAYES = DSL.field(FRAIS_PAYES_COND).as("frais_payes");
 
   /** Entrée dans le statut actuel : dernier changement de statut (historique tenu par la base). */
-  static final Field<java.time.Instant> ETAPE_DEPUIS =
+  static final Field<java.time.Instant> ETAPE_DEPUIS_BRUT =
       DSL.field(
-              DSL.select(DSL.max(HISTORIQUE_STATUT_DEMANDE.CREATED_AT))
-                  .from(HISTORIQUE_STATUT_DEMANDE)
-                  .where(HISTORIQUE_STATUT_DEMANDE.DEMANDE_ID.eq(DEMANDE.ID)))
-          .as("etape_depuis");
+          DSL.select(DSL.max(HISTORIQUE_STATUT_DEMANDE.CREATED_AT))
+              .from(HISTORIQUE_STATUT_DEMANDE)
+              .where(HISTORIQUE_STATUT_DEMANDE.DEMANDE_ID.eq(DEMANDE.ID)));
+
+  static final Field<java.time.Instant> ETAPE_DEPUIS = ETAPE_DEPUIS_BRUT.as("etape_depuis");
 
   /** Colonne calculée : la demande est « à traiter » par le profil connecté. */
   static final String A_TRAITER_PAR_MOI = "a_traiter_par_moi";

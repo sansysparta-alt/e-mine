@@ -59,15 +59,23 @@
       }
     },
     "chiffres": {
-      "mesDemandes": "My applications",
-      "brouillons": "Drafts",
+      "titreDemandeur": "My applications in figures",
+      "toutes": "All my applications",
+      "aFaire": "To do",
       "enCours": "Being processed",
+      "brouillons": "Drafts",
       "delivrees": "Documents issued",
-      "aTraiter": "Submitted, to process",
-      "total": "Total applications"
+      "rejetees": "Rejected applications",
+      "vues": {
+        "a-traiter": "To process",
+        "attente-demandeur": "Awaiting the applicant",
+        "en-cours": "In progress",
+        "terminees": "Completed",
+        "rejetees": "Rejected"
+      }
     },
     "aFaire": {
-      "titre": "{nombre, plural, one {To do now (#)} other {To do now (#)}}",
+      "titre": "{nombre, plural, one {What I need to do (#)} other {What I need to do (#)}}",
       "explication": {
         "FRAIS": "Application fee to pay: {montant}. The front desk will then review your file.",
         "DROITS": "Approved: duties to pay, {montant}, to obtain your document.",
@@ -82,15 +90,9 @@
         "FRAIS": "Pay the fee",
         "DROITS": "Pay the duties",
         "COMPLEMENT": "Complete"
-      }
-    },
-    "taches": {
-      "aExaminer": "To review at the front desk",
-      "aExaminerPrecision": "Fee paid, awaiting admissibility",
-      "decisions": "Decisions to take",
-      "decisionsPrecision": "Admissible applications you sign",
-      "aSigner": "Documents to sign",
-      "aSignerPrecision": "Duties paid, ready to be issued"
+      },
+      "vide": "Nothing for you to do at the moment",
+      "videAide": "Your applications are progressing. You will be notified by e-mail as soon as an action is expected from you."
     },
     "travail": {
       "titre": "{nombre, plural, =0 {Files to process} other {Files to process (#)}}",
@@ -98,6 +100,59 @@
       "commencer": "{nombre, plural, one {Start processing (#)} other {Start processing (#)}}",
       "vide": "Nothing to do for now",
       "videAide": "Files awaiting your action will appear here."
+    },
+    "periodes": {
+      "titre": "Indicator period",
+      "mois": "This month",
+      "30-jours": "Last 30 days",
+      "annee": "This year",
+      "aCeJour": "As of today",
+      "aujourdhui": "Today"
+    },
+    "guichet": {
+      "complements": "Awaited supplements",
+      "complementsPrecision": "Documents requested from the applicant",
+      "frais": "Awaited fees",
+      "fraisPrecision": "Submitted applications, fees not paid",
+      "traites": "Processed today",
+      "traitesPrecision": "Files whose status you changed",
+      "retard": "Overdue",
+      "retardPrecision": "Catalogue time limit exceeded"
+    },
+    "pilotage": {
+      "titre": "Steering",
+      "retard": {
+        "titre": "{nombre, plural, one {# file overdue against the catalogue time limit} other {# files overdue against the catalogue time limits}}",
+        "texte": "Time limit counted in calendar days from submission, as of today.",
+        "lien": "See overdue files",
+        "aucun": "No overdue file as of today",
+        "aucunTexte": "All files in progress are within the catalogue time limits."
+      },
+      "aTraiter": "To decide or sign",
+      "aTraiterPrecision": "Documents you sign",
+      "delivrees": "Documents issued",
+      "delai": "Average issuing time",
+      "delaiValeur": "{jours} d",
+      "delaiAucun": "—",
+      "delaiPrecision": "From submission to issue, in calendar days",
+      "encaissements": "Collections",
+      "encaissementsPrecision": "Fees and duties paid"
+    },
+    "repartition": {
+      "titre": "Breakdown by document",
+      "aide": "In progress and overdue: as of today. Issued, average time and collections: {periode}.",
+      "colonnes": {
+        "document": "Document",
+        "enCours": "In progress",
+        "enRetard": "Overdue",
+        "delivrees": "Issued",
+        "delai": "Average time",
+        "encaissements": "Collections"
+      },
+      "jours": "{jours} d",
+      "sansDelai": "—",
+      "vide": "No activity over the period",
+      "videAide": "Choose a longer period to see the breakdown."
     }
   },
   "demande": {
@@ -347,6 +402,16 @@
         "confirmer": "Delete the draft",
         "enCours": "Deleting…"
       }
+    },
+    "filtresTableau": {
+      "titre": "Active filters",
+      "effacer": "Clear this filter",
+      "enRetard": "Overdue (as of today)",
+      "traiteParMoi": "Processed by you today",
+      "periode": "Entered this status: {periode}",
+      "fraisNonPayes": "Fees not paid",
+      "fraisPayes": "Fees paid",
+      "document": "Document: {libelle}"
     }
   },
   "session": {
