@@ -129,7 +129,7 @@ class EvenementsNotificationsTest extends TestIntegration {
   void lesEvenementsDePaiementAVerifierRembourseEtReferenceProcheDeLExpirationSontNotifies()
       throws Exception {
     long id = DemandesDeTest.deposee(INVESTISSEUR, "PEX");
-    String virement = paiementVirement(id, "now() - interval '6 days'");
+    String virement = paiementVirement(id, "now() + interval '1 day'");
     DemandesDeTest.changerStatutPaiement(virement, "en_attente");
 
     // J-2 : une seule alerte par référence, même si la tâche repasse.
@@ -138,7 +138,7 @@ class EvenementsNotificationsTest extends TestIntegration {
 
     DemandesDeTest.changerStatutPaiement(virement, "a_verifier");
     long autre = DemandesDeTest.deposee(INVESTISSEUR, "PEX");
-    String paye = paiementVirement(autre, "now()");
+    String paye = paiementVirement(autre, "now() + interval '7 days'");
     DemandesDeTest.changerStatutPaiement(
         paye, "en_attente", "paye", "remboursement_demande", "rembourse");
 
@@ -257,18 +257,16 @@ class EvenementsNotificationsTest extends TestIntegration {
     DemandesDeTest.changerStatutPaiement(reference, "en_attente", "paye");
   }
 
-  /** Virement de frais (référence de 7 jours) créé à l'instant donné ; renvoie sa référence. */
-  private static String paiementVirement(long demande, String creeLe) throws SQLException {
+  /** Virement de frais dont la référence expire à l'instant donné ; renvoie sa référence. */
+  private static String paiementVirement(long demande, String expiration) throws SQLException {
     try (Connection c = BaseDeDonneesDeTest.connexionOwner();
         PreparedStatement ps =
             c.prepareStatement(
-                "INSERT INTO paiement (demande_id, objet, moyen, montant_gnf, payeur_id, created_at,"
+                "INSERT INTO paiement (demande_id, objet, moyen, montant_gnf, payeur_id,"
                     + " date_expiration)"
                     + " SELECT ?, 'FRAIS_DOSSIER', 'VIREMENT', 5000000, demandeur_id, "
-                    + creeLe
-                    + ", "
-                    + creeLe
-                    + " + interval '7 days' FROM demande WHERE id = ? RETURNING reference")) {
+                    + expiration
+                    + " FROM demande WHERE id = ? RETURNING reference")) {
       ps.setLong(1, demande);
       ps.setLong(2, demande);
       ResultSet rs = ps.executeQuery();

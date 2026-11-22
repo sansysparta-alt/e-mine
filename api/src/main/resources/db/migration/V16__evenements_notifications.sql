@@ -194,8 +194,8 @@ BEGIN
 END $$;
 
 -- 6. Référence de paiement proche de l'expiration (J-2) : tâche planifiée de l'API, idempotente
---    (une seule alerte par paiement). Concerne les références à longue durée (virement, 7 jours) ;
---    une session TrésorPay (15 min) n'est jamais concernée.
+--    (une seule alerte par paiement). Concerne les références de virement (7 jours) ; une session
+--    TrésorPay (15 min) n'est jamais concernée.
 CREATE FUNCTION fn_alerter_references_expirantes() RETURNS integer
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = emine, pg_temp AS
 $$
@@ -208,7 +208,7 @@ BEGIN
      WHERE pa.statut IN ('initie', 'en_attente')
        AND pa.date_expiration > now()
        AND pa.date_expiration <= now() + interval '2 days'
-       AND pa.date_expiration - pa.created_at > interval '2 days'
+       AND pa.moyen = 'VIREMENT'
        AND NOT EXISTS (SELECT 1 FROM notification n
                         WHERE n.paiement_id = pa.id AND n.modele = 'REFERENCE_EXPIRE_BIENTOT')
      FOR UPDATE SKIP LOCKED
