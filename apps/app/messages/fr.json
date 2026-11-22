@@ -87,7 +87,9 @@
       "aExaminer": "À examiner au guichet",
       "aExaminerPrecision": "Frais payés, en attente de recevabilité",
       "decisions": "Décisions à prendre",
-      "decisionsPrecision": "Demandes recevables dont vous êtes signataire"
+      "decisionsPrecision": "Demandes recevables dont vous êtes signataire",
+      "aSigner": "Documents à signer",
+      "aSignerPrecision": "Droits payés, prêts à être délivrés"
     }
   },
   "demande": {
@@ -237,7 +239,7 @@
       "demandeurInstruction": "Votre demande est en cours d'instruction par les services du Ministère.",
       "demandeurPayerDroits": "Une décision favorable a été rendue : payez les droits ({droits}) pour obtenir votre document.",
       "demandeurDelivrance": "Votre demande est prête pour la délivrance : votre document est en cours d’établissement.",
-      "demandeurDelivree": "Votre document a été délivré.",
+      "demandeurDelivree": "Votre document est délivré : consultez-le, téléchargez-le ou faites-le vérifier par son QR.",
       "demandeurRejetee": "Votre demande a été rejetée. Le motif est indiqué ci-dessus.",
       "actionPayer": {
         "FRAIS": "Payer les frais de dossier",
@@ -246,7 +248,8 @@
       "agentFraisAttendus": "Les frais de dossier ne sont pas encore payés : vous pourrez déclarer la demande recevable dès leur paiement. Si le dossier ne peut pas aboutir, déclarez-le non recevable en indiquant le motif.",
       "demandeurAttenteGuichet": "Frais de dossier payés. L’agent du guichet unique examine maintenant votre dossier ; vous serez informé de sa décision.",
       "agentAttenteDecision": "Demande recevable : la décision du signataire ({signataire}) est attendue.",
-      "signataireDecider": "Cette demande est recevable et vous en êtes le signataire. Consultez le dossier et les pièces jointes ci-dessous, puis rendez votre décision."
+      "signataireDecider": "Cette demande est recevable et vous en êtes le signataire. Consultez le dossier et les pièces jointes ci-dessous, puis rendez votre décision.",
+      "signataireDelivrer": "Les droits sont payés : vous pouvez signer et délivrer le document. Vérifiez une dernière fois le dossier ci-contre."
     },
     "fraisPayes": "Frais payés",
     "paiements": {
@@ -265,7 +268,8 @@
     "decision": "Décision",
     "retourGuichet": "Retour à la file du guichet",
     "retourDecisions": "Retour aux décisions à prendre",
-    "panneauAction": "Action à mener"
+    "panneauAction": "Action à mener",
+    "documentDelivre": "Document délivré"
   },
   "mesDemandes": {
     "titre": "Mes demandes",
@@ -343,7 +347,7 @@
       "demandes": "Demandes",
       "nouvelleDemande": "Nouvelle demande",
       "fileGuichet": "File du guichet",
-      "decisions": "Décisions à prendre",
+      "decisions": "Décisions et signatures",
       "journalAudit": "Journal d’audit"
     }
   },
@@ -630,27 +634,42 @@
       }
     },
     "decisions": {
-      "titre": "Décisions à prendre",
-      "description": "Les demandes recevables dont vous êtes le signataire ({profil}), de la plus ancienne à la plus récente.",
+      "titre": "Décisions et signatures",
+      "description": "Les demandes dont vous êtes le signataire ({profil}) : à décider, puis à signer et délivrer une fois les droits payés.",
       "recherche": {
         "libelle": "Rechercher une demande",
         "exemple": "Numéro (DEM-2026-…) ou document",
         "bouton": "Rechercher"
       },
       "vide": {
-        "titre": "Aucune décision en attente",
-        "description": "Les demandes déclarées recevables par le guichet pour les documents que vous signez apparaîtront ici.",
+        "a-decider": "Aucune décision en attente",
+        "a-deciderDescription": "Les demandes déclarées recevables par le guichet pour les documents que vous signez apparaîtront ici.",
+        "a-signer": "Aucun document à signer",
+        "a-signerDescription": "Les demandes dont les droits sont payés apparaîtront ici, prêtes à être signées et délivrées.",
         "recherche": "Aucune demande ne correspond à cette recherche"
       },
-      "nombre": "{nombre, plural, one {# demande attend votre décision.} other {# demandes attendent votre décision.}}",
+      "nombre": {
+        "a-decider": "{nombre, plural, one {# demande attend votre décision.} other {# demandes attendent votre décision.}}",
+        "a-signer": "{nombre, plural, one {# document attend votre signature.} other {# documents attendent votre signature.}}"
+      },
       "elements": "demandes",
       "traitee": {
         "decision": "Décision favorable enregistrée pour la demande {numero}.",
         "droits_payes": "Décision favorable enregistrée pour la demande {numero} : elle est prête pour la délivrance.",
-        "rejetee": "Rejet enregistré pour la demande {numero}."
+        "rejetee": "Rejet enregistré pour la demande {numero}.",
+        "delivree": "Document {document} signé et délivré pour la demande {numero}."
       },
       "traiteeSuite": "Le demandeur voit la décision sur sa demande. Vous pouvez passer à la suivante.",
-      "suivante": "Décider la suivante : {numero}"
+      "suivante": {
+        "a-decider": "Décider la suivante : {numero}",
+        "a-signer": "Signer la suivante : {numero}"
+      },
+      "filtre": "Afficher",
+      "onglets": {
+        "a-decider": "À décider",
+        "a-signer": "À signer"
+      },
+      "traiteeSuiteDelivree": "Le demandeur le voit dans son espace ; il est vérifiable publiquement par son QR."
     }
   },
   "audit": {
@@ -775,6 +794,41 @@
       "avant": "Avant",
       "apres": "Après",
       "valeur": "Valeur"
+    }
+  },
+  "delivrance": {
+    "signer": {
+      "signataire": "Vous signez en tant que signataire désigné par le catalogue : {signataire}.",
+      "etapes": {
+        "etablir": "Le document « {document} » est établi au format PDF/A avec son numéro et son QR.",
+        "signer": "Il est signé électroniquement (PAdES) avec votre certificat.",
+        "archiver": "Il est archivé et inscrit au registre avec son empreinte.",
+        "remettre": "Le demandeur le reçoit aussitôt dans son espace."
+      },
+      "action": "Signer et délivrer…",
+      "enCours": "Signature en cours…",
+      "echec": "Le document n’a pas été délivré",
+      "indisponible": "Le service est momentanément indisponible. Réessayez dans un instant.",
+      "confirmation": {
+        "titre": "Signer et délivrer la demande {numero}",
+        "texte": "Le document « {document} » va être signé à votre nom et remis au demandeur.",
+        "definitive": "Une fois délivré, le document ne peut plus être modifié ; seule une révocation est possible.",
+        "annuler": "Revenir au dossier",
+        "confirmer": "Signer et délivrer"
+      }
+    },
+    "document": {
+      "numero": "Numéro",
+      "validite": "Validité",
+      "valide": "Valide",
+      "nonValide": "Non valide",
+      "motif": "Motif de la révocation",
+      "delivreLe": "Délivré le",
+      "signePar": "Signé par",
+      "empreinte": "Empreinte SHA-256",
+      "voir": "Voir le document",
+      "verifier": "Page de vérification",
+      "nouvelOnglet": "(s’ouvre dans un nouvel onglet)"
     }
   }
 }

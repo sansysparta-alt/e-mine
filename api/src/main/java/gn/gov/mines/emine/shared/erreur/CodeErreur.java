@@ -65,6 +65,10 @@ public enum CodeErreur {
   DOC_002("DOC-002", HttpStatus.CONTENT_TOO_LARGE),
   /** Pièce jointe introuvable. */
   DOC_003("DOC-003", HttpStatus.NOT_FOUND),
+  /** Signature du document impossible : certificat ou module de signature indisponible. */
+  DOC_004("DOC-004", HttpStatus.SERVICE_UNAVAILABLE),
+  /** Aucun document délivré pour cette demande (ou introuvable). */
+  DOC_005("DOC-005", HttpStatus.NOT_FOUND),
   /** Erreur interne : un identifiant d'incident est donné dans le message et les détails. */
   SYS_001("SYS-001", HttpStatus.INTERNAL_SERVER_ERROR),
   /** Ressource ou adresse introuvable. */

@@ -128,4 +128,31 @@ public final class DemandesDeTest {
       return rs.next() ? rs.getString(1) : null;
     }
   }
+
+  /**
+   * Mène la demande (déposée) jusqu'à « droits payés » comme le ferait le parcours : frais payés,
+   * recevable, décision favorable du signataire (inscrite dans avis_decision), droits payés.
+   */
+  public static void pretePourLaDelivrance(
+      long demande, String signataireKeycloakId, String objetFrais, long frais, Long droits)
+      throws SQLException {
+    payer(demande, objetFrais, frais);
+    changerStatut(demande, "recevable");
+    try (Connection c = BaseDeDonneesDeTest.connexionOwner();
+        PreparedStatement ps =
+            c.prepareStatement(
+                "INSERT INTO avis_decision (demande_id, auteur_id, nature, sens, motif)"
+                    + " SELECT ?, id, 'decision', 'favorable', 'Dossier conforme.'"
+                    + " FROM utilisateur WHERE keycloak_id = ?::uuid")) {
+      ps.setLong(1, demande);
+      ps.setString(2, signataireKeycloakId);
+      ps.executeUpdate();
+    }
+    changerStatut(demande, "decision");
+    if (droits != null) {
+      payer(demande, "DROITS", droits);
+    } else {
+      changerStatut(demande, "droits_payes");
+    }
+  }
 }

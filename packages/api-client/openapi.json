@@ -417,6 +417,60 @@
         }
       }
     },
+    "/api/v1/demandes/{id}/delivrance" : {
+      "get" : {
+        "tags" : [ "Délivrance" ],
+        "summary" : "La demande est-elle prête, et l'utilisateur peut-il signer et délivrer ?",
+        "operationId" : "lireEtatDelivrance",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/EtatDelivranceDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Délivrance" ],
+        "summary" : "Signer et délivrer : PDF/A avec QR, signature PAdES, archivage, registre, demande délivrée",
+        "operationId" : "delivrer",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DocumentDelivreDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/demandes/{id}/decision" : {
       "get" : {
         "tags" : [ "Instruction" ],
@@ -863,6 +917,71 @@
         }
       }
     },
+    "/api/v1/demandes/{id}/document" : {
+      "get" : {
+        "tags" : [ "Délivrance" ],
+        "summary" : "Document délivré de la demande",
+        "operationId" : "lireDocumentDelivre",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DocumentDelivreDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/demandes/{id}/document/contenu" : {
+      "get" : {
+        "tags" : [ "Délivrance" ],
+        "summary" : "PDF signé du document délivré (à afficher dans le visualiseur : inline=true)",
+        "operationId" : "telechargerDocumentDelivre",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "inline",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/pdf" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/demandes/{demandeId}/pieces/{pieceId}/contenu" : {
       "get" : {
         "tags" : [ "Demandes" ],
@@ -1168,6 +1287,37 @@
           }
         },
         "required" : [ "declarationHonneur" ]
+      },
+      "DocumentDelivreDto" : {
+        "type" : "object",
+        "properties" : {
+          "numero" : {
+            "type" : "string"
+          },
+          "codeType" : {
+            "type" : "string"
+          },
+          "valide" : {
+            "type" : "boolean"
+          },
+          "motifInvalidation" : {
+            "type" : [ "string", "null" ]
+          },
+          "delivreLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "empreinteSha256" : {
+            "type" : "string"
+          },
+          "urlVerification" : {
+            "type" : "string"
+          },
+          "signataire" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "codeType", "delivreLe", "empreinteSha256", "motifInvalidation", "numero", "signataire", "urlVerification", "valide" ]
       },
       "DecisionDto" : {
         "type" : "object",
@@ -1562,6 +1712,21 @@
           }
         },
         "required" : [ "disponible", "moyen" ]
+      },
+      "EtatDelivranceDto" : {
+        "type" : "object",
+        "properties" : {
+          "aDelivrer" : {
+            "type" : "boolean"
+          },
+          "peutDelivrer" : {
+            "type" : "boolean"
+          },
+          "signataire" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "aDelivrer", "peutDelivrer", "signataire" ]
       },
       "EtatDecisionDto" : {
         "type" : "object",

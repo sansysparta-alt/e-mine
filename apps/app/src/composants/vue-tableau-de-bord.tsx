@@ -16,6 +16,7 @@ import {
   CircleCheck,
   CreditCard,
   FilePen,
+  FileSignature,
   FileText,
   Hourglass,
   Inbox,
@@ -39,11 +40,12 @@ export type ActionAFaire = {
 };
 
 /** Tâche d'un agent, avec son nombre et sa file de travail. */
-export type TacheAgent = { cle: "aExaminer" | "decisions"; valeur: number };
+export type TacheAgent = { cle: "aExaminer" | "decisions" | "aSigner"; valeur: number };
 
 const TACHES: Record<TacheAgent["cle"], { href: string; icone: typeof Inbox }> = {
   aExaminer: { href: "/guichet", icone: Inbox },
   decisions: { href: "/decisions", icone: Stamp },
+  aSigner: { href: "/decisions?onglet=a-signer", icone: FileSignature },
 };
 
 /** Déduit l'action attendue du demandeur d'après le statut (et les frais payés). */

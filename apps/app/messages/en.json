@@ -87,7 +87,9 @@
       "aExaminer": "To review at the front desk",
       "aExaminerPrecision": "Fee paid, awaiting admissibility",
       "decisions": "Decisions to take",
-      "decisionsPrecision": "Admissible applications you sign"
+      "decisionsPrecision": "Admissible applications you sign",
+      "aSigner": "Documents to sign",
+      "aSignerPrecision": "Duties paid, ready to be issued"
     }
   },
   "demande": {
@@ -237,7 +239,7 @@
       "demandeurInstruction": "Your application is being reviewed by the Ministry's services.",
       "demandeurPayerDroits": "A favourable decision was issued: pay the duties ({droits}) to obtain your document.",
       "demandeurDelivrance": "Your application is ready for issuance: your document is being prepared.",
-      "demandeurDelivree": "Your document has been issued.",
+      "demandeurDelivree": "Your document has been issued: view it, download it or have it checked with its QR code.",
       "demandeurRejetee": "Your application has been rejected. The reason is shown above.",
       "actionPayer": {
         "FRAIS": "Pay the application fee",
@@ -246,7 +248,8 @@
       "agentFraisAttendus": "The application fee has not been paid yet: you can declare the application admissible once it is paid. If the file cannot succeed, declare it inadmissible and give the reason.",
       "demandeurAttenteGuichet": "Application fee paid. The one-stop shop officer is now reviewing your file; you will be informed of the decision.",
       "agentAttenteDecision": "Admissible application: the signatory’s decision ({signataire}) is awaited.",
-      "signataireDecider": "This application is admissible and you are its signatory. Review the file and the attached documents below, then give your decision."
+      "signataireDecider": "This application is admissible and you are its signatory. Review the file and the attached documents below, then give your decision.",
+      "signataireDelivrer": "The duties are paid: you can sign and issue the document. Check the file one last time."
     },
     "fraisPayes": "Fee paid",
     "paiements": {
@@ -265,7 +268,8 @@
     "decision": "Decision",
     "retourGuichet": "Back to the front desk queue",
     "retourDecisions": "Back to decisions to take",
-    "panneauAction": "Action to take"
+    "panneauAction": "Action to take",
+    "documentDelivre": "Issued document"
   },
   "mesDemandes": {
     "titre": "My applications",
@@ -343,7 +347,7 @@
       "demandes": "Applications",
       "nouvelleDemande": "New application",
       "fileGuichet": "Front desk queue",
-      "decisions": "Decisions to take",
+      "decisions": "Decisions and signatures",
       "journalAudit": "Audit log"
     }
   },
@@ -630,27 +634,42 @@
       }
     },
     "decisions": {
-      "titre": "Decisions to take",
-      "description": "Admissible applications for which you are the signatory ({profil}), oldest first.",
+      "titre": "Decisions and signatures",
+      "description": "Applications you sign ({profil}): to decide, then to sign and issue once the duties are paid.",
       "recherche": {
         "libelle": "Search for an application",
         "exemple": "Number (DEM-2026-…) or document",
         "bouton": "Search"
       },
       "vide": {
-        "titre": "No decision pending",
-        "description": "Applications declared admissible by the front desk for the documents you sign will appear here.",
+        "a-decider": "No decision pending",
+        "a-deciderDescription": "Applications declared admissible by the front desk for the documents you sign will appear here.",
+        "a-signer": "No document to sign",
+        "a-signerDescription": "Applications whose duties are paid will appear here, ready to be signed and issued.",
         "recherche": "No application matches this search"
       },
-      "nombre": "{nombre, plural, one {# application awaits your decision.} other {# applications await your decision.}}",
+      "nombre": {
+        "a-decider": "{nombre, plural, one {# application awaits your decision.} other {# applications await your decision.}}",
+        "a-signer": "{nombre, plural, one {# document awaits your signature.} other {# documents await your signature.}}"
+      },
       "elements": "applications",
       "traitee": {
         "decision": "Approval recorded for application {numero}.",
         "droits_payes": "Approval recorded for application {numero}: it is ready for issuance.",
-        "rejetee": "Rejection recorded for application {numero}."
+        "rejetee": "Rejection recorded for application {numero}.",
+        "delivree": "Document {document} signed and issued for application {numero}."
       },
       "traiteeSuite": "The applicant sees the decision on their application. You can move on to the next one.",
-      "suivante": "Decide the next one: {numero}"
+      "suivante": {
+        "a-decider": "Decide the next one: {numero}",
+        "a-signer": "Sign the next one: {numero}"
+      },
+      "filtre": "Show",
+      "onglets": {
+        "a-decider": "To decide",
+        "a-signer": "To sign"
+      },
+      "traiteeSuiteDelivree": "The applicant sees it in their space; it can be checked publicly with its QR code."
     }
   },
   "audit": {
@@ -775,6 +794,41 @@
       "avant": "Before",
       "apres": "After",
       "valeur": "Value"
+    }
+  },
+  "delivrance": {
+    "signer": {
+      "signataire": "You sign as the signatory designated in the catalogue: {signataire}.",
+      "etapes": {
+        "etablir": "The document “{document}” is produced as PDF/A with its number and QR code.",
+        "signer": "It is signed electronically (PAdES) with your certificate.",
+        "archiver": "It is archived and recorded in the register with its fingerprint.",
+        "remettre": "The applicant receives it at once in their space."
+      },
+      "action": "Sign and issue…",
+      "enCours": "Signing…",
+      "echec": "The document was not issued",
+      "indisponible": "The service is temporarily unavailable. Try again in a moment.",
+      "confirmation": {
+        "titre": "Sign and issue application {numero}",
+        "texte": "The document “{document}” will be signed in your name and given to the applicant.",
+        "definitive": "Once issued, the document cannot be changed; only a revocation is possible.",
+        "annuler": "Back to the file",
+        "confirmer": "Sign and issue"
+      }
+    },
+    "document": {
+      "numero": "Number",
+      "validite": "Validity",
+      "valide": "Valid",
+      "nonValide": "Not valid",
+      "motif": "Reason for revocation",
+      "delivreLe": "Issued on",
+      "signePar": "Signed by",
+      "empreinte": "SHA-256 fingerprint",
+      "voir": "View the document",
+      "verifier": "Verification page",
+      "nouvelOnglet": "(opens in a new tab)"
     }
   }
 }
