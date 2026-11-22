@@ -15,6 +15,8 @@ import java.time.Instant;
  * @param aTraiterParMoi la demande attend une action du profil connecté (règle « À traiter »)
  * @param passages nombre de fois où le dossier a été passé à l'étape actuelle (0 pour un usager)
  * @param bloque dossier en cours passé au moins {@link Passage#SEUIL_BLOCAGE} fois à cette étape
+ * @param enRetard dossier en cours dont le délai du catalogue est dépassé (jours calendaires depuis
+ *     le dépôt, heure de Conakry) : même règle que l'indicateur et le filtre « en retard »
  */
 public record DemandeDetail(
     long id,
@@ -34,7 +36,8 @@ public record DemandeDetail(
     Instant etapeDepuis,
     boolean aTraiterParMoi,
     int passages,
-    boolean bloque) {
+    boolean bloque,
+    boolean enRetard) {
 
   public boolean estBrouillon() {
     return "brouillon".equals(statut);

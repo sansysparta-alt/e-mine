@@ -158,6 +158,11 @@
       "sansDelai": "—",
       "vide": "Aucune activité sur la période",
       "videAide": "Choisissez une période plus longue pour voir la répartition."
+    },
+    "indisponible": {
+      "titre": "Tableau de bord momentanément indisponible",
+      "texte": "Les chiffres et les dossiers n'ont pas pu être chargés. Vos demandes ne sont pas perdues ; réessayez dans un instant.",
+      "reessayer": "Réessayer"
     }
   },
   "demande": {
@@ -348,7 +353,10 @@
     "decision": "Décision",
     "panneauAction": "Action à mener",
     "documentDelivre": "Document délivré",
-    "retourTravail": "Retour à « À traiter »"
+    "retourTravail": "Retour à « À traiter »",
+    "delai": "Délai du catalogue",
+    "delaiValeur": "{jours, plural, one {# jour} other {# jours}}",
+    "delaiDepasse": "dépassé"
   },
   "mesDemandes": {
     "titre": "Mes demandes",
@@ -418,7 +426,10 @@
       "fraisPayes": "Frais payés",
       "document": "Document : {libelle}",
       "bloque": "Bloqués (passés 3 fois à leur étape)"
-    }
+    },
+    "aucuneInterne": "Aucun dossier déposé pour le moment.",
+    "aucuneFiltreAide": "Modifiez la recherche ou effacez les filtres pour revoir toute la liste.",
+    "effacerTout": "Effacer les filtres"
   },
   "session": {
     "avertissement": {
@@ -888,13 +899,7 @@
       "document": "Document",
       "demandeur": "Demandeur",
       "depot": "Déposée le",
-      "action": "Action attendue"
-    },
-    "actions": {
-      "examiner": "À examiner",
-      "decider": "À décider",
-      "signer": "À signer",
-      "fraisAttendus": "Frais attendus"
+      "statut": "Statut"
     },
     "elements": "dossiers",
     "vide": {
@@ -984,6 +989,7 @@
     "deposeeLe": "Déposée le {date}",
     "creeeLe": "Créée le {date}",
     "attente": "{jours, plural, =0 {En attente depuis aujourd’hui} one {En attente depuis # jour} other {En attente depuis # jours}}",
-    "etapeDepuis": "À cette étape depuis"
+    "etapeDepuis": "À cette étape depuis",
+    "horsDelai": "Délai du catalogue dépassé"
   }
 }

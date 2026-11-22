@@ -55,6 +55,7 @@ function dossier(id: number, statut: string, fraisPayes = true): DemandeDto {
     aTraiterParMoi: false,
     passages: 0,
     bloque: false,
+    enRetard: false,
   };
 }
 
@@ -154,7 +155,11 @@ describe("traitement en série", () => {
   it("montre l'action attendue de chaque dossier et ouvre la fiche en série", () => {
     afficher(
       <TableauTravail
-        demandes={[dossier(4, "recevable"), dossier(9, "droits_payes")]}
+        demandes={[
+          { ...dossier(4, "recevable"), aTraiterParMoi: true },
+          { ...dossier(9, "droits_payes"), aTraiterParMoi: true },
+          dossier(12, "recevable"),
+        ]}
         libelles={{ PEX: "Permis d'exploitation" }}
         legende="Tout"
         groupe="tout"
@@ -163,6 +168,9 @@ describe("traitement en série", () => {
     );
     expect(screen.getByText("À décider")).toBeVisible();
     expect(screen.getByText("À signer")).toBeVisible();
+    // Même table que partout : pas d'orange pour un dossier qui n'attend pas le profil connecté.
+    expect(screen.getByText("En attente de décision")).toBeVisible();
+    expect(screen.getByRole("columnheader", { name: "Statut" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "DEM-2026-000004" })).toHaveAttribute(
       "href",
       "/demandes/4?file=tout",

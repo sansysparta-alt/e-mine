@@ -158,6 +158,11 @@
       "sansDelai": "—",
       "vide": "No activity over the period",
       "videAide": "Choose a longer period to see the breakdown."
+    },
+    "indisponible": {
+      "titre": "Dashboard temporarily unavailable",
+      "texte": "Figures and files could not be loaded. Your applications are not lost; please try again in a moment.",
+      "reessayer": "Try again"
     }
   },
   "demande": {
@@ -348,7 +353,10 @@
     "decision": "Decision",
     "panneauAction": "Action to take",
     "documentDelivre": "Issued document",
-    "retourTravail": "Back to “To do”"
+    "retourTravail": "Back to “To do”",
+    "delai": "Catalogue time limit",
+    "delaiValeur": "{jours, plural, one {# day} other {# days}}",
+    "delaiDepasse": "exceeded"
   },
   "mesDemandes": {
     "titre": "My applications",
@@ -418,7 +426,10 @@
       "fraisPayes": "Fees paid",
       "document": "Document: {libelle}",
       "bloque": "Blocked (skipped 3 times at their step)"
-    }
+    },
+    "aucuneInterne": "No application has been submitted yet.",
+    "aucuneFiltreAide": "Change the search or clear the filters to see the whole list.",
+    "effacerTout": "Clear filters"
   },
   "session": {
     "avertissement": {
@@ -888,13 +899,7 @@
       "document": "Document",
       "demandeur": "Applicant",
       "depot": "Submitted on",
-      "action": "Expected action"
-    },
-    "actions": {
-      "examiner": "To review",
-      "decider": "To decide",
-      "signer": "To sign",
-      "fraisAttendus": "Fee pending"
+      "statut": "Status"
     },
     "elements": "files",
     "vide": {
@@ -984,6 +989,7 @@
     "deposeeLe": "Submitted on {date}",
     "creeeLe": "Created on {date}",
     "attente": "{jours, plural, =0 {Waiting since today} one {Waiting for # day} other {Waiting for # days}}",
-    "etapeDepuis": "At this step since"
+    "etapeDepuis": "At this step since",
+    "horsDelai": "Catalogue time limit exceeded"
   }
 }

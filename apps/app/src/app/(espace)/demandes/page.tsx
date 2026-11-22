@@ -200,8 +200,17 @@ export default async function MesDemandes({ searchParams }: Props) {
       />
       {resultat.total === 0 ? (
         <EtatVide
-          titre={filtre || p.q ? t("aucuneFiltre") : t("aucune")}
-          action={filtre || p.q ? undefined : nouvelle}
+          titre={filtre || p.q ? t("aucuneFiltre") : moi.interne ? t("aucuneInterne") : t("aucune")}
+          description={filtre || p.q ? t("aucuneFiltreAide") : undefined}
+          action={
+            filtre || p.q ? (
+              <Bouton asChild variante="secondaire">
+                <Link href="/demandes">{t("effacerTout")}</Link>
+              </Bouton>
+            ) : (
+              nouvelle
+            )
+          }
         />
       ) : (
         <div className="flex flex-col gap-4">

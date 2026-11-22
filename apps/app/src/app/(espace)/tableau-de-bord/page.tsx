@@ -43,6 +43,8 @@ type Donnees = {
   vues?: VuesTableau;
   indicateurs?: IndicateursDto;
   travail?: { groupe: CleGroupe; dossiers: DemandeDto[]; total: number };
+  /** Données indisponibles : on le dit, plutôt qu'un état vide trompeur (revue B). */
+  indisponible?: boolean;
 };
 
 /**
@@ -128,11 +130,13 @@ async function charger(moi: Profil, periode: ClePeriode): Promise<Donnees> {
     unstable_rethrow(e);
     console.error("Tableau de bord : données indisponibles", e);
     return {
-      profil: moi.interne ? "autre" : "demandeur",
+      // Seul l’état d’erreur s’affiche : ni « rien à faire », ni chiffres à zéro.
+      profil: "autre",
       demandes: [],
       libelles: {},
       aFaire: [],
       aTraiterTotal: 0,
+      indisponible: true,
     };
   }
 }

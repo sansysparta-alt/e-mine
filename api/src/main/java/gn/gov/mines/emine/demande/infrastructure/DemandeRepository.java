@@ -413,10 +413,14 @@ public class DemandeRepository {
   /** Colonne calculée : la demande est « à traiter » par le profil connecté. */
   static final String A_TRAITER_PAR_MOI = "a_traiter_par_moi";
 
+  /** Colonne calculée : la demande est en retard sur le délai du catalogue, à ce jour. */
+  static final String EN_RETARD = "en_retard";
+
   SelectOnConditionStep<? extends Record> selection(RegleATraiter.Filtre moi) {
     Field<Boolean> aTraiterParMoi =
         DSL.field(moi == null ? DSL.falseCondition() : conditionATraiter(moi))
             .as(A_TRAITER_PAR_MOI);
+    Field<Boolean> enRetard = DSL.field(conditionEnRetard(Instant.now())).as(EN_RETARD);
     return dsl.select(
             DEMANDE.ID,
             DEMANDE.NUMERO,
@@ -438,7 +442,8 @@ public class DemandeRepository {
             FRAIS_PAYES,
             ETAPE_DEPUIS,
             PASSAGES,
-            aTraiterParMoi)
+            aTraiterParMoi,
+            enRetard)
         .from(DEMANDE)
         .join(TYPE_DOCUMENT)
         .on(TYPE_DOCUMENT.ID.eq(DEMANDE.TYPE_DOCUMENT_ID))
@@ -477,7 +482,8 @@ public class DemandeRepository {
         Boolean.TRUE.equals(r.get(A_TRAITER_PAR_MOI, Boolean.class)),
         passages(r),
         passages(r) >= Passage.SEUIL_BLOCAGE
-            && VueDemandes.STATUTS_ACTIFS.contains(r.get(DEMANDE.STATUT).getLiteral()));
+            && VueDemandes.STATUTS_ACTIFS.contains(r.get(DEMANDE.STATUT).getLiteral()),
+        Boolean.TRUE.equals(r.get(EN_RETARD, Boolean.class)));
   }
 
   private static int passages(Record r) {

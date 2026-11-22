@@ -106,6 +106,7 @@ export function TableauDemandes({
           creeLe={d.creeLe}
           etapeDepuis={d.etapeDepuis}
           avecAttente={STATUTS_EN_COURS.has(d.statut)}
+          enRetard={interne && d.enRetard}
         />
       ),
     },
