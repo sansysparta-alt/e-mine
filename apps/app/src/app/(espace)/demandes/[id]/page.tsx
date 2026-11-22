@@ -5,6 +5,7 @@ import {
   lireDemande,
   lireDocumentDelivre,
   lireEtatDelivrance,
+  listerDemandes,
   listerPaiementsDemande,
   listerPieces,
 } from "@emine/api-client";
@@ -25,6 +26,14 @@ import { DecisionRendue } from "@/composants/instruction/decision-rendue";
 import { ExamenRecevabilite } from "@/composants/instruction/examen-recevabilite";
 import { PriseDecision } from "@/composants/instruction/prise-decision";
 import { TableauPaiements } from "@/composants/paiement/tableau-paiements";
+import { BarreSerie } from "@/composants/travail/barre-serie";
+import {
+  type ContexteSerie,
+  groupesPour,
+  lireActionFaite,
+  parametresListe,
+  positionDansFile,
+} from "@/composants/travail/file-travail";
 import {
   declarer,
   rendreDecision,
@@ -46,12 +55,22 @@ export async function generateMetadata(): Promise<Metadata> {
 
 type Props = {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ deposee?: string; depuis?: string }>;
+  searchParams: Promise<{
+    deposee?: string;
+    depuis?: string;
+    /** Traitement en série : groupe de la file de travail d'où le dossier est ouvert. */
+    file?: string;
+    /** Action menée sur le dossier précédent de la série (confirmation). */
+    fait?: string;
+    resultat?: string;
+    document?: string;
+  }>;
 };
 
 /** Une demande déposée (US-03.4) : numéro, statut, document, pièces et prochaine étape. */
 export default async function DetailDemande({ params, searchParams }: Props) {
-  const [{ id }, { deposee, depuis }] = await Promise.all([params, searchParams]);
+  const [{ id }, recherche] = await Promise.all([params, searchParams]);
+  const { deposee, depuis, file } = recherche;
   if (!/^\d{1,18}$/.test(id)) notFound();
   const chemin = `/demandes/${id}`;
   let demande;
@@ -111,13 +130,45 @@ export default async function DetailDemande({ params, searchParams }: Props) {
       ? { cle: "signataireDelivrer", pour: "agent" as const }
       : etapeCalculee;
   const numero = demande.numero ?? "";
-  // Retour vers la file de travail d'où vient l'agent (fluidité du parcours, correctifs J4).
-  const retour =
-    depuis === "guichet"
-      ? { href: "/guichet", cle: "retourGuichet" }
-      : depuis === "decisions"
-        ? { href: "/decisions", cle: "retourDecisions" }
-        : { href: "/demandes", cle: "retourListe" };
+  // Traitement en série (correctifs J5) : position dans la file, dossier suivant après l'action.
+  const groupeSerie = groupesPour(moi).find((g) => g.cle === file);
+  let barre = null;
+  let serie: ContexteSerie | null = null;
+  if (groupeSerie) {
+    const enFile = await appelPage(chemin, async () =>
+      listerDemandes(
+        { ...parametresListe(groupeSerie, moi.profil.code), page: 1, taille: 100 },
+        await optionsApi(),
+      ),
+    );
+    const ids = enFile.data.elements.map((d) => d.id);
+    const position = positionDansFile(ids, demande.id);
+    const suivant = position.dansLaFile
+      ? position.suivant
+      : (ids.find((x) => x !== demande.id) ?? null);
+    serie = { groupe: groupeSerie.cle, suivant };
+    barre = (
+      <BarreSerie
+        groupe={groupeSerie.cle}
+        position={position.dansLaFile ? position.position : null}
+        total={enFile.data.total}
+        precedent={position.dansLaFile ? position.precedent : null}
+        suivant={suivant}
+      />
+    );
+  }
+  const faite = lireActionFaite({
+    numero: recherche.fait,
+    resultat: recherche.resultat,
+    document: recherche.document,
+  });
+  const tTravail = await getTranslations("travail");
+  // Retour vers la file de travail d'où vient l'agent (correctifs J4 et J5).
+  const retour = groupeSerie
+    ? { href: `/a-traiter?groupe=${groupeSerie.cle}`, cle: "retourTravail" }
+    : depuis === "guichet" || depuis === "decisions"
+      ? { href: "/a-traiter", cle: "retourTravail" }
+      : { href: "/demandes", cle: "retourListe" };
   /** L'agent a une action à mener ici : mise en page dossier + panneau d'action. */
   const actionAgent =
     examen !== null || etatDecision?.peutDecider === true || etatDelivrance?.peutDelivrer === true;
@@ -205,6 +256,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
             examen={examen}
             piecesRequises={document?.piecesRequises ?? []}
             declarer={declarer}
+            serie={serie}
           />
         </div>
       ) : null}
@@ -216,6 +268,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
             signataire={etatDecision.signataire}
             droitsGnf={etatDecision.droitsGnf}
             decider={rendreDecision}
+            serie={serie}
           />
         </div>
       ) : null}
@@ -227,6 +280,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
             document={document?.libelleFr ?? demande.typeDocumentCode}
             signataire={etatDelivrance.signataire}
             signerEtDelivrer={signerEtDelivrer}
+            serie={serie}
           />
         </div>
       ) : null}
@@ -245,6 +299,18 @@ export default async function DetailDemande({ params, searchParams }: Props) {
 
   return (
     <div className="flex flex-col gap-6">
+      {faite ? (
+        <Alerte
+          nature="succes"
+          titre={tTravail(`fait.${faite.resultat}`, {
+            numero: faite.numero,
+            document: faite.document ?? "",
+          })}
+        >
+          {tTravail("suivantOuvert", { numero })}
+        </Alerte>
+      ) : null}
+      {barre}
       {deposee === "1" ? (
         <Alerte nature="succes" titre={t("confirmation", { numero })}>
           {t("confirmationSuite")}

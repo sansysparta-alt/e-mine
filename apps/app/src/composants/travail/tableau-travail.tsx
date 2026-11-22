@@ -2,19 +2,17 @@ import type { DemandeDto } from "@emine/api-client";
 import { BadgeStatut, type ComposantLien, formaterDate, TableauDonnees } from "@emine/ui";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { joursAttente } from "./file-guichet";
+import { actionPour, adresseFiche, type CleGroupe, joursAttente } from "./file-travail";
 
-export type TableauFileProps = {
+export type TableauTravailProps = {
   demandes: DemandeDto[];
   /** Libellé de chaque document du catalogue, par code. */
   libelles: Record<string, string>;
   legende: string;
+  /** Groupe de la file : la fiche s'ouvre en traitement en série dans ce groupe. */
+  groupe: CleGroupe;
   /** Date de référence du calcul de l'attente (rendu serveur). */
   maintenant: Date;
-  /** Colonne « Frais » (file du guichet) ; inutile une fois la demande recevable. */
-  avecFrais?: boolean;
-  /** File d'origine, pour que la fiche propose d'y revenir. */
-  depuis: "guichet" | "decisions";
 };
 
 const LienNext: ComposantLien = ({ href, children, ...props }) => (
@@ -23,29 +21,29 @@ const LienNext: ComposantLien = ({ href, children, ...props }) => (
   </Link>
 );
 
-/** Attente au-delà de laquelle la demande est signalée (délai de traitement à surveiller). */
+/** Attente au-delà de laquelle le dossier est signalé (délai à surveiller). */
 const ATTENTE_LONGUE_JOURS = 5;
 
 /**
- * File du guichet (US-05.1) ou des décisions (US-05.4) : numéro, document, demandeur, dépôt et
- * attente, frais (guichet seulement) ; la ligne entière ouvre la fiche, où l'agent agit.
+ * Dossiers d'une file de travail : numéro, document, demandeur, dépôt et attente, **action
+ * attendue** (badge orange : il faut agir) ; la ligne entière ouvre le dossier en traitement en
+ * série.
  */
-export function TableauFile({
+export function TableauTravail({
   demandes,
   libelles,
   legende,
+  groupe,
   maintenant,
-  avecFrais = true,
-  depuis,
-}: TableauFileProps) {
-  const t = useTranslations("instruction.file");
+}: TableauTravailProps) {
+  const t = useTranslations("travail");
   return (
     <TableauDonnees
       legende={legende}
       lignes={demandes}
       cleLigne={(d) => d.id}
       Lien={LienNext}
-      lienLigne={(d) => `/demandes/${d.id}?depuis=${depuis}`}
+      lienLigne={(d) => adresseFiche(d.id, groupe)}
       colonnes={[
         {
           cle: "numero",
@@ -93,20 +91,18 @@ export function TableauFile({
             );
           },
         },
-        ...(avecFrais
-          ? [
-              {
-                cle: "frais",
-                entete: t("colonnes.frais"),
-                rendu: (d: DemandeDto) =>
-                  d.fraisPayes ? (
-                    <BadgeStatut ton="succes">{t("fraisPayes")}</BadgeStatut>
-                  ) : (
-                    <BadgeStatut ton="avertissement">{t("fraisAttendus")}</BadgeStatut>
-                  ),
-              },
-            ]
-          : []),
+        {
+          cle: "action",
+          entete: t("colonnes.action"),
+          rendu: (d) => {
+            const action = actionPour(d.statut, d.fraisPayes);
+            return action ? (
+              <BadgeStatut ton="avertissement">{t(`actions.${action}`)}</BadgeStatut>
+            ) : (
+              <BadgeStatut ton="neutre">{t("actions.fraisAttendus")}</BadgeStatut>
+            );
+          },
+        },
       ]}
     />
   );

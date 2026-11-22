@@ -3,7 +3,6 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import fr from "../../../messages/fr.json";
 import { DecisionRendue } from "./decision-rendue";
-import { lireParametresDecisions } from "./file-decisions";
 import { PriseDecision } from "./prise-decision";
 
 const push = vi.fn();
@@ -62,7 +61,9 @@ describe("décision du signataire (US-05.4)", () => {
     fireEvent.click(confirmer());
     await waitFor(() => expect(decider).toHaveBeenCalledWith(41, true, null));
     await waitFor(() =>
-      expect(push).toHaveBeenCalledWith("/decisions?traitee=DEM-2026-000041&resultat=decision"),
+      expect(push).toHaveBeenCalledWith(
+        "/a-traiter?groupe=a-decider&traitee=DEM-2026-000041&resultat=decision",
+      ),
     );
   });
 
@@ -134,14 +135,5 @@ describe("décision rendue et file des décisions", () => {
       <DecisionRendue etat={{ ...etat, decisionFavorable: null, decisionRenduLe: null }} />,
     );
     expect(container).toBeEmptyDOMElement();
-  });
-
-  it("ne confirme qu'un numéro et un résultat valides", () => {
-    expect(
-      lireParametresDecisions({ traitee: "DEM-2026-000041", resultat: "droits_payes" }).traitee,
-    ).toEqual({ numero: "DEM-2026-000041", resultat: "droits_payes" });
-    expect(
-      lireParametresDecisions({ traitee: "DEM-2026-000041", resultat: "x" }).traitee,
-    ).toBeUndefined();
   });
 });

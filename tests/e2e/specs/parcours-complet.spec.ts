@@ -79,31 +79,43 @@ test("parcours V1 : dépôt, paiements, recevabilité, décision, délivrance, v
 
   // 3. L'agent du guichet déclare la demande recevable.
   const guichet = await connecter(browser, COMPTES.guichet);
-  await guichet.goto(`/demandes/${id}?depuis=guichet`);
+  // Le dossier figure dans sa file « À traiter », action attendue « À examiner ».
+  await guichet.goto("/a-traiter");
+  await expect(
+    guichet.getByRole("row", { name: new RegExp(numero ?? "") }).getByText("À examiner"),
+  ).toBeVisible();
+  // Traitement en série : la fiche s'ouvre dans la file, puis le dossier suivant (ou la file).
+  await guichet.goto(`/demandes/${id}?file=a-examiner`);
+  await expect(guichet.getByRole("navigation", { name: "Traitement en série" })).toBeVisible();
   await guichet.getByLabel(/J’ai ouvert et vérifié chaque pièce jointe/).check();
   await guichet.getByRole("button", { name: "Déclarer recevable" }).click();
-  await expect(guichet).toHaveURL(/\/guichet\?.*resultat=recevable/);
-  await expect(guichet.getByText(`La demande ${numero} a été déclarée recevable.`)).toBeVisible();
+  await expect(guichet.getByText(`Demande ${numero} déclarée recevable.`)).toBeVisible();
 
   // 4. Le Ministre, signataire du PEX au catalogue (D4), rend une décision favorable.
   const ministre = await connecter(browser, COMPTES.ministre);
-  await ministre.goto(`/demandes/${id}?depuis=decisions`);
+  await expect(ministre.getByRole("heading", { name: /Dossiers à traiter/ })).toBeVisible();
+  await ministre.goto(`/demandes/${id}?file=tout`);
   await ministre.getByRole("radio", { name: /Décision favorable/ }).check();
   await expect(ministre.getByText(/payer les droits \(15\s000\s000\sGNF\)/).first()).toBeVisible();
   await ministre.getByRole("button", { name: "Enregistrer la décision…" }).click();
   await ministre.getByRole("button", { name: "Confirmer la décision" }).click();
-  await expect(ministre).toHaveURL(/\/decisions\?.*resultat=decision/);
+  await expect(
+    ministre.getByText(`Décision favorable enregistrée pour la demande ${numero}.`),
+  ).toBeVisible();
 
   // 5. L'investisseur paie les droits.
   await investisseur.goto(`/demandes/${id}`);
   await payerParTresorPay(investisseur, /Payer les droits/);
 
   // 6. Le Ministre signe et délivre le document (PDF/A, QR, PAdES).
-  await ministre.goto(`/demandes/${id}?depuis=decisions`);
+  await ministre.goto(`/demandes/${id}?file=a-signer`);
   await ministre.getByRole("button", { name: "Signer et délivrer…" }).click();
   await ministre.getByRole("button", { name: "Signer et délivrer", exact: true }).click();
-  await expect(ministre).toHaveURL(/\/decisions\?.*resultat=delivree/);
-  await expect(ministre.getByText(/Document PEX-\d{4}-\d{4} signé et délivré/)).toBeVisible();
+  await expect(
+    ministre.getByText(
+      new RegExp(`Document PEX-\\d{4}-\\d{4} signé et délivré pour la demande ${numero}`),
+    ),
+  ).toBeVisible();
 
   // 7. L'investisseur voit son document ; n'importe qui le vérifie par le QR.
   await investisseur.goto(`/demandes/${id}`);

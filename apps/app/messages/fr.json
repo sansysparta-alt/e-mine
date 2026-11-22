@@ -43,9 +43,10 @@
       "toutes": "Voir toutes mes demandes ({nombre})"
     },
     "dossiers": {
-      "titre": "Dossiers à traiter",
+      "titre": "Dernières demandes",
       "vide": "Aucun dossier à traiter pour le moment.",
-      "aide": "Les demandes déposées par les usagers apparaîtront ici."
+      "aide": "Les demandes déposées par les usagers apparaîtront ici.",
+      "toutes": "Voir toutes les demandes ({nombre})"
     },
     "erreurs": {
       "compteNonActive": {
@@ -90,6 +91,13 @@
       "decisionsPrecision": "Demandes recevables dont vous êtes signataire",
       "aSigner": "Documents à signer",
       "aSignerPrecision": "Droits payés, prêts à être délivrés"
+    },
+    "travail": {
+      "titre": "{nombre, plural, =0 {Dossiers à traiter} other {Dossiers à traiter (#)}}",
+      "voirTout": "Voir toute la file",
+      "commencer": "{nombre, plural, one {Commencer le traitement (#)} other {Commencer le traitement (#)}}",
+      "vide": "Rien à traiter pour le moment",
+      "videAide": "Les dossiers qui attendent votre action apparaîtront ici."
     }
   },
   "demande": {
@@ -266,10 +274,9 @@
     },
     "motifRejet": "Motif",
     "decision": "Décision",
-    "retourGuichet": "Retour à la file du guichet",
-    "retourDecisions": "Retour aux décisions à prendre",
     "panneauAction": "Action à mener",
-    "documentDelivre": "Document délivré"
+    "documentDelivre": "Document délivré",
+    "retourTravail": "Retour à « À traiter »"
   },
   "mesDemandes": {
     "titre": "Mes demandes",
@@ -346,9 +353,8 @@
       "mesDemandes": "Mes demandes",
       "demandes": "Demandes",
       "nouvelleDemande": "Nouvelle demande",
-      "fileGuichet": "File du guichet",
-      "decisions": "Décisions et signatures",
-      "journalAudit": "Journal d’audit"
+      "journalAudit": "Journal d’audit",
+      "aTraiter": "À traiter"
     }
   },
   "etats": {
@@ -536,62 +542,6 @@
         "confirmer": "Confirmer la non-recevabilité"
       }
     },
-    "file": {
-      "titre": "File du guichet",
-      "description": "Les demandes déposées, de la plus ancienne à la plus récente. Ouvrez une demande pour en examiner la recevabilité.",
-      "chiffres": "Chiffres clés du guichet",
-      "cartes": {
-        "aExaminer": "À examiner",
-        "aExaminerPrecision": "Frais payés, en attente de votre examen",
-        "fraisAttendus": "Frais attendus",
-        "fraisAttendusPrecision": "Déposées, frais de dossier non payés",
-        "recevables": "Recevables",
-        "recevablesPrecision": "En attente de la décision du signataire",
-        "nonRecevables": "Rejetées",
-        "nonRecevablesPrecision": "Non recevables ou rejetées à la décision"
-      },
-      "demandesDeposees": "Demandes déposées",
-      "filtre": "Afficher",
-      "onglets": {
-        "a-examiner": "À examiner",
-        "frais-attendus": "Frais attendus"
-      },
-      "aide": {
-        "a-examiner": "Les plus anciennes d’abord : une attente de 5 jours ou plus est signalée.",
-        "frais-attendus": "Ces demandes pourront être déclarées recevables dès le paiement des frais."
-      },
-      "recherche": {
-        "libelle": "Rechercher une demande",
-        "exemple": "Numéro (DEM-2026-…) ou document",
-        "bouton": "Rechercher"
-      },
-      "colonnes": {
-        "numero": "Numéro",
-        "document": "Document",
-        "demandeur": "Demandeur",
-        "depot": "Déposée le",
-        "frais": "Frais"
-      },
-      "attente": "{jours, plural, =0 {aujourd’hui} one {depuis # jour} other {depuis # jours}}",
-      "fraisPayes": "Payés",
-      "fraisAttendus": "Attendus",
-      "elements": "demandes",
-      "vide": {
-        "a-examiner": "Aucune demande à examiner",
-        "a-examinerDescription": "Toutes les demandes dont les frais sont payés ont été examinées.",
-        "frais-attendus": "Aucune demande en attente de paiement",
-        "frais-attendusDescription": "Toutes les demandes déposées ont leurs frais de dossier payés.",
-        "recherche": "Aucune demande ne correspond à cette recherche",
-        "toutesLesDemandes": "Voir toutes les demandes"
-      },
-      "traitee": {
-        "recevable": "La demande {numero} a été déclarée recevable.",
-        "recevableSuite": "Elle attend maintenant la décision du signataire. Vous pouvez examiner la demande suivante.",
-        "rejetee": "La demande {numero} a été déclarée non recevable.",
-        "rejeteeSuite": "Le demandeur voit le motif sur sa demande. Vous pouvez examiner la demande suivante."
-      },
-      "suivante": "Examiner la suivante : {numero}"
-    },
     "decision": {
       "signataire": "Vous décidez en tant que signataire désigné par le catalogue pour ce document : {signataire}.",
       "sens": "Votre décision",
@@ -632,44 +582,6 @@
         "motif": "Motif",
         "observations": "Observations"
       }
-    },
-    "decisions": {
-      "titre": "Décisions et signatures",
-      "description": "Les demandes dont vous êtes le signataire ({profil}) : à décider, puis à signer et délivrer une fois les droits payés.",
-      "recherche": {
-        "libelle": "Rechercher une demande",
-        "exemple": "Numéro (DEM-2026-…) ou document",
-        "bouton": "Rechercher"
-      },
-      "vide": {
-        "a-decider": "Aucune décision en attente",
-        "a-deciderDescription": "Les demandes déclarées recevables par le guichet pour les documents que vous signez apparaîtront ici.",
-        "a-signer": "Aucun document à signer",
-        "a-signerDescription": "Les demandes dont les droits sont payés apparaîtront ici, prêtes à être signées et délivrées.",
-        "recherche": "Aucune demande ne correspond à cette recherche"
-      },
-      "nombre": {
-        "a-decider": "{nombre, plural, one {# demande attend votre décision.} other {# demandes attendent votre décision.}}",
-        "a-signer": "{nombre, plural, one {# document attend votre signature.} other {# documents attendent votre signature.}}"
-      },
-      "elements": "demandes",
-      "traitee": {
-        "decision": "Décision favorable enregistrée pour la demande {numero}.",
-        "droits_payes": "Décision favorable enregistrée pour la demande {numero} : elle est prête pour la délivrance.",
-        "rejetee": "Rejet enregistré pour la demande {numero}.",
-        "delivree": "Document {document} signé et délivré pour la demande {numero}."
-      },
-      "traiteeSuite": "Le demandeur voit la décision sur sa demande. Vous pouvez passer à la suivante.",
-      "suivante": {
-        "a-decider": "Décider la suivante : {numero}",
-        "a-signer": "Signer la suivante : {numero}"
-      },
-      "filtre": "Afficher",
-      "onglets": {
-        "a-decider": "À décider",
-        "a-signer": "À signer"
-      },
-      "traiteeSuiteDelivree": "Le demandeur le voit dans son espace ; il est vérifiable publiquement par son QR."
     }
   },
   "audit": {
@@ -842,6 +754,82 @@
       "echec": "Le document n’a pas été révoqué",
       "indisponible": "Le service est momentanément indisponible. Réessayez dans un instant.",
       "succes": "Le document {numero} est révoqué : sa vérification affiche « NON VALIDE »."
+    }
+  },
+  "travail": {
+    "titre": "À traiter",
+    "description": "Les dossiers qui attendent une action de votre part, du plus ancien au plus récent. Commencez le traitement : après chaque action, le dossier suivant s’ouvre.",
+    "filtre": "Afficher",
+    "groupes": {
+      "tout": "Tout",
+      "a-examiner": "À examiner",
+      "frais-attendus": "Frais attendus",
+      "a-decider": "À décider",
+      "a-signer": "À signer"
+    },
+    "commencer": "{nombre, plural, one {Commencer le traitement (# dossier)} other {Commencer le traitement (# dossiers)}}",
+    "continuer": "{nombre, plural, one {Continuer : # dossier restant} other {Continuer : # dossiers restants}}",
+    "fileVide": "Plus aucun dossier dans cette file : tout est traité.",
+    "suivantOuvert": "Voici le dossier suivant : {numero}.",
+    "recherche": {
+      "libelle": "Rechercher un dossier",
+      "exemple": "Numéro (DEM-2026-…) ou document",
+      "bouton": "Rechercher"
+    },
+    "aide": {
+      "tout": "Décisions et signatures qui vous reviennent, les plus anciennes d’abord.",
+      "a-examiner": "Frais payés : vérifiez les pièces et prononcez la recevabilité. Une attente de 5 jours ou plus est signalée.",
+      "frais-attendus": "Pour information : ces demandes pourront être examinées dès le paiement des frais.",
+      "a-decider": "Demandes recevables dont vous êtes le signataire : rendez votre décision.",
+      "a-signer": "Droits payés : signez et délivrez le document."
+    },
+    "colonnes": {
+      "numero": "Numéro",
+      "document": "Document",
+      "demandeur": "Demandeur",
+      "depot": "Déposée le",
+      "action": "Action attendue"
+    },
+    "actions": {
+      "examiner": "À examiner",
+      "decider": "À décider",
+      "signer": "À signer",
+      "fraisAttendus": "Frais attendus"
+    },
+    "attente": "{jours, plural, =0 {aujourd’hui} one {depuis # jour} other {depuis # jours}}",
+    "elements": "dossiers",
+    "vide": {
+      "tout": "Rien à traiter pour le moment",
+      "a-examiner": "Aucune demande à examiner",
+      "frais-attendus": "Aucune demande en attente de paiement",
+      "a-decider": "Aucune décision à prendre",
+      "a-signer": "Aucun document à signer",
+      "description": "Les nouveaux dossiers apparaîtront ici dès qu’ils attendront votre action.",
+      "recherche": "Aucun dossier ne correspond à cette recherche"
+    },
+    "fait": {
+      "recevable": "Demande {numero} déclarée recevable.",
+      "rejetee": "Demande {numero} rejetée.",
+      "decision": "Décision favorable enregistrée pour la demande {numero}.",
+      "droits_payes": "Décision favorable enregistrée pour la demande {numero} : elle est prête pour la délivrance.",
+      "delivree": "Document {document} signé et délivré pour la demande {numero}."
+    },
+    "serie": {
+      "libelle": "Traitement en série",
+      "groupe": "Traitement en série : {groupe}",
+      "groupes": {
+        "tout": "Tout",
+        "a-examiner": "À examiner",
+        "frais-attendus": "Frais attendus",
+        "a-decider": "À décider",
+        "a-signer": "À signer"
+      },
+      "position": "dossier {position} sur {total}",
+      "horsFile": "{total, plural, =0 {plus aucun dossier dans la file} one {# dossier dans la file} other {# dossiers dans la file}}",
+      "precedent": "Précédent",
+      "passer": "Passer ce dossier",
+      "suivant": "Dossier suivant",
+      "quitter": "Quitter le traitement"
     }
   }
 }

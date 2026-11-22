@@ -2,7 +2,6 @@ import type { DocumentDelivreDto } from "@emine/api-client";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import fr from "../../../messages/fr.json";
-import { lireParametresDecisions } from "../instruction/file-decisions";
 import { DocumentDelivre } from "./document-delivre";
 import { SignerDelivrer } from "./signer-delivrer";
 
@@ -54,7 +53,7 @@ describe("signer et délivrer (US-06.3)", () => {
     await waitFor(() => expect(signer).toHaveBeenCalledWith(41));
     await waitFor(() =>
       expect(push).toHaveBeenCalledWith(
-        "/decisions?onglet=a-signer&traitee=DEM-2026-000041&resultat=delivree&document=PEX-2026-0001",
+        "/a-traiter?groupe=a-signer&traitee=DEM-2026-000041&resultat=delivree&document=PEX-2026-0001",
       ),
     );
   });
@@ -112,24 +111,6 @@ describe("document délivré (US-06.4)", () => {
     );
     expect(screen.getByText("Non valide")).toBeVisible();
     expect(screen.getByText("Fraude constatée.")).toBeVisible();
-  });
-});
-
-describe("espace du signataire", () => {
-  it("ouvre l'onglet demandé et ne confirme qu'un numéro de document valide", () => {
-    expect(lireParametresDecisions({}).onglet).toBe("a-decider");
-    expect(lireParametresDecisions({ onglet: "a-signer" }).onglet).toBe("a-signer");
-    expect(
-      lireParametresDecisions({
-        traitee: "DEM-2026-000041",
-        resultat: "delivree",
-        document: "PEX-2026-0001",
-      }).traitee,
-    ).toEqual({ numero: "DEM-2026-000041", resultat: "delivree", document: "PEX-2026-0001" });
-    expect(
-      lireParametresDecisions({ traitee: "DEM-2026-000041", resultat: "delivree", document: "<x>" })
-        .traitee?.document,
-    ).toBeUndefined();
   });
 });
 

@@ -13,6 +13,8 @@ import {
   type TacheAgent,
   VueTableauDeBord,
 } from "@/composants/vue-tableau-de-bord";
+import { statutsVisibles } from "@/composants/demande/filtres";
+import { type CleGroupe, groupesPour, parametresListe } from "@/composants/travail/file-travail";
 import { chargerMoi, optionsApi } from "@/serveur/donnees";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -36,14 +38,20 @@ async function chargerDemandes(moi: Profil): Promise<{
   libelles: Record<string, string>;
   aFaire: ActionAFaire[];
   taches: TacheAgent[];
+  travail?: { groupe: CleGroupe; dossiers: DemandeDto[]; total: number };
 }> {
   try {
     const options = await optionsApi();
     const total = async (params: Parameters<typeof listerDemandes>[0]) =>
       (await listerDemandes({ ...params, taille: 10 }, options)).data;
-    const [demandes, compteurs, documents, fraisDus, aAgir, aExaminer, decisions, aSigner] =
+    // Un agent ne voit jamais les brouillons des usagers (règle du socle).
+    const groupeTravail = groupesPour(moi)[0];
+    const [demandes, compteurs, documents, fraisDus, aAgir, aExaminer, decisions, aSigner, file] =
       await Promise.all([
-        listerDemandes({ taille: 10 }, options),
+        listerDemandes(
+          moi.interne ? { statut: [...statutsVisibles(true)], taille: 10 } : { taille: 10 },
+          options,
+        ),
         compterDemandes(options),
         listerTypesDocuments(),
         moi.interne
@@ -60,6 +68,12 @@ async function chargerDemandes(moi: Profil): Promise<{
           : null,
         moi.interne && moi.permissions.includes("SIGNER")
           ? total({ statut: ["droits_payes"], signataireProfil: moi.profil.code })
+          : null,
+        groupeTravail
+          ? listerDemandes(
+              { ...parametresListe(groupeTravail, moi.profil.code), taille: 10 },
+              options,
+            ).then((r) => r.data)
           : null,
       ]);
     const tarifs = Object.fromEntries(documents.data.map((d) => [d.code, d.tarifs]));
@@ -84,6 +98,15 @@ async function chargerDemandes(moi: Profil): Promise<{
       libelles: Object.fromEntries(documents.data.map((d) => [d.code, d.libelleFr])),
       aFaire,
       taches,
+      ...(groupeTravail && file
+        ? {
+            travail: {
+              groupe: groupeTravail.cle,
+              dossiers: file.elements.slice(0, A_FAIRE_MAX),
+              total: file.total,
+            },
+          }
+        : {}),
     };
   } catch (e) {
     unstable_rethrow(e);
@@ -95,7 +118,7 @@ async function chargerDemandes(moi: Profil): Promise<{
 /** Tableau de bord de l'espace connecté (gabarit du socle). */
 export default async function TableauDeBord() {
   const moi = await chargerMoi();
-  const { demandes, compteurs, libelles, aFaire, taches } = await chargerDemandes(moi);
+  const { demandes, compteurs, libelles, aFaire, taches, travail } = await chargerDemandes(moi);
   return (
     <VueTableauDeBord
       prenom={moi.prenom}
@@ -108,6 +131,7 @@ export default async function TableauDeBord() {
       libelles={libelles}
       aFaire={aFaire}
       taches={taches}
+      travail={travail}
     />
   );
 }

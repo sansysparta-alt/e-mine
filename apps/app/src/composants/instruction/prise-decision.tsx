@@ -7,6 +7,11 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useId, useState, useTransition } from "react";
 import type { ResultatAction } from "@/serveur/erreurs-formulaire";
+import {
+  adresseApresAction,
+  type ContexteSerie,
+  type ResultatAction as Resultat,
+} from "../travail/file-travail";
 import { ChampMotif, erreurMotif, MOTIF_MAX } from "./champ-motif";
 
 export type PriseDecisionProps = {
@@ -21,6 +26,8 @@ export type PriseDecisionProps = {
     favorable: boolean,
     motif: string | null,
   ) => Promise<ResultatAction<ResultatDecisionDto>>;
+  /** Traitement en série : après la décision, le dossier suivant de la file s'ouvre. */
+  serie?: ContexteSerie | null;
 };
 
 type Sens = "favorable" | "rejet";
@@ -36,6 +43,7 @@ export function PriseDecision({
   signataire,
   droitsGnf,
   decider,
+  serie,
 }: PriseDecisionProps) {
   const t = useTranslations("instruction.decision");
   const tMotif = useTranslations("instruction.motif");
@@ -73,8 +81,12 @@ export function PriseDecision({
     demarrer(async () => {
       const resultat = await decider(demandeId, sens === "favorable", motif.trim() || null);
       if (resultat.ok) {
-        const q = new URLSearchParams({ traitee: numero, resultat: resultat.valeur.statut });
-        router.push(`/decisions?${q.toString()}`);
+        router.push(
+          adresseApresAction(serie ?? null, "a-decider", {
+            numero,
+            resultat: resultat.valeur.statut as Resultat,
+          }),
+        );
         return;
       }
       setConfirmation(false);

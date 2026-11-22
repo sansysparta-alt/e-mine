@@ -5,7 +5,6 @@ import {
   LayoutDashboard,
   type LucideIcon,
   ScrollText,
-  Stamp,
 } from "@emine/ui/icones";
 
 /**
@@ -22,6 +21,8 @@ export type EntreeConfig = {
   icone: LucideIcon;
   /** Droit de la matrice requis (US-01.6) ; absent = tout utilisateur connecté. */
   permission?: string;
+  /** Au moins un de ces droits est requis (file de travail commune au guichet et aux signataires). */
+  auMoinsUnDroit?: string[];
   /** Réservé aux profils internes (true) ou externes (false) ; absent = tous. */
   interne?: boolean;
   /** Libellé différent pour les profils internes (clé de traduction). */
@@ -53,19 +54,11 @@ export const NAVIGATION: SectionConfig[] = [
     cle: "instruction",
     entrees: [
       {
-        cle: "fileGuichet",
+        cle: "aTraiter",
         module: "instruction",
-        href: "/guichet",
+        href: "/a-traiter",
         icone: Inbox,
-        permission: "INSTRUIRE",
-        interne: true,
-      },
-      {
-        cle: "decisions",
-        module: "instruction",
-        href: "/decisions",
-        icone: Stamp,
-        permission: "SIGNER",
+        auMoinsUnDroit: ["INSTRUIRE", "SIGNER"],
         interne: true,
       },
     ],
@@ -102,6 +95,9 @@ export type Profil = { permissions: string[]; interne: boolean };
 /** Entrée visible pour ce profil ? */
 export function visible(e: EntreeConfig, profil: Profil): boolean {
   if (e.permission && !profil.permissions.includes(e.permission)) return false;
+  if (e.auMoinsUnDroit && !e.auMoinsUnDroit.some((d) => profil.permissions.includes(d))) {
+    return false;
+  }
   if (e.interne !== undefined && e.interne !== profil.interne) return false;
   return true;
 }
