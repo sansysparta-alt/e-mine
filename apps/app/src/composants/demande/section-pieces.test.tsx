@@ -13,6 +13,8 @@ const eies: PieceDto = {
   tailleOctets: 2048,
   empreinteSha256: "ab".repeat(32),
   deposeLe: "2026-11-20T10:00:00Z",
+  remplaceeLe: null,
+  remplaceeParId: null,
 };
 
 function reponse(statut: number, corps: unknown) {

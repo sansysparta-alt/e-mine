@@ -16,6 +16,8 @@ const etude: PieceDto = {
   tailleOctets: 4096,
   empreinteSha256: "cd".repeat(32),
   deposeLe: "2026-11-20T10:00:00Z",
+  remplaceeLe: null,
+  remplaceeParId: null,
 };
 const eies: PieceDto = {
   id: 7,
@@ -25,6 +27,8 @@ const eies: PieceDto = {
   tailleOctets: 2048,
   empreinteSha256: "ab".repeat(32),
   deposeLe: "2026-11-20T10:00:00Z",
+  remplaceeLe: null,
+  remplaceeParId: null,
 };
 
 function afficher(pieces: PieceDto[], deposer = vi.fn()) {

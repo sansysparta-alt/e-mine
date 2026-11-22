@@ -281,6 +281,7 @@ export function ReponseComplement({ demandeId, complement, repondre }: ReponseCo
 
   return (
     <div className="flex flex-col gap-4">
+      {demandees.length > 0 ? <p className="text-sm text-texte-doux">{t("remplacement")}</p> : null}
       {demandees.length > 0 ? (
         <SectionPieces
           demandeId={demandeId}

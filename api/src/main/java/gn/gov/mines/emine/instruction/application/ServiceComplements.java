@@ -133,6 +133,8 @@ public class ServiceComplements {
     exiger(
         complements.repondre(c.id(), moi.id(), RegleMotif.nettoyer(message), horloge.instant()),
         demande);
+    // Une pièce déjà au dossier est remplacée par celle jointe en réponse (V14), pas doublée.
+    demandes.remplacerVersionsAnterieures(id, c.demandeLe(), c.piecesDemandees());
     exiger(
         instruction.changerStatut(
             id, StatutDemande.complement_requis, StatutDemande.lookupLiteral(c.statutOrigine())),

@@ -47,7 +47,7 @@ public class Demandes {
    */
   @Transactional(readOnly = true)
   public List<String> typesPiecesFournies(long id) {
-    return pieces.lister(id).stream().map(Piece::typePiece).toList();
+    return pieces.lister(id).stream().filter(Piece::enVigueur).map(Piece::typePiece).toList();
   }
 
   /**
@@ -60,6 +60,15 @@ public class Demandes {
         .filter(p -> !p.deposeLe().isBefore(depuis))
         .map(Piece::typePiece)
         .toList();
+  }
+
+  /**
+   * Réponse à un complément (US-05.2, V14) : les pièces de ces types jointes depuis la demande de
+   * complément remplacent leurs versions antérieures (conservées, marquées « remplacées »).
+   */
+  @Transactional
+  public int remplacerVersionsAnterieures(long id, java.time.Instant depuis, List<String> types) {
+    return pieces.remplacerVersionsAnterieures(id, depuis, types);
   }
 
   /**

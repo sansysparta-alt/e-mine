@@ -2,6 +2,7 @@
 
 import { Download, FileQuestion, Maximize2, Minimize2, X } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { cn } from "../cn";
 
 export type DocumentAffiche = {
@@ -66,7 +67,9 @@ export function VisualiseurDocument({
   const bouton =
     "inline-flex size-11 shrink-0 items-center justify-center rounded-lg text-navy hover:bg-ice";
 
-  return (
+  // Portail vers <body> : le panneau échappe au contexte d'empilement de l'endroit où il est ouvert
+  // (ligne de tableau, carte) ; sinon l'en-tête de l'application peut masquer son bouton Fermer.
+  return createPortal(
     <>
       {/* Fond assombri : la page reste visible ; un clic à côté du panneau le ferme (Échap ne
           fonctionne plus quand le lecteur PDF du navigateur a le focus). */}
@@ -151,6 +154,7 @@ export function VisualiseurDocument({
           )}
         </div>
       </aside>
-    </>
+    </>,
+    globalThis.document.body,
   );
 }

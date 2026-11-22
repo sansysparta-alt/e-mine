@@ -7,6 +7,9 @@ import java.time.Instant;
  *
  * @param typePiece pièce du catalogue à laquelle elle répond (« EIES »…) ou « Autre pièce »
  * @param stockageCle clé de l'objet dans le compartiment des pièces
+ * @param remplaceeLe remplacée par une nouvelle version en réponse à un complément (V14), sinon
+ *     {@code null}
+ * @param remplaceeParId pièce qui la remplace, sinon {@code null}
  */
 public record Piece(
     long id,
@@ -17,4 +20,12 @@ public record Piece(
     long tailleOctets,
     String empreinteSha256,
     String stockageCle,
-    Instant deposeLe) {}
+    Instant deposeLe,
+    Instant remplaceeLe,
+    Long remplaceeParId) {
+
+  /** Version en vigueur (pas remplacée). */
+  public boolean enVigueur() {
+    return remplaceeLe == null;
+  }
+}

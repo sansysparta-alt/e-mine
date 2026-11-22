@@ -8,7 +8,9 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.Record;
+import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
 
 /** Accès jOOQ aux pièces jointes, protégé par la RLS (V6). Pas de suppression physique. */
@@ -91,6 +93,36 @@ public class PieceRepository {
         .execute();
   }
 
+  /**
+   * Réponse à un complément (V14) : pour chaque type demandé, la pièce jointe depuis la demande de
+   * complément remplace les versions antérieures de ce type, conservées comme « remplacées ».
+   * Renvoie le nombre de pièces remplacées.
+   */
+  public int remplacerVersionsAnterieures(long demandeId, Instant depuis, List<String> types) {
+    if (types.isEmpty()) {
+      return 0;
+    }
+    var nouvelle = PIECE_JOINTE.as("nouvelle");
+    Field<Long> remplacante =
+        DSL.field(
+            DSL.select(DSL.max(nouvelle.ID))
+                .from(nouvelle)
+                .where(nouvelle.DEMANDE_ID.eq(PIECE_JOINTE.DEMANDE_ID))
+                .and(nouvelle.TYPE_PIECE.eq(PIECE_JOINTE.TYPE_PIECE))
+                .and(nouvelle.CREATED_AT.ge(depuis))
+                .and(nouvelle.DELETED_AT.isNull()));
+    return dsl.update(PIECE_JOINTE)
+        .set(PIECE_JOINTE.REMPLACEE_LE, DSL.currentInstant())
+        .set(PIECE_JOINTE.REMPLACEE_PAR, remplacante)
+        .where(PIECE_JOINTE.DEMANDE_ID.eq(demandeId))
+        .and(PIECE_JOINTE.TYPE_PIECE.in(types))
+        .and(PIECE_JOINTE.CREATED_AT.lt(depuis))
+        .and(PIECE_JOINTE.REMPLACEE_LE.isNull())
+        .and(PIECE_JOINTE.DELETED_AT.isNull())
+        .and(remplacante.isNotNull())
+        .execute();
+  }
+
   static Piece piece(Record r) {
     return new Piece(
         r.get(PIECE_JOINTE.ID),
@@ -101,6 +133,8 @@ public class PieceRepository {
         r.get(PIECE_JOINTE.TAILLE_OCTETS),
         r.get(PIECE_JOINTE.EMPREINTE_SHA256),
         r.get(PIECE_JOINTE.STOCKAGE_CLE),
-        r.get(PIECE_JOINTE.CREATED_AT));
+        r.get(PIECE_JOINTE.CREATED_AT),
+        r.get(PIECE_JOINTE.REMPLACEE_LE),
+        r.get(PIECE_JOINTE.REMPLACEE_PAR));
   }
 }

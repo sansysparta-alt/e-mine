@@ -377,7 +377,12 @@
     "delaiDepasse": "exceeded",
     "delaiReste": "{jours, plural, =0 {last day} one {# day left} other {# days left}}",
     "delaiDepasseDe": "{jours, plural, one {exceeded by # day} other {exceeded by # days}}",
-    "delaiSuspendu": "suspended during the request for information"
+    "delaiSuspendu": "suspended during the request for information",
+    "piecesVersions": {
+      "nouvelleVersion": "new version of {date}",
+      "remplacee": "Version replaced on {date}",
+      "anciennes": "Previous versions: {piece}"
+    }
   },
   "mesDemandes": {
     "titre": "My applications",
@@ -751,7 +756,8 @@
         "erreurs": {
           "court": "Write your answer in at least 10 characters.",
           "long": "Your answer exceeds 2000 characters: please shorten it."
-        }
+        },
+        "remplacement": "A document already in the file will be replaced by the one you attach; the old version remains available. A new document is added to the file."
       },
       "sansReponse": {
         "titre": "Answer deadline passed",

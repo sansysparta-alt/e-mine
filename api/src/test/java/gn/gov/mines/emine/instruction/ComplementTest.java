@@ -136,6 +136,44 @@ class ComplementTest extends TestIntegration {
   }
 
   @Test
+  void unePieceDejaAuDossierEstRemplaceeEtConserveeUnePieceNouvelleSAjoute() throws Exception {
+    long id = DemandesDeTest.deposee(INVESTISSEUR, "PEX");
+    DemandesDeTest.piece(id, "Plan de restauration");
+    long ancienne = pieces(id).get(0).path("id").asLong();
+    demander(
+            id,
+            "Le plan de restauration ne couvre pas la zone nord ; joignez aussi l'accord foncier.",
+            "Plan de restauration",
+            "Accord foncier")
+        .andExpect(status().isOk());
+    joindre(id, "Plan de restauration").andExpect(status().isCreated());
+    joindre(id, "Accord foncier").andExpect(status().isCreated());
+    repondre(id, null).andExpect(status().isOk());
+
+    java.util.List<JsonNode> liste = pieces(id);
+    assertThat(liste).hasSize(3);
+    JsonNode vieille =
+        liste.stream().filter(p -> p.path("id").asLong() == ancienne).findFirst().orElseThrow();
+    JsonNode nouvelle =
+        liste.stream()
+            .filter(p -> p.path("typePiece").asString().equals("Plan de restauration"))
+            .filter(p -> p.path("id").asLong() != ancienne)
+            .findFirst()
+            .orElseThrow();
+    assertThat(vieille.path("remplaceeLe").isNull())
+        .as("ancienne version conservée, remplacée")
+        .isFalse();
+    assertThat(vieille.path("remplaceeParId").asLong()).isEqualTo(nouvelle.path("id").asLong());
+    assertThat(nouvelle.path("remplaceeLe").isNull()).as("nouvelle version en vigueur").isTrue();
+    JsonNode accord =
+        liste.stream()
+            .filter(p -> p.path("typePiece").asString().equals("Accord foncier"))
+            .findFirst()
+            .orElseThrow();
+    assertThat(accord.path("remplaceeLe").isNull()).as("supplément").isTrue();
+  }
+
+  @Test
   void sansPieceDemandeeUneReponseEcriteEstExigee() throws Exception {
     long id = DemandesDeTest.deposee(INVESTISSEUR, "COR");
     demander(id, "Précisez le site de rattachement de l'orpailleur.").andExpect(status().isOk());
