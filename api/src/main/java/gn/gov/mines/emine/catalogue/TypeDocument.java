@@ -30,10 +30,25 @@ public record TypeDocument(
     String instruitPar,
     String signataire,
     String signataireProfil,
-    Tarifs tarifs) {
+    Tarifs tarifs,
+    List<AvisRequis> avisRequis) {
 
   public TypeDocument {
     piecesRequises = List.copyOf(piecesRequises);
+    avisRequis = List.copyOf(avisRequis);
+  }
+
+  /**
+   * Avis technique motivé requis avant la décision (US-05.3, table {@code type_document_avis}).
+   *
+   * @param profilCode profil qui rend l'avis ({@code DNM}, {@code GEOLOGUE}, {@code INSPECTEUR})
+   * @param libelle libellé du profil
+   */
+  public record AvisRequis(String profilCode, String libelle) {}
+
+  /** Codes des profils dont l'avis est requis, dans l'ordre du catalogue. */
+  public List<String> profilsAvis() {
+    return avisRequis.stream().map(AvisRequis::profilCode).toList();
   }
 
   /** Workflow (famille) du document. */

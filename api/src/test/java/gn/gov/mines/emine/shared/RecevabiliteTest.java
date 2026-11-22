@@ -64,13 +64,25 @@ class RecevabiliteTest extends TestIntegration {
   }
 
   @Test
-  void lePaiementDesDroitsFaitToujoursPasserADroitsPayes() throws SQLException {
+  void lePaiementDesDroitsFaitToujoursPasserADroitsPayes() throws Exception {
+    gn.gov.mines.emine.support.Personas.charger();
     try (Connection c = BaseDeDonneesDeTest.connexionOwner()) {
       long demande = demandeDeposee(c, "PEX");
       payer(c, demande, "FRAIS_DOSSIER", 5_000_000);
-      for (String s : new String[] {"recevable", "en_instruction", "avis_rendu", "decision"}) {
-        changerStatut(c, demande, s);
+      changerStatut(c, demande, "recevable");
+      changerStatut(c, demande, "en_instruction");
+      // US-05.3 : les avis requis par le catalogue (DNM, Inspection) avant « avis rendu ».
+      try (Statement st = c.createStatement()) {
+        st.executeUpdate(
+            "INSERT INTO avis_decision (demande_id, auteur_id, nature, sens, motif)"
+                + " SELECT d.id, (SELECT u.id FROM utilisateur u WHERE u.profil_id = tda.profil_id"
+                + " ORDER BY u.id LIMIT 1), 'avis', 'favorable', 'Dossier technique conforme.'"
+                + " FROM demande d JOIN type_document_avis tda"
+                + " ON tda.type_document_id = d.type_document_id WHERE d.id = "
+                + demande);
       }
+      changerStatut(c, demande, "avis_rendu");
+      changerStatut(c, demande, "decision");
       payer(c, demande, "DROITS", 15_000_000);
       assertThat(statut(c, demande)).isEqualTo("droits_payes");
     }

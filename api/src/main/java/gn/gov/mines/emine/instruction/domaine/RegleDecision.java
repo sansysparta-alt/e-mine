@@ -1,22 +1,23 @@
 package gn.gov.mines.emine.instruction.domaine;
 
 /**
- * Décision du signataire (US-05.4, V1) : une demande recevable est décidée par le profil que le
- * catalogue désigne comme signataire du document (D4, V9) — jamais par un profil codé en dur.
+ * Décision du signataire (US-05.4) : une demande est décidée par le profil que le catalogue désigne
+ * comme signataire du document (D4, V9) — jamais par un profil codé en dur — dès la recevabilité si
+ * le document ne requiert aucun avis, sinon une fois tous les avis techniques rendus (US-05.3).
  * Favorable : la demande attend le paiement des droits ; si le document n'a pas de droits à payer
  * (attestation payée au dépôt, carte d'orpailleur…), elle passe aussitôt à « droits payés » (prête
  * pour la délivrance). Défavorable : la demande est rejetée avec un motif obligatoire.
  */
 public final class RegleDecision {
 
-  /** Statut d'une demande à décider. */
-  public static final String STATUT_A_DECIDER = "recevable";
-
   private RegleDecision() {}
 
-  /** La demande attend une décision. */
-  public static boolean aDecider(String statut) {
-    return STATUT_A_DECIDER.equals(statut);
+  /**
+   * La demande attend une décision : « avis rendu », ou « recevable » pour un document sans avis
+   * requis.
+   */
+  public static boolean aDecider(String statut, boolean avisRequis) {
+    return "avis_rendu".equals(statut) || (!avisRequis && "recevable".equals(statut));
   }
 
   /** Ce profil est-il le signataire de ce document ? */

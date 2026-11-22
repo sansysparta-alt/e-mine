@@ -54,6 +54,9 @@ Mot de passe commun : la valeur de `DEMO_PASSWORD` dans votre `.env`.
 | Investisseur | `f.bangoura@horizon-invest.test` |
 | Investisseur (second) | `k.sylla@sahel-ressources.test` |
 | Agent guichet unique | `a.camara@e-mine.test` |
+| Agent DNM (avis technique) | `n.sow@e-mine.test` |
+| Inspecteur des Mines (avis technique) | `f.barry@e-mine.test` |
+| Géologue (avis technique) | `m.keita@e-mine.test` |
 | Directeur | `s.kouyate@e-mine.test` |
 | Ministre | `i.soumah@e-mine.test` |
 | Responsable fiscal | `m.diallo@e-mine.test` |

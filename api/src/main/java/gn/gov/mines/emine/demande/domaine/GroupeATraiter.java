@@ -21,7 +21,15 @@ public enum GroupeATraiter {
    * relancer ou clore avec un motif.
    */
   SANS_REPONSE("sans-reponse"),
-  /** Signataire du catalogue : décision à rendre (demande recevable). */
+  /**
+   * Profil désigné par le catalogue pour un avis technique (DNM, Géologue, Inspection) : avis
+   * motivé à rendre sur une demande à l'instruction (US-05.3).
+   */
+  AVIS_A_RENDRE("avis-a-rendre"),
+  /**
+   * Signataire du catalogue : décision à rendre (tous les avis requis rendus, ou demande recevable
+   * d'un document sans avis requis).
+   */
   A_DECIDER("a-decider"),
   /** Signataire du catalogue : document à signer et délivrer (droits payés). */
   A_SIGNER("a-signer");

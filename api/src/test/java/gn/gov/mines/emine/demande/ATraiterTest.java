@@ -57,12 +57,16 @@ class ATraiterTest extends TestIntegration {
     pexADecider = DemandesDeTest.deposee(INVESTISSEUR, "PEX");
     DemandesDeTest.payer(pexADecider, "FRAIS_DOSSIER", 5_000_000);
     DemandesDeTest.changerStatut(pexADecider, "recevable");
+    DemandesDeTest.avisRendus(pexADecider);
     carADecider = DemandesDeTest.deposee(INVESTISSEUR, "CAR");
     DemandesDeTest.payer(carADecider, "FRAIS_DOSSIER", 1_000_000);
     DemandesDeTest.changerStatut(carADecider, "recevable");
+    DemandesDeTest.avisRendus(carADecider);
     droitsDus = DemandesDeTest.deposee(INVESTISSEUR, "PEX");
     DemandesDeTest.payer(droitsDus, "FRAIS_DOSSIER", 5_000_000);
-    DemandesDeTest.changerStatut(droitsDus, "recevable", "decision");
+    DemandesDeTest.changerStatut(droitsDus, "recevable");
+    DemandesDeTest.avisRendus(droitsDus);
+    DemandesDeTest.changerStatut(droitsDus, "decision");
     pexASigner = DemandesDeTest.deposee(INVESTISSEUR, "PEX");
     DemandesDeTest.pretePourLaDelivrance(
         pexASigner, MINISTRE, "FRAIS_DOSSIER", 5_000_000, 15_000_000L);

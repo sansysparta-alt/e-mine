@@ -1,5 +1,6 @@
 package gn.gov.mines.emine.demande.infrastructure;
 
+import static gn.gov.mines.emine.shared.jooq.Tables.AVIS_DECISION;
 import static gn.gov.mines.emine.shared.jooq.Tables.COMPLEMENT;
 import static gn.gov.mines.emine.shared.jooq.Tables.DEMANDE;
 import static gn.gov.mines.emine.shared.jooq.Tables.HISTORIQUE_STATUT_DEMANDE;
@@ -10,6 +11,7 @@ import static gn.gov.mines.emine.shared.jooq.Tables.PREFECTURE;
 import static gn.gov.mines.emine.shared.jooq.Tables.PROFIL;
 import static gn.gov.mines.emine.shared.jooq.Tables.SUBSTANCE;
 import static gn.gov.mines.emine.shared.jooq.Tables.TYPE_DOCUMENT;
+import static gn.gov.mines.emine.shared.jooq.Tables.TYPE_DOCUMENT_AVIS;
 import static gn.gov.mines.emine.shared.jooq.Tables.UTILISATEUR;
 
 import gn.gov.mines.emine.demande.domaine.CritereDemandes;
@@ -19,6 +21,7 @@ import gn.gov.mines.emine.demande.domaine.Passage;
 import gn.gov.mines.emine.demande.domaine.RegleATraiter;
 import gn.gov.mines.emine.demande.domaine.VueDemandes;
 import gn.gov.mines.emine.shared.jooq.Routines;
+import gn.gov.mines.emine.shared.jooq.enums.NatureAvis;
 import gn.gov.mines.emine.shared.jooq.enums.ObjetPaiement;
 import gn.gov.mines.emine.shared.jooq.enums.StatutDemande;
 import gn.gov.mines.emine.shared.jooq.enums.StatutPaiement;
@@ -222,7 +225,41 @@ public class DemandeRepository {
                           .and(COMPLEMENT.CLOS_LE.isNull())
                           .and(COMPLEMENT.DATE_LIMITE.lt(MAINTENANT_BASE))
                           .and(PROFIL.CODE.eq(profilCode))));
-      case A_DECIDER -> DEMANDE.STATUT.eq(StatutDemande.recevable).and(signataire);
+      case AVIS_A_RENDRE ->
+          DEMANDE
+              .STATUT
+              .eq(StatutDemande.en_instruction)
+              .and(
+                  DSL.exists(
+                      DSL.selectOne()
+                          .from(TYPE_DOCUMENT_AVIS)
+                          .join(PROFIL)
+                          .on(PROFIL.ID.eq(TYPE_DOCUMENT_AVIS.PROFIL_ID))
+                          .where(TYPE_DOCUMENT_AVIS.TYPE_DOCUMENT_ID.eq(DEMANDE.TYPE_DOCUMENT_ID))
+                          .and(PROFIL.CODE.eq(profilCode))
+                          .and(
+                              DSL.notExists(
+                                  DSL.selectOne()
+                                      .from(AVIS_DECISION)
+                                      .where(AVIS_DECISION.DEMANDE_ID.eq(DEMANDE.ID))
+                                      .and(AVIS_DECISION.NATURE.eq(NatureAvis.avis))
+                                      .and(AVIS_DECISION.PROFIL_ID.eq(PROFIL.ID))))));
+      case A_DECIDER ->
+          DEMANDE
+              .STATUT
+              .eq(StatutDemande.avis_rendu)
+              .or(
+                  DEMANDE
+                      .STATUT
+                      .eq(StatutDemande.recevable)
+                      .and(
+                          DSL.notExists(
+                              DSL.selectOne()
+                                  .from(TYPE_DOCUMENT_AVIS)
+                                  .where(
+                                      TYPE_DOCUMENT_AVIS.TYPE_DOCUMENT_ID.eq(
+                                          DEMANDE.TYPE_DOCUMENT_ID)))))
+              .and(signataire);
       case A_SIGNER -> DEMANDE.STATUT.eq(StatutDemande.droits_payes).and(signataire);
     };
   }

@@ -335,7 +335,9 @@
       "agentAttenteDecision": "Admissible application: the signatory’s decision ({signataire}) is awaited.",
       "signataireDecider": "This application is admissible and you are its signatory. Review the file and the attached documents below, then give your decision.",
       "signataireDelivrer": "The duties are paid: you can sign and issue the document. Check the file one last time.",
-      "agentSansReponse": "The applicant did not answer in time: send a reminder or close the file."
+      "agentSansReponse": "The applicant did not answer in time: send a reminder or close the file.",
+      "agentAttenteAvis": "The application is under technical review: the opinions required by the catalogue are pending.",
+      "agentRendreAvis": "The catalogue requires your service’s opinion: review the file and give a reasoned opinion. If information is missing, request additional information."
     },
     "fraisPayes": "Fee paid",
     "paiements": {
@@ -754,6 +756,28 @@
         "clos": "Closed without an answer on {date}",
         "enAttente": "Awaiting an answer"
       }
+    },
+    "avis": {
+      "titre": "Technical opinions ({rendus}/{requis})",
+      "attendu": "opinion pending",
+      "favorable": "favourable opinion",
+      "defavorable": "unfavourable opinion",
+      "par": "Given by {auteur} on {date}",
+      "rendre": {
+        "sens": "Your opinion",
+        "favorable": "Favourable",
+        "defavorable": "Unfavourable",
+        "sensRequis": "Choose your opinion.",
+        "motif": "Grounds",
+        "motifAide": "What you examined and what your opinion rests on. The signatory will read it before deciding. At least 10 characters.",
+        "enregistrer": "Save my opinion",
+        "enCours": "Saving…",
+        "echec": "Your opinion was not saved",
+        "erreurs": {
+          "court": "Give the grounds for your opinion in at least 10 characters: the signatory will read them.",
+          "long": "The grounds exceed 2000 characters: please shorten them."
+        }
+      }
     }
   },
   "audit": {
@@ -938,7 +962,8 @@
       "frais-attendus": "Fee pending",
       "a-decider": "To decide",
       "a-signer": "To sign",
-      "sans-reponse": "No answer"
+      "sans-reponse": "No answer",
+      "avis-a-rendre": "Opinions to give"
     },
     "commencer": "{nombre, plural, one {Start processing (# file)} other {Start processing (# files)}}",
     "continuer": "{nombre, plural, one {Continue: # file left} other {Continue: # files left}}",
@@ -955,7 +980,8 @@
       "frais-attendus": "For information: these applications can be reviewed once the fee is paid.",
       "a-decider": "Admissible applications you sign: give your decision.",
       "a-signer": "Duties paid: sign and issue the document.",
-      "sans-reponse": "Additional information requested by your service with no answer after the 5-day deadline: remind the applicant or close the file."
+      "sans-reponse": "Additional information requested by your service with no answer after the 5-day deadline: remind the applicant or close the file.",
+      "avis-a-rendre": "Applications under review for which the catalogue requires your service’s opinion: give a reasoned opinion, or request additional information."
     },
     "colonnes": {
       "numero": "Number",
@@ -981,7 +1007,10 @@
       "droits_payes": "Approval recorded for application {numero}: it is ready for issuance.",
       "delivree": "Document {document} signed and issued for application {numero}.",
       "complement_requis": "Additional information requested for application {numero}.",
-      "relance": "Applicant reminded for application {numero}: new 5-day deadline."
+      "relance": "Applicant reminded for application {numero}: new 5-day deadline.",
+      "en_instruction": "Application {numero} declared admissible: it moves on to technical review.",
+      "avis": "Opinion saved for application {numero}.",
+      "avis_rendu": "Opinion saved for application {numero}: all opinions are in, the decision now lies with the signatory."
     },
     "serie": {
       "libelle": "Batch processing",
@@ -1048,7 +1077,8 @@
       "delivree": "Issued",
       "rejetee": "Rejected",
       "archivee": "Archived",
-      "sansReponse": "No answer"
+      "sansReponse": "No answer",
+      "avisARendre": "Opinion to give"
     }
   },
   "dates": {

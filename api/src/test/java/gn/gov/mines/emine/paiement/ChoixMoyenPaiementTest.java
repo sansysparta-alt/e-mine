@@ -132,7 +132,9 @@ class ChoixMoyenPaiementTest extends TestIntegration {
     long id = DemandesDeTest.deposee(INVESTISSEUR, "PEX");
     String frais = reference(choisir(id, "TRESORPAY", investisseur()));
     DemandesDeTest.changerStatutPaiement(frais, "paye");
-    DemandesDeTest.changerStatut(id, "recevable", "en_instruction", "avis_rendu", "decision");
+    DemandesDeTest.changerStatut(id, "recevable");
+    DemandesDeTest.avisRendus(id);
+    DemandesDeTest.changerStatut(id, "decision");
     mvc.perform(get("/api/v1/demandes/" + id + "/paiements/a-payer").with(investisseur()))
         .andExpect(jsonPath("$.objet").value("DROITS"))
         .andExpect(jsonPath("$.montantGnf").value(15_000_000));

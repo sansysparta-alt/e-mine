@@ -65,7 +65,7 @@ public class ServiceDecision {
   public EtatDecision etat(long id) {
     DemandeResume demande = demande(id);
     TypeDocument type = type(demande);
-    boolean aDecider = RegleDecision.aDecider(demande.statut());
+    boolean aDecider = RegleDecision.aDecider(demande.statut(), !type.avisRequis().isEmpty());
     boolean signataire =
         utilisateurCourant
             .get()
@@ -101,12 +101,15 @@ public class ServiceDecision {
     if (!RegleDecision.estSignataire(moi.profilCode(), type.signataireProfil())) {
       throw new ErreurMetier(CodeErreur.DEM_008, Map.of("signataire", type.signataire()));
     }
-    if (!RegleDecision.aDecider(demande.statut())) {
-      throw new ErreurMetier(CodeErreur.DEM_001, Map.of("id", id, "statut", demande.statut()));
+    if (!RegleDecision.aDecider(demande.statut(), !type.avisRequis().isEmpty())) {
+      throw new ErreurMetier(
+          "recevable".equals(demande.statut()) ? CodeErreur.DEM_011 : CodeErreur.DEM_001,
+          Map.of("id", id, "statut", demande.statut()));
     }
+    StatutDemande actuel = StatutDemande.lookupLiteral(demande.statut());
     String texte = RegleMotif.nettoyer(motif);
     if (favorable) {
-      exiger(instruction.changerStatut(id, StatutDemande.recevable, StatutDemande.decision), id);
+      exiger(instruction.changerStatut(id, actuel, StatutDemande.decision), id);
       instruction.enregistrerDecision(id, moi.id(), true, texte);
       String statut = RegleDecision.statutApresFavorable(type.tarifs().droitsGnf());
       if ("droits_payes".equals(statut)) {
@@ -115,7 +118,7 @@ public class ServiceDecision {
       }
       return statut;
     }
-    exiger(instruction.rejeter(id, texte), id);
+    exiger(instruction.rejeterDepuis(id, actuel, texte), id);
     instruction.enregistrerDecision(id, moi.id(), false, texte);
     return "rejetee";
   }

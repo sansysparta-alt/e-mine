@@ -6,7 +6,9 @@ import {
   decider,
   demanderComplement,
   relancerComplement,
+  rendreAvis,
   repondreComplement,
+  type ResultatAvisDto,
   type ResultatComplementDto,
   declarerRecevabilite,
   delivrer,
@@ -161,6 +163,28 @@ export async function cloreSansReponse(
     const reponse = await cloreComplement(
       id,
       { motif: motif.trim() },
+      { headers: await enTetesApi(session) },
+    );
+    return { ok: true, valeur: reponse.data };
+  } catch (e) {
+    return { ok: false, erreur: versErreurFormulaire(e) };
+  }
+}
+
+/**
+ * Rend l'avis motivé du profil connecté (US-05.3) : l'API vérifie que le catalogue désigne ce profil
+ * pour le document et que la demande est à l'instruction.
+ */
+export async function rendreUnAvis(
+  id: number,
+  favorable: boolean,
+  motif: string,
+): Promise<ResultatAction<ResultatAvisDto>> {
+  try {
+    const session = await lireSession();
+    const reponse = await rendreAvis(
+      id,
+      { favorable, motif: motif.trim() },
       { headers: await enTetesApi(session) },
     );
     return { ok: true, valeur: reponse.data };

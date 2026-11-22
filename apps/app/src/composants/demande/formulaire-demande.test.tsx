@@ -21,6 +21,7 @@ const pex: TypeDocumentDto = {
   piecesRequises: ["Étude de faisabilité", "EIES", "Plan de restauration"],
   instruitPar: "DNM + Inspection",
   signataire: "Ministre",
+  avisRequis: [],
   tarifs: {
     fraisDossierGnf: 5_000_000,
     droitsGnf: 15_000_000,

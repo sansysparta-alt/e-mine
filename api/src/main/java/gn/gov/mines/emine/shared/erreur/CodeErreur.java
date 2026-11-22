@@ -48,6 +48,10 @@ public enum CodeErreur {
    * message quand aucune pièce n'est demandée (US-05.2).
    */
   DEM_010("DEM-010", HttpStatus.UNPROCESSABLE_CONTENT),
+  /** Décision impossible : un avis technique requis par le catalogue manque (US-05.3, V13). */
+  DEM_011("DEM-011", HttpStatus.CONFLICT),
+  /** Avis réservé aux profils que le catalogue désigne pour ce document (US-05.3). */
+  DEM_012("DEM-012", HttpStatus.FORBIDDEN),
   /** Objet déjà payé pour cette demande (index {@code ux_paiement_paye}). */
   PAY_001("PAY-001", HttpStatus.CONFLICT),
   /** Trois tentatives de paiement en ligne atteintes aujourd'hui pour cet objet (US-04.3). */

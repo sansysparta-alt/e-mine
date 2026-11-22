@@ -15,7 +15,7 @@ const ETAPES_AGENT: Record<string, string> = {
   deposee: "agentVerifier",
   complement_requis: "agentAttenteComplement",
   recevable: "agentAttenteDecision",
-  en_instruction: "agentInstruire",
+  en_instruction: "agentAttenteAvis",
   avis_rendu: "agentDecision",
   decision: "agentAttenteDroits",
   droits_payes: "agentDelivrer",

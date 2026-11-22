@@ -154,6 +154,7 @@ public final class DemandesDeTest {
       throws SQLException {
     payer(demande, objetFrais, frais);
     changerStatut(demande, "recevable");
+    avisRendus(demande);
     try (Connection c = BaseDeDonneesDeTest.connexionOwner();
         PreparedStatement ps =
             c.prepareStatement(
@@ -232,6 +233,48 @@ public final class DemandesDeTest {
                 "SELECT count(*) FROM notification WHERE demande_id = ? AND modele = ?")) {
       ps.setLong(1, demande);
       ps.setString(2, modele);
+      ResultSet rs = ps.executeQuery();
+      rs.next();
+      return rs.getInt(1);
+    }
+  }
+
+  /**
+   * US-05.3 : pour une demande recevable dont le document requiert des avis, la fait passer à
+   * l'instruction, inscrit un avis favorable de chaque profil requis (persona du seed) et la passe
+   * à « avis rendu ». Sans avis requis, la demande reste recevable. Renvoie le nombre d'avis
+   * inscrits.
+   */
+  public static int avisRendus(long demande) throws SQLException {
+    if (avisRequis(demande) == 0) {
+      return 0;
+    }
+    changerStatut(demande, "en_instruction");
+    int n;
+    try (Connection c = BaseDeDonneesDeTest.connexionOwner();
+        PreparedStatement ps =
+            c.prepareStatement(
+                "INSERT INTO avis_decision (demande_id, auteur_id, nature, sens, motif)"
+                    + " SELECT d.id, (SELECT u.id FROM utilisateur u WHERE u.profil_id ="
+                    + " tda.profil_id ORDER BY u.id LIMIT 1), 'avis', 'favorable',"
+                    + " 'Avis favorable : dossier technique conforme.' FROM demande d"
+                    + " JOIN type_document_avis tda ON tda.type_document_id = d.type_document_id"
+                    + " WHERE d.id = ?")) {
+      ps.setLong(1, demande);
+      n = ps.executeUpdate();
+    }
+    changerStatut(demande, "avis_rendu");
+    return n;
+  }
+
+  /** Nombre d'avis requis par le catalogue pour le document de la demande. */
+  public static int avisRequis(long demande) throws SQLException {
+    try (Connection c = BaseDeDonneesDeTest.connexionOwner();
+        PreparedStatement ps =
+            c.prepareStatement(
+                "SELECT count(*) FROM type_document_avis tda JOIN demande d"
+                    + " ON d.type_document_id = tda.type_document_id WHERE d.id = ?")) {
+      ps.setLong(1, demande);
       ResultSet rs = ps.executeQuery();
       rs.next();
       return rs.getInt(1);

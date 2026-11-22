@@ -4,12 +4,14 @@ import gn.gov.mines.emine.catalogue.Catalogue;
 import gn.gov.mines.emine.catalogue.TypeDocument;
 import gn.gov.mines.emine.demande.Demandes;
 import gn.gov.mines.emine.demande.Demandes.DemandeResume;
+import gn.gov.mines.emine.instruction.domaine.RegleAvis;
 import gn.gov.mines.emine.instruction.domaine.RegleMotif;
 import gn.gov.mines.emine.instruction.domaine.RegleRecevabilite;
 import gn.gov.mines.emine.instruction.domaine.RegleRecevabilite.Examen;
 import gn.gov.mines.emine.instruction.infrastructure.InstructionRepository;
 import gn.gov.mines.emine.shared.erreur.CodeErreur;
 import gn.gov.mines.emine.shared.erreur.ErreurMetier;
+import gn.gov.mines.emine.shared.jooq.enums.StatutDemande;
 import java.time.Clock;
 import java.util.List;
 import java.util.Map;
@@ -63,7 +65,15 @@ public class ServiceRecevabilite {
     if (instruction.declarerRecevable(id, horloge.instant()) == 0) {
       throw dejaTraitee(demande);
     }
-    return "recevable";
+    // US-05.3 : le document requiert des avis techniques → instruction technique.
+    String statut = RegleAvis.statutApresRecevabilite(type(demande).profilsAvis());
+    if (!"recevable".equals(statut)
+        && instruction.changerStatut(
+                id, StatutDemande.recevable, StatutDemande.lookupLiteral(statut))
+            == 0) {
+      throw dejaTraitee(demande);
+    }
+    return statut;
   }
 
   /**
@@ -85,6 +95,13 @@ public class ServiceRecevabilite {
       throw dejaTraitee(demande);
     }
     return "rejetee";
+  }
+
+  private TypeDocument type(DemandeResume demande) {
+    return catalogue
+        .trouverActif(demande.typeDocumentCode())
+        .orElseThrow(
+            () -> new ErreurMetier(CodeErreur.DEM_005, Map.of("code", demande.typeDocumentCode())));
   }
 
   private Examen examen(DemandeResume demande) {

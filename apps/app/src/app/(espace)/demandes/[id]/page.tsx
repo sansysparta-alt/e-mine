@@ -4,6 +4,7 @@ import {
   lireDecision,
   lireDemande,
   lireDocumentDelivre,
+  lireAvis,
   lireComplements,
   compterATraiter,
   lireEtatDelivrance,
@@ -35,8 +36,10 @@ import { DocumentDelivre } from "@/composants/delivrance/document-delivre";
 import { peutRevoquer } from "@/composants/delivrance/revocation";
 import { RevoquerDocument } from "@/composants/delivrance/revoquer-document";
 import { SignerDelivrer } from "@/composants/delivrance/signer-delivrer";
+import { ListeAvis, RendreAvis } from "@/composants/instruction/avis";
 import {
   ComplementSansReponse,
+  DemandeComplement,
   HistoriqueComplements,
   ReponseComplement,
   ResumeComplement,
@@ -59,6 +62,7 @@ import {
   declarer,
   demanderUnComplement,
   relancerDemandeur,
+  rendreUnAvis,
   rendreDecision,
   repondreAuComplement,
   revoquer,
@@ -79,6 +83,9 @@ const STATUTS_EN_COURS = new Set([
 
 /** Statuts où le document délivré existe (US-06.4). */
 const STATUTS_DELIVRES = new Set(["delivree", "archivee"]);
+
+/** Statuts où l'instruction technique n'a pas commencé (aucun avis à montrer). */
+const STATUTS_AVANT_INSTRUCTION = new Set(["brouillon", "deposee"]);
 
 /** Statuts où aucune décision ne peut encore exister (avant la recevabilité). */
 const STATUTS_SANS_DECISION = new Set(["brouillon", "deposee", "complement_requis"]);
@@ -140,6 +147,20 @@ export default async function DetailDemande({ params, searchParams }: Props) {
   // Délai dépassé et complément demandé par son service : l'agent relance ou clôt (À traiter).
   const sansReponse =
     complementOuvert !== null && etatComplements.delaiDepasse && demande.aTraiterParMoi;
+  // US-05.3 : avis techniques requis par le catalogue (pièces internes, agents seulement), à
+  // partir de l'instruction technique.
+  const enInstruction =
+    demande.statut === "en_instruction" ||
+    (demande.statut === "complement_requis" &&
+      complementOuvert?.statutOrigine === "en_instruction");
+  const etatAvis =
+    moi.interne &&
+    (document?.avisRequis.length ?? 0) > 0 &&
+    !STATUTS_AVANT_INSTRUCTION.has(demande.statut)
+      ? (await appelPage(chemin, async () => lireAvis(Number(id), await optionsApi()))).data
+      : null;
+  const avisAffiches =
+    etatAvis && (enInstruction || etatAvis.requis.some((a) => a.rendu)) ? etatAvis : null;
   // US-05.1 : l'agent qui instruit examine la recevabilité d'une demande déposée.
   const examen =
     demande.statut === "deposee" && moi.interne && moi.permissions.includes("INSTRUIRE")
@@ -178,9 +199,11 @@ export default async function DetailDemande({ params, searchParams }: Props) {
     ? { cle: "signataireDecider", pour: "agent" as const }
     : etatDelivrance?.peutDelivrer
       ? { cle: "signataireDelivrer", pour: "agent" as const }
-      : sansReponse
-        ? { cle: "agentSansReponse", pour: "agent" as const }
-        : etapeCalculee;
+      : etatAvis?.peutRendre
+        ? { cle: "agentRendreAvis", pour: "agent" as const }
+        : sansReponse
+          ? { cle: "agentSansReponse", pour: "agent" as const }
+          : etapeCalculee;
   const numero = demande.numero ?? "";
   const attenteEtape = joursCalendairesDepuis(demande.etapeDepuis);
   // Traitement en série (correctifs J5) : position dans la file, dossier suivant après l'action.
@@ -221,6 +244,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
   const tTravail = await getTranslations("travail");
   const tDates = await getTranslations("dates");
   const tComplement = await getTranslations("instruction.complement");
+  const tAvis = await getTranslations("instruction.avis");
   // Retour vers la file de travail d'où vient l'agent (correctifs J4 et J5).
   const retour = groupeSerie
     ? { href: `/a-traiter?groupe=${groupeSerie.cle}`, cle: "retourTravail" }
@@ -231,6 +255,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
   const actionAgent =
     examen !== null ||
     sansReponse ||
+    etatAvis?.peutRendre === true ||
     etatDecision?.peutDecider === true ||
     etatDelivrance?.peutDelivrer === true;
   const actionPayer =
@@ -338,6 +363,16 @@ export default async function DetailDemande({ params, searchParams }: Props) {
         <DecisionRendue etat={etatDecision} />
       </Carte>
     ) : null;
+  const blocAvis = avisAffiches ? (
+    <Carte
+      titre={tAvis("titre", {
+        rendus: avisAffiches.requis.filter((a) => a.rendu).length,
+        requis: avisAffiches.requis.length,
+      })}
+    >
+      <ListeAvis avis={avisAffiches} />
+    </Carte>
+  ) : null;
   const blocComplements =
     complementsTraites.length > 0 ? (
       <Carte titre={tComplement("historique.titre", { nombre: complementsTraites.length })}>
@@ -371,6 +406,19 @@ export default async function DetailDemande({ params, searchParams }: Props) {
             demandeId={demande.id}
             complement={complementOuvert}
             repondre={repondreAuComplement}
+          />
+        </div>
+      ) : null}
+      {etatAvis?.peutRendre ? (
+        <div className="mt-4 flex flex-col gap-3 border-t border-bordure pt-4">
+          <RendreAvis demandeId={demande.id} numero={numero} rendre={rendreUnAvis} serie={serie} />
+          <DemandeComplement
+            demandeId={demande.id}
+            numero={numero}
+            piecesProposees={document?.piecesRequises ?? []}
+            demander={demanderUnComplement}
+            groupe="avis-a-rendre"
+            serie={serie}
           />
         </div>
       ) : null}
@@ -477,6 +525,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_26rem]">
           <div className="flex flex-col gap-6">
             {blocInfos}
+            {blocAvis}
             {blocPassages}
             {blocDocument}
             {blocPieces}
@@ -497,6 +546,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
           {blocPassages}
           {blocDocument}
           {blocEtape}
+          {blocAvis}
           {blocDecision}
           {blocComplements}
           {blocPaiements}
