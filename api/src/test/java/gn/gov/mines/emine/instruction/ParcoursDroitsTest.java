@@ -63,7 +63,20 @@ class ParcoursDroitsTest extends TestIntegration {
                 .with(jeton(GUICHET, "GUICHET"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"recevable\":true}"))
-        .andExpect(status().isOk());
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.statut").value("en_instruction"));
+    // US-05.3 : le PEX requiert les avis DNM et Inspection avant la décision.
+    for (String[] agent :
+        new String[][] {
+          {Personas.DNM, "DNM"}, {Personas.INSPECTEUR, "INSPECTEUR"},
+        }) {
+      mvc.perform(
+              post("/api/v1/demandes/" + id + "/avis")
+                  .with(jeton(agent[0], agent[1]))
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{\"favorable\":true,\"motif\":\"Dossier technique conforme.\"}"))
+          .andExpect(status().isOk());
+    }
 
     // Avant la décision, aucun droit n'est attendu.
     mvc.perform(get("/api/v1/demandes/" + id + "/paiements/a-payer").with(investisseur()))
@@ -106,7 +119,9 @@ class ParcoursDroitsTest extends TestIntegration {
   void unAutreDemandeurNePeutPasPayerLesDroitsDeLaDemande() throws Exception {
     long id = DemandesDeTest.deposee(INVESTISSEUR, "PEX");
     DemandesDeTest.payer(id, "FRAIS_DOSSIER", 5_000_000);
-    DemandesDeTest.changerStatut(id, "recevable", "decision");
+    DemandesDeTest.changerStatut(id, "recevable");
+    DemandesDeTest.avisRendus(id);
+    DemandesDeTest.changerStatut(id, "decision");
     mvc.perform(
             get("/api/v1/demandes/" + id + "/paiements/a-payer")
                 .with(jeton(Personas.INVESTISSEUR_2, "INVESTISSEUR")))

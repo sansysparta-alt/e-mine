@@ -51,11 +51,12 @@ class RecevabiliteGuichetTest extends TestIntegration {
         .andExpect(jsonPath("$.fraisPayes").value(true))
         .andExpect(jsonPath("$.piecesManquantes.length()").value(0))
         .andExpect(jsonPath("$.peutEtreRecevable").value(true));
+    // US-05.3 : le PEX requiert des avis techniques ; il part à l'instruction technique.
     declarer(id, true, null, guichet())
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.statut").value("recevable"));
+        .andExpect(jsonPath("$.statut").value("en_instruction"));
     String[] etat = DemandesDeTest.statutEtMotif(id);
-    assertThat(etat[0]).isEqualTo("recevable");
+    assertThat(etat[0]).isEqualTo("en_instruction");
     assertThat(etat[2]).as("date de recevabilité").isEqualTo("true");
     assertThat(DemandesDeTest.auteurDernierStatut(id)).isEqualTo(GUICHET);
   }
@@ -124,7 +125,7 @@ class RecevabiliteGuichetTest extends TestIntegration {
     declarer(id, false, "Changement d'avis après coup.", guichet())
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.code").value("DEM-001"));
-    assertThat(DemandesDeTest.statutEtMotif(id)[0]).isEqualTo("recevable");
+    assertThat(DemandesDeTest.statutEtMotif(id)[0]).isEqualTo("en_instruction");
   }
 
   @Test

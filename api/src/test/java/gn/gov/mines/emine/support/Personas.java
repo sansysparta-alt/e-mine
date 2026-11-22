@@ -22,6 +22,9 @@ public final class Personas {
   public static final String INVESTISSEUR = "00000000-0000-4000-8000-000000000009";
   public static final String INVESTISSEUR_2 = "00000000-0000-4000-8000-000000000109";
   public static final String GUICHET = "00000000-0000-4000-8000-000000000002";
+  public static final String DNM = "00000000-0000-4000-8000-000000000003";
+  public static final String INSPECTEUR = "00000000-0000-4000-8000-000000000004";
+  public static final String GEOLOGUE = "00000000-0000-4000-8000-000000000005";
   public static final String DIRECTEUR = "00000000-0000-4000-8000-000000000007";
   public static final String MINISTRE = "00000000-0000-4000-8000-000000000008";
   public static final String FISCAL = "00000000-0000-4000-8000-000000000006";

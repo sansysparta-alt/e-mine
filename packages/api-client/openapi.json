@@ -876,6 +876,70 @@
         }
       }
     },
+    "/api/v1/demandes/{id}/avis" : {
+      "get" : {
+        "tags" : [ "Instruction" ],
+        "summary" : "Avis requis par le catalogue, rendus ou attendus, et avis à rendre par moi",
+        "operationId" : "lireAvis",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/EtatAvisDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Instruction" ],
+        "summary" : "Rendre mon avis motivé (favorable ou défavorable, motif de 10 à 2000 caractères)",
+        "operationId" : "rendreAvis",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AvisDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ResultatAvisDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/demandes/{demandeId}/pieces" : {
       "get" : {
         "tags" : [ "Demandes" ],
@@ -1953,6 +2017,31 @@
         },
         "required" : [ "motif" ]
       },
+      "AvisDto" : {
+        "type" : "object",
+        "properties" : {
+          "favorable" : {
+            "type" : "boolean"
+          },
+          "motif" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "favorable", "motif" ]
+      },
+      "ResultatAvisDto" : {
+        "type" : "object",
+        "properties" : {
+          "demandeId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "statut" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "demandeId", "statut" ]
+      },
       "PieceDto" : {
         "type" : "object",
         "properties" : {
@@ -2010,6 +2099,18 @@
           }
         },
         "required" : [ "codeType", "delivreLe", "document", "empreinteSha256", "numero", "signataire", "statut" ]
+      },
+      "AvisRequis" : {
+        "type" : "object",
+        "properties" : {
+          "profil" : {
+            "type" : "string"
+          },
+          "libelle" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "libelle", "profil" ]
       },
       "Famille" : {
         "type" : "object",
@@ -2081,9 +2182,15 @@
           },
           "tarifs" : {
             "$ref" : "#/components/schemas/Tarifs"
+          },
+          "avisRequis" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/AvisRequis"
+            }
           }
         },
-        "required" : [ "code", "delaiJours", "famille", "instruitPar", "libelleEn", "libelleFr", "piecesRequises", "renouvelable", "signataire", "tarifs" ]
+        "required" : [ "avisRequis", "code", "delaiJours", "famille", "instruitPar", "libelleEn", "libelleFr", "piecesRequises", "renouvelable", "signataire", "tarifs" ]
       },
       "SubstanceDto" : {
         "type" : "object",
@@ -2429,6 +2536,49 @@
           }
         },
         "required" : [ "complements", "delaiDepasse", "peutDemander", "peutRepondre", "piecesJointesDepuis" ]
+      },
+      "EtatAvisDto" : {
+        "type" : "object",
+        "properties" : {
+          "requis" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/LigneAvisDto"
+            }
+          },
+          "peutRendre" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "peutRendre", "requis" ]
+      },
+      "LigneAvisDto" : {
+        "type" : "object",
+        "properties" : {
+          "profil" : {
+            "type" : "string"
+          },
+          "libelle" : {
+            "type" : "string"
+          },
+          "rendu" : {
+            "type" : "boolean"
+          },
+          "favorable" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "motif" : {
+            "type" : [ "string", "null" ]
+          },
+          "auteur" : {
+            "type" : [ "string", "null" ]
+          },
+          "renduLe" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "auteur", "favorable", "libelle", "motif", "profil", "rendu", "renduLe" ]
       },
       "GroupeDto" : {
         "type" : "object",

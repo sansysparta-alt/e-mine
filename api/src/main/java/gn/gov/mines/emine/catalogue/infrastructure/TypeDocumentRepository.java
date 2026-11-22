@@ -3,6 +3,7 @@ package gn.gov.mines.emine.catalogue.infrastructure;
 import static gn.gov.mines.emine.shared.jooq.Tables.PROFIL;
 import static gn.gov.mines.emine.shared.jooq.Tables.TARIF;
 import static gn.gov.mines.emine.shared.jooq.Tables.TYPE_DOCUMENT;
+import static gn.gov.mines.emine.shared.jooq.Tables.TYPE_DOCUMENT_AVIS;
 import static gn.gov.mines.emine.shared.jooq.Tables.WORKFLOW;
 
 import gn.gov.mines.emine.catalogue.TypeDocument;
@@ -33,6 +34,7 @@ public class TypeDocumentRepository {
 
   public List<TypeDocument> listerActifs() {
     Map<Short, Map<ObjetPaiement, Long>> tarifs = tarifsEnVigueur();
+    Map<Short, List<TypeDocument.AvisRequis>> avis = avisRequis();
     return dsl.select(
             TYPE_DOCUMENT.ID,
             TYPE_DOCUMENT.CODE,
@@ -72,8 +74,28 @@ public class TypeDocumentRepository {
                   new TypeDocument.Tarifs(
                       t.get(ObjetPaiement.FRAIS_DOSSIER),
                       t.get(ObjetPaiement.DROITS),
-                      t.get(ObjetPaiement.ATTESTATION)));
+                      t.get(ObjetPaiement.ATTESTATION)),
+                  avis.getOrDefault(r.get(TYPE_DOCUMENT.ID), List.of()));
             });
+  }
+
+  /** Avis requis par document (US-05.3), dans l'ordre du catalogue. */
+  private Map<Short, List<TypeDocument.AvisRequis>> avisRequis() {
+    Map<Short, List<TypeDocument.AvisRequis>> parDocument = new HashMap<>();
+    dsl.select(TYPE_DOCUMENT_AVIS.TYPE_DOCUMENT_ID, PROFIL.CODE, PROFIL.LIBELLE)
+        .from(TYPE_DOCUMENT_AVIS)
+        .join(PROFIL)
+        .on(PROFIL.ID.eq(TYPE_DOCUMENT_AVIS.PROFIL_ID))
+        .orderBy(TYPE_DOCUMENT_AVIS.TYPE_DOCUMENT_ID, TYPE_DOCUMENT_AVIS.ORDRE)
+        .fetch()
+        .forEach(
+            r ->
+                parDocument
+                    .computeIfAbsent(
+                        r.get(TYPE_DOCUMENT_AVIS.TYPE_DOCUMENT_ID),
+                        k -> new java.util.ArrayList<>())
+                    .add(new TypeDocument.AvisRequis(r.get(PROFIL.CODE), r.get(PROFIL.LIBELLE))));
+    return parDocument;
   }
 
   /**

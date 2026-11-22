@@ -3,7 +3,8 @@ import { type Browser, expect, type Page, test } from "@playwright/test";
 /**
  * Démonstration V1 de bout en bout (docs/07 §1, US-07.4), avec les personas fictives du seed :
  * l'investisseur dépose un PEX et paie les frais (TrésorPay simulé) ; le guichet le déclare
- * recevable ; le Ministre (signataire du catalogue) décide ; l'investisseur paie les droits ; le
+ * recevable ; le DNM et l'Inspection rendent leur avis motivé (requis par le catalogue, US-05.3) ;
+ * le Ministre (signataire du catalogue) décide au vu des avis ; l'investisseur paie les droits ; le
  * Ministre signe et délivre ; n'importe qui vérifie le QR (« Document authentique ») ; après
  * révocation par le Directeur, la vérification affiche « NON VALIDE ».
  */
@@ -15,6 +16,8 @@ const SITE = process.env.PUBLIC_WEB_URL ?? "http://localhost:3000";
 const COMPTES = {
   investisseur: "f.bangoura@horizon-invest.test",
   guichet: "a.camara@e-mine.test",
+  dnm: "n.sow@e-mine.test",
+  inspecteur: "f.barry@e-mine.test",
   ministre: "i.soumah@e-mine.test",
   directeur: "s.kouyate@e-mine.test",
 } as const;
@@ -88,12 +91,37 @@ test("parcours V1 : dépôt, paiements, recevabilité, décision, délivrance, v
   await expect(guichet.getByRole("navigation", { name: "Traitement en série" })).toBeVisible();
   await guichet.getByLabel(/J’ai ouvert et vérifié chaque pièce jointe/).check();
   await guichet.getByRole("button", { name: "Déclarer recevable" }).click();
-  await expect(guichet.getByText(`Demande ${numero} déclarée recevable.`)).toBeVisible();
+  await expect(
+    guichet.getByText(
+      `Demande ${numero} déclarée recevable : elle part à l’instruction technique.`,
+    ),
+  ).toBeVisible();
+
+  // 3 bis. Le catalogue requiert pour le PEX l'avis du DNM et de l'Inspection (US-05.3).
+  for (const [compte, motif] of [
+    [COMPTES.dnm, "Étude de faisabilité et EIES conformes au code minier."],
+    [COMPTES.inspecteur, "Visite du site conforme au plan d’exploitation déposé."],
+  ] as const) {
+    const agent = await connecter(browser, compte);
+    await agent.goto("/a-traiter?groupe=avis-a-rendre");
+    await expect(
+      agent.getByRole("row", { name: new RegExp(numero ?? "") }).getByText("Avis à rendre"),
+    ).toBeVisible();
+    await agent.goto(`/demandes/${id}?file=avis-a-rendre`);
+    await agent.getByRole("radio", { name: "Favorable" }).check();
+    await agent.getByRole("textbox", { name: /Motivation/ }).fill(motif);
+    await agent.getByRole("button", { name: "Enregistrer mon avis" }).click();
+    await expect(
+      agent.getByText(new RegExp(`Avis enregistré pour la demande ${numero}`)),
+    ).toBeVisible();
+    await agent.context().close();
+  }
 
   // 4. Le Ministre, signataire du PEX au catalogue (D4), rend une décision favorable.
   const ministre = await connecter(browser, COMPTES.ministre);
   await expect(ministre.getByRole("heading", { name: /Dossiers à traiter/ })).toBeVisible();
   await ministre.goto(`/demandes/${id}?file=tout`);
+  await expect(ministre.getByRole("heading", { name: "Avis techniques (2/2)" })).toBeVisible();
   await ministre.getByRole("radio", { name: /Décision favorable/ }).check();
   await expect(ministre.getByText(/payer les droits \(15\s000\s000\sGNF\)/).first()).toBeVisible();
   await ministre.getByRole("button", { name: "Enregistrer la décision…" }).click();

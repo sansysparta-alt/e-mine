@@ -213,6 +213,78 @@
       ]
     },
     {
+      "id": "00000000-0000-4000-8000-000000000003",
+      "username": "n.sow@e-mine.test",
+      "email": "n.sow@e-mine.test",
+      "emailVerified": true,
+      "firstName": "Nènè",
+      "lastName": "Sow",
+      "enabled": true,
+      "attributes": {
+        "locale": [
+          "fr"
+        ]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "${DEMO_PASSWORD}",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "DNM"
+      ]
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000005",
+      "username": "m.keita@e-mine.test",
+      "email": "m.keita@e-mine.test",
+      "emailVerified": true,
+      "firstName": "Moussa",
+      "lastName": "Keïta",
+      "enabled": true,
+      "attributes": {
+        "locale": [
+          "fr"
+        ]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "${DEMO_PASSWORD}",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "GEOLOGUE"
+      ]
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000004",
+      "username": "f.barry@e-mine.test",
+      "email": "f.barry@e-mine.test",
+      "emailVerified": true,
+      "firstName": "Fatoumata",
+      "lastName": "Barry",
+      "enabled": true,
+      "attributes": {
+        "locale": [
+          "fr"
+        ]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "${DEMO_PASSWORD}",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "INSPECTEUR"
+      ]
+    },
+    {
       "id": "00000000-0000-4000-8000-000000000007",
       "username": "s.kouyate@e-mine.test",
       "email": "s.kouyate@e-mine.test",

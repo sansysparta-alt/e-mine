@@ -37,9 +37,11 @@ function agent({ statut, fraisPayes, aTraiterParMoi: moi }: DemandeAffichee): [s
   // US-05.2 : sans réponse dans le délai, l'agent qui l'a demandé relance ou clôt (orange).
   if (statut === "complement_requis")
     return moi ? ["sansReponse", "avertissement"] : ["complementAttendu", "neutre"];
-  if (statut === "recevable")
+  if (statut === "recevable" || statut === "avis_rendu")
     return moi ? ["aDecider", "avertissement"] : ["attenteDecision", "info"];
-  if (statut === "en_instruction" || statut === "avis_rendu") return ["instruction", "info"];
+  // US-05.3 : l'avis du profil connecté est attendu (orange), sinon l'instruction suit son cours.
+  if (statut === "en_instruction")
+    return moi ? ["avisARendre", "avertissement"] : ["instruction", "info"];
   if (statut === "decision") return ["droitsAttendus", "neutre"];
   if (statut === "droits_payes")
     return moi ? ["aSigner", "avertissement"] : ["attenteSignature", "info"];

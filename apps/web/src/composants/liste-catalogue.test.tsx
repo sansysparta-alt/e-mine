@@ -15,6 +15,7 @@ function document(partiel: Partial<TypeDocumentDto>): TypeDocumentDto {
     piecesRequises: ["Étude de faisabilité", "EIES"],
     instruitPar: "DNM + Inspection",
     signataire: "Ministre",
+    avisRequis: [],
     tarifs: {
       fraisDossierGnf: 5_000_000,
       droitsGnf: 15_000_000,
@@ -31,6 +32,7 @@ const exc = document({
   famille: { code: "ATTESTATIONS", libelle: "Attestations et copies" },
   delaiJours: 2,
   signataire: "Directeur national",
+  avisRequis: [],
   piecesRequises: ["Référence de la zone"],
   tarifs: {
     fraisDossierGnf: null,

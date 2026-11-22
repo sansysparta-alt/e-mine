@@ -81,7 +81,7 @@ class DecisionTest extends TestIntegration {
         .andExpect(status().isForbidden())
         .andExpect(jsonPath("$.code").value("DEM-008"))
         .andExpect(jsonPath("$.details.signataire").value("Ministre"));
-    assertThat(DemandesDeTest.statutEtMotif(id)[0]).isEqualTo("recevable");
+    assertThat(DemandesDeTest.statutEtMotif(id)[0]).isEqualTo("avis_rendu");
   }
 
   @Test
@@ -112,7 +112,7 @@ class DecisionTest extends TestIntegration {
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.code").value("VAL-001"))
         .andExpect(jsonPath("$.details.champs[0].champ").value("motif"));
-    assertThat(DemandesDeTest.statutEtMotif(id)[0]).isEqualTo("recevable");
+    assertThat(DemandesDeTest.statutEtMotif(id)[0]).isEqualTo("avis_rendu");
     decider(id, false, " Le périmètre chevauche un titre existant. ", ministre())
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.statut").value("rejetee"));
@@ -146,7 +146,7 @@ class DecisionTest extends TestIntegration {
     decider(id, true, null, jeton(INVESTISSEUR, "INVESTISSEUR"))
         .andExpect(status().isForbidden())
         .andExpect(jsonPath("$.code").value("PERM-001"));
-    assertThat(DemandesDeTest.statutEtMotif(id)[0]).isEqualTo("recevable");
+    assertThat(DemandesDeTest.statutEtMotif(id)[0]).isEqualTo("avis_rendu");
   }
 
   @Test
@@ -155,7 +155,7 @@ class DecisionTest extends TestIntegration {
     long car = recevable("CAR", "FRAIS_DOSSIER", 1_000_000);
     mvc.perform(
             get("/api/v1/demandes")
-                .param("statut", "recevable")
+                .param("statut", "avis_rendu")
                 .param("signataireProfil", "MINISTRE")
                 .param("taille", "100")
                 .with(ministre()))
@@ -163,11 +163,15 @@ class DecisionTest extends TestIntegration {
         .andExpect(jsonPath("$.elements[*].id", not(hasItem((int) car))));
   }
 
-  /** Demande déposée par l'investisseur, frais payés, déclarée recevable. */
+  /**
+   * Demande déposée par l'investisseur, frais payés, déclarée recevable puis, si le catalogue le
+   * requiert, instruite (avis techniques rendus, US-05.3) : elle attend la décision.
+   */
   private static long recevable(String type, String objet, long montant) throws Exception {
     long id = DemandesDeTest.deposee(INVESTISSEUR, type);
     DemandesDeTest.payer(id, objet, montant);
     DemandesDeTest.changerStatut(id, "recevable");
+    DemandesDeTest.avisRendus(id);
     return id;
   }
 

@@ -205,7 +205,9 @@ class NotificationTresorPayTest extends TestIntegration {
     long demande = DemandesDeTest.deposee(INVESTISSEUR, "PEX");
     String frais = payerEnLigne(demande);
     notifier(transaction(), frais, "PAYE", 5_000_000, SECRET_TRESORPAY, maintenant());
-    DemandesDeTest.changerStatut(demande, "recevable", "en_instruction", "avis_rendu", "decision");
+    DemandesDeTest.changerStatut(demande, "recevable");
+    DemandesDeTest.avisRendus(demande);
+    DemandesDeTest.changerStatut(demande, "decision");
     String droits = payerEnLigne(demande);
     notifier(transaction(), droits, "PAYE", 15_000_000, SECRET_TRESORPAY, maintenant())
         .andExpect(status().isOk());

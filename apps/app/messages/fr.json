@@ -335,7 +335,9 @@
       "agentAttenteDecision": "Demande recevable : la décision du signataire ({signataire}) est attendue.",
       "signataireDecider": "Cette demande est recevable et vous en êtes le signataire. Consultez le dossier et les pièces jointes ci-dessous, puis rendez votre décision.",
       "signataireDelivrer": "Les droits sont payés : vous pouvez signer et délivrer le document. Vérifiez une dernière fois le dossier ci-contre.",
-      "agentSansReponse": "Le demandeur n’a pas répondu dans le délai : relancez-le ou clôturez le dossier."
+      "agentSansReponse": "Le demandeur n’a pas répondu dans le délai : relancez-le ou clôturez le dossier.",
+      "agentAttenteAvis": "La demande est à l’instruction technique : les avis requis par le catalogue sont attendus.",
+      "agentRendreAvis": "Le catalogue requiert l’avis de votre service : examinez le dossier et rendez un avis motivé. S’il manque une information, demandez un complément."
     },
     "fraisPayes": "Frais payés",
     "paiements": {
@@ -754,6 +756,28 @@
         "clos": "Clôturé sans réponse le {date}",
         "enAttente": "En attente de réponse"
       }
+    },
+    "avis": {
+      "titre": "Avis techniques ({rendus}/{requis})",
+      "attendu": "avis attendu",
+      "favorable": "avis favorable",
+      "defavorable": "avis défavorable",
+      "par": "Rendu par {auteur} le {date}",
+      "rendre": {
+        "sens": "Votre avis",
+        "favorable": "Favorable",
+        "defavorable": "Défavorable",
+        "sensRequis": "Choisissez le sens de votre avis.",
+        "motif": "Motivation",
+        "motifAide": "Ce que vous avez examiné et ce qui fonde votre avis. Le signataire le lira avant de décider. 10 caractères au moins.",
+        "enregistrer": "Enregistrer mon avis",
+        "enCours": "Enregistrement…",
+        "echec": "Votre avis n’a pas été enregistré",
+        "erreurs": {
+          "court": "Motivez votre avis en 10 caractères au moins : le signataire le lira.",
+          "long": "La motivation dépasse 2000 caractères : raccourcissez-la."
+        }
+      }
     }
   },
   "audit": {
@@ -938,7 +962,8 @@
       "frais-attendus": "Frais attendus",
       "a-decider": "À décider",
       "a-signer": "À signer",
-      "sans-reponse": "Sans réponse"
+      "sans-reponse": "Sans réponse",
+      "avis-a-rendre": "Avis à rendre"
     },
     "commencer": "{nombre, plural, one {Commencer le traitement (# dossier)} other {Commencer le traitement (# dossiers)}}",
     "continuer": "{nombre, plural, one {Continuer : # dossier restant} other {Continuer : # dossiers restants}}",
@@ -955,7 +980,8 @@
       "frais-attendus": "Pour information : ces demandes pourront être examinées dès le paiement des frais.",
       "a-decider": "Demandes recevables dont vous êtes le signataire : rendez votre décision.",
       "a-signer": "Droits payés : signez et délivrez le document.",
-      "sans-reponse": "Compléments demandés par votre service, restés sans réponse au-delà du délai de 5 jours : relancez le demandeur ou clôturez le dossier."
+      "sans-reponse": "Compléments demandés par votre service, restés sans réponse au-delà du délai de 5 jours : relancez le demandeur ou clôturez le dossier.",
+      "avis-a-rendre": "Demandes à l’instruction pour lesquelles le catalogue requiert l’avis de votre service : rendez un avis motivé, ou demandez un complément."
     },
     "colonnes": {
       "numero": "Numéro",
@@ -981,7 +1007,10 @@
       "droits_payes": "Décision favorable enregistrée pour la demande {numero} : elle est prête pour la délivrance.",
       "delivree": "Document {document} signé et délivré pour la demande {numero}.",
       "complement_requis": "Complément demandé pour la demande {numero}.",
-      "relance": "Demandeur relancé pour la demande {numero} : nouveau délai de 5 jours."
+      "relance": "Demandeur relancé pour la demande {numero} : nouveau délai de 5 jours.",
+      "en_instruction": "Demande {numero} déclarée recevable : elle part à l’instruction technique.",
+      "avis": "Avis enregistré pour la demande {numero}.",
+      "avis_rendu": "Avis enregistré pour la demande {numero} : tous les avis sont rendus, la décision revient au signataire."
     },
     "serie": {
       "libelle": "Traitement en série",
@@ -1048,7 +1077,8 @@
       "delivree": "Délivrée",
       "rejetee": "Rejetée",
       "archivee": "Archivée",
-      "sansReponse": "Sans réponse"
+      "sansReponse": "Sans réponse",
+      "avisARendre": "Avis à rendre"
     }
   },
   "dates": {

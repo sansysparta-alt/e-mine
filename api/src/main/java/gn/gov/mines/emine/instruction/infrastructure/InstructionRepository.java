@@ -5,11 +5,13 @@ import static gn.gov.mines.emine.shared.jooq.Tables.DEMANDE;
 import static gn.gov.mines.emine.shared.jooq.Tables.PROFIL;
 import static gn.gov.mines.emine.shared.jooq.Tables.UTILISATEUR;
 
+import gn.gov.mines.emine.instruction.domaine.AvisRendu;
 import gn.gov.mines.emine.instruction.domaine.DecisionRendue;
 import gn.gov.mines.emine.shared.jooq.enums.NatureAvis;
 import gn.gov.mines.emine.shared.jooq.enums.SensAvis;
 import gn.gov.mines.emine.shared.jooq.enums.StatutDemande;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
@@ -59,11 +61,6 @@ public class InstructionRepository {
         .and(DEMANDE.STATUT.eq(de))
         .and(DEMANDE.DELETED_AT.isNull())
         .execute();
-  }
-
-  /** Recevable → rejetée à la décision, avec le motif communiqué au demandeur. */
-  public int rejeter(long id, String motif) {
-    return rejeterDepuis(id, StatutDemande.recevable, motif);
   }
 
   /**
@@ -117,5 +114,45 @@ public class InstructionRepository {
                     r.get(AVIS_DECISION.RENDU_LE),
                     (r.get(UTILISATEUR.PRENOM) + " " + r.get(UTILISATEUR.NOM)).strip(),
                     r.get(PROFIL.LIBELLE)));
+  }
+
+  /** Inscrit un avis technique motivé (un par profil et par demande, index de la base). */
+  public void enregistrerAvis(long demandeId, long auteurId, boolean favorable, String motif) {
+    dsl.insertInto(AVIS_DECISION)
+        .set(AVIS_DECISION.DEMANDE_ID, demandeId)
+        .set(AVIS_DECISION.AUTEUR_ID, auteurId)
+        .set(AVIS_DECISION.NATURE, NatureAvis.avis)
+        .set(AVIS_DECISION.SENS, favorable ? SensAvis.favorable : SensAvis.defavorable)
+        .set(AVIS_DECISION.MOTIF, motif)
+        .execute();
+  }
+
+  /** Avis techniques rendus sur la demande, dans l'ordre où ils ont été rendus. */
+  public List<AvisRendu> listerAvis(long demandeId) {
+    return dsl.select(
+            PROFIL.CODE,
+            PROFIL.LIBELLE,
+            UTILISATEUR.PRENOM,
+            UTILISATEUR.NOM,
+            AVIS_DECISION.SENS,
+            AVIS_DECISION.MOTIF,
+            AVIS_DECISION.RENDU_LE)
+        .from(AVIS_DECISION)
+        .join(UTILISATEUR)
+        .on(UTILISATEUR.ID.eq(AVIS_DECISION.AUTEUR_ID))
+        .join(PROFIL)
+        .on(PROFIL.ID.eq(AVIS_DECISION.PROFIL_ID))
+        .where(AVIS_DECISION.DEMANDE_ID.eq(demandeId))
+        .and(AVIS_DECISION.NATURE.eq(NatureAvis.avis))
+        .orderBy(AVIS_DECISION.ID)
+        .fetch(
+            r ->
+                new AvisRendu(
+                    r.get(PROFIL.CODE),
+                    r.get(PROFIL.LIBELLE),
+                    (r.get(UTILISATEUR.PRENOM) + " " + r.get(UTILISATEUR.NOM)).strip(),
+                    r.get(AVIS_DECISION.SENS) == SensAvis.favorable,
+                    r.get(AVIS_DECISION.MOTIF),
+                    r.get(AVIS_DECISION.RENDU_LE)));
   }
 }

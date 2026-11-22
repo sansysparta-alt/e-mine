@@ -55,9 +55,13 @@ class CatalogueController {
       List<String> piecesRequises,
       String instruitPar,
       String signataire,
-      Tarifs tarifs) {
+      Tarifs tarifs,
+      List<AvisRequis> avisRequis) {
 
     record Famille(String code, String libelle) {}
+
+    /** Avis technique motivé requis avant la décision (US-05.3), dans l'ordre du catalogue. */
+    record AvisRequis(String profil, String libelle) {}
 
     /** Montants en GNF entiers ; {@code null} si le document n'a pas ce tarif. */
     record Tarifs(
@@ -81,7 +85,8 @@ class CatalogueController {
               t.tarifs().fraisDossierGnf(),
               t.tarifs().droitsGnf(),
               t.tarifs().attestationGnf(),
-              t.tarifs().aPayerAuDepotGnf()));
+              t.tarifs().aPayerAuDepotGnf()),
+          t.avisRequis().stream().map(a -> new AvisRequis(a.profilCode(), a.libelle())).toList());
     }
   }
 }

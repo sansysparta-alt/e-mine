@@ -7,6 +7,7 @@ import { tailleAutorisee } from "@emine/ui";
 export const CLES_GROUPE = [
   "tout",
   "a-examiner",
+  "avis-a-rendre",
   "sans-reponse",
   "frais-attendus",
   "a-decider",
@@ -15,7 +16,7 @@ export const CLES_GROUPE = [
 export type CleGroupe = (typeof CLES_GROUPE)[number];
 
 /** Action attendue de l'agent sur un dossier ; null = rien à faire (information). */
-export type ActionAttendue = "examiner" | "decider" | "signer";
+export type ActionAttendue = "examiner" | "aviser" | "decider" | "signer";
 
 /** Paramètres de la liste des demandes (API) qui définissent un groupe. */
 export type ParametresGroupe = {
@@ -44,7 +45,13 @@ export type ProfilTravail = {
 /** Réponse de l'API « à traiter » (même règle que la liste filtrée). */
 export type CompteurATraiter = { total: number; groupes: { cle: string; nombre: number }[] };
 
-const CLES_AGENT: readonly string[] = ["a-examiner", "sans-reponse", "a-decider", "a-signer"];
+const CLES_AGENT: readonly string[] = [
+  "a-examiner",
+  "avis-a-rendre",
+  "sans-reponse",
+  "a-decider",
+  "a-signer",
+];
 
 /**
  * Groupes de la file de travail de l'agent, construits à partir du compteur « à traiter » de l'API
@@ -89,7 +96,8 @@ export function parametresListe(groupe: Groupe) {
 /** Action attendue de l'agent selon le statut (et les frais pour une demande déposée). */
 export function actionPour(statut: string, fraisPayes: boolean): ActionAttendue | null {
   if (statut === "deposee") return fraisPayes ? "examiner" : null;
-  if (statut === "recevable") return "decider";
+  if (statut === "en_instruction") return "aviser";
+  if (statut === "recevable" || statut === "avis_rendu") return "decider";
   if (statut === "droits_payes") return "signer";
   return null;
 }
@@ -97,6 +105,7 @@ export function actionPour(statut: string, fraisPayes: boolean): ActionAttendue 
 /** Groupe où revenir après chaque type d'action, hors traitement en série. */
 export const GROUPE_PAR_ACTION: Record<ActionAttendue, CleGroupe> = {
   examiner: "a-examiner",
+  aviser: "avis-a-rendre",
   decider: "a-decider",
   signer: "a-signer",
 };
@@ -109,6 +118,9 @@ const RESULTATS = [
   "delivree",
   "complement_requis",
   "relance",
+  "en_instruction",
+  "avis",
+  "avis_rendu",
 ] as const;
 export type ResultatAction = (typeof RESULTATS)[number];
 const NUMERO = /^DEM-\d{4}-\d{6}$/;

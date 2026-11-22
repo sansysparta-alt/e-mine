@@ -171,10 +171,15 @@ public class ServiceDemandes {
     return demandes.compterATraiter(filtreATraiter(null));
   }
 
-  private static List<GroupeATraiter> groupesDe(UtilisateurConnecte moi) {
+  private List<GroupeATraiter> groupesDe(UtilisateurConnecte moi) {
+    boolean rendDesAvis =
+        moi.interne()
+            && catalogue.lister().stream()
+                .anyMatch(t -> t.profilsAvis().contains(moi.profilCode()));
     return RegleATraiter.groupesPour(
         moi.interne(),
-        moi.permissions().stream().map(Enum::name).collect(java.util.stream.Collectors.toSet()));
+        moi.permissions().stream().map(Enum::name).collect(java.util.stream.Collectors.toSet()),
+        rendDesAvis);
   }
 
   /** Nombre de demandes visibles par statut (tableau de bord). */
