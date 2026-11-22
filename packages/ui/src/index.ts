@@ -57,6 +57,7 @@ export {
   pagesAffichees,
   type PaginationProps,
 } from "./composants/pagination";
+export { TAILLES_PAGE, tailleAutorisee, tailleDePagePour } from "./taille-page";
 export {
   type DocumentAffiche,
   type LibellesVisualiseur,

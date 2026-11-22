@@ -1,3 +1,4 @@
+import { tailleAutorisee } from "@emine/ui";
 /**
  * File de travail de l'agent (correctifs J5, parcours fluides) : une seule page « À traiter », des
  * groupes définis selon le profil (règle du socle : filtres métier par profil), l'action attendue
@@ -103,7 +104,6 @@ const RESULTATS = ["recevable", "rejetee", "decision", "droits_payes", "delivree
 export type ResultatAction = (typeof RESULTATS)[number];
 const NUMERO = /^DEM-\d{4}-\d{6}$/;
 const NUMERO_DOCUMENT = /^[A-Z]{3}-\d{4}-\d{4,}$/;
-const TAILLES = [10, 20, 50, 100];
 
 /** Action qui vient d'être menée (message de confirmation), lue dans l'adresse et validée. */
 export type ActionFaite = { numero: string; resultat: ResultatAction; document?: string };
@@ -138,7 +138,7 @@ export function lireParametresTravail(p: ParametresTravail, groupes: Groupe[]) {
   if (!groupe) throw new Error("Aucune file de travail pour ce profil");
   const page = Math.max(1, Number.parseInt(p.page ?? "1", 10) || 1);
   const tailleDemandee = Number.parseInt(p.taille ?? "", 10);
-  const taille = TAILLES.includes(tailleDemandee) ? tailleDemandee : 20;
+  const taille = tailleAutorisee(tailleDemandee);
   const q = p.q?.trim().slice(0, 100) || undefined;
   const faite = lireActionFaite({ numero: p.traitee, resultat: p.resultat, document: p.document });
   return { groupe, page, taille, q, faite };

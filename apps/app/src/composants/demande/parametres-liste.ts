@@ -1,4 +1,4 @@
-import type { SensTri } from "@emine/ui";
+import { type SensTri, tailleAutorisee } from "@emine/ui";
 
 /** Statuts proposés dans le filtre (cycle de vie de la base). */
 export const STATUTS = [
@@ -16,7 +16,6 @@ export const STATUTS = [
 ] as const;
 
 export const TRIS = ["numero", "date", "statut"] as const;
-const TAILLES = [10, 20, 50, 100];
 
 /** Périodes des indicateurs du tableau de bord (clés de l'API). */
 export const PERIODES_LISTE = ["mois", "30-jours", "annee"] as const;
@@ -48,7 +47,7 @@ export function lireParametres(p: Parametres) {
     p.sens === "asc" || p.sens === "desc" ? p.sens : tri === "date" ? "desc" : "asc";
   const page = Math.max(1, Number.parseInt(p.page ?? "1", 10) || 1);
   const tailleDemandee = Number.parseInt(p.taille ?? "", 10);
-  const taille = TAILLES.includes(tailleDemandee) ? tailleDemandee : 20;
+  const taille = tailleAutorisee(tailleDemandee);
   const q = p.q?.trim().slice(0, 100) || undefined;
   const enRetard = p.enRetard === "1" || p.enRetard === "true" ? "1" : undefined;
   const traiteParMoi = p.traiteParMoi === "1" || p.traiteParMoi === "true" ? "1" : undefined;

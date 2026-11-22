@@ -1,4 +1,4 @@
-import { formaterDateHeure, formaterGnf } from "@emine/ui";
+import { formaterDateHeure, formaterGnf, tailleAutorisee } from "@emine/ui";
 
 /**
  * Journal d'audit (US-11.7) : paramètres d'adresse de la liste et mise en forme des valeurs
@@ -14,7 +14,6 @@ export const CATEGORIES = [
 ] as const;
 export type Categorie = (typeof CATEGORIES)[number];
 
-const TAILLES = [10, 20, 50, 100];
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 export type ParametresJournal = {
@@ -34,7 +33,7 @@ export function lireParametresJournal(p: ParametresJournal) {
   const au = p.au && DATE.test(p.au) ? p.au : undefined;
   const page = Math.max(1, Number.parseInt(p.page ?? "1", 10) || 1);
   const tailleDemandee = Number.parseInt(p.taille ?? "", 10);
-  const taille = TAILLES.includes(tailleDemandee) ? tailleDemandee : 20;
+  const taille = tailleAutorisee(tailleDemandee);
   const periodeInversee = du !== undefined && au !== undefined && du > au;
   return { categorie, q, du, au, page, taille, periodeInversee };
 }
