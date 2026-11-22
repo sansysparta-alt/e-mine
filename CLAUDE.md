@@ -9,6 +9,7 @@ Langue du projet : **français** (documents, interface, commits, échanges). Int
 - **Priorité : la V1 de démonstration en une semaine — `docs/07-plan-v1-une-semaine.md`** (parcours E-DEMANDES de bout en bout avec simulateurs, un mini-sprint par jour). Pour une story de la V1, c'est sa **version allégée** dans `docs/07` qui fait foi. Le plan complet (`docs/03`, `docs/04`) reprend ensuite.
 - **Git est initialisé** et relié à `https://github.com/sansysparta-alt/e-mine` (dépôt public). Le **premier commit sera fait depuis VS Code** par le porteur du projet.
 - Démarrer chaque sprint avec **`/sprint J1`** (`.claude/commands/sprint.md`) ; voir « Méthode de travail ». Permissions : `.claude/settings.json` (commit, push de branche de story et PR autorisés ; fusion et suppressions sur accord ; push sur `main` et réécriture d'historique interdits).
+- Dernier sprint : « Notifications et suivi » (PR #76 → #79) ; état et suite dans `docs/08-reprise.md`. Ordre décidé : Catalogue administrable, puis Paiement complet.
 - Là où `docs/07` (§4, §5) parle de `/clear` par story, de worktrees créés par le porteur du projet ou de fusion en fin de journée, **la méthode de ce fichier prévaut**.
 - Socle créé au sprint J1 : les commandes ci-dessous existent ; l'arborescence est la cible (dossiers ajoutés au fil des stories). Mettre ce fichier à jour dès qu'elles changent.
 
@@ -72,6 +73,7 @@ Module Java = `api/` (REST, DTO) · `application/` (cas d'usage, transactions) �
 
 ```bash
 pnpm infra:up / infra:down   # Docker Compose : PostgreSQL, Keycloak, MinIO, Mailpit (limites mémoire, ~4 Go Docker)
+                             # Mailpit http://localhost:8025 : e-mails et SMS simulés (<numéro>@sms.test)
 pnpm dev                     # API (8080) + web (3000) + app (3001) + simulateur TrésorPay (8090) via Turborepo
 pnpm db:seed                 # personas de démo (après le 1er démarrage de l'API) · pnpm infra:keycloak:reset
 pnpm signature:certificat    # certificat PKCS#12 de démonstration (infra/signature/, exclu de Git)
