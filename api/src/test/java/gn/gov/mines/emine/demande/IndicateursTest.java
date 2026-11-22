@@ -142,6 +142,8 @@ class IndicateursTest extends TestIntegration {
     assertThat(apres.path("delivrees").asLong() - avantMinistre.path("delivrees").asLong())
         .isEqualTo(1);
     assertThat(apres.path("delaiMoyenJours").isNull()).isFalse();
+    // Jour du dépôt compté : un document délivré le jour même a pris 1 jour, jamais 0,3 j.
+    assertThat(apres.path("delaiMoyenJours").asDouble()).isGreaterThanOrEqualTo(1.0);
     // Frais de 2 dossiers (5 M chacun) et droits du dossier délivré (15 M), payés ce mois-ci.
     assertThat(
             apres.path("encaissementsGnf").asLong()
@@ -196,6 +198,26 @@ class IndicateursTest extends TestIntegration {
         .isEqualTo(Instant.parse("2026-10-24T00:00:00Z"));
     assertThat(Periode.ANNEE.debut(maintenant)).isEqualTo(Instant.parse("2026-01-01T00:00:00Z"));
     assertThat(Periode.debutDuJour(maintenant)).isEqualTo(Instant.parse("2026-11-22T00:00:00Z"));
+  }
+
+  @Test
+  void unDocumentDelivreLeJourDuDepotACompteUnJour() throws Exception {
+    // Attestation de situation des redevances : déposée et délivrée aujourd'hui.
+    long id = DemandesDeTest.deposee(INVESTISSEUR, "ARF");
+    DemandesDeTest.pretePourLaDelivrance(
+        id, gn.gov.mines.emine.support.Personas.DIRECTEUR, "ATTESTATION", 150_000, null);
+    DemandesDeTest.changerStatut(id, "delivree");
+    JsonNode i = indicateurs(jeton(MINISTRE, "MINISTRE"), "mois");
+    JsonNode arf = null;
+    for (JsonNode d : i.path("parDocument")) {
+      if ("ARF".equals(d.path("code").asString())) {
+        arf = d;
+      }
+    }
+    assertThat(arf).isNotNull();
+    assertThat(arf.path("delaiMoyenJours").asDouble())
+        .as("jour du dépôt compté : délivré le jour même = 1 jour")
+        .isEqualTo(1.0);
   }
 
   private JsonNode indicateurs(RequestPostProcessor qui, String periode) throws Exception {

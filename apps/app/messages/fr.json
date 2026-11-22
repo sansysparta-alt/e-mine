@@ -138,7 +138,7 @@
       "delai": "Délai moyen de délivrance",
       "delaiValeur": "{jours} j",
       "delaiAucun": "—",
-      "delaiPrecision": "Du dépôt à la délivrance, en jours calendaires",
+      "delaiPrecision": "Du dépôt à la délivrance, jour du dépôt compté, hors complément",
       "encaissements": "Encaissements",
       "encaissementsPrecision": "Frais et droits payés",
       "bloques": {

@@ -56,10 +56,15 @@ public class IndicateursRepository {
     Condition delivreesPeriode =
         visible.and(DEMANDE.STATUT.eq(StatutDemande.delivree)).and(DELIVREE_LE.ge(debut));
     // Délai de traitement réel : hors jours passés en complément (délai suspendu, US-05.2).
+    // Délai de délivrance compté jour du dépôt inclus (délivré le jour même = 1 jour, le lendemain
+    // = 2 jours), hors jours passés en complément ; jamais moins d'un jour.
     Field<BigDecimal> delai =
         DSL.avg(
-            DemandeRepository.joursCalendaires(DEMANDE.DATE_DEPOT, DELIVREE_LE)
-                .minus(Routines.fnJoursSuspendus(DEMANDE.ID, DELIVREE_LE)));
+            DSL.greatest(
+                DSL.inline(1),
+                DemandeRepository.joursCalendaires(DEMANDE.DATE_DEPOT, DELIVREE_LE)
+                    .minus(Routines.fnJoursSuspendus(DEMANDE.ID, DELIVREE_LE))
+                    .plus(1)));
     Map<String, Long> delivrees = new HashMap<>();
     Map<String, Double> delais = new HashMap<>();
     dsl.select(TYPE_DOCUMENT.CODE, DSL.count(), delai)
