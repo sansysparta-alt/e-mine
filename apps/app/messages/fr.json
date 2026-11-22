@@ -829,6 +829,19 @@
       "voir": "Voir le document",
       "verifier": "Page de vérification",
       "nouvelOnglet": "(s’ouvre dans un nouvel onglet)"
+    },
+    "revocation": {
+      "action": "Révoquer…",
+      "titre": "Révoquer le document {numero}",
+      "explication": "Le document deviendra « NON VALIDE » sur la page publique de vérification, immédiatement. La révocation est définitive.",
+      "motif": "Motif de la révocation",
+      "aide": "Indiquez la raison (fraude, erreur matérielle, retrait du titre…). 10 caractères au moins.",
+      "annuler": "Annuler",
+      "confirmer": "Révoquer définitivement",
+      "enCours": "Révocation…",
+      "echec": "Le document n’a pas été révoqué",
+      "indisponible": "Le service est momentanément indisponible. Réessayez dans un instant.",
+      "succes": "Le document {numero} est révoqué : sa vérification affiche « NON VALIDE »."
     }
   }
 }

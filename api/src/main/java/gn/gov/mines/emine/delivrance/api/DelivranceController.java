@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.time.Instant;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.CacheControl;
@@ -21,6 +22,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -61,6 +63,19 @@ class DelivranceController {
   DocumentDelivreDto delivrer(@PathVariable long id) {
     return dto(service.delivrer(id));
   }
+
+  @PostMapping("/document/revocation")
+  @Operation(
+      operationId = "revoquerDocument",
+      summary =
+          "Révoquer le document délivré (Directeur, Brigade) avec un motif de 10 à 2000"
+              + " caractères : la vérification affiche « NON VALIDE »")
+  DocumentDelivreDto revoquer(@PathVariable long id, @Valid @RequestBody RevocationDto corps) {
+    return dto(service.revoquer(id, corps.motif()));
+  }
+
+  /** Révocation : motif communiqué sur la page publique de vérification et au titulaire. */
+  record RevocationDto(@Schema(nullable = true) String motif) {}
 
   @GetMapping("/document")
   @Operation(operationId = "lireDocumentDelivre", summary = "Document délivré de la demande")

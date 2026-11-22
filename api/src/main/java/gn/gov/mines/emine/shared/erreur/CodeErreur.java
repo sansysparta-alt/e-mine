@@ -69,6 +69,8 @@ public enum CodeErreur {
   DOC_004("DOC-004", HttpStatus.SERVICE_UNAVAILABLE),
   /** Aucun document délivré pour cette demande (ou introuvable). */
   DOC_005("DOC-005", HttpStatus.NOT_FOUND),
+  /** Document déjà révoqué : la révocation est définitive. */
+  DOC_006("DOC-006", HttpStatus.CONFLICT),
   /** Erreur interne : un identifiant d'incident est donné dans le message et les détails. */
   SYS_001("SYS-001", HttpStatus.INTERNAL_SERVER_ERROR),
   /** Ressource ou adresse introuvable. */

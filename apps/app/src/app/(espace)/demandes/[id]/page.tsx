@@ -18,12 +18,19 @@ import { StatutDemande } from "@/composants/demande/statut-demande";
 import { ListePieces } from "@/composants/documents/liste-pieces";
 import { prochaineEtape } from "@/composants/demande/prochaine-etape";
 import { DocumentDelivre } from "@/composants/delivrance/document-delivre";
+import { peutRevoquer } from "@/composants/delivrance/revocation";
+import { RevoquerDocument } from "@/composants/delivrance/revoquer-document";
 import { SignerDelivrer } from "@/composants/delivrance/signer-delivrer";
 import { DecisionRendue } from "@/composants/instruction/decision-rendue";
 import { ExamenRecevabilite } from "@/composants/instruction/examen-recevabilite";
 import { PriseDecision } from "@/composants/instruction/prise-decision";
 import { TableauPaiements } from "@/composants/paiement/tableau-paiements";
-import { declarer, rendreDecision, signerEtDelivrer } from "@/serveur/actions-instruction";
+import {
+  declarer,
+  rendreDecision,
+  revoquer,
+  signerEtDelivrer,
+} from "@/serveur/actions-instruction";
 import { appelPage, chargerMoi, chargerReferentiels, optionsApi } from "@/serveur/donnees";
 
 /** Statuts où le document délivré existe (US-06.4). */
@@ -154,7 +161,19 @@ export default async function DetailDemande({ params, searchParams }: Props) {
   );
   const blocDocument = documentDelivre ? (
     <Carte titre={t("documentDelivre")}>
-      <DocumentDelivre demandeId={demande.id} document={documentDelivre} />
+      <DocumentDelivre
+        demandeId={demande.id}
+        document={documentDelivre}
+        actions={
+          documentDelivre.valide && peutRevoquer(moi) ? (
+            <RevoquerDocument
+              demandeId={demande.id}
+              numero={documentDelivre.numero}
+              revoquer={revoquer}
+            />
+          ) : undefined
+        }
+      />
     </Carte>
   ) : null;
   const blocDecision =

@@ -132,3 +132,34 @@ describe("espace du signataire", () => {
     ).toBeUndefined();
   });
 });
+
+describe("révocation (US-06.6)", () => {
+  it("exige un motif puis révoque et annonce le résultat", async () => {
+    const { RevoquerDocument } = await import("./revoquer-document");
+    const revoquer = vi.fn().mockResolvedValue({
+      ok: true,
+      valeur: { ...document, valide: false, motifInvalidation: "Fraude constatée." },
+    });
+    afficher(<RevoquerDocument demandeId={41} numero="PEX-2026-0001" revoquer={revoquer} />);
+    fireEvent.click(screen.getByRole("button", { name: "Révoquer…" }));
+    fireEvent.click(screen.getByRole("button", { name: "Révoquer définitivement" }));
+    expect(revoquer).not.toHaveBeenCalled();
+    const motif = screen.getByLabelText(/Motif de la révocation/);
+    expect(motif).toHaveAttribute("aria-invalid", "true");
+    fireEvent.change(motif, { target: { value: "  Fraude constatée.  " } });
+    fireEvent.click(screen.getByRole("button", { name: "Révoquer définitivement" }));
+    await waitFor(() => expect(revoquer).toHaveBeenCalledWith(41, "  Fraude constatée.  "));
+    expect(await screen.findByRole("status")).toHaveTextContent("NON VALIDE");
+    expect(refresh).toHaveBeenCalled();
+  });
+});
+
+describe("profils de révocation (module sans « use client »)", () => {
+  it("réserve la révocation au Directeur et à la Brigade internes", async () => {
+    const { peutRevoquer } = await import("./revocation");
+    expect(peutRevoquer({ interne: true, profil: { code: "DIRECTEUR" } })).toBe(true);
+    expect(peutRevoquer({ interne: true, profil: { code: "BRIGADE" } })).toBe(true);
+    expect(peutRevoquer({ interne: true, profil: { code: "MINISTRE" } })).toBe(false);
+    expect(peutRevoquer({ interne: false, profil: { code: "DIRECTEUR" } })).toBe(false);
+  });
+});

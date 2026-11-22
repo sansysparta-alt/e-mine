@@ -6,6 +6,7 @@ import gn.gov.mines.emine.catalogue.Catalogue;
 import gn.gov.mines.emine.catalogue.TypeDocument;
 import gn.gov.mines.emine.delivrance.domaine.ContenuDocument;
 import gn.gov.mines.emine.delivrance.domaine.DocumentDelivre;
+import gn.gov.mines.emine.delivrance.domaine.RegleRevocation;
 import gn.gov.mines.emine.delivrance.domaine.SignatureService;
 import gn.gov.mines.emine.delivrance.domaine.SignatureService.DocumentSigne;
 import gn.gov.mines.emine.delivrance.domaine.SignatureService.Signataire;
@@ -162,6 +163,33 @@ public class ServiceDelivrance {
         signe.signeLe(),
         empreinte,
         code);
+    return registre.parDemande(demandeId).orElseThrow();
+  }
+
+  /**
+   * Révoque le document délivré de la demande (US-06.6) : PERM-001 hors profils Directeur et
+   * Brigade, VAL-001 si le motif ne convient pas, DOC-006 s'il est déjà révoqué. Effet immédiat :
+   * la vérification publique affiche « NON VALIDE ».
+   */
+  @Transactional
+  public DocumentDelivre revoquer(long demandeId, String motif) {
+    UtilisateurConnecte moi = moi();
+    if (!RegleRevocation.peutRevoquer(moi.profilCode())) {
+      throw new ErreurMetier(CodeErreur.PERM_001, Map.of("action", "revocation"));
+    }
+    RegleRevocation.problemeMotif(motif)
+        .ifPresent(
+            message -> {
+              throw new ErreurMetier(
+                  CodeErreur.VAL_001,
+                  Map.of(
+                      "champs", java.util.List.of(Map.of("champ", "motif", "message", message))));
+            });
+    DocumentDelivre document = lire(demandeId);
+    if (registre.revoquer(document.id(), motif.strip()) == 0) {
+      throw new ErreurMetier(CodeErreur.DOC_006, Map.of("numero", document.numero()));
+    }
+    LOG.info("Document {} révoqué", document.numero());
     return registre.parDemande(demandeId).orElseThrow();
   }
 

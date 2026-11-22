@@ -84,6 +84,19 @@ public class DelivranceRepository {
         .fetchOne(DOCUMENT_DELIVRE.ID);
   }
 
+  /**
+   * Révoque le document : statut « non valide » et motif (contrainte du schéma). Renvoie 0 s'il
+   * était déjà révoqué. L'audit de la base trace l'auteur et l'heure.
+   */
+  public int revoquer(long id, String motif) {
+    return dsl.update(DOCUMENT_DELIVRE)
+        .set(DOCUMENT_DELIVRE.STATUT, StatutDocument.non_valide)
+        .set(DOCUMENT_DELIVRE.MOTIF_INVALIDATION, motif)
+        .where(DOCUMENT_DELIVRE.ID.eq(id))
+        .and(DOCUMENT_DELIVRE.STATUT.eq(StatutDocument.valide))
+        .execute();
+  }
+
   /** Document délivré pour cette demande, s'il existe. */
   public Optional<DocumentDelivre> parDemande(long demandeId) {
     return selection()
