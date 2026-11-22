@@ -72,9 +72,27 @@ public class ServiceDemandes {
     return lireVisible(id);
   }
 
+  /**
+   * Supprime un brouillon de l'usager (suppression logique) : DEM-002 s'il n'est pas visible,
+   * DEM-003 s'il a déjà été déposé (une demande déposée ne se supprime jamais).
+   */
+  @Transactional
+  public void supprimerBrouillon(long id) {
+    lireVisible(id);
+    if (demandes.supprimerBrouillon(id, java.time.Instant.now()) == 0) {
+      throw new ErreurMetier(CodeErreur.DEM_003, Map.of("id", id));
+    }
+  }
+
   @Transactional(readOnly = true)
   public DemandeDetail lire(long id) {
-    return lireVisible(id);
+    DemandeDetail d = lireVisible(id);
+    // Règle du socle : un brouillon reste privé à son auteur, même pour un agent (DEM-002).
+    if (d.estBrouillon()
+        && utilisateurCourant.get().map(UtilisateurConnecte::interne).orElse(false)) {
+      throw new ErreurMetier(CodeErreur.DEM_002, Map.of("id", id));
+    }
+    return d;
   }
 
   /**

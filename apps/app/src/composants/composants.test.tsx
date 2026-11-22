@@ -6,6 +6,8 @@ import type { DemandeDto } from "@emine/api-client";
 import { MessageConnexion, motifDepuisParametres } from "./message-connexion";
 import { actionAttendue, VueTableauDeBord } from "./vue-tableau-de-bord";
 
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }));
+
 function enFrancais(enfant: ReactNode) {
   return render(
     <NextIntlClientProvider locale="fr" messages={fr} timeZone="Africa/Conakry">
@@ -69,9 +71,10 @@ describe("tableau de bord (gabarit du socle)", () => {
     );
     const lien = screen.getByRole("link", { name: "DEM-2026-000001" });
     expect(lien).toHaveAttribute("href", "/demandes/2");
-    expect(
-      screen.getByRole("link", { name: "Brouillon (numéro attribué au dépôt)" }),
-    ).toHaveAttribute("href", "/demandes/3/modifier");
+    expect(screen.getByRole("link", { name: "Brouillon" })).toHaveAttribute(
+      "href",
+      "/demandes/3/modifier",
+    );
     expect(screen.getByText("Frais à payer")).toBeInTheDocument();
     expect(screen.getByText("Déposée le 20/11/2026")).toBeInTheDocument();
     expect(screen.getAllByText(/En attente depuis \d+ jours?/).length).toBeGreaterThan(0);

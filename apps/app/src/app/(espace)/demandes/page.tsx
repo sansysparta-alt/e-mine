@@ -7,6 +7,7 @@ import { cleLibelleVue, statutsVisibles } from "@/composants/demande/filtres";
 import { lireParametres, type Parametres, TRIS } from "@/composants/demande/parametres-liste";
 import { TableauDemandes } from "@/composants/demande/tableau-demandes";
 import { PaginationListe } from "@/composants/liste/pagination-liste";
+import { PlusDeFiltres } from "@/composants/liste/plus-de-filtres";
 import { RechercheListe } from "@/composants/liste/recherche-liste";
 import { appelPage, chargerMoi, chargerReferentiels, optionsApi } from "@/serveur/donnees";
 
@@ -82,7 +83,11 @@ export default async function MesDemandes({ searchParams }: Props) {
 
   return (
     <div className="flex flex-col gap-6">
-      <EnTetePage titre={titre} description={t("description")} actions={nouvelle} />
+      <EnTetePage
+        titre={titre}
+        description={moi.interne ? t("descriptionInterne") : t("description")}
+        actions={nouvelle}
+      />
       <RechercheListe
         libelle={t("recherche.libelle")}
         valeur={p.q}
@@ -114,14 +119,10 @@ export default async function MesDemandes({ searchParams }: Props) {
             nombre: v.nombre,
           })),
         ]}
-      />
-      <details className="group" open={p.statut ? true : undefined}>
-        <summary className="inline-flex min-h-11 cursor-pointer items-center gap-2 font-semibold text-royal">
-          {t("plusDeFiltres")}
-        </summary>
-        <div className="mt-2">
-          <FiltresPastilles
-            libelle={t("filtreDetail")}
+        fin={
+          <PlusDeFiltres
+            libelle={t("plusDeFiltres")}
+            titre={t("filtreDetail")}
             options={statutsVisibles(moi.interne).map((s) => ({
               valeur: s,
               libelle: tStatut(s),
@@ -129,9 +130,18 @@ export default async function MesDemandes({ searchParams }: Props) {
               actif: p.statut === s,
               nombre: compteurs[s] ?? 0,
             }))}
+            actif={
+              statutDetail
+                ? {
+                    libelle: tStatut(statutDetail),
+                    effacer: adresse({ groupe: undefined, statut: undefined }),
+                    libelleEffacer: t("effacerFiltre"),
+                  }
+                : undefined
+            }
           />
-        </div>
-      </details>
+        }
+      />
       {resultat.total === 0 ? (
         <EtatVide
           titre={filtre || p.q ? t("aucuneFiltre") : t("aucune")}

@@ -286,16 +286,17 @@
     "filtrer": "Filter",
     "aucune": "You have no application yet.",
     "aucuneFiltre": "No application matches these criteria.",
-    "brouillonSansNumero": "Draft (number assigned on submission)",
     "deposeeLe": "submitted on {date}",
     "creeeLe": "created on {date}",
     "titreInterne": "Applications",
-    "description": "Follow the progress of each application. A draft opens in the form.",
+    "description": "Track the progress of your applications. A draft resumes where you left it.",
     "colonnes": {
       "numero": "Number",
       "document": "Document",
       "statut": "Status",
-      "date": "Date"
+      "date": "Date",
+      "demandeur": "Applicant",
+      "actions": "Actions"
     },
     "tri": {
       "trier": "Sort by",
@@ -308,7 +309,7 @@
       "exemple": "Number or document (e.g. DEM-2026, permit)",
       "bouton": "Search"
     },
-    "plusDeFiltres": "More filters (by status)",
+    "plusDeFiltres": "More filters",
     "filtreDetail": "Filter by detailed status",
     "filtres": {
       "a-faire": "To do",
@@ -318,6 +319,22 @@
       "brouillons": "Drafts",
       "terminees": "Completed",
       "rejetees": "Rejected"
+    },
+    "descriptionInterne": "All submitted applications, with their step and the time spent at that step. Open an application to view it.",
+    "brouillon": "Draft",
+    "effacerFiltre": "Clear the status filter",
+    "actions": {
+      "reprendre": "Resume",
+      "supprimer": "Delete",
+      "telecharger": "Download",
+      "echec": "The draft was not deleted",
+      "confirmation": {
+        "titre": "Delete this draft?",
+        "texte": "The draft and its attachments will no longer be offered. A submitted application, however, can never be deleted.",
+        "annuler": "Cancel",
+        "confirmer": "Delete the draft",
+        "enCours": "Deleting…"
+      }
     }
   },
   "session": {
@@ -833,7 +850,7 @@
   },
   "statutsAffiches": {
     "demandeur": {
-      "brouillon": "Draft",
+      "aCompleter": "To complete",
       "fraisAPayer": "Fee to pay",
       "verification": "Being checked",
       "complementAFournir": "Documents to provide",

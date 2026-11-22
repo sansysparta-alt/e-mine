@@ -286,16 +286,17 @@
     "filtrer": "Filtrer",
     "aucune": "Vous n'avez encore aucune demande.",
     "aucuneFiltre": "Aucune demande ne correspond à ces critères.",
-    "brouillonSansNumero": "Brouillon (numéro attribué au dépôt)",
     "deposeeLe": "déposée le {date}",
     "creeeLe": "créée le {date}",
     "titreInterne": "Demandes",
-    "description": "Suivez l'avancement de chaque demande. Un brouillon s'ouvre dans le formulaire.",
+    "description": "Suivez l'avancement de vos demandes. Un brouillon se reprend là où vous l'aviez laissé.",
     "colonnes": {
       "numero": "Numéro",
       "document": "Document",
       "statut": "Statut",
-      "date": "Date"
+      "date": "Date",
+      "demandeur": "Demandeur",
+      "actions": "Actions"
     },
     "tri": {
       "trier": "Trier par",
@@ -308,7 +309,7 @@
       "exemple": "Numéro ou document (ex. DEM-2026, permis)",
       "bouton": "Rechercher"
     },
-    "plusDeFiltres": "Plus de filtres (par statut)",
+    "plusDeFiltres": "Plus de filtres",
     "filtreDetail": "Filtrer par statut détaillé",
     "filtres": {
       "a-faire": "À faire",
@@ -318,6 +319,22 @@
       "brouillons": "Brouillons",
       "terminees": "Terminées",
       "rejetees": "Rejetées"
+    },
+    "descriptionInterne": "Toutes les demandes déposées, avec leur étape et le temps passé à cette étape. Ouvrez une demande pour la consulter.",
+    "brouillon": "Brouillon",
+    "effacerFiltre": "Effacer le filtre par statut",
+    "actions": {
+      "reprendre": "Reprendre",
+      "supprimer": "Supprimer",
+      "telecharger": "Télécharger",
+      "echec": "Le brouillon n’a pas été supprimé",
+      "confirmation": {
+        "titre": "Supprimer ce brouillon ?",
+        "texte": "Le brouillon et ses pièces jointes ne seront plus proposés. Une demande déposée, elle, ne se supprime jamais.",
+        "annuler": "Annuler",
+        "confirmer": "Supprimer le brouillon",
+        "enCours": "Suppression…"
+      }
     }
   },
   "session": {
@@ -833,7 +850,7 @@
   },
   "statutsAffiches": {
     "demandeur": {
-      "brouillon": "Brouillon",
+      "aCompleter": "À compléter",
       "fraisAPayer": "Frais à payer",
       "verification": "En cours de vérification",
       "complementAFournir": "Complément à fournir",

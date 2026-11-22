@@ -5,6 +5,7 @@ import {
   type DemandeDto,
   deposerDemande,
   modifierBrouillon,
+  supprimerBrouillon as supprimerBrouillonApi,
 } from "@emine/api-client";
 import {
   schemaBrouillon,
@@ -66,6 +67,20 @@ export async function deposer(
       { headers: await enTetesApi(session) },
     );
     return { ok: true, valeur: reponse.data };
+  } catch (e) {
+    return { ok: false, erreur: versErreurFormulaire(e) };
+  }
+}
+
+/**
+ * Supprime un brouillon de l'usager (suppression logique côté API ; une demande déposée ne se
+ * supprime jamais).
+ */
+export async function supprimerBrouillon(id: number): Promise<ResultatAction<null>> {
+  try {
+    const session = await lireSession();
+    await supprimerBrouillonApi(id, { headers: await enTetesApi(session) });
+    return { ok: true, valeur: null };
   } catch (e) {
     return { ok: false, erreur: versErreurFormulaire(e) };
   }

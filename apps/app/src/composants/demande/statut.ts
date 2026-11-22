@@ -17,7 +17,7 @@ export type DemandeAffichee = { statut: string; fraisPayes: boolean; aTraiterPar
 const INSTRUCTION = new Set(["recevable", "en_instruction", "avis_rendu"]);
 
 function demandeur({ statut, fraisPayes }: DemandeAffichee): [string, TonBadge] {
-  if (statut === "brouillon") return ["brouillon", "neutre"];
+  if (statut === "brouillon") return ["aCompleter", "neutre"];
   if (statut === "deposee")
     return fraisPayes ? ["verification", "info"] : ["fraisAPayer", "avertissement"];
   if (statut === "complement_requis") return ["complementAFournir", "avertissement"];
