@@ -34,6 +34,8 @@ function demande(partiel: Partial<DemandeDto>): DemandeDto {
     motifRejet: null,
     etapeDepuis: "2026-11-15T10:00:00Z",
     aTraiterParMoi: false,
+    passages: 0,
+    bloque: false,
     ...partiel,
   };
 }
@@ -52,6 +54,7 @@ const indicateurs: IndicateursDto = {
   debut: "2026-11-01T00:00:00Z",
   fin: "2026-11-22T10:00:00Z",
   enRetard: 3,
+  bloques: 0,
   complementsAttendus: 2,
   fraisAttendus: 4,
   traitesAujourdhui: 5,
@@ -248,6 +251,22 @@ describe("tableau de bord des décideurs (correctifs ergonomie)", () => {
     );
     expect(screen.getByText("Aucun dossier en retard à ce jour")).toBeVisible();
     expect(screen.getByText("Aucune activité sur la période")).toBeVisible();
+    expect(screen.queryByRole("link", { name: /dossiers bloqués/i })).not.toBeInTheDocument();
+  });
+
+  it("alerte sur les dossiers bloqués et ouvre leur liste (correctifs ergonomie · 7)", () => {
+    enFrancais(
+      <VueTableauDeBord
+        prenom="Ibrahima"
+        nom="Soumah"
+        profilLibelle="Ministre"
+        profil="decideur"
+        indicateurs={{ ...indicateurs, bloques: 2 }}
+      />,
+    );
+    const lien = screen.getByRole("link", { name: "Voir les dossiers bloqués" });
+    expect(lien).toHaveAttribute("href", "/demandes?bloque=1");
+    expect(lien.closest("[role=status]")).toHaveTextContent("2 dossiers bloqués");
   });
 });
 

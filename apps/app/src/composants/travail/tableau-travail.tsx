@@ -3,6 +3,7 @@ import { BadgeStatut, type ComposantLien, TableauDonnees } from "@emine/ui";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { DateAttente } from "../demande/date-attente";
+import { MentionPassages } from "./mention-passages";
 import { actionPour, adresseFiche, type CleGroupe } from "./file-travail";
 
 export type TableauTravailProps = {
@@ -46,7 +47,12 @@ export function TableauTravail({
         {
           cle: "numero",
           entete: t("colonnes.numero"),
-          rendu: (d) => <span className="font-semibold">{d.numero}</span>,
+          rendu: (d) => (
+            <span className="flex flex-col">
+              <span className="font-semibold">{d.numero}</span>
+              <MentionPassages passages={d.passages} bloque={d.bloque} />
+            </span>
+          ),
         },
         {
           cle: "document",

@@ -276,6 +276,20 @@ export function VueTableauDeBord({
                 {t("pilotage.retard.aucunTexte")}
               </Alerte>
             )}
+            {indicateurs.bloques > 0 ? (
+              <Alerte
+                nature="avertissement"
+                titre={t("pilotage.bloques.titre", { nombre: indicateurs.bloques })}
+              >
+                <p>{t("pilotage.bloques.texte")}</p>
+                <Link
+                  href={liste({ bloque: "1" })}
+                  className="mt-1 inline-flex min-h-11 items-center font-semibold text-royal underline"
+                >
+                  {t("pilotage.bloques.lien")}
+                </Link>
+              </Alerte>
+            ) : null}
             <GrilleChiffres>
               <CarteChiffre
                 libelle={t("pilotage.aTraiter")}

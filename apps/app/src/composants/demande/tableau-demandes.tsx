@@ -2,6 +2,7 @@ import type { DemandeDto } from "@emine/api-client";
 import { type ColonneTableau, type ComposantLien, type SensTri, TableauDonnees } from "@emine/ui";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { MentionPassages } from "../travail/mention-passages";
 import { ActionsDemande } from "./actions-demande";
 import { DateAttente } from "./date-attente";
 import { StatutDemande } from "./statut-demande";
@@ -65,7 +66,12 @@ export function TableauDemandes({
       cle: "numero",
       entete: t("colonnes.numero"),
       triable: triables.includes("numero"),
-      rendu: (d) => <span className="font-semibold">{d.numero ?? t("brouillon")}</span>,
+      rendu: (d) => (
+        <span className="flex flex-col">
+          <span className="font-semibold">{d.numero ?? t("brouillon")}</span>
+          {interne ? <MentionPassages passages={d.passages} bloque={d.bloque} /> : null}
+        </span>
+      ),
     },
     {
       cle: "document",

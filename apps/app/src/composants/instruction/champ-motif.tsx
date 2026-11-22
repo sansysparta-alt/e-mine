@@ -25,6 +25,8 @@ export type ChampMotifProps = {
   erreur?: string;
   /** Champ obligatoire (motif d'un refus) ou facultatif (observations) ; obligatoire par défaut. */
   obligatoire?: boolean;
+  /** Nombre maximal de caractères (compteur) ; celui des motifs communiqués par défaut. */
+  max?: number;
 };
 
 /**
@@ -39,6 +41,7 @@ export function ChampMotif({
   surChangement,
   erreur,
   obligatoire = true,
+  max = MOTIF_MAX,
 }: ChampMotifProps) {
   const t = useTranslations("instruction.motif");
   const longueur = valeur.trim().length;
@@ -65,20 +68,20 @@ export function ChampMotif({
         id={id}
         value={valeur}
         onChange={(e) => surChangement(e.target.value)}
-        rows={5}
+        rows={max < 500 ? 3 : 5}
         required={obligatoire}
         aria-invalid={erreur ? true : undefined}
         aria-describedby={`${id}-aide ${id}-compteur${erreur ? ` ${id}-erreur` : ""}`}
-        className={cn(classesChamp, "min-h-32 resize-y")}
+        className={cn(classesChamp, max < 500 ? "min-h-20 resize-y" : "min-h-32 resize-y")}
       />
       <p
         id={`${id}-compteur`}
         className={cn(
           "text-right text-sm",
-          longueur > MOTIF_MAX ? "font-semibold text-danger" : "text-texte-doux",
+          longueur > max ? "font-semibold text-danger" : "text-texte-doux",
         )}
       >
-        {t("compteur", { nombre: longueur, max: MOTIF_MAX })}
+        {t("compteur", { nombre: longueur, max })}
       </p>
       {erreur ? (
         <p id={`${id}-erreur`} className="font-semibold text-danger">

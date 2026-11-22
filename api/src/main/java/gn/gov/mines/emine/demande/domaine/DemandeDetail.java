@@ -13,6 +13,8 @@ import java.time.Instant;
  * @param etapeDepuis entrée dans le statut actuel (dernier changement de statut), pour le temps
  *     d'attente à l'étape
  * @param aTraiterParMoi la demande attend une action du profil connecté (règle « À traiter »)
+ * @param passages nombre de fois où le dossier a été passé à l'étape actuelle (0 pour un usager)
+ * @param bloque dossier en cours passé au moins {@link Passage#SEUIL_BLOCAGE} fois à cette étape
  */
 public record DemandeDetail(
     long id,
@@ -30,7 +32,9 @@ public record DemandeDetail(
     boolean fraisPayes,
     String motifRejet,
     Instant etapeDepuis,
-    boolean aTraiterParMoi) {
+    boolean aTraiterParMoi,
+    int passages,
+    boolean bloque) {
 
   public boolean estBrouillon() {
     return "brouillon".equals(statut);

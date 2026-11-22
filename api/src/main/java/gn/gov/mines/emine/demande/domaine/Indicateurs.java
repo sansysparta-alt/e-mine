@@ -13,6 +13,7 @@ import java.util.List;
  *     calendaires depuis le dépôt, est dépassé
  * @param complementsAttendus à ce jour : dossiers en attente d'un complément du demandeur
  * @param fraisAttendus à ce jour : dossiers déposés dont les frais ne sont pas payés
+ * @param bloques à ce jour : dossiers en cours passés au moins 3 fois à leur étape actuelle
  * @param traitesAujourdhui aujourd'hui : dossiers dont le profil connecté a changé le statut
  * @param delivrees sur la période : documents délivrés
  * @param delaiMoyenJours sur la période : délai moyen du dépôt à la délivrance, en jours
@@ -27,6 +28,7 @@ public record Indicateurs(
     long enRetard,
     long complementsAttendus,
     long fraisAttendus,
+    long bloques,
     long traitesAujourdhui,
     long delivrees,
     Double delaiMoyenJours,

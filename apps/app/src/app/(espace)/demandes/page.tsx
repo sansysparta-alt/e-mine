@@ -43,6 +43,7 @@ export default async function MesDemandes({ searchParams }: Props) {
           vue,
           enRetard: p.enRetard ? true : undefined,
           traiteParMoi: p.traiteParMoi ? true : undefined,
+          bloque: p.bloque ? true : undefined,
           periode: p.periode,
           fraisPayes: p.fraisPayes ? p.fraisPayes === "true" : undefined,
           typeDocumentCode: p.document,
@@ -72,6 +73,7 @@ export default async function MesDemandes({ searchParams }: Props) {
   const indicateurs = {
     enRetard: p.enRetard,
     traiteParMoi: p.traiteParMoi,
+    bloque: p.bloque,
     periode: p.periode,
     fraisPayes: p.fraisPayes,
     document: p.document,
@@ -108,6 +110,7 @@ export default async function MesDemandes({ searchParams }: Props) {
   const filtresActifs: FiltreActif[] = [
     p.enRetard ? { cle: "enRetard", libelle: tActifs("enRetard") } : null,
     p.traiteParMoi ? { cle: "traiteParMoi", libelle: tActifs("traiteParMoi") } : null,
+    p.bloque ? { cle: "bloque", libelle: tActifs("bloque") } : null,
     p.periode
       ? { cle: "periode", libelle: tActifs("periode", { periode: tPeriodes(p.periode) }) }
       : null,

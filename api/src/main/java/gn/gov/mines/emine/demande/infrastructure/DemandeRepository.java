@@ -4,6 +4,7 @@ import static gn.gov.mines.emine.shared.jooq.Tables.DEMANDE;
 import static gn.gov.mines.emine.shared.jooq.Tables.HISTORIQUE_STATUT_DEMANDE;
 import static gn.gov.mines.emine.shared.jooq.Tables.ORGANISATION;
 import static gn.gov.mines.emine.shared.jooq.Tables.PAIEMENT;
+import static gn.gov.mines.emine.shared.jooq.Tables.PASSAGE_DOSSIER;
 import static gn.gov.mines.emine.shared.jooq.Tables.PREFECTURE;
 import static gn.gov.mines.emine.shared.jooq.Tables.PROFIL;
 import static gn.gov.mines.emine.shared.jooq.Tables.SUBSTANCE;
@@ -13,6 +14,7 @@ import static gn.gov.mines.emine.shared.jooq.Tables.UTILISATEUR;
 import gn.gov.mines.emine.demande.domaine.CritereDemandes;
 import gn.gov.mines.emine.demande.domaine.DemandeDetail;
 import gn.gov.mines.emine.demande.domaine.GroupeATraiter;
+import gn.gov.mines.emine.demande.domaine.Passage;
 import gn.gov.mines.emine.demande.domaine.RegleATraiter;
 import gn.gov.mines.emine.demande.domaine.VueDemandes;
 import gn.gov.mines.emine.shared.jooq.Routines;
@@ -219,6 +221,9 @@ public class DemandeRepository {
     if (p.etapeDepuis() != null) {
       c = c.and(ETAPE_DEPUIS_BRUT.ge(p.etapeDepuis()));
     }
+    if (p.bloque()) {
+      c = c.and(CONDITION_BLOQUE);
+    }
     return c;
   }
 
@@ -388,6 +393,23 @@ public class DemandeRepository {
 
   static final Field<java.time.Instant> ETAPE_DEPUIS = ETAPE_DEPUIS_BRUT.as("etape_depuis");
 
+  /** Passages du dossier à l'étape actuelle (V11), lus sous la RLS : toujours 0 pour un usager. */
+  static final Field<Integer> PASSAGES_BRUT =
+      DSL.field(
+          DSL.selectCount()
+              .from(PASSAGE_DOSSIER)
+              .where(PASSAGE_DOSSIER.DEMANDE_ID.eq(DEMANDE.ID))
+              .and(PASSAGE_DOSSIER.CREATED_AT.ge(ETAPE_DEPUIS_BRUT)));
+
+  static final Field<Integer> PASSAGES = PASSAGES_BRUT.as("passages");
+
+  /** Dossier « Bloqué » : en cours et passé au moins 3 fois à l'étape actuelle. */
+  static final Condition CONDITION_BLOQUE =
+      DEMANDE
+          .STATUT
+          .in(VueDemandes.STATUTS_ACTIFS.stream().map(StatutDemande::lookupLiteral).toList())
+          .and(PASSAGES_BRUT.ge(Passage.SEUIL_BLOCAGE));
+
   /** Colonne calculée : la demande est « à traiter » par le profil connecté. */
   static final String A_TRAITER_PAR_MOI = "a_traiter_par_moi";
 
@@ -415,6 +437,7 @@ public class DemandeRepository {
             SUBSTANCE.LIBELLE_FR,
             FRAIS_PAYES,
             ETAPE_DEPUIS,
+            PASSAGES,
             aTraiterParMoi)
         .from(DEMANDE)
         .join(TYPE_DOCUMENT)
@@ -451,6 +474,14 @@ public class DemandeRepository {
         Boolean.TRUE.equals(r.get(FRAIS_PAYES)),
         r.get(DEMANDE.MOTIF_REJET),
         r.get(ETAPE_DEPUIS) == null ? r.get(DEMANDE.CREATED_AT) : r.get(ETAPE_DEPUIS),
-        Boolean.TRUE.equals(r.get(A_TRAITER_PAR_MOI, Boolean.class)));
+        Boolean.TRUE.equals(r.get(A_TRAITER_PAR_MOI, Boolean.class)),
+        passages(r),
+        passages(r) >= Passage.SEUIL_BLOCAGE
+            && VueDemandes.STATUTS_ACTIFS.contains(r.get(DEMANDE.STATUT).getLiteral()));
+  }
+
+  private static int passages(Record r) {
+    Integer n = r.get(PASSAGES);
+    return n == null ? 0 : n;
   }
 }

@@ -122,6 +122,7 @@ public class IndicateursRepository {
             visible
                 .and(DEMANDE.STATUT.eq(StatutDemande.deposee))
                 .and(DSL.not(DemandeRepository.FRAIS_PAYES_COND))),
+        compter(visible.and(DemandeRepository.CONDITION_BLOQUE)),
         compter(
             visible.and(DemandeRepository.conditionTraiteParMoi(Periode.debutDuJour(maintenant)))),
         somme(delivrees),

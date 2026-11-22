@@ -201,13 +201,15 @@ public class ServiceDemandes {
    * en retard (à ce jour), traités aujourd'hui par le profil connecté, entrés dans leur statut
    * pendant la période.
    */
-  public CritereDemandes.Pilotage pilotage(Boolean enRetard, Boolean traiteParMoi, String periode) {
+  public CritereDemandes.Pilotage pilotage(
+      Boolean enRetard, Boolean traiteParMoi, String periode, Boolean bloque) {
     Instant maintenant = Instant.now();
     CritereDemandes.Pilotage p =
         new CritereDemandes.Pilotage(
             Boolean.TRUE.equals(enRetard),
             Boolean.TRUE.equals(traiteParMoi) ? Periode.debutDuJour(maintenant) : null,
             periode == null ? null : periode(periode).debut(maintenant),
+            Boolean.TRUE.equals(bloque),
             maintenant);
     return p.vide() ? null : p;
   }

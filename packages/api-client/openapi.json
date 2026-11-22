@@ -231,6 +231,13 @@
             "type" : "boolean"
           }
         }, {
+          "name" : "bloque",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
           "name" : "periode",
           "in" : "query",
           "required" : false,
@@ -369,6 +376,70 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/ResultatRecevabiliteDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/demandes/{id}/passages" : {
+      "get" : {
+        "tags" : [ "Demandes" ],
+        "summary" : "Passages du dossier dans le traitement en série (profils internes)",
+        "operationId" : "listerPassages",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PassagesDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Demandes" ],
+        "summary" : "Passer le dossier sans agir, avec un motif court (3 à 300 caractères)",
+        "operationId" : "passerDossier",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PassageDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PassagesDto"
                 }
               }
             }
@@ -1355,9 +1426,16 @@
           },
           "aTraiterParMoi" : {
             "type" : "boolean"
+          },
+          "passages" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "bloque" : {
+            "type" : "boolean"
           }
         },
-        "required" : [ "aTraiterParMoi", "creeLe", "demandeur", "deposeLe", "etapeDepuis", "fraisPayes", "id", "motifRejet", "numero", "prefectureId", "prefectureNom", "statut", "substanceCode", "substanceLibelle", "superficieHa", "typeDocumentCode" ]
+        "required" : [ "aTraiterParMoi", "bloque", "creeLe", "demandeur", "deposeLe", "etapeDepuis", "fraisPayes", "id", "motifRejet", "numero", "passages", "prefectureId", "prefectureNom", "statut", "substanceCode", "substanceLibelle", "superficieHa", "typeDocumentCode" ]
       },
       "Demandeur" : {
         "type" : "object",
@@ -1413,6 +1491,55 @@
           }
         },
         "required" : [ "demandeId", "statut" ]
+      },
+      "PassageDto" : {
+        "type" : "object",
+        "properties" : {
+          "motif" : {
+            "type" : "string",
+            "maxLength" : 300,
+            "minLength" : 3
+          }
+        },
+        "required" : [ "motif" ]
+      },
+      "LignePassageDto" : {
+        "type" : "object",
+        "properties" : {
+          "auteur" : {
+            "type" : "string"
+          },
+          "statut" : {
+            "type" : "string"
+          },
+          "motif" : {
+            "type" : "string"
+          },
+          "le" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "auteur", "le", "motif", "statut" ]
+      },
+      "PassagesDto" : {
+        "type" : "object",
+        "properties" : {
+          "aLEtape" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "bloque" : {
+            "type" : "boolean"
+          },
+          "passages" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/LignePassageDto"
+            }
+          }
+        },
+        "required" : [ "aLEtape", "bloque", "passages" ]
       },
       "ChoixMoyenDto" : {
         "type" : "object",
@@ -2060,6 +2187,10 @@
             "type" : "integer",
             "format" : "int64"
           },
+          "bloques" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
           "traitesAujourdhui" : {
             "type" : "integer",
             "format" : "int64"
@@ -2083,7 +2214,7 @@
             }
           }
         },
-        "required" : [ "complementsAttendus", "debut", "delaiMoyenJours", "delivrees", "enRetard", "encaissementsGnf", "fin", "fraisAttendus", "parDocument", "periode", "traitesAujourdhui" ]
+        "required" : [ "bloques", "complementsAttendus", "debut", "delaiMoyenJours", "delivrees", "enRetard", "encaissementsGnf", "fin", "fraisAttendus", "parDocument", "periode", "traitesAujourdhui" ]
       },
       "ParDocumentDto" : {
         "type" : "object",
