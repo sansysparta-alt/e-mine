@@ -85,7 +85,8 @@ class DemandeController {
       @RequestParam(required = false) Boolean bloque,
       @RequestParam(required = false) Boolean procheDepassement,
       @RequestParam(required = false) @Pattern(regexp = "^[a-z0-9-]{1,20}$") String periode,
-      @RequestParam(required = false) @Pattern(regexp = "^(numero|date|statut)$") String tri,
+      @RequestParam(required = false) @Pattern(regexp = "^(numero|date|statut|echeance)$")
+          String tri,
       @RequestParam(required = false) @Pattern(regexp = "^(asc|desc)$") String sens,
       @RequestParam(required = false) Integer page,
       @RequestParam(required = false) Integer taille) {
@@ -94,6 +95,8 @@ class DemandeController {
             ? CritereDemandes.Tri.DATE
             : CritereDemandes.Tri.valueOf(tri.toUpperCase(java.util.Locale.ROOT));
     boolean croissant = sens == null ? colonne != CritereDemandes.Tri.DATE : "asc".equals(sens);
+    // « echeance » : jours restants croissants (les retards d'abord), ordre de la file « À traiter
+    // ».
     PageResultat<DemandeDto> resultat =
         service
             .lister(

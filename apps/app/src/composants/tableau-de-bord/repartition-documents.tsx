@@ -25,9 +25,9 @@ export type RepartitionDocumentsProps = {
 };
 
 /**
- * Répartition par document du tableau de bord des décideurs (correctifs ergonomie) : en cours et
- * en retard à ce jour ; délivrés, délai moyen et encaissements sur la période. La ligne ouvre la
- * liste des demandes de ce document.
+ * Répartition par document du tableau de bord des décideurs (correctifs ergonomie, US-05.6) : délai
+ * du catalogue ; en cours et en retard à ce jour ; délivrés, part délivrée dans le délai, rejetées,
+ * délai moyen et encaissements sur la période. La ligne ouvre la liste des demandes de ce document.
  */
 export function RepartitionDocuments({ lignes, libelles, periode }: RepartitionDocumentsProps) {
   const t = useTranslations("tableauDeBord.repartition");
@@ -36,7 +36,14 @@ export function RepartitionDocuments({ lignes, libelles, periode }: RepartitionD
     {
       cle: "document",
       entete: t("colonnes.document"),
-      rendu: (d) => <span className="font-semibold">{libelles[d.code] ?? d.code}</span>,
+      rendu: (d) => (
+        <span className="flex flex-col">
+          <span className="font-semibold">{libelles[d.code] ?? d.code}</span>
+          <span className="text-sm text-texte-doux">
+            {t("delaiCatalogue", { jours: d.delaiJours })}
+          </span>
+        </span>
+      ),
     },
     { cle: "enCours", entete: t("colonnes.enCours"), rendu: (d) => nombre(d.enCours) },
     {
@@ -50,6 +57,24 @@ export function RepartitionDocuments({ lignes, libelles, periode }: RepartitionD
         ),
     },
     { cle: "delivrees", entete: t("colonnes.delivrees"), rendu: (d) => nombre(d.delivrees) },
+    {
+      cle: "dansLeDelai",
+      entete: t("colonnes.dansLeDelai"),
+      // Part calculée par l'API, avec le nombre qui la justifie (« 75 % (3 sur 4) »).
+      rendu: (d) =>
+        d.tauxDansLeDelai == null ? (
+          t("sansDelai")
+        ) : (
+          <span className="whitespace-nowrap">
+            {t("tauxDetail", {
+              taux: d.tauxDansLeDelai,
+              dans: d.delivreesDansLeDelai,
+              total: d.delivrees,
+            })}
+          </span>
+        ),
+    },
+    { cle: "rejetees", entete: t("colonnes.rejetees"), rendu: (d) => nombre(d.rejetees) },
     {
       cle: "delai",
       entete: t("colonnes.delai"),

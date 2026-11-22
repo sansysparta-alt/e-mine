@@ -115,6 +115,17 @@ Classées par impact sur le développement.
 14. Taille des pièces : 10 Mo (pièces), 5 Mo (justificatifs et CSV de périmètre) — à garder tel quel mais documenter.
 15. Chiffres affichés (1 245 titres, 450 Mds GNF, 38 500 emplois) : données d'exemple à remplacer par des requêtes.
 
+### ⏱️ Délais de traitement et notifications (choix provisoires, paramétrables, à valider)
+
+Le cahier des charges ne fixe que des « délais cibles » de 2 à 60 jours par document et renvoie à des « objectifs de service à confirmer avec le Ministère ». Il ne précise rien d'autre. Choix du porteur du projet du 22/11/2026, **paramétrables** (table `parametre_delai`, V17) :
+
+17. **Jours calendaires ou ouvrés ?** Retenu : **calendaires**, heure de Conakry, **jour de départ inclus** (délivré le jour même = 1 jour). Des jours ouvrés exigeraient un calendrier des jours fériés guinéens tenu à jour chaque année (fêtes mobiles).
+18. **Point de départ.** Retenu : le **paiement des frais de dossier** (ou du paiement unique d'une attestation) ; au dépôt pour un document sans frais au barème. Avant le paiement, le Ministère ne peut pas instruire. Paramètre `depart` = `depot` pour revenir au dépôt.
+19. **Suspensions.** Retenu : délai **en pause pendant un complément** et **pendant l'attente du paiement des droits** (l'usager doit agir). Chaque pause peut être désactivée.
+20. **Fin et mesure.** Fin à la **délivrance**. « Délivré dans le délai » = jours de traitement ≤ délai du catalogue ; **les rejets sont exclus du pourcentage et comptés à part**. L'écran parle de « délai du catalogue », pas de « délai réglementaire ».
+21. **Alerte « proche du dépassement ».** Retenu : **20 % du délai restant, 2 jours au moins** (paramétrable).
+22. **Canaux des notifications.** Le cahier des charges demande « SMS et e-mail à chaque changement d'étape ». Retenu : SMS, e-mail et notification dans l'application pour chaque événement, **canal par canal paramétrable** (table `notification_evenement`, V16), car chaque SMS a un coût pour le Ministère.
+
 ### 🔐 Sécurité du schéma fourni (à remonter au Ministère)
 
 16. **Les vues du schéma contournent la RLS.** `v_demande_suivi`, `v_paiement_a_verifier`, `v_encaissement_mensuel` et `v_demande_par_statut` appartiennent à `emine_owner` et sont créées sans `security_invoker` : PostgreSQL y applique donc les droits du propriétaire, pas ceux de l'appelant. Conséquence : le rôle applicatif `emine_app` voit par ces vues **les demandes et paiements de tous les demandeurs**, alors que la RLS les masque sur les tables. Constaté sur `v_demande_suivi` par `RlsTest.lesVuesAppliquentLaRlsDeLAppelant` (sprint J1, US-01.5) ; les trois autres vues ont la même définition de droits. → **Corrigé dans notre copie** par la migration `V4__vues_rls_appelant.sql` (`security_invoker = true`, PostgreSQL 15+). **À signaler au Ministère** : toute autre installation du schéma d'origine (`_client/`) porte la même faille ; toute nouvelle vue sur `demande` ou `paiement` doit être créée en `security_invoker`.
@@ -129,7 +140,7 @@ Classées par impact sur le développement.
 | D4 | Les documents signés par le Ministre sont **paramétrables dans le catalogue** | Règle le point 4 : signataire porté par le type de document / l'étape du workflow |
 | D5 | ArcGIS, TrésorPay, HSM et SMS sont **simulés** au début, derrière des interfaces remplaçables | Voir [02-stack-technique.md](02-stack-technique.md) |
 
-Restent ouverts : points 5 à 15. Point 16 : corrigé de notre côté (V4), à porter à la connaissance du Ministère. Décisions D6 à D10 (stack, forge, Keycloak, hébergement, méthode) : voir [02-stack-technique.md §5](02-stack-technique.md).
+Restent ouverts : points 5 à 15, et 17 à 22 (choix provisoires appliqués et paramétrables). Point 16 : corrigé de notre côté (V4), à porter à la connaissance du Ministère. Décisions D6 à D10 (stack, forge, Keycloak, hébergement, méthode) : voir [02-stack-technique.md §5](02-stack-technique.md).
 
 ## 4. Risques
 
@@ -190,3 +201,6 @@ Le schéma d'origine (`_client/`) n'est jamais modifié : chaque adaptation est 
 | V8 | Le paiement des frais ne rend plus la demande recevable ; la recevabilité est déclarée par l'agent du guichet, et refusée par la base tant que les frais ne sont pas payés (DEM-006) | La recevabilité exige l'examen des pièces : le paiement est une condition, pas un déclencheur | `RecevabiliteTest` |
 | V9 | Transitions recevable → décision et recevable → rejetée (sans avis technique obligatoire en V1) ; `type_document.signataire_profil_id` : profil qui décide et signe chaque document | Le signataire (D4) devient une donnée exploitable ; démonstration sans avis technique | `DecisionTest` |
 | V10 | Numéro du document délivré `<CODE>-AAAA-NNNN` attribué par la base (trigger) et contrôlé | Le schéma fourni rend le numéro obligatoire sans le calculer | `MigrationsTest` |
+| V15 | Boîte d'envoi des notifications : essais, prochain essai, erreur, lecture ; RLS sur `notification` (le destinataire seul) ; table `scheduled_tasks` (db-scheduler) | Aucune notification perdue ; les notifications sont des données personnelles | `EnvoiNotificationsTest`, `PlanificateurTest` |
+| V16 | `notification_evenement` (canaux par événement) et `fn_notifier` ; notification à chaque changement d'étape ; paiement à vérifier, remboursé, référence expirant à J-2 | Cahier des charges : « SMS et e-mail à chaque changement d'étape » ; coût des SMS (§3, point 22) | `EvenementsNotificationsTest` |
+| V17 | `parametre_delai` et `fn_jours_traitement` : règle unique et paramétrable des délais (départ, pauses, seuil) | Le cahier des charges ne fixe pas ces règles (§3, points 17 à 21) | `DelaisTest`, `DansLeDelaiTest` |

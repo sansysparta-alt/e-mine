@@ -298,7 +298,7 @@
           "required" : false,
           "schema" : {
             "type" : "string",
-            "pattern" : "^(numero|date|statut)$"
+            "pattern" : "^(numero|date|statut|echeance)$"
           }
         }, {
           "name" : "sens",
@@ -1808,9 +1808,16 @@
           },
           "delaiSuspendu" : {
             "type" : "boolean"
+          },
+          "motifSuspension" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "complement", "droits" ]
+          },
+          "delaiDemarre" : {
+            "type" : "boolean"
           }
         },
-        "required" : [ "aTraiterParMoi", "bloque", "creeLe", "delaiSuspendu", "demandeur", "deposeLe", "enRetard", "etapeDepuis", "fraisPayes", "id", "joursRestants", "motifRejet", "numero", "passages", "prefectureId", "prefectureNom", "procheDepassement", "statut", "substanceCode", "substanceLibelle", "superficieHa", "typeDocumentCode" ]
+        "required" : [ "aTraiterParMoi", "bloque", "creeLe", "delaiDemarre", "delaiSuspendu", "demandeur", "deposeLe", "enRetard", "etapeDepuis", "fraisPayes", "id", "joursRestants", "motifRejet", "motifSuspension", "numero", "passages", "prefectureId", "prefectureNom", "procheDepassement", "statut", "substanceCode", "substanceLibelle", "superficieHa", "typeDocumentCode" ]
       },
       "Demandeur" : {
         "type" : "object",
@@ -2905,6 +2912,18 @@
             "type" : "integer",
             "format" : "int64"
           },
+          "delivreesDansLeDelai" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "tauxDansLeDelai" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int32"
+          },
+          "rejetees" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
           "delaiMoyenJours" : {
             "type" : [ "number", "null" ],
             "format" : "double"
@@ -2918,9 +2937,12 @@
             "items" : {
               "$ref" : "#/components/schemas/ParDocumentDto"
             }
+          },
+          "parametresDelai" : {
+            "$ref" : "#/components/schemas/ParametresDelaiDto"
           }
         },
-        "required" : [ "bloques", "complementsAttendus", "debut", "delaiMoyenJours", "delivrees", "enRetard", "encaissementsGnf", "fin", "fraisAttendus", "parDocument", "periode", "procheDepassement", "traitesAujourdhui" ]
+        "required" : [ "bloques", "complementsAttendus", "debut", "delaiMoyenJours", "delivrees", "delivreesDansLeDelai", "enRetard", "encaissementsGnf", "fin", "fraisAttendus", "parDocument", "parametresDelai", "periode", "procheDepassement", "rejetees", "tauxDansLeDelai", "traitesAujourdhui" ]
       },
       "ParDocumentDto" : {
         "type" : "object",
@@ -2936,7 +2958,23 @@
             "type" : "integer",
             "format" : "int64"
           },
+          "delaiJours" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
           "delivrees" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "delivreesDansLeDelai" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "tauxDansLeDelai" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int32"
+          },
+          "rejetees" : {
             "type" : "integer",
             "format" : "int64"
           },
@@ -2949,7 +2987,31 @@
             "format" : "int64"
           }
         },
-        "required" : [ "code", "delaiMoyenJours", "delivrees", "enCours", "enRetard", "encaissementsGnf" ]
+        "required" : [ "code", "delaiJours", "delaiMoyenJours", "delivrees", "delivreesDansLeDelai", "enCours", "enRetard", "encaissementsGnf", "rejetees", "tauxDansLeDelai" ]
+      },
+      "ParametresDelaiDto" : {
+        "type" : "object",
+        "properties" : {
+          "depart" : {
+            "type" : "string",
+            "enum" : [ "paiement_frais", "depot" ]
+          },
+          "pauseComplement" : {
+            "type" : "boolean"
+          },
+          "pauseDroits" : {
+            "type" : "boolean"
+          },
+          "seuilProchePourcent" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "seuilProcheMinJours" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "depart", "pauseComplement", "pauseDroits", "seuilProcheMinJours", "seuilProchePourcent" ]
       },
       "ATraiterDto" : {
         "type" : "object",

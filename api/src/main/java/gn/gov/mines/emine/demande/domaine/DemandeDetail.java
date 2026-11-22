@@ -18,9 +18,13 @@ import java.time.Instant;
  * @param joursRestants dossier en cours : jours restants sur le délai du catalogue, hors suspension
  *     (négatif = jours de retard) ; {@code null} sinon (US-05.6)
  * @param procheDepassement dossier en cours proche du dépassement ({@link RegleDelais})
- * @param delaiSuspendu complément en cours : le délai est suspendu (US-05.2)
- * @param enRetard dossier en cours dont le délai du catalogue est dépassé (jours calendaires depuis
- *     le dépôt, heure de Conakry) : même règle que l'indicateur et le filtre « en retard »
+ * @param delaiSuspendu dossier en cours dont le délai est en pause (complément, droits attendus)
+ * @param motifSuspension motif de la pause : {@code complement} ou {@code droits} ; {@code null}
+ *     sans pause
+ * @param delaiDemarre le délai du catalogue a commencé (au paiement des frais, selon le
+ *     paramétrage, {@link RegleDelais})
+ * @param enRetard dossier en cours dont le délai du catalogue est dépassé ({@link RegleDelais}) :
+ *     même règle que l'indicateur et le filtre « en retard »
  */
 public record DemandeDetail(
     long id,
@@ -44,7 +48,9 @@ public record DemandeDetail(
     boolean enRetard,
     Integer joursRestants,
     boolean procheDepassement,
-    boolean delaiSuspendu) {
+    boolean delaiSuspendu,
+    String motifSuspension,
+    boolean delaiDemarre) {
 
   public boolean estBrouillon() {
     return "brouillon".equals(statut);

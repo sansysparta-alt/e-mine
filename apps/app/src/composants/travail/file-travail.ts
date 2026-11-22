@@ -88,9 +88,12 @@ export function groupesDepuis(aTraiter: CompteurATraiter, p: ProfilTravail): Gro
   return groupes;
 }
 
-/** Paramètres de la liste des demandes (API) pour un groupe : du plus ancien au plus récent. */
+/**
+ * Paramètres de la liste des demandes (API) pour un groupe, par échéance du délai (US-05.6) : les
+ * dossiers en retard d'abord, puis les plus proches du dépassement ; à égalité, le plus ancien.
+ */
 export function parametresListe(groupe: Groupe) {
-  return { ...groupe.params, tri: "date" as const, sens: "asc" as const };
+  return { ...groupe.params, tri: "echeance" as const, sens: "asc" as const };
 }
 
 /** Action attendue de l'agent selon le statut (et les frais pour une demande déposée). */

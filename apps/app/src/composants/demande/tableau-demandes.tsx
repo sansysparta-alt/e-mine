@@ -113,6 +113,7 @@ export function TableauDemandes({
                   procheDepassement: d.procheDepassement,
                   joursRestants: d.joursRestants,
                   suspendu: d.delaiSuspendu,
+                  motifSuspension: d.motifSuspension,
                 }
               : undefined
           }

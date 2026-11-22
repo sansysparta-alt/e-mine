@@ -25,7 +25,17 @@ const indicateurs: IndicateursDto = {
   bloques: 0,
   traitesAujourdhui: 4,
   delivrees: 5,
+  delivreesDansLeDelai: 4,
+  tauxDansLeDelai: 80,
+  rejetees: 0,
   delaiMoyenJours: 20,
+  parametresDelai: {
+    depart: "paiement_frais",
+    pauseComplement: true,
+    pauseDroits: true,
+    seuilProchePourcent: 20,
+    seuilProcheMinJours: 2,
+  },
   encaissementsGnf: 0,
   parDocument: [],
 };
@@ -64,7 +74,21 @@ describe("délais par dossier (US-05.6)", () => {
         />
       </NextIntlClientProvider>,
     );
-    expect(screen.getByText("Délai suspendu (complément)")).toBeInTheDocument();
+    expect(screen.getByText("Délai en pause (complément)")).toBeInTheDocument();
+    rerender(
+      <NextIntlClientProvider locale="fr" messages={fr} timeZone="Africa/Conakry">
+        <DateAttente
+          {...base}
+          delai={{
+            procheDepassement: false,
+            joursRestants: 14,
+            suspendu: true,
+            motifSuspension: "droits",
+          }}
+        />
+      </NextIntlClientProvider>,
+    );
+    expect(screen.getByText("Délai en pause (droits attendus)")).toBeInTheDocument();
     rerender(
       <NextIntlClientProvider locale="fr" messages={fr} timeZone="Africa/Conakry">
         <DateAttente
@@ -79,7 +103,7 @@ describe("délais par dossier (US-05.6)", () => {
 
   it("sans délai fourni (demandeur), aucune mention de délai", () => {
     enFrancais(<DateAttente {...base} />);
-    expect(screen.queryByText(/Échéance|suspendu/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Échéance|pause/)).not.toBeInTheDocument();
   });
 
   it("guichet : une grille pleine de 6 cartes, dont « Proches du dépassement » vers sa liste", () => {

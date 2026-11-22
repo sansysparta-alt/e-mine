@@ -313,7 +313,9 @@ export default async function DetailDemande({ params, searchParams }: Props) {
                 </span>
               ) : demande.delaiSuspendu ? (
                 <span className="text-texte-doux">
-                  {t("delaiSuspendu")}
+                  {demande.motifSuspension === "droits"
+                    ? t("delaiPauseDroits")
+                    : t("delaiSuspendu")}
                   {demande.joursRestants !== null
                     ? ` (${t("delaiReste", { jours: demande.joursRestants })})`
                     : ""}
@@ -331,6 +333,8 @@ export default async function DetailDemande({ params, searchParams }: Props) {
                   ) : null}
                   {t("delaiReste", { jours: demande.joursRestants })}
                 </span>
+              ) : !demande.delaiDemarre ? (
+                <span className="text-texte-doux">{t("delaiNonDemarre")}</span>
               ) : null}
             </dd>
           </>
