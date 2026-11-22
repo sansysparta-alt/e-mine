@@ -117,13 +117,17 @@
       "traites": "Processed today",
       "traitesPrecision": "Files whose status you changed",
       "retard": "Overdue",
-      "retardPrecision": "Catalogue time limit exceeded"
+      "retardPrecision": "Catalogue deadline exceeded, excluding additional information",
+      "aExaminer": "To examine",
+      "aExaminerPrecision": "Fees paid, admissibility to decide",
+      "proches": "Close to the deadline",
+      "prochesPrecision": "20% or less of the catalogue deadline left"
     },
     "pilotage": {
       "titre": "Steering",
       "retard": {
         "titre": "{nombre, plural, one {# file overdue against the catalogue time limit} other {# files overdue against the catalogue time limits}}",
-        "texte": "Time limit counted in calendar days from submission, as of today.",
+        "texte": "Deadline counted in calendar days since filing, excluding time spent on additional information, as of today.",
         "lien": "See overdue files",
         "aucun": "No overdue file as of today",
         "aucunTexte": "All files in progress are within the catalogue time limits."
@@ -141,6 +145,11 @@
         "titre": "{nombre, plural, one {# blocked file} other {# blocked files}}",
         "texte": "Skipped at least 3 times at the same step by agents, as of today.",
         "lien": "See blocked files"
+      },
+      "proches": {
+        "titre": "{nombre, plural, one {# file close to its deadline} other {# files close to their deadline}}",
+        "texte": "20% or less of the catalogue deadline is left: handle them first.",
+        "lien": "See files close to the deadline"
       }
     },
     "repartition": {
@@ -163,6 +172,12 @@
       "titre": "Dashboard temporarily unavailable",
       "texte": "Figures and files could not be loaded. Your applications are not lost; please try again in a moment.",
       "reessayer": "Try again"
+    },
+    "instruction": {
+      "avis": "Opinions to give",
+      "avisPrecision": "Applications under review awaiting your opinion",
+      "sansReponse": "Unanswered requests",
+      "sansReponsePrecision": "Requested by your service, answer deadline passed"
     }
   },
   "demande": {
@@ -359,7 +374,10 @@
     "retourTravail": "Back to “To do”",
     "delai": "Catalogue time limit",
     "delaiValeur": "{jours, plural, one {# day} other {# days}}",
-    "delaiDepasse": "exceeded"
+    "delaiDepasse": "exceeded",
+    "delaiReste": "{jours, plural, =0 {last day} one {# day left} other {# days left}}",
+    "delaiDepasseDe": "{jours, plural, one {exceeded by # day} other {exceeded by # days}}",
+    "delaiSuspendu": "suspended during the request for information"
   },
   "mesDemandes": {
     "titre": "My applications",
@@ -428,7 +446,8 @@
       "fraisNonPayes": "Fees not paid",
       "fraisPayes": "Fees paid",
       "document": "Document: {libelle}",
-      "bloque": "Blocked (skipped 3 times at their step)"
+      "bloque": "Blocked (skipped 3 times at their step)",
+      "procheDepassement": "Close to the deadline"
     },
     "aucuneInterne": "No application has been submitted yet.",
     "aucuneFiltreAide": "Change the search or clear the filters to see the whole list.",
@@ -1086,6 +1105,8 @@
     "creeeLe": "Created on {date}",
     "attente": "{jours, plural, =0 {Waiting since today} one {Waiting for # day} other {Waiting for # days}}",
     "etapeDepuis": "At this step since",
-    "horsDelai": "Catalogue time limit exceeded"
+    "horsDelai": "Catalogue time limit exceeded",
+    "echeance": "{jours, plural, =0 {Due today} one {Due in # day} other {Due in # days}}",
+    "delaiSuspendu": "Deadline suspended (additional information)"
   }
 }

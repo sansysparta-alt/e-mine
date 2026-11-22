@@ -37,6 +37,9 @@ function demande(partiel: Partial<DemandeDto>): DemandeDto {
     passages: 0,
     bloque: false,
     enRetard: false,
+    joursRestants: null,
+    procheDepassement: false,
+    delaiSuspendu: false,
     ...partiel,
   };
 }
@@ -55,6 +58,7 @@ const indicateurs: IndicateursDto = {
   debut: "2026-11-01T00:00:00Z",
   fin: "2026-11-22T10:00:00Z",
   enRetard: 3,
+  procheDepassement: 0,
   bloques: 0,
   complementsAttendus: 2,
   fraisAttendus: 4,

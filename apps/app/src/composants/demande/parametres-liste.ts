@@ -25,6 +25,7 @@ export type Parametres = {
   statut?: string;
   /** Filtres ouverts depuis une carte du tableau de bord. */
   enRetard?: string;
+  procheDepassement?: string;
   traiteParMoi?: string;
   bloque?: string;
   periode?: string;
@@ -50,6 +51,8 @@ export function lireParametres(p: Parametres) {
   const taille = tailleAutorisee(tailleDemandee);
   const q = p.q?.trim().slice(0, 100) || undefined;
   const enRetard = p.enRetard === "1" || p.enRetard === "true" ? "1" : undefined;
+  const procheDepassement =
+    p.procheDepassement === "1" || p.procheDepassement === "true" ? "1" : undefined;
   const traiteParMoi = p.traiteParMoi === "1" || p.traiteParMoi === "true" ? "1" : undefined;
   const bloque = p.bloque === "1" || p.bloque === "true" ? "1" : undefined;
   const periode = PERIODES_LISTE.find((x) => x === p.periode);
@@ -64,6 +67,7 @@ export function lireParametres(p: Parametres) {
     taille,
     q,
     enRetard,
+    procheDepassement,
     traiteParMoi,
     bloque,
     periode,

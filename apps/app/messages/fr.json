@@ -117,13 +117,17 @@
       "traites": "Traités aujourd’hui",
       "traitesPrecision": "Dossiers dont vous avez changé le statut",
       "retard": "En retard",
-      "retardPrecision": "Délai du catalogue dépassé"
+      "retardPrecision": "Délai du catalogue dépassé, hors complément",
+      "aExaminer": "À examiner",
+      "aExaminerPrecision": "Frais payés, recevabilité à prononcer",
+      "proches": "Proches du dépassement",
+      "prochesPrecision": "20 % du délai du catalogue ou moins restant"
     },
     "pilotage": {
       "titre": "Pilotage",
       "retard": {
         "titre": "{nombre, plural, one {# dossier en retard sur le délai du catalogue} other {# dossiers en retard sur les délais du catalogue}}",
-        "texte": "Délai compté en jours calendaires depuis le dépôt, à ce jour.",
+        "texte": "Délai compté en jours calendaires depuis le dépôt, hors jours passés en complément, à ce jour.",
         "lien": "Voir les dossiers en retard",
         "aucun": "Aucun dossier en retard à ce jour",
         "aucunTexte": "Tous les dossiers en cours respectent les délais du catalogue."
@@ -141,6 +145,11 @@
         "titre": "{nombre, plural, one {# dossier bloqué} other {# dossiers bloqués}}",
         "texte": "Passés au moins 3 fois à la même étape par les agents, à ce jour.",
         "lien": "Voir les dossiers bloqués"
+      },
+      "proches": {
+        "titre": "{nombre, plural, one {# dossier proche du dépassement de son délai} other {# dossiers proches du dépassement de leur délai}}",
+        "texte": "Il leur reste 20 % du délai du catalogue ou moins : à traiter en priorité.",
+        "lien": "Voir les dossiers proches du dépassement"
       }
     },
     "repartition": {
@@ -163,6 +172,12 @@
       "titre": "Tableau de bord momentanément indisponible",
       "texte": "Les chiffres et les dossiers n'ont pas pu être chargés. Vos demandes ne sont pas perdues ; réessayez dans un instant.",
       "reessayer": "Réessayer"
+    },
+    "instruction": {
+      "avis": "Avis à rendre",
+      "avisPrecision": "Demandes à l’instruction qui attendent votre avis",
+      "sansReponse": "Compléments sans réponse",
+      "sansReponsePrecision": "Demandés par votre service, délai de réponse dépassé"
     }
   },
   "demande": {
@@ -359,7 +374,10 @@
     "retourTravail": "Retour à « À traiter »",
     "delai": "Délai du catalogue",
     "delaiValeur": "{jours, plural, one {# jour} other {# jours}}",
-    "delaiDepasse": "dépassé"
+    "delaiDepasse": "dépassé",
+    "delaiReste": "{jours, plural, =0 {dernier jour} one {il reste # jour} other {il reste # jours}}",
+    "delaiDepasseDe": "{jours, plural, one {dépassé de # jour} other {dépassé de # jours}}",
+    "delaiSuspendu": "suspendu pendant le complément"
   },
   "mesDemandes": {
     "titre": "Mes demandes",
@@ -428,7 +446,8 @@
       "fraisNonPayes": "Frais non payés",
       "fraisPayes": "Frais payés",
       "document": "Document : {libelle}",
-      "bloque": "Bloqués (passés 3 fois à leur étape)"
+      "bloque": "Bloqués (passés 3 fois à leur étape)",
+      "procheDepassement": "Proches du dépassement du délai"
     },
     "aucuneInterne": "Aucun dossier déposé pour le moment.",
     "aucuneFiltreAide": "Modifiez la recherche ou effacez les filtres pour revoir toute la liste.",
@@ -1086,6 +1105,8 @@
     "creeeLe": "Créée le {date}",
     "attente": "{jours, plural, =0 {En attente depuis aujourd’hui} one {En attente depuis # jour} other {En attente depuis # jours}}",
     "etapeDepuis": "À cette étape depuis",
-    "horsDelai": "Délai du catalogue dépassé"
+    "horsDelai": "Délai du catalogue dépassé",
+    "echeance": "{jours, plural, =0 {Échéance aujourd’hui} one {Échéance dans # jour} other {Échéance dans # jours}}",
+    "delaiSuspendu": "Délai suspendu (complément)"
   }
 }

@@ -40,6 +40,7 @@ type Donnees = {
   libelles: Record<string, string>;
   aFaire: ActionAFaire[];
   aTraiterTotal: number;
+  groupes?: { cle: string; nombre: number }[];
   vues?: VuesTableau;
   indicateurs?: IndicateursDto;
   travail?: { groupe: CleGroupe; dossiers: DemandeDto[]; total: number };
@@ -55,6 +56,8 @@ function profilTableau(interne: boolean, groupes: string[]): ProfilTableau {
   if (!interne) return "demandeur";
   if (groupes.includes("a-decider")) return "decideur";
   if (groupes.includes("a-examiner")) return "guichet";
+  // US-05.3 : DNM, Géologue, Inspection (avis techniques requis par le catalogue).
+  if (groupes.includes("avis-a-rendre")) return "instruction";
   return "autre";
 }
 
@@ -77,7 +80,7 @@ async function charger(moi: Profil, periode: ClePeriode): Promise<Donnees> {
     );
     const libelles = Object.fromEntries(documents.map((d) => [d.code, d.libelleFr]));
     const groupeTravail = groupesDepuis(compteur, moi)[0];
-    const pilote = profil === "guichet" || profil === "decideur";
+    const pilote = profil === "guichet" || profil === "instruction" || profil === "decideur";
     const [recentes, aTraiter, indicateurs, file] = await Promise.all([
       pilote
         ? null
@@ -114,6 +117,7 @@ async function charger(moi: Profil, periode: ClePeriode): Promise<Donnees> {
       libelles,
       aFaire,
       aTraiterTotal: compteur.total,
+      groupes: compteur.groupes,
       vues,
       indicateurs,
       ...(groupeTravail && file

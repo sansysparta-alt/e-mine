@@ -56,6 +56,9 @@ function dossier(id: number, statut: string, fraisPayes = true): DemandeDto {
     passages: 0,
     bloque: false,
     enRetard: false,
+    joursRestants: null,
+    procheDepassement: false,
+    delaiSuspendu: false,
   };
 }
 
@@ -192,6 +195,7 @@ describe("tableau de bord de l'agent", () => {
           debut: "2026-11-01T00:00:00Z",
           fin: "2026-11-22T10:00:00Z",
           enRetard: 0,
+          procheDepassement: 0,
           bloques: 0,
           complementsAttendus: 0,
           fraisAttendus: 0,

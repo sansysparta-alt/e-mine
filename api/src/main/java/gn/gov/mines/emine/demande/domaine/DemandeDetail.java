@@ -15,6 +15,10 @@ import java.time.Instant;
  * @param aTraiterParMoi la demande attend une action du profil connecté (règle « À traiter »)
  * @param passages nombre de fois où le dossier a été passé à l'étape actuelle (0 pour un usager)
  * @param bloque dossier en cours passé au moins {@link Passage#SEUIL_BLOCAGE} fois à cette étape
+ * @param joursRestants dossier en cours : jours restants sur le délai du catalogue, hors suspension
+ *     (négatif = jours de retard) ; {@code null} sinon (US-05.6)
+ * @param procheDepassement dossier en cours proche du dépassement ({@link RegleDelais})
+ * @param delaiSuspendu complément en cours : le délai est suspendu (US-05.2)
  * @param enRetard dossier en cours dont le délai du catalogue est dépassé (jours calendaires depuis
  *     le dépôt, heure de Conakry) : même règle que l'indicateur et le filtre « en retard »
  */
@@ -37,7 +41,10 @@ public record DemandeDetail(
     boolean aTraiterParMoi,
     int passages,
     boolean bloque,
-    boolean enRetard) {
+    boolean enRetard,
+    Integer joursRestants,
+    boolean procheDepassement,
+    boolean delaiSuspendu) {
 
   public boolean estBrouillon() {
     return "brouillon".equals(statut);

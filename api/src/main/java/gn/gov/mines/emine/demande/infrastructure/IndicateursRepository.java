@@ -7,6 +7,7 @@ import static gn.gov.mines.emine.shared.jooq.Tables.TYPE_DOCUMENT;
 
 import gn.gov.mines.emine.demande.domaine.Indicateurs;
 import gn.gov.mines.emine.demande.domaine.Periode;
+import gn.gov.mines.emine.shared.jooq.Routines;
 import gn.gov.mines.emine.shared.jooq.enums.StatutDemande;
 import gn.gov.mines.emine.shared.jooq.enums.StatutPaiement;
 import java.math.BigDecimal;
@@ -54,8 +55,11 @@ public class IndicateursRepository {
 
     Condition delivreesPeriode =
         visible.and(DEMANDE.STATUT.eq(StatutDemande.delivree)).and(DELIVREE_LE.ge(debut));
+    // Délai de traitement réel : hors jours passés en complément (délai suspendu, US-05.2).
     Field<BigDecimal> delai =
-        DSL.avg(DemandeRepository.joursCalendaires(DEMANDE.DATE_DEPOT, DELIVREE_LE));
+        DSL.avg(
+            DemandeRepository.joursCalendaires(DEMANDE.DATE_DEPOT, DELIVREE_LE)
+                .minus(Routines.fnJoursSuspendus(DEMANDE.ID, DELIVREE_LE)));
     Map<String, Long> delivrees = new HashMap<>();
     Map<String, Double> delais = new HashMap<>();
     dsl.select(TYPE_DOCUMENT.CODE, DSL.count(), delai)
@@ -117,6 +121,7 @@ public class IndicateursRepository {
         debut,
         maintenant,
         somme(enRetard),
+        compter(visible.and(DemandeRepository.conditionProcheDepassement(maintenant))),
         compter(visible.and(DEMANDE.STATUT.eq(StatutDemande.complement_requis))),
         compter(
             visible

@@ -207,7 +207,11 @@ public class ServiceDemandes {
    * pendant la période.
    */
   public CritereDemandes.Pilotage pilotage(
-      Boolean enRetard, Boolean traiteParMoi, String periode, Boolean bloque) {
+      Boolean enRetard,
+      Boolean traiteParMoi,
+      String periode,
+      Boolean bloque,
+      Boolean procheDepassement) {
     Instant maintenant = Instant.now();
     CritereDemandes.Pilotage p =
         new CritereDemandes.Pilotage(
@@ -215,6 +219,7 @@ public class ServiceDemandes {
             Boolean.TRUE.equals(traiteParMoi) ? Periode.debutDuJour(maintenant) : null,
             periode == null ? null : periode(periode).debut(maintenant),
             Boolean.TRUE.equals(bloque),
+            Boolean.TRUE.equals(procheDepassement),
             maintenant);
     return p.vide() ? null : p;
   }

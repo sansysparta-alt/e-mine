@@ -51,6 +51,9 @@ function demande(partiel: Partial<DemandeDto> = {}): DemandeDto {
     passages: 0,
     bloque: false,
     enRetard: false,
+    joursRestants: null,
+    procheDepassement: false,
+    delaiSuspendu: false,
     ...partiel,
   };
 }
