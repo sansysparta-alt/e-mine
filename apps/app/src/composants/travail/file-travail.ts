@@ -191,11 +191,3 @@ export function adresseApresAction(
   if (faite.document) q.set("document", faite.document);
   return `/a-traiter?${q.toString()}`;
 }
-
-const JOUR_MS = 24 * 60 * 60 * 1000;
-
-/** Nombre de jours entiers écoulés depuis le dépôt (0 le jour même). */
-export function joursAttente(deposeLe: string, maintenant: Date = new Date()): number {
-  const ecart = maintenant.getTime() - new Date(deposeLe).getTime();
-  return Math.max(0, Math.floor(ecart / JOUR_MS));
-}

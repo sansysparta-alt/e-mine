@@ -1280,11 +1280,15 @@
           "motifRejet" : {
             "type" : [ "string", "null" ]
           },
+          "etapeDepuis" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
           "aTraiterParMoi" : {
             "type" : "boolean"
           }
         },
-        "required" : [ "aTraiterParMoi", "creeLe", "demandeur", "deposeLe", "fraisPayes", "id", "motifRejet", "numero", "prefectureId", "prefectureNom", "statut", "substanceCode", "substanceLibelle", "superficieHa", "typeDocumentCode" ]
+        "required" : [ "aTraiterParMoi", "creeLe", "demandeur", "deposeLe", "etapeDepuis", "fraisPayes", "id", "motifRejet", "numero", "prefectureId", "prefectureNom", "statut", "substanceCode", "substanceLibelle", "superficieHa", "typeDocumentCode" ]
       },
       "Demandeur" : {
         "type" : "object",

@@ -10,6 +10,8 @@ import java.time.Instant;
  * @param statut statut de la base ({@code brouillon}, {@code deposee}…)
  * @param fraisPayes frais de dossier (ou attestation) payés : condition de la recevabilité (V8)
  * @param motifRejet motif communiqué au demandeur si la demande est rejetée, sinon {@code null}
+ * @param etapeDepuis entrée dans le statut actuel (dernier changement de statut), pour le temps
+ *     d'attente à l'étape
  * @param aTraiterParMoi la demande attend une action du profil connecté (règle « À traiter »)
  */
 public record DemandeDetail(
@@ -27,6 +29,7 @@ public record DemandeDetail(
     Instant deposeLe,
     boolean fraisPayes,
     String motifRejet,
+    Instant etapeDepuis,
     boolean aTraiterParMoi) {
 
   public boolean estBrouillon() {

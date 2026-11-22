@@ -796,7 +796,6 @@
       "signer": "À signer",
       "fraisAttendus": "Frais attendus"
     },
-    "attente": "{jours, plural, =0 {aujourd’hui} one {depuis # jour} other {depuis # jours}}",
     "elements": "dossiers",
     "vide": {
       "tout": "Rien à traiter pour le moment",
@@ -860,5 +859,11 @@
       "rejetee": "Rejetée",
       "archivee": "Archivée"
     }
+  },
+  "dates": {
+    "deposeeLe": "Déposée le {date}",
+    "creeeLe": "Créée le {date}",
+    "attente": "{jours, plural, =0 {En attente depuis aujourd’hui} one {En attente depuis # jour} other {En attente depuis # jours}}",
+    "etapeDepuis": "À cette étape depuis"
   }
 }

@@ -30,6 +30,7 @@ function demande(partiel: Partial<DemandeDto>): DemandeDto {
     deposeLe: null,
     fraisPayes: false,
     motifRejet: null,
+    etapeDepuis: "2026-11-15T10:00:00Z",
     aTraiterParMoi: false,
     ...partiel,
   };
@@ -72,7 +73,8 @@ describe("tableau de bord (gabarit du socle)", () => {
       screen.getByRole("link", { name: "Brouillon (numéro attribué au dépôt)" }),
     ).toHaveAttribute("href", "/demandes/3/modifier");
     expect(screen.getByText("Frais à payer")).toBeInTheDocument();
-    expect(screen.getByText("déposée le 20/11/2026")).toBeInTheDocument();
+    expect(screen.getByText("Déposée le 20/11/2026")).toBeInTheDocument();
+    expect(screen.getAllByText(/En attente depuis \d+ jours?/).length).toBeGreaterThan(0);
   });
 
   it("affiche un état vide explicite sans demande", () => {

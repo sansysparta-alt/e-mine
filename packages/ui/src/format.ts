@@ -72,3 +72,27 @@ export function formaterTaille(octets: number, langue = "fr"): string {
     return `${formaterNombre(Math.round(octets / 1024), langue)}${INSECABLE}${k}`;
   return `${formaterNombre(octets / (1024 * 1024), langue, 1)}${INSECABLE}${m}`;
 }
+
+/** Date du jour (année, mois, jour) à l'heure de Conakry. */
+function jourConakry(valeur: string | Date): number {
+  const parties = new Intl.DateTimeFormat("en-CA", {
+    timeZone: FUSEAU,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(typeof valeur === "string" ? new Date(valeur) : valeur);
+  const v = (type: string) => Number(parties.find((p) => p.type === type)?.value);
+  return Date.UTC(v("year"), v("month") - 1, v("day"));
+}
+
+/**
+ * Nombre de **jours calendaires** écoulés depuis une date, à l'heure de Conakry (0 = le jour même,
+ * 1 = la veille). Base des temps d'attente : « En attente depuis 1 jour » pour une demande déposée
+ * hier soir, même moins de 24 heures plus tard.
+ */
+export function joursCalendairesDepuis(
+  depuis: string | Date,
+  maintenant: Date = new Date(),
+): number {
+  return Math.max(0, Math.round((jourConakry(maintenant) - jourConakry(depuis)) / 86_400_000));
+}

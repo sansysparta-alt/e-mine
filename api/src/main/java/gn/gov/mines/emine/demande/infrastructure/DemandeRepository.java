@@ -1,6 +1,7 @@
 package gn.gov.mines.emine.demande.infrastructure;
 
 import static gn.gov.mines.emine.shared.jooq.Tables.DEMANDE;
+import static gn.gov.mines.emine.shared.jooq.Tables.HISTORIQUE_STATUT_DEMANDE;
 import static gn.gov.mines.emine.shared.jooq.Tables.ORGANISATION;
 import static gn.gov.mines.emine.shared.jooq.Tables.PAIEMENT;
 import static gn.gov.mines.emine.shared.jooq.Tables.PREFECTURE;
@@ -302,6 +303,14 @@ public class DemandeRepository {
 
   static final Field<Boolean> FRAIS_PAYES = DSL.field(FRAIS_PAYES_COND).as("frais_payes");
 
+  /** Entrée dans le statut actuel : dernier changement de statut (historique tenu par la base). */
+  static final Field<java.time.Instant> ETAPE_DEPUIS =
+      DSL.field(
+              DSL.select(DSL.max(HISTORIQUE_STATUT_DEMANDE.CREATED_AT))
+                  .from(HISTORIQUE_STATUT_DEMANDE)
+                  .where(HISTORIQUE_STATUT_DEMANDE.DEMANDE_ID.eq(DEMANDE.ID)))
+          .as("etape_depuis");
+
   /** Colonne calculée : la demande est « à traiter » par le profil connecté. */
   static final String A_TRAITER_PAR_MOI = "a_traiter_par_moi";
 
@@ -328,6 +337,7 @@ public class DemandeRepository {
             SUBSTANCE.CODE,
             SUBSTANCE.LIBELLE_FR,
             FRAIS_PAYES,
+            ETAPE_DEPUIS,
             aTraiterParMoi)
         .from(DEMANDE)
         .join(TYPE_DOCUMENT)
@@ -363,6 +373,7 @@ public class DemandeRepository {
         r.get(DEMANDE.DATE_DEPOT),
         Boolean.TRUE.equals(r.get(FRAIS_PAYES)),
         r.get(DEMANDE.MOTIF_REJET),
+        r.get(ETAPE_DEPUIS) == null ? r.get(DEMANDE.CREATED_AT) : r.get(ETAPE_DEPUIS),
         Boolean.TRUE.equals(r.get(A_TRAITER_PAR_MOI, Boolean.class)));
   }
 }
