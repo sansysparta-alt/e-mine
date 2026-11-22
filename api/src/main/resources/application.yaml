@@ -56,6 +56,12 @@ server:
   shutdown: graceful
 
 management:
+  # Le serveur d'e-mails n'est pas une dépendance vitale : l'outbox retente les envois (US-07.1).
+  # Sans cela, une indisponibilité SMTP rendrait toute l'API « DOWN » (503) et ferait redémarrer
+  # le conteneur.
+  health:
+    mail:
+      enabled: false
   endpoints:
     web:
       exposure:
