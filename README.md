@@ -39,6 +39,7 @@ pnpm install
 pnpm infra:up            # PostgreSQL 5432, Keycloak 8081, MinIO 9000/9001, Mailpit 8025
 pnpm dev                 # API 8080 + site public 3000 + application 3001 + simulateur TrésorPay 8090
 pnpm db:seed             # personas de démo (une fois, après le 1er démarrage de l'API)
+pnpm signature:certificat  # certificat de signature de DÉMONSTRATION (une fois, exclu de Git)
 pnpm infra:down          # arrête les conteneurs (les données sont conservées)
 ```
 

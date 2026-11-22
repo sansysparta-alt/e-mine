@@ -23,6 +23,7 @@
     "api:verify": "node scripts/mvnw.mjs -B -pl api verify",
     "api:format": "node scripts/mvnw.mjs -q -pl api spotless:apply",
     "db:codegen": "node scripts/mvnw.mjs -q -pl api generate-sources -Djooq.codegen.args=--force",
+    "signature:certificat": "node scripts/certificat-signature.mjs",
     "infra:keycloak:reset": "docker compose up -d --wait --force-recreate keycloak",
     "db:seed": "node scripts/db-seed.mjs"
   },
