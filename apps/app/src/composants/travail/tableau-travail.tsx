@@ -1,10 +1,11 @@
 import type { DemandeDto } from "@emine/api-client";
-import { BadgeStatut, type ComposantLien, TableauDonnees } from "@emine/ui";
+import { type ComposantLien, TableauDonnees } from "@emine/ui";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { DateAttente } from "../demande/date-attente";
+import { StatutDemande } from "../demande/statut-demande";
 import { MentionPassages } from "./mention-passages";
-import { actionPour, adresseFiche, type CleGroupe } from "./file-travail";
+import { adresseFiche, type CleGroupe } from "./file-travail";
 
 export type TableauTravailProps = {
   demandes: DemandeDto[];
@@ -82,21 +83,17 @@ export function TableauTravail({
               creeLe={d.creeLe}
               etapeDepuis={d.etapeDepuis}
               avecAttente
+              enRetard={d.enRetard}
               maintenant={maintenant}
             />
           ),
         },
         {
-          cle: "action",
-          entete: t("colonnes.action"),
-          rendu: (d) => {
-            const action = actionPour(d.statut, d.fraisPayes);
-            return action ? (
-              <BadgeStatut ton="avertissement">{t(`actions.${action}`)}</BadgeStatut>
-            ) : (
-              <BadgeStatut ton="neutre">{t("actions.fraisAttendus")}</BadgeStatut>
-            );
-          },
+          cle: "statut",
+          entete: t("colonnes.statut"),
+          // Table unique des libellés par profil : orange seulement si l'API dit que le dossier
+          // attend le profil connecté (aTraiterParMoi), comme partout ailleurs.
+          rendu: (d) => <StatutDemande demande={d} interne />,
         },
       ]}
     />

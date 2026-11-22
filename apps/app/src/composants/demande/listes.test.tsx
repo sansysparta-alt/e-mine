@@ -48,6 +48,7 @@ function demande(id: number, statut: string, numero: string | null): DemandeDto 
     aTraiterParMoi: false,
     passages: 0,
     bloque: false,
+    enRetard: false,
   };
 }
 
@@ -82,6 +83,28 @@ describe("liste des demandes selon le profil (correctifs ergonomie)", () => {
     expect(screen.getByRole("columnheader", { name: "Demandeur" })).toBeVisible();
     expect(screen.getByText("Horizon")).toBeVisible();
     expect(screen.queryByRole("columnheader", { name: "Actions" })).toBeNull();
+  });
+
+  it("signale à l'agent le dossier hors délai, calculé par l'API (revue B)", () => {
+    const enRetard = { ...demande(3, "deposee", "DEM-2026-000003"), enRetard: true };
+    const { unmount } = afficher(
+      <TableauDemandes
+        demandes={[enRetard, demande(4, "deposee", "DEM-2026-000004")]}
+        libelles={libelles}
+        legende="Demandes"
+        interne
+      />,
+    );
+    const [ligneRetard, ligneDansLeDelai] = screen.getAllByRole("row").slice(1) as [
+      HTMLElement,
+      HTMLElement,
+    ];
+    expect(within(ligneRetard).getByText("Délai du catalogue dépassé")).toBeVisible();
+    expect(within(ligneDansLeDelai).queryByText("Délai du catalogue dépassé")).toBeNull();
+    unmount();
+    // Le demandeur garde une liste sobre : l'information est sur la fiche.
+    afficher(<TableauDemandes demandes={[enRetard]} libelles={libelles} legende="Mes demandes" />);
+    expect(screen.queryByText("Délai du catalogue dépassé")).toBeNull();
   });
 
   it("demande confirmation avant de supprimer un brouillon", async () => {

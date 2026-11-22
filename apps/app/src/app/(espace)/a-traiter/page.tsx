@@ -97,16 +97,6 @@ export default async function ATraiter({ searchParams }: Props) {
         </Alerte>
       ) : null}
       <EnTetePage titre={t("titre")} description={t("description")} actions={commencer} />
-      <FiltresPastilles
-        libelle={t("filtre")}
-        options={groupes.map((g) => ({
-          valeur: g.cle,
-          libelle: t(`groupes.${g.cle}`),
-          href: adresse(g.cle),
-          actif: g.cle === p.groupe.cle,
-          nombre: totaux[g.cle] ?? 0,
-        }))}
-      />
       <RechercheListe
         libelle={t("recherche.libelle")}
         valeur={p.q}
@@ -116,6 +106,16 @@ export default async function ATraiter({ searchParams }: Props) {
           groupe: p.groupe.cle === groupes[0]?.cle ? undefined : p.groupe.cle,
           taille: String(p.taille),
         }}
+      />
+      <FiltresPastilles
+        libelle={t("filtre")}
+        options={groupes.map((g) => ({
+          valeur: g.cle,
+          libelle: t(`groupes.${g.cle}`),
+          href: adresse(g.cle),
+          actif: g.cle === p.groupe.cle,
+          nombre: totaux[g.cle] ?? 0,
+        }))}
       />
       {resultat.total === 0 ? (
         <EtatVide

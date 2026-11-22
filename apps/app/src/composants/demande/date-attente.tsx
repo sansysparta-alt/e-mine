@@ -1,4 +1,5 @@
 import { cn, formaterDate, joursCalendairesDepuis } from "@emine/ui";
+import { TriangleAlert } from "@emine/ui/icones";
 import { useTranslations } from "next-intl";
 
 /** Attente à l'étape au-delà de laquelle le dossier est signalé (délai à surveiller). */
@@ -12,6 +13,8 @@ export type DateAttenteProps = {
   etapeDepuis: string;
   /** Afficher le temps d'attente (dossiers en cours seulement). */
   avecAttente: boolean;
+  /** Délai du catalogue dépassé (calculé par l'API, même règle que l'indicateur « En retard »). */
+  enRetard?: boolean;
   /** Date de référence (rendu serveur, tests). */
   maintenant?: Date;
 };
@@ -26,6 +29,7 @@ export function DateAttente({
   creeLe,
   etapeDepuis,
   avecAttente,
+  enRetard = false,
   maintenant = new Date(),
 }: DateAttenteProps) {
   const t = useTranslations("dates");
@@ -45,6 +49,12 @@ export function DateAttente({
           )}
         >
           {t("attente", { jours })}
+        </span>
+      ) : null}
+      {enRetard ? (
+        <span className="flex items-center gap-1 text-sm font-semibold text-danger">
+          <TriangleAlert aria-hidden="true" className="size-4 shrink-0" />
+          {t("horsDelai")}
         </span>
       ) : null}
     </span>

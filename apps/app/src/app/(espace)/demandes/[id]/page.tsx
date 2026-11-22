@@ -20,11 +20,12 @@ import {
   formaterGnf,
   joursCalendairesDepuis,
 } from "@emine/ui";
-import { ArrowLeft, CreditCard } from "@emine/ui/icones";
+import { ArrowLeft, CreditCard, TriangleAlert } from "@emine/ui/icones";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { ATTENTE_LONGUE_JOURS } from "@/composants/demande/date-attente";
 import { StatutDemande } from "@/composants/demande/statut-demande";
 import { ListePieces } from "@/composants/documents/liste-pieces";
 import { prochaineEtape } from "@/composants/demande/prochaine-etape";
@@ -156,6 +157,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
       ? { cle: "signataireDelivrer", pour: "agent" as const }
       : etapeCalculee;
   const numero = demande.numero ?? "";
+  const attenteEtape = joursCalendairesDepuis(demande.etapeDepuis);
   // Traitement en série (correctifs J5) : position dans la file, dossier suivant après l'action.
   const groupeSerie = file
     ? groupesDepuis(
@@ -226,10 +228,30 @@ export default async function DetailDemande({ params, searchParams }: Props) {
             <dt className="font-semibold">{tDates("etapeDepuis")}</dt>
             <dd>
               {formaterDateHeure(demande.etapeDepuis)}
-              <span className="text-texte-doux">
-                {" · "}
-                {tDates("attente", { jours: joursCalendairesDepuis(demande.etapeDepuis) })}
+              {" · "}
+              <span
+                className={
+                  attenteEtape >= ATTENTE_LONGUE_JOURS
+                    ? "font-semibold text-avertissement"
+                    : "text-texte-doux"
+                }
+              >
+                {tDates("attente", { jours: attenteEtape })}
               </span>
+            </dd>
+          </>
+        ) : null}
+        {document && STATUTS_EN_COURS.has(demande.statut) ? (
+          <>
+            <dt className="font-semibold">{t("delai")}</dt>
+            <dd>
+              {t("delaiValeur", { jours: document.delaiJours })}
+              {demande.enRetard ? (
+                <span className="ml-2 inline-flex items-center gap-1 font-semibold text-danger">
+                  <TriangleAlert aria-hidden="true" className="size-4" />
+                  {t("delaiDepasse")}
+                </span>
+              ) : null}
             </dd>
           </>
         ) : null}
@@ -237,6 +259,17 @@ export default async function DetailDemande({ params, searchParams }: Props) {
         <dd>
           {demande.demandeur.prenom} {demande.demandeur.nom}
           {demande.demandeur.organisation ? ` · ${demande.demandeur.organisation}` : ""}
+          {moi.interne && demande.demandeur.email ? (
+            <>
+              {" · "}
+              <a
+                href={`mailto:${demande.demandeur.email}`}
+                className="text-royal underline underline-offset-4"
+              >
+                {demande.demandeur.email}
+              </a>
+            </>
+          ) : null}
         </dd>
         {demande.motifRejet && !decisionRendue ? (
           <>

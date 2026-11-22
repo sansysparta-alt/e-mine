@@ -89,6 +89,18 @@ class IndicateursTest extends TestIntegration {
         lire(get("/api/v1/demandes").param("enRetard", "true").param("taille", "100"), ministre);
     assertThat(liste.path("total").asLong()).isEqualTo(apres.path("enRetard").asLong());
     assertThat(ids(liste)).contains(enRetard).doesNotContain(dansLeDelai, aLaLimite, delivree);
+    // Chaque dossier porte la même information (revue B) : la ligne et la fiche disent « en
+    // retard » pour exactement les dossiers que compte l'indicateur.
+    for (JsonNode d : liste.path("elements")) {
+      assertThat(d.path("enRetard").asBoolean()).as("dossier %s", d.path("id")).isTrue();
+    }
+    assertThat(lireDossier(enRetard, ministre).path("enRetard").asBoolean()).isTrue();
+    assertThat(lireDossier(aLaLimite, ministre).path("enRetard").asBoolean()).isFalse();
+    assertThat(lireDossier(delivree, ministre).path("enRetard").asBoolean()).isFalse();
+  }
+
+  private JsonNode lireDossier(long id, RequestPostProcessor qui) throws Exception {
+    return lire(get("/api/v1/demandes/" + id), qui);
   }
 
   @Test

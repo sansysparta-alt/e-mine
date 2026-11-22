@@ -17,6 +17,7 @@ import java.time.Instant;
  *     l'API) : l'écran adapte le libellé et le ton du statut sans recoder la règle
  * @param passages nombre de fois où un agent a passé le dossier à l'étape actuelle
  * @param bloque dossier passé au moins 3 fois à cette étape : signalé « Bloqué » aux décideurs
+ * @param enRetard dossier en cours dont le délai du catalogue est dépassé (calculé par l'API)
  */
 record DemandeDto(
     long id,
@@ -36,7 +37,8 @@ record DemandeDto(
     Instant etapeDepuis,
     boolean aTraiterParMoi,
     int passages,
-    boolean bloque) {
+    boolean bloque,
+    boolean enRetard) {
 
   /** Auteur de la demande. */
   record Demandeur(
@@ -65,6 +67,7 @@ record DemandeDto(
         d.etapeDepuis(),
         d.aTraiterParMoi(),
         d.passages(),
-        d.bloque());
+        d.bloque(),
+        d.enRetard());
   }
 }

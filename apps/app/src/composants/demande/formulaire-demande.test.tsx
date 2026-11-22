@@ -49,6 +49,7 @@ function demande(partiel: Partial<DemandeDto> = {}): DemandeDto {
     aTraiterParMoi: false,
     passages: 0,
     bloque: false,
+    enRetard: false,
     ...partiel,
   };
 }

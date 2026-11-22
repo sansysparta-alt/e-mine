@@ -1433,9 +1433,12 @@
           },
           "bloque" : {
             "type" : "boolean"
+          },
+          "enRetard" : {
+            "type" : "boolean"
           }
         },
-        "required" : [ "aTraiterParMoi", "bloque", "creeLe", "demandeur", "deposeLe", "etapeDepuis", "fraisPayes", "id", "motifRejet", "numero", "passages", "prefectureId", "prefectureNom", "statut", "substanceCode", "substanceLibelle", "superficieHa", "typeDocumentCode" ]
+        "required" : [ "aTraiterParMoi", "bloque", "creeLe", "demandeur", "deposeLe", "enRetard", "etapeDepuis", "fraisPayes", "id", "motifRejet", "numero", "passages", "prefectureId", "prefectureNom", "statut", "substanceCode", "substanceLibelle", "superficieHa", "typeDocumentCode" ]
       },
       "Demandeur" : {
         "type" : "object",

@@ -36,6 +36,7 @@ function demande(partiel: Partial<DemandeDto>): DemandeDto {
     aTraiterParMoi: false,
     passages: 0,
     bloque: false,
+    enRetard: false,
     ...partiel,
   };
 }
@@ -267,6 +268,29 @@ describe("tableau de bord des décideurs (correctifs ergonomie)", () => {
     const lien = screen.getByRole("link", { name: "Voir les dossiers bloqués" });
     expect(lien).toHaveAttribute("href", "/demandes?bloque=1");
     expect(lien.closest("[role=status]")).toHaveTextContent("2 dossiers bloqués");
+  });
+});
+
+describe("tableau de bord indisponible (revue B)", () => {
+  it("le dit clairement, sans état vide ni chiffres trompeurs", () => {
+    enFrancais(
+      <VueTableauDeBord
+        prenom="Ibrahima"
+        nom="Soumah"
+        profilLibelle="Ministre"
+        profil="autre"
+        indisponible
+      />,
+    );
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Tableau de bord momentanément indisponible",
+    );
+    expect(screen.getByRole("link", { name: "Réessayer" })).toHaveAttribute(
+      "href",
+      "/tableau-de-bord",
+    );
+    expect(screen.queryByText(/Aucun dossier/)).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /À ce jour/ })).not.toBeInTheDocument();
   });
 });
 

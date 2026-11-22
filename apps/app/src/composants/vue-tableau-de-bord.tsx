@@ -9,6 +9,7 @@ import {
   classesLigneCliquable,
   cn,
   EnTetePage,
+  EtatErreur,
   EtatVide,
   FiltresPastilles,
   formaterGnf,
@@ -92,6 +93,8 @@ export type VueTableauDeBordProps = {
   periode?: ClePeriode;
   /** Premiers dossiers de la file de travail de l'agent, avec de quoi commencer le traitement. */
   travail?: { groupe: CleGroupe; dossiers: DemandeDto[]; total: number };
+  /** Données indisponibles (API injoignable) : état d'erreur explicite, aucun chiffre. */
+  indisponible?: boolean;
 };
 
 /** Adresse de la liste des demandes filtrée (cartes cliquables). */
@@ -125,6 +128,7 @@ export function VueTableauDeBord({
   indicateurs,
   periode = "mois",
   travail,
+  indisponible = false,
 }: VueTableauDeBordProps) {
   const t = useTranslations("tableauDeBord");
   const nouvelle = peutDeposer ? (
@@ -142,6 +146,18 @@ export function VueTableauDeBord({
         description={t("profil", { libelle: profilLibelle })}
         actions={nouvelle}
       />
+
+      {indisponible ? (
+        <EtatErreur
+          titre={t("indisponible.titre")}
+          description={t("indisponible.texte")}
+          action={
+            <Bouton asChild variante="secondaire">
+              <Link href="/tableau-de-bord">{t("indisponible.reessayer")}</Link>
+            </Bouton>
+          }
+        />
+      ) : null}
 
       {profil === "demandeur" ? (
         <>
@@ -339,7 +355,7 @@ export function VueTableauDeBord({
         </>
       ) : null}
 
-      {profil === "autre" ? (
+      {profil === "autre" && !indisponible ? (
         <>
           <GrilleChiffres>
             {(vues?.vues ?? []).map((v) => (
