@@ -28,7 +28,8 @@
     <openhtmltopdf.version>1.1.108</openhtmltopdf.version>
     <!-- QR des documents délivrés (stack docs/02 : ZXing, US-06.1) -->
     <zxing.version>3.5.4</zxing.version>
-    <!-- Signature PAdES des documents délivrés (stack docs/02 : EU DSS, US-06.2) -->
+    <!-- Signature PAdES des documents délivrés (stack docs/02 : EU DSS, US-06.2). Pas de BOM DSS :
+         importé localement, il remplacerait des versions gérées par Spring Boot (JUnit…). -->
     <dss.version>6.5.1</dss.version>
     <spotless.version>3.10.3</spotless.version>
     <jacoco.version>0.8.14</jacoco.version>
@@ -41,13 +42,6 @@
 
   <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>eu.europa.ec.joinup.sd-dss</groupId>
-        <artifactId>dss-bom</artifactId>
-        <version>${dss.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
       <dependency>
         <groupId>org.springframework.modulith</groupId>
         <artifactId>spring-modulith-bom</artifactId>
@@ -148,22 +142,27 @@
     <dependency>
       <groupId>eu.europa.ec.joinup.sd-dss</groupId>
       <artifactId>dss-pades-pdfbox</artifactId>
+      <version>${dss.version}</version>
     </dependency>
     <dependency>
       <groupId>eu.europa.ec.joinup.sd-dss</groupId>
       <artifactId>dss-token</artifactId>
+      <version>${dss.version}</version>
     </dependency>
     <dependency>
       <groupId>eu.europa.ec.joinup.sd-dss</groupId>
       <artifactId>dss-utils-apache-commons</artifactId>
+      <version>${dss.version}</version>
     </dependency>
     <dependency>
       <groupId>eu.europa.ec.joinup.sd-dss</groupId>
       <artifactId>dss-crl-parser-stream</artifactId>
+      <version>${dss.version}</version>
     </dependency>
     <dependency>
       <groupId>eu.europa.ec.joinup.sd-dss</groupId>
       <artifactId>dss-cms-object</artifactId>
+      <version>${dss.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springdoc</groupId>
@@ -175,11 +174,13 @@
     <dependency>
       <groupId>eu.europa.ec.joinup.sd-dss</groupId>
       <artifactId>dss-validation</artifactId>
+      <version>${dss.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>eu.europa.ec.joinup.sd-dss</groupId>
       <artifactId>dss-policy-jaxb</artifactId>
+      <version>${dss.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
