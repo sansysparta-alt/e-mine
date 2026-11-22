@@ -108,7 +108,7 @@ test("parcours V1 : dépôt, paiements, recevabilité, décision, délivrance, v
       agent.getByRole("row", { name: new RegExp(numero ?? "") }).getByText("Avis à rendre"),
     ).toBeVisible();
     await agent.goto(`/demandes/${id}?file=avis-a-rendre`);
-    await agent.getByRole("radio", { name: "Favorable" }).check();
+    await agent.getByRole("radio", { name: "Favorable", exact: true }).check();
     await agent.getByRole("textbox", { name: /Motivation/ }).fill(motif);
     await agent.getByRole("button", { name: "Enregistrer mon avis" }).click();
     await expect(
