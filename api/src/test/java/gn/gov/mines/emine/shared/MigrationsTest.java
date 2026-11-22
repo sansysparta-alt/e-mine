@@ -31,7 +31,7 @@ class MigrationsTest extends TestIntegration {
             .filter(MigrationInfo::isVersioned)
             .map(m -> m.getVersion().getVersion())
             .toList();
-    assertThat(versions).containsSequence("1", "2", "3", "4", "5", "6", "7", "8");
+    assertThat(versions).containsSequence("1", "2", "3", "4", "5", "6", "7", "8", "9", "10");
     assertThat(flyway.info().pending()).isEmpty();
   }
 
@@ -111,6 +111,32 @@ class MigrationsTest extends TestIntegration {
       rs.next();
       assertThat(rs.getString(1)).matches("DEM-" + Year.now().getValue() + "-\\d{6}");
       assertThat(rs.getBoolean(2)).isTrue();
+      c.rollback();
+    }
+  }
+
+  @Test
+  void v10LaBaseNumeroteLesDocumentsDelivresParCodeEtParAnnee() throws SQLException {
+    try (Connection c = BaseDeDonneesDeTest.connexionOwner();
+        Statement st = c.createStatement()) {
+      c.setAutoCommit(false);
+      long signataire = creerUtilisateur(st, "v10.signataire@exemple.test");
+      String insertion =
+          "INSERT INTO document_delivre (type_document_id, signataire_id, signature_hsm,"
+              + " horodatage, empreinte_sha256) SELECT id, "
+              + signataire
+              + ", 'test', now(), repeat('a', 64) FROM type_document WHERE code = '%s'"
+              + " RETURNING numero";
+      ResultSet rs = st.executeQuery(insertion.formatted("CAR"));
+      rs.next();
+      String premier = rs.getString(1);
+      rs = st.executeQuery(insertion.formatted("CAR"));
+      rs.next();
+      String second = rs.getString(1);
+      String annee = String.valueOf(Year.now().getValue());
+      assertThat(premier).matches("CAR-" + annee + "-\\d{4}");
+      assertThat(Integer.parseInt(second.substring(9)))
+          .isEqualTo(Integer.parseInt(premier.substring(9)) + 1);
       c.rollback();
     }
   }
