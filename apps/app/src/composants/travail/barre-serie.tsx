@@ -2,8 +2,11 @@ import { ArrowLeft, ArrowRight, X } from "@emine/ui/icones";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { adresseFiche, type CleGroupe } from "./file-travail";
+import { PasserDossier } from "./passer-dossier";
 
 export type BarreSerieProps = {
+  /** Dossier ouvert (celui qu'on peut passer). */
+  demandeId: number;
   groupe: CleGroupe;
   /** Position du dossier dans la file (1 = le plus ancien) ; null s'il n'y est plus. */
   position: number | null;
@@ -17,10 +20,17 @@ const classesLien =
 
 /**
  * Barre du traitement en série (correctifs J5) : où l'on en est dans la file (« Dossier 2 sur 7 »),
- * passer au précédent ou au suivant sans agir, quitter le traitement. Toujours visible en haut de
+ * revenir au précédent, passer ce dossier (avec un motif tracé), quitter le traitement. Toujours visible en haut de
  * la fiche, au clavier comme à la souris.
  */
-export function BarreSerie({ groupe, position, total, precedent, suivant }: BarreSerieProps) {
+export function BarreSerie({
+  demandeId,
+  groupe,
+  position,
+  total,
+  precedent,
+  suivant,
+}: BarreSerieProps) {
   const t = useTranslations("travail.serie");
   return (
     <nav
@@ -41,9 +51,17 @@ export function BarreSerie({ groupe, position, total, precedent, suivant }: Barr
             {t("precedent")}
           </Link>
         ) : null}
-        {suivant != null ? (
+        {suivant != null && position != null ? (
+          // Passer un dossier de la file : motif court, tracé (correctifs ergonomie).
+          <PasserDossier
+            demandeId={demandeId}
+            groupe={groupe}
+            suivant={suivant}
+            classes={classesLien}
+          />
+        ) : suivant != null ? (
           <Link href={adresseFiche(suivant, groupe)} className={classesLien}>
-            {position != null ? t("passer") : t("suivant")}
+            {t("suivant")}
             <ArrowRight aria-hidden="true" className="size-4" />
           </Link>
         ) : null}

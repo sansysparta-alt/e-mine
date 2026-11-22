@@ -136,7 +136,12 @@
       "delaiAucun": "—",
       "delaiPrecision": "Du dépôt à la délivrance, en jours calendaires",
       "encaissements": "Encaissements",
-      "encaissementsPrecision": "Frais et droits payés"
+      "encaissementsPrecision": "Frais et droits payés",
+      "bloques": {
+        "titre": "{nombre, plural, one {# dossier bloqué} other {# dossiers bloqués}}",
+        "texte": "Passés au moins 3 fois à la même étape par les agents, à ce jour.",
+        "lien": "Voir les dossiers bloqués"
+      }
     },
     "repartition": {
       "titre": "Répartition par document",
@@ -411,7 +416,8 @@
       "periode": "Entrés dans ce statut : {periode}",
       "fraisNonPayes": "Frais non payés",
       "fraisPayes": "Frais payés",
-      "document": "Document : {libelle}"
+      "document": "Document : {libelle}",
+      "bloque": "Bloqués (passés 3 fois à leur étape)"
     }
   },
   "session": {
@@ -922,7 +928,27 @@
       "precedent": "Précédent",
       "passer": "Passer ce dossier",
       "suivant": "Dossier suivant",
-      "quitter": "Quitter le traitement"
+      "quitter": "Quitter le traitement",
+      "passerDialogue": {
+        "titre": "Passer ce dossier ?",
+        "texte": "Indiquez en quelques mots pourquoi vous le passez. Le motif est visible des autres agents ; au 3e passage à cette étape, le dossier est signalé « Bloqué » aux décideurs.",
+        "motif": "Motif",
+        "aide": "Par exemple : pièce illisible, attente d'un avis, demandeur à rappeler.",
+        "annuler": "Annuler",
+        "confirmer": "Passer et ouvrir le suivant",
+        "enCours": "Enregistrement…",
+        "echec": "Le passage n'a pas été enregistré",
+        "motifCourt": "Indiquez un motif d'au moins 3 caractères.",
+        "motifLong": "Le motif ne doit pas dépasser 300 caractères."
+      }
+    },
+    "passages": {
+      "titre": "{nombre, plural, one {Passage dans le traitement en série (#)} other {Passages dans le traitement en série (#)}}",
+      "bloque": "Dossier bloqué : passé {nombre} fois à cette étape",
+      "bloqueTexte": "Les décideurs voient ce dossier dans leurs alertes. Traitez-le ou signalez la difficulté à votre responsable.",
+      "ligne": "{date} · {auteur} · étape « {etape} »",
+      "passeNFois": "{nombre, plural, one {Passé # fois} other {Passé # fois}}",
+      "bloqueCourt": "Bloqué · passé {nombre} fois"
     }
   },
   "statutsAffiches": {

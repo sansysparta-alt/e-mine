@@ -55,17 +55,19 @@ public record CritereDemandes(
    *     depuis cet instant, ou {@code null}
    * @param etapeDepuis seulement les dossiers entrés dans leur statut actuel depuis cet instant
    *     (délivrés pendant la période…), ou {@code null}
+   * @param bloque seulement les dossiers « Bloqués » (passés au moins 3 fois à l'étape actuelle)
    * @param maintenant instant de référence du retard
    */
   public record Pilotage(
       boolean enRetard,
       java.time.Instant traiteParMoiDepuis,
       java.time.Instant etapeDepuis,
+      boolean bloque,
       java.time.Instant maintenant) {
 
     /** Aucun filtre demandé. */
     public boolean vide() {
-      return !enRetard && traiteParMoiDepuis == null && etapeDepuis == null;
+      return !enRetard && traiteParMoiDepuis == null && etapeDepuis == null && !bloque;
     }
   }
 

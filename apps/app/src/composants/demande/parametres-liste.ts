@@ -27,6 +27,7 @@ export type Parametres = {
   /** Filtres ouverts depuis une carte du tableau de bord. */
   enRetard?: string;
   traiteParMoi?: string;
+  bloque?: string;
   periode?: string;
   fraisPayes?: string;
   document?: string;
@@ -51,6 +52,7 @@ export function lireParametres(p: Parametres) {
   const q = p.q?.trim().slice(0, 100) || undefined;
   const enRetard = p.enRetard === "1" || p.enRetard === "true" ? "1" : undefined;
   const traiteParMoi = p.traiteParMoi === "1" || p.traiteParMoi === "true" ? "1" : undefined;
+  const bloque = p.bloque === "1" || p.bloque === "true" ? "1" : undefined;
   const periode = PERIODES_LISTE.find((x) => x === p.periode);
   const fraisPayes = p.fraisPayes === "true" || p.fraisPayes === "false" ? p.fraisPayes : undefined;
   const document = p.document && /^[A-Z]{3}$/.test(p.document) ? p.document : undefined;
@@ -64,6 +66,7 @@ export function lireParametres(p: Parametres) {
     q,
     enRetard,
     traiteParMoi,
+    bloque,
     periode,
     fraisPayes,
     document,

@@ -136,7 +136,12 @@
       "delaiAucun": "—",
       "delaiPrecision": "From submission to issue, in calendar days",
       "encaissements": "Collections",
-      "encaissementsPrecision": "Fees and duties paid"
+      "encaissementsPrecision": "Fees and duties paid",
+      "bloques": {
+        "titre": "{nombre, plural, one {# blocked file} other {# blocked files}}",
+        "texte": "Skipped at least 3 times at the same step by agents, as of today.",
+        "lien": "See blocked files"
+      }
     },
     "repartition": {
       "titre": "Breakdown by document",
@@ -411,7 +416,8 @@
       "periode": "Entered this status: {periode}",
       "fraisNonPayes": "Fees not paid",
       "fraisPayes": "Fees paid",
-      "document": "Document: {libelle}"
+      "document": "Document: {libelle}",
+      "bloque": "Blocked (skipped 3 times at their step)"
     }
   },
   "session": {
@@ -922,7 +928,27 @@
       "precedent": "Previous",
       "passer": "Skip this file",
       "suivant": "Next file",
-      "quitter": "Stop processing"
+      "quitter": "Stop processing",
+      "passerDialogue": {
+        "titre": "Skip this file?",
+        "texte": "Briefly state why you are skipping it. The reason is visible to other agents; on the 3rd skip at this step, the file is flagged \"Blocked\" to decision-makers.",
+        "motif": "Reason",
+        "aide": "For example: illegible document, awaiting an opinion, applicant to call back.",
+        "annuler": "Cancel",
+        "confirmer": "Skip and open the next one",
+        "enCours": "Saving…",
+        "echec": "The skip was not saved",
+        "motifCourt": "Enter a reason of at least 3 characters.",
+        "motifLong": "The reason must not exceed 300 characters."
+      }
+    },
+    "passages": {
+      "titre": "{nombre, plural, one {Skip in batch processing (#)} other {Skips in batch processing (#)}}",
+      "bloque": "Blocked file: skipped {nombre} times at this step",
+      "bloqueTexte": "Decision-makers see this file in their alerts. Process it or report the difficulty to your manager.",
+      "ligne": "{date} · {auteur} · step \"{etape}\"",
+      "passeNFois": "{nombre, plural, one {Skipped # time} other {Skipped # times}}",
+      "bloqueCourt": "Blocked · skipped {nombre} times"
     }
   },
   "statutsAffiches": {

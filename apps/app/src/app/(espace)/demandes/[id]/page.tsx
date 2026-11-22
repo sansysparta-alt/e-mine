@@ -8,6 +8,7 @@ import {
   lireEtatDelivrance,
   listerDemandes,
   listerPaiementsDemande,
+  listerPassages,
   listerPieces,
 } from "@emine/api-client";
 import {
@@ -36,6 +37,7 @@ import { ExamenRecevabilite } from "@/composants/instruction/examen-recevabilite
 import { PriseDecision } from "@/composants/instruction/prise-decision";
 import { TableauPaiements } from "@/composants/paiement/tableau-paiements";
 import { BarreSerie } from "@/composants/travail/barre-serie";
+import { HistoriquePassages } from "@/composants/travail/historique-passages";
 import {
   type ContexteSerie,
   groupesDepuis,
@@ -109,6 +111,10 @@ export default async function DetailDemande({ params, searchParams }: Props) {
     appelPage(chemin, async () => listerPieces(Number(id), await optionsApi())),
     appelPage(chemin, async () => listerPaiementsDemande(Number(id), await optionsApi())),
   ]);
+  // Passages dans le traitement en série : visibles de tous les agents (correctifs ergonomie).
+  const passages = moi.interne
+    ? (await appelPage(chemin, async () => listerPassages(Number(id), await optionsApi()))).data
+    : null;
   const document = documents.find((d) => d.code === demande.typeDocumentCode);
   // US-05.1 : l'agent qui instruit examine la recevabilité d'une demande déposée.
   const examen =
@@ -171,6 +177,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
     serie = { groupe: groupeSerie.cle, suivant };
     barre = (
       <BarreSerie
+        demandeId={demande.id}
         groupe={groupeSerie.cle}
         position={position.dansLaFile ? position.position : null}
         total={enFile.data.total}
@@ -240,6 +247,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
       </dl>
     </Carte>
   );
+  const blocPassages = passages ? <HistoriquePassages historique={passages} /> : null;
   const blocPieces = (
     <Carte titre={t("pieces", { nombre: pieces.data.length })}>
       <ListePieces demandeId={demande.id} pieces={pieces.data} />
@@ -368,6 +376,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_26rem]">
           <div className="flex flex-col gap-6">
             {blocInfos}
+            {blocPassages}
             {blocDocument}
             {blocPieces}
             {blocDecision}
@@ -383,6 +392,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
       ) : (
         <>
           {blocInfos}
+          {blocPassages}
           {blocDocument}
           {blocEtape}
           {blocDecision}

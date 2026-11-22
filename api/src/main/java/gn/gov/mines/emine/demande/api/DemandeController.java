@@ -82,6 +82,7 @@ class DemandeController {
       @RequestParam(required = false) @Pattern(regexp = "^[a-z-]{1,20}$") String groupe,
       @RequestParam(required = false) Boolean enRetard,
       @RequestParam(required = false) Boolean traiteParMoi,
+      @RequestParam(required = false) Boolean bloque,
       @RequestParam(required = false) @Pattern(regexp = "^[a-z0-9-]{1,20}$") String periode,
       @RequestParam(required = false) @Pattern(regexp = "^(numero|date|statut)$") String tri,
       @RequestParam(required = false) @Pattern(regexp = "^(asc|desc)$") String sens,
@@ -105,7 +106,7 @@ class DemandeController {
                         ? service.filtreATraiter(groupe)
                         : null,
                     vue == null ? null : service.vue(vue),
-                    service.pilotage(enRetard, traiteParMoi, periode),
+                    service.pilotage(enRetard, traiteParMoi, periode, bloque),
                     false,
                     colonne,
                     croissant),
