@@ -106,10 +106,12 @@
     "facultatif": "facultatif",
     "etapes": {
       "titre": "Étapes de la demande",
-      "demandeur": "Demandeur",
       "document": "Document",
       "pieces": "Pièces",
-      "recapitulatif": "Récapitulatif"
+      "recapitulatif": "Récapitulatif",
+      "etatFaite": "étape faite",
+      "etatCourante": "étape en cours",
+      "etatAVenir": "à venir"
     },
     "demandeur": {
       "nom": "Demandeur",
@@ -205,7 +207,17 @@
       "titre": "Saisie non enregistrée restaurée.",
       "texte": "Vos dernières modifications, conservées sur cet appareil, ont été rétablies. Elles seront enregistrées à la prochaine étape."
     },
-    "descriptionNouvelle": "Quatre étapes : demandeur, document, pièces, récapitulatif. Votre saisie est enregistrée au fil de l'eau."
+    "descriptionNouvelle": "Trois étapes : le document, les pièces, puis le récapitulatif et le dépôt. Votre saisie est enregistrée au fil de l’eau : vous pouvez revenir plus tard.",
+    "retourMesDemandes": "Mes demandes",
+    "abandon": {
+      "action": "Abandonner ce brouillon",
+      "titre": "Abandonner ce brouillon ?",
+      "texte": "Le brouillon et ses pièces jointes ne seront plus proposés. Vous pourrez toujours créer une nouvelle demande.",
+      "annuler": "Continuer la demande",
+      "confirmer": "Abandonner le brouillon",
+      "enCours": "Suppression…",
+      "echec": "Le brouillon n’a pas été supprimé"
+    }
   },
   "statuts": {
     "brouillon": "Brouillon",

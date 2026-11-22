@@ -106,10 +106,12 @@
     "facultatif": "optional",
     "etapes": {
       "titre": "Application steps",
-      "demandeur": "Applicant",
       "document": "Document",
       "pieces": "Attachments",
-      "recapitulatif": "Summary"
+      "recapitulatif": "Summary",
+      "etatFaite": "step done",
+      "etatCourante": "current step",
+      "etatAVenir": "upcoming"
     },
     "demandeur": {
       "nom": "Applicant",
@@ -205,7 +207,17 @@
       "titre": "Unsaved entries restored.",
       "texte": "Your latest changes, kept on this device, have been restored. They will be saved at the next step."
     },
-    "descriptionNouvelle": "Four steps: applicant, document, attachments, summary. Your entries are saved as you go."
+    "descriptionNouvelle": "Three steps: the document, the attachments, then the summary and submission. Your input is saved as you go: you can come back later.",
+    "retourMesDemandes": "My applications",
+    "abandon": {
+      "action": "Abandon this draft",
+      "titre": "Abandon this draft?",
+      "texte": "The draft and its attachments will no longer be offered. You can always create a new application.",
+      "annuler": "Continue the application",
+      "confirmer": "Abandon the draft",
+      "enCours": "Deleting…",
+      "echec": "The draft was not deleted"
+    }
   },
   "statuts": {
     "brouillon": "Draft",

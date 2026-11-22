@@ -29,7 +29,9 @@ import {
   schemaBrouillon,
   type ValeursBrouillon,
 } from "./schema";
+import { AbandonnerBrouillon } from "./abandonner-brouillon";
 import { DepotDemande } from "./depot-demande";
+import { IndicateurEtapes } from "./indicateur-etapes";
 import {
   cleSaisie,
   ecrireSaisie,
@@ -71,7 +73,7 @@ export function FormulaireDemande(props: FormulaireDemandeProps) {
   const { demandeur, documents, prefectures, substances, enregistrer } = props;
   const t = useTranslations("demande");
   const [demande, setDemande] = useState<DemandeDto | null>(props.demande);
-  const [etape, setEtape] = useState<Etape>(props.demande ? "document" : "demandeur");
+  const [etape, setEtape] = useState<Etape>("document");
   const [etat, setEtat] = useState<Etat>({ nature: "repos" });
   const [pieces, setPieces] = useState<PieceDto[]>(props.piecesInitiales ?? []);
   const [enCours, demarrer] = useTransition();
@@ -174,7 +176,13 @@ export function FormulaireDemande(props: FormulaireDemandeProps) {
   const index = ETAPES.indexOf(etape);
   const precedente = ETAPES[index - 1];
   const suivante = ETAPES[index + 1];
-  const accessible = (e: Etape) => e === "demandeur" || e === "document" || demande !== null;
+  const accessible = (e: Etape) => e === "document" || demande !== null;
+  const piecesCompletes =
+    document !== undefined &&
+    document.piecesRequises.every((r) => pieces.some((p) => p.typePiece === r));
+  /** Une étape est faite quand ce qu'elle demande est enregistré (pas seulement visitée). */
+  const faite = (e: Etape) =>
+    e === "document" ? demande !== null : e === "pieces" ? piecesCompletes : false;
 
   return (
     <form
@@ -185,27 +193,22 @@ export function FormulaireDemande(props: FormulaireDemandeProps) {
       }}
       className="flex flex-col gap-6"
     >
-      <nav aria-label={t("etapes.titre")}>
-        <ol className="flex flex-wrap gap-2">
-          {ETAPES.map((e, i) => (
-            <li key={e}>
-              <button
-                type="button"
-                onClick={() => allerA(e)}
-                disabled={!accessible(e) || enCours}
-                aria-current={e === etape ? "step" : undefined}
-                className={`min-h-11 rounded-full border-2 px-4 py-2 font-semibold ${
-                  e === etape
-                    ? "border-royal bg-royal text-white"
-                    : "border-bordure bg-white text-navy"
-                } disabled:opacity-60`}
-              >
-                {i + 1}. {t(`etapes.${e}`)}
-              </button>
-            </li>
-          ))}
-        </ol>
-      </nav>
+      <IndicateurEtapes
+        titre={t("etapes.titre")}
+        etapes={ETAPES.map((e) => ({
+          cle: e,
+          libelle: t(`etapes.${e}`),
+          etat: e === etape ? "courante" : faite(e) ? "faite" : "a-venir",
+          accessible: accessible(e),
+        }))}
+        libellesEtat={{
+          faite: t("etapes.etatFaite"),
+          courante: t("etapes.etatCourante"),
+          "a-venir": t("etapes.etatAVenir"),
+        }}
+        surChoix={(e) => allerA(e as Etape)}
+        desactive={enCours}
+      />
 
       {restauree ? (
         <Alerte nature="info" titre={t("restauration.titre")}>
@@ -218,19 +221,6 @@ export function FormulaireDemande(props: FormulaireDemandeProps) {
         <h2 ref={titreEtape} tabIndex={-1} className="mb-4 text-2xl outline-none">
           {t(`etapes.${etape}`)}
         </h2>
-
-        {etape === "demandeur" ? (
-          <dl className="grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-[auto_1fr]">
-            <dt className="font-semibold">{t("demandeur.nom")}</dt>
-            <dd>
-              {demandeur.prenom} {demandeur.nom}
-            </dd>
-            <dt className="font-semibold">{t("demandeur.email")}</dt>
-            <dd>{demandeur.email}</dd>
-            <dt className="font-semibold">{t("demandeur.organisation")}</dt>
-            <dd>{demandeur.organisation ?? t("demandeur.aucuneOrganisation")}</dd>
-          </dl>
-        ) : null}
 
         {etape === "document" ? (
           <div className="flex flex-col gap-5">
@@ -353,33 +343,32 @@ export function FormulaireDemande(props: FormulaireDemandeProps) {
       </Carte>
 
       <div className="flex flex-wrap justify-between gap-3">
-        {precedente ? (
-          <Bouton
-            type="button"
-            variante="secondaire"
-            onClick={() => allerA(precedente)}
-            disabled={enCours}
-          >
-            {t("precedent")}
-          </Bouton>
-        ) : (
-          <span />
-        )}
-        <div className="flex flex-wrap gap-3">
-          {etape !== "demandeur" ? (
+        <div className="flex flex-wrap items-center gap-3">
+          {precedente ? (
             <Bouton
               type="button"
-              variante="discret"
+              variante="secondaire"
+              onClick={() => allerA(precedente)}
               disabled={enCours}
-              onClick={() =>
-                demarrer(async () => {
-                  if (await trigger(CHAMPS_PAR_ETAPE.document)) await sauvegarder();
-                })
-              }
             >
-              {t("enregistrer")}
+              {t("precedent")}
             </Bouton>
           ) : null}
+          {demande ? <AbandonnerBrouillon demandeId={demande.id} /> : null}
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <Bouton
+            type="button"
+            variante="discret"
+            disabled={enCours}
+            onClick={() =>
+              demarrer(async () => {
+                if (await trigger(CHAMPS_PAR_ETAPE.document)) await sauvegarder();
+              })
+            }
+          >
+            {t("enregistrer")}
+          </Bouton>
           {suivante ? (
             <Bouton type="submit" disabled={enCours}>
               {t("continuer")}

@@ -1,3 +1,4 @@
+import { ArrowLeft } from "@emine/ui/icones";
 import { Alerte, EnTetePage } from "@emine/ui";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -32,7 +33,19 @@ export default async function NouvelleDemande({ searchParams }: Props) {
   }
   return (
     <div className="flex flex-col gap-6">
-      <EnTetePage titre={t("titreNouvelle")} description={t("descriptionNouvelle")} />
+      <EnTetePage
+        titre={t("titreNouvelle")}
+        description={t("descriptionNouvelle")}
+        retour={
+          <Link
+            href="/demandes"
+            className="inline-flex min-h-11 items-center gap-2 text-royal underline-offset-4 hover:underline"
+          >
+            <ArrowLeft aria-hidden="true" className="size-4" />
+            {t("retourMesDemandes")}
+          </Link>
+        }
+      />
       <FormulaireDemande
         demande={null}
         demandeur={{

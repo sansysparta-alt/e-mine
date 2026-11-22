@@ -107,11 +107,10 @@ describe("schéma du brouillon", () => {
 describe("formulaire guidé", () => {
   afterEach(() => vi.unstubAllGlobals());
 
-  it("affiche d'abord le demandeur, puis le document avec délai, frais et pièces", async () => {
+  it("ouvre directement sur le document, avec délai, frais et pièces", async () => {
     afficher();
-    expect(screen.getByRole("heading", { level: 2, name: "Demandeur" })).toBeInTheDocument();
-    expect(screen.getByText("Horizon")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Enregistrer et continuer" }));
+    expect(screen.getByRole("heading", { level: 2, name: "Document" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 2, name: "Demandeur" })).toBeNull();
     fireEvent.change(await screen.findByLabelText("Document demandé"), {
       target: { value: "PEX" },
     });
@@ -122,7 +121,6 @@ describe("formulaire guidé", () => {
 
   it("exige un document avant d'enregistrer", async () => {
     const { enregistrer } = afficher();
-    fireEvent.click(screen.getByRole("button", { name: "Enregistrer et continuer" }));
     await screen.findByLabelText("Document demandé");
     fireEvent.click(screen.getByRole("button", { name: "Enregistrer et continuer" }));
     expect(await screen.findByText("Choisissez le document demandé.")).toBeInTheDocument();
@@ -136,7 +134,6 @@ describe("formulaire guidé", () => {
       vi.fn(async () => new Response("[]", { status: 200 })),
     );
     const { enregistrer } = afficher({ typeInitial: "PEX" });
-    fireEvent.click(screen.getByRole("button", { name: "Enregistrer et continuer" }));
     fireEvent.change(await screen.findByLabelText(/Superficie/), { target: { value: "125,5" } });
     fireEvent.click(screen.getByRole("button", { name: "Enregistrer et continuer" }));
     await waitFor(() =>
@@ -216,7 +213,7 @@ describe("formats français (correctif D11)", () => {
       vi.fn(async () => new Response("[]", { status: 200 })),
     );
     afficher({ demande: demande({ superficieHa: 125.5 }) });
-    fireEvent.click(screen.getByRole("button", { name: "4. Récapitulatif" }));
+    fireEvent.click(screen.getByRole("button", { name: /Récapitulatif/ }));
     expect(await screen.findByText(/^125,50\sha$/)).toBeInTheDocument();
     expect(screen.getByText(/^5\s000\s000\sGNF$/)).toBeInTheDocument();
     vi.unstubAllGlobals();
