@@ -8,14 +8,18 @@ import gn.gov.mines.emine.demande.domaine.Brouillon;
 import gn.gov.mines.emine.demande.domaine.CritereDemandes;
 import gn.gov.mines.emine.demande.domaine.DemandeDetail;
 import gn.gov.mines.emine.demande.domaine.GroupeATraiter;
+import gn.gov.mines.emine.demande.domaine.Indicateurs;
+import gn.gov.mines.emine.demande.domaine.Periode;
 import gn.gov.mines.emine.demande.domaine.RegleATraiter;
 import gn.gov.mines.emine.demande.domaine.VueDemandes;
 import gn.gov.mines.emine.demande.infrastructure.DemandeRepository;
+import gn.gov.mines.emine.demande.infrastructure.IndicateursRepository;
 import gn.gov.mines.emine.shared.erreur.CodeErreur;
 import gn.gov.mines.emine.shared.erreur.ErreurMetier;
 import gn.gov.mines.emine.shared.jooq.enums.StatutDemande;
 import gn.gov.mines.emine.shared.pagination.PageResultat;
 import gn.gov.mines.emine.shared.pagination.Pagination;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Service;
@@ -30,12 +34,17 @@ import org.springframework.transaction.annotation.Transactional;
 public class ServiceDemandes {
 
   private final DemandeRepository demandes;
+  private final IndicateursRepository indicateurs;
   private final Catalogue catalogue;
   private final UtilisateurCourant utilisateurCourant;
 
   public ServiceDemandes(
-      DemandeRepository demandes, Catalogue catalogue, UtilisateurCourant utilisateurCourant) {
+      DemandeRepository demandes,
+      IndicateursRepository indicateurs,
+      Catalogue catalogue,
+      UtilisateurCourant utilisateurCourant) {
     this.demandes = demandes;
+    this.indicateurs = indicateurs;
     this.catalogue = catalogue;
     this.utilisateurCourant = utilisateurCourant;
   }
@@ -176,6 +185,40 @@ public class ServiceDemandes {
       compteurs.remove("brouillon");
     }
     return compteurs;
+  }
+
+  /**
+   * Indicateurs du tableau de bord (correctifs ergonomie) sur la période demandée (mois en cours
+   * par défaut) ; retards et attentes « à ce jour ». VAL-001 si la période est inconnue.
+   */
+  @Transactional(readOnly = true)
+  public Indicateurs indicateurs(String periode) {
+    return indicateurs.calculer(periode(periode), Instant.now());
+  }
+
+  /**
+   * Filtres d'un indicateur du tableau de bord appliqués à la liste, ou {@code null} sans filtre :
+   * en retard (à ce jour), traités aujourd'hui par le profil connecté, entrés dans leur statut
+   * pendant la période.
+   */
+  public CritereDemandes.Pilotage pilotage(
+      Boolean enRetard, Boolean traiteParMoi, String periode, Boolean bloque) {
+    Instant maintenant = Instant.now();
+    CritereDemandes.Pilotage p =
+        new CritereDemandes.Pilotage(
+            Boolean.TRUE.equals(enRetard),
+            Boolean.TRUE.equals(traiteParMoi) ? Periode.debutDuJour(maintenant) : null,
+            periode == null ? null : periode(periode).debut(maintenant),
+            Boolean.TRUE.equals(bloque),
+            maintenant);
+    return p.vide() ? null : p;
+  }
+
+  private static Periode periode(String cle) {
+    if (cle == null || cle.isBlank()) {
+      return Periode.MOIS;
+    }
+    return Periode.depuis(cle).orElseThrow(() -> champInvalide("periode", "Période inconnue."));
   }
 
   /** Filtre « à traiter » du profil connecté, ou {@code null} hors requête utilisateur. */

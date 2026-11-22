@@ -8,6 +8,7 @@ import {
   lireEtatDelivrance,
   listerDemandes,
   listerPaiementsDemande,
+  listerPassages,
   listerPieces,
 } from "@emine/api-client";
 import {
@@ -19,11 +20,12 @@ import {
   formaterGnf,
   joursCalendairesDepuis,
 } from "@emine/ui";
-import { ArrowLeft, CreditCard } from "@emine/ui/icones";
+import { ArrowLeft, CreditCard, TriangleAlert } from "@emine/ui/icones";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { ATTENTE_LONGUE_JOURS } from "@/composants/demande/date-attente";
 import { StatutDemande } from "@/composants/demande/statut-demande";
 import { ListePieces } from "@/composants/documents/liste-pieces";
 import { prochaineEtape } from "@/composants/demande/prochaine-etape";
@@ -36,6 +38,7 @@ import { ExamenRecevabilite } from "@/composants/instruction/examen-recevabilite
 import { PriseDecision } from "@/composants/instruction/prise-decision";
 import { TableauPaiements } from "@/composants/paiement/tableau-paiements";
 import { BarreSerie } from "@/composants/travail/barre-serie";
+import { HistoriquePassages } from "@/composants/travail/historique-passages";
 import {
   type ContexteSerie,
   groupesDepuis,
@@ -109,6 +112,10 @@ export default async function DetailDemande({ params, searchParams }: Props) {
     appelPage(chemin, async () => listerPieces(Number(id), await optionsApi())),
     appelPage(chemin, async () => listerPaiementsDemande(Number(id), await optionsApi())),
   ]);
+  // Passages dans le traitement en série : visibles de tous les agents (correctifs ergonomie).
+  const passages = moi.interne
+    ? (await appelPage(chemin, async () => listerPassages(Number(id), await optionsApi()))).data
+    : null;
   const document = documents.find((d) => d.code === demande.typeDocumentCode);
   // US-05.1 : l'agent qui instruit examine la recevabilité d'une demande déposée.
   const examen =
@@ -150,6 +157,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
       ? { cle: "signataireDelivrer", pour: "agent" as const }
       : etapeCalculee;
   const numero = demande.numero ?? "";
+  const attenteEtape = joursCalendairesDepuis(demande.etapeDepuis);
   // Traitement en série (correctifs J5) : position dans la file, dossier suivant après l'action.
   const groupeSerie = file
     ? groupesDepuis(
@@ -171,6 +179,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
     serie = { groupe: groupeSerie.cle, suivant };
     barre = (
       <BarreSerie
+        demandeId={demande.id}
         groupe={groupeSerie.cle}
         position={position.dansLaFile ? position.position : null}
         total={enFile.data.total}
@@ -219,10 +228,30 @@ export default async function DetailDemande({ params, searchParams }: Props) {
             <dt className="font-semibold">{tDates("etapeDepuis")}</dt>
             <dd>
               {formaterDateHeure(demande.etapeDepuis)}
-              <span className="text-texte-doux">
-                {" · "}
-                {tDates("attente", { jours: joursCalendairesDepuis(demande.etapeDepuis) })}
+              {" · "}
+              <span
+                className={
+                  attenteEtape >= ATTENTE_LONGUE_JOURS
+                    ? "font-semibold text-avertissement"
+                    : "text-texte-doux"
+                }
+              >
+                {tDates("attente", { jours: attenteEtape })}
               </span>
+            </dd>
+          </>
+        ) : null}
+        {document && STATUTS_EN_COURS.has(demande.statut) ? (
+          <>
+            <dt className="font-semibold">{t("delai")}</dt>
+            <dd>
+              {t("delaiValeur", { jours: document.delaiJours })}
+              {demande.enRetard ? (
+                <span className="ml-2 inline-flex items-center gap-1 font-semibold text-danger">
+                  <TriangleAlert aria-hidden="true" className="size-4" />
+                  {t("delaiDepasse")}
+                </span>
+              ) : null}
             </dd>
           </>
         ) : null}
@@ -230,6 +259,17 @@ export default async function DetailDemande({ params, searchParams }: Props) {
         <dd>
           {demande.demandeur.prenom} {demande.demandeur.nom}
           {demande.demandeur.organisation ? ` · ${demande.demandeur.organisation}` : ""}
+          {moi.interne && demande.demandeur.email ? (
+            <>
+              {" · "}
+              <a
+                href={`mailto:${demande.demandeur.email}`}
+                className="text-royal underline underline-offset-4"
+              >
+                {demande.demandeur.email}
+              </a>
+            </>
+          ) : null}
         </dd>
         {demande.motifRejet && !decisionRendue ? (
           <>
@@ -240,6 +280,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
       </dl>
     </Carte>
   );
+  const blocPassages = passages ? <HistoriquePassages historique={passages} /> : null;
   const blocPieces = (
     <Carte titre={t("pieces", { nombre: pieces.data.length })}>
       <ListePieces demandeId={demande.id} pieces={pieces.data} />
@@ -368,6 +409,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_26rem]">
           <div className="flex flex-col gap-6">
             {blocInfos}
+            {blocPassages}
             {blocDocument}
             {blocPieces}
             {blocDecision}
@@ -383,6 +425,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
       ) : (
         <>
           {blocInfos}
+          {blocPassages}
           {blocDocument}
           {blocEtape}
           {blocDecision}

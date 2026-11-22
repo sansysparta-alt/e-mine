@@ -6,6 +6,7 @@ import { getTranslations } from "next-intl/server";
 import { cleLibelleVue, statutsVisibles } from "@/composants/demande/filtres";
 import { lireParametres, type Parametres, TRIS } from "@/composants/demande/parametres-liste";
 import { TableauDemandes } from "@/composants/demande/tableau-demandes";
+import { type FiltreActif, FiltresActifs } from "@/composants/liste/filtres-actifs";
 import { PaginationListe } from "@/composants/liste/pagination-liste";
 import { PlusDeFiltres } from "@/composants/liste/plus-de-filtres";
 import { RechercheListe } from "@/composants/liste/recherche-liste";
@@ -40,6 +41,12 @@ export default async function MesDemandes({ searchParams }: Props) {
         {
           statut: statutDetail ? [statutDetail] : undefined,
           vue,
+          enRetard: p.enRetard ? true : undefined,
+          traiteParMoi: p.traiteParMoi ? true : undefined,
+          bloque: p.bloque ? true : undefined,
+          periode: p.periode,
+          fraisPayes: p.fraisPayes ? p.fraisPayes === "true" : undefined,
+          typeDocumentCode: p.document,
           q: p.q,
           tri: p.tri,
           sens: p.sens,
@@ -61,10 +68,22 @@ export default async function MesDemandes({ searchParams }: Props) {
     </Bouton>
   ) : null;
 
+  // Filtres ouverts depuis une carte du tableau de bord : conservés d'une page, d'un tri ou d'une
+  // vue à l'autre, effaçables un à un.
+  const indicateurs = {
+    enRetard: p.enRetard,
+    traiteParMoi: p.traiteParMoi,
+    bloque: p.bloque,
+    periode: p.periode,
+    fraisPayes: p.fraisPayes,
+    document: p.document,
+  };
+
   /** Adresse de la liste avec ces paramètres (les autres sont conservés). */
   const adresse = (changes: Partial<Record<keyof Parametres, string | undefined>>) => {
     const q = new URLSearchParams();
     const tout = {
+      ...indicateurs,
       groupe: p.groupe,
       statut: p.statut,
       q: p.q,
@@ -77,9 +96,40 @@ export default async function MesDemandes({ searchParams }: Props) {
     const chaine = q.toString();
     return chaine ? `/demandes?${chaine}` : "/demandes";
   };
-  const conserves = { groupe: p.groupe, statut: p.statut, q: p.q, tri: p.tri, sens: p.sens };
-  const filtre = p.groupe ?? p.statut;
+  const conserves = {
+    ...indicateurs,
+    groupe: p.groupe,
+    statut: p.statut,
+    q: p.q,
+    tri: p.tri,
+    sens: p.sens,
+  };
   const tFiltres = await getTranslations("mesDemandes.filtres");
+  const tActifs = await getTranslations("mesDemandes.filtresTableau");
+  const tPeriodes = await getTranslations("tableauDeBord.periodes");
+  const filtresActifs: FiltreActif[] = [
+    p.enRetard ? { cle: "enRetard", libelle: tActifs("enRetard") } : null,
+    p.traiteParMoi ? { cle: "traiteParMoi", libelle: tActifs("traiteParMoi") } : null,
+    p.bloque ? { cle: "bloque", libelle: tActifs("bloque") } : null,
+    p.periode
+      ? { cle: "periode", libelle: tActifs("periode", { periode: tPeriodes(p.periode) }) }
+      : null,
+    p.fraisPayes
+      ? {
+          cle: "fraisPayes",
+          libelle: tActifs(p.fraisPayes === "true" ? "fraisPayes" : "fraisNonPayes"),
+        }
+      : null,
+    p.document
+      ? {
+          cle: "document",
+          libelle: tActifs("document", { libelle: libelles[p.document] ?? p.document }),
+        }
+      : null,
+  ]
+    .filter((f) => f !== null)
+    .map((f) => ({ ...f, effacer: adresse({ [f.cle]: undefined }) }));
+  const filtre = p.groupe ?? p.statut ?? (filtresActifs.length > 0 ? "indicateur" : undefined);
 
   return (
     <div className="flex flex-col gap-6">
@@ -94,6 +144,7 @@ export default async function MesDemandes({ searchParams }: Props) {
         placeholder={t("recherche.exemple")}
         boutonLibelle={t("recherche.bouton")}
         conserver={{
+          ...indicateurs,
           groupe: p.groupe,
           statut: p.statut,
           tri: p.tri,
@@ -142,10 +193,24 @@ export default async function MesDemandes({ searchParams }: Props) {
           />
         }
       />
+      <FiltresActifs
+        titre={tActifs("titre")}
+        libelleEffacer={tActifs("effacer")}
+        filtres={filtresActifs}
+      />
       {resultat.total === 0 ? (
         <EtatVide
-          titre={filtre || p.q ? t("aucuneFiltre") : t("aucune")}
-          action={filtre || p.q ? undefined : nouvelle}
+          titre={filtre || p.q ? t("aucuneFiltre") : moi.interne ? t("aucuneInterne") : t("aucune")}
+          description={filtre || p.q ? t("aucuneFiltreAide") : undefined}
+          action={
+            filtre || p.q ? (
+              <Bouton asChild variante="secondaire">
+                <Link href="/demandes">{t("effacerTout")}</Link>
+              </Bouton>
+            ) : (
+              nouvelle
+            )
+          }
         />
       ) : (
         <div className="flex flex-col gap-4">

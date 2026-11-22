@@ -4,6 +4,7 @@ import static gn.gov.mines.emine.shared.jooq.Tables.DEMANDE;
 import static gn.gov.mines.emine.shared.jooq.Tables.HISTORIQUE_STATUT_DEMANDE;
 import static gn.gov.mines.emine.shared.jooq.Tables.ORGANISATION;
 import static gn.gov.mines.emine.shared.jooq.Tables.PAIEMENT;
+import static gn.gov.mines.emine.shared.jooq.Tables.PASSAGE_DOSSIER;
 import static gn.gov.mines.emine.shared.jooq.Tables.PREFECTURE;
 import static gn.gov.mines.emine.shared.jooq.Tables.PROFIL;
 import static gn.gov.mines.emine.shared.jooq.Tables.SUBSTANCE;
@@ -13,14 +14,17 @@ import static gn.gov.mines.emine.shared.jooq.Tables.UTILISATEUR;
 import gn.gov.mines.emine.demande.domaine.CritereDemandes;
 import gn.gov.mines.emine.demande.domaine.DemandeDetail;
 import gn.gov.mines.emine.demande.domaine.GroupeATraiter;
+import gn.gov.mines.emine.demande.domaine.Passage;
 import gn.gov.mines.emine.demande.domaine.RegleATraiter;
 import gn.gov.mines.emine.demande.domaine.VueDemandes;
+import gn.gov.mines.emine.shared.jooq.Routines;
 import gn.gov.mines.emine.shared.jooq.enums.ObjetPaiement;
 import gn.gov.mines.emine.shared.jooq.enums.StatutDemande;
 import gn.gov.mines.emine.shared.jooq.enums.StatutPaiement;
 import gn.gov.mines.emine.shared.pagination.PageResultat;
 import gn.gov.mines.emine.shared.pagination.Pagination;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -144,6 +148,9 @@ public class DemandeRepository {
     if (critere.vue() != null) {
       condition = condition.and(conditionVue(critere.vue()));
     }
+    if (critere.pilotage() != null) {
+      condition = condition.and(conditionPilotage(critere.pilotage()));
+    }
     if (critere.recherche() != null && !critere.recherche().isBlank()) {
       String motif = "%" + echapperLike(critere.recherche().strip()) + "%";
       condition =
@@ -200,6 +207,67 @@ public class DemandeRepository {
       case A_DECIDER -> DEMANDE.STATUT.eq(StatutDemande.recevable).and(signataire);
       case A_SIGNER -> DEMANDE.STATUT.eq(StatutDemande.droits_payes).and(signataire);
     };
+  }
+
+  /** Filtres d'un indicateur du tableau de bord (correctifs ergonomie). */
+  static Condition conditionPilotage(CritereDemandes.Pilotage p) {
+    Condition c = DSL.trueCondition();
+    if (p.enRetard()) {
+      c = c.and(conditionEnRetard(p.maintenant()));
+    }
+    if (p.traiteParMoiDepuis() != null) {
+      c = c.and(conditionTraiteParMoi(p.traiteParMoiDepuis()));
+    }
+    if (p.etapeDepuis() != null) {
+      c = c.and(ETAPE_DEPUIS_BRUT.ge(p.etapeDepuis()));
+    }
+    if (p.bloque()) {
+      c = c.and(CONDITION_BLOQUE);
+    }
+    return c;
+  }
+
+  /** Statuts d'une demande en cours de traitement (ni brouillon, ni terminée, ni rejetée). */
+  static final List<StatutDemande> STATUTS_EN_COURS =
+      VueDemandes.STATUTS_ACTIFS.stream().map(StatutDemande::lookupLiteral).toList();
+
+  /**
+   * Nombre de jours calendaires, à l'heure de Conakry, entre deux instants (décision du porteur :
+   * délais comptés depuis le dépôt, en jours calendaires).
+   */
+  static Field<Integer> joursCalendaires(Field<Instant> depuis, Field<Instant> jusqua) {
+    return DSL.field(
+        "(({0} at time zone 'Africa/Conakry')::date - ({1} at time zone 'Africa/Conakry')::date)",
+        Integer.class, jusqua, depuis);
+  }
+
+  /**
+   * Dossier en retard : en cours, et le délai du catalogue ({@code type_document.delai_jours}) est
+   * dépassé, compté en jours calendaires depuis le dépôt. Suppose la jointure sur le catalogue.
+   */
+  static Condition conditionEnRetard(Instant maintenant) {
+    return DEMANDE
+        .STATUT
+        .in(STATUTS_EN_COURS)
+        .and(DEMANDE.DATE_DEPOT.isNotNull())
+        .and(
+            joursCalendaires(DEMANDE.DATE_DEPOT, DSL.val(maintenant, DEMANDE.DATE_DEPOT))
+                .gt(TYPE_DOCUMENT.DELAI_JOURS.cast(Integer.class)));
+  }
+
+  /** Le profil connecté a changé le statut du dossier depuis cet instant (historique en base). */
+  static Condition conditionTraiteParMoi(Instant depuis) {
+    return DEMANDE
+        .STATUT
+        .ne(StatutDemande.brouillon)
+        .and(
+            DSL.exists(
+                DSL.selectOne()
+                    .from(HISTORIQUE_STATUT_DEMANDE)
+                    .where(HISTORIQUE_STATUT_DEMANDE.DEMANDE_ID.eq(DEMANDE.ID))
+                    .and(HISTORIQUE_STATUT_DEMANDE.AUTEUR_ID.eq(Routines.fnCurrentUserId()))
+                    .and(HISTORIQUE_STATUT_DEMANDE.ANCIEN_STATUT.isNotNull())
+                    .and(HISTORIQUE_STATUT_DEMANDE.CREATED_AT.ge(depuis))));
   }
 
   /** Condition d'une vue : exclusive des autres vues du même profil. */
@@ -317,20 +385,42 @@ public class DemandeRepository {
   static final Field<Boolean> FRAIS_PAYES = DSL.field(FRAIS_PAYES_COND).as("frais_payes");
 
   /** Entrée dans le statut actuel : dernier changement de statut (historique tenu par la base). */
-  static final Field<java.time.Instant> ETAPE_DEPUIS =
+  static final Field<java.time.Instant> ETAPE_DEPUIS_BRUT =
       DSL.field(
-              DSL.select(DSL.max(HISTORIQUE_STATUT_DEMANDE.CREATED_AT))
-                  .from(HISTORIQUE_STATUT_DEMANDE)
-                  .where(HISTORIQUE_STATUT_DEMANDE.DEMANDE_ID.eq(DEMANDE.ID)))
-          .as("etape_depuis");
+          DSL.select(DSL.max(HISTORIQUE_STATUT_DEMANDE.CREATED_AT))
+              .from(HISTORIQUE_STATUT_DEMANDE)
+              .where(HISTORIQUE_STATUT_DEMANDE.DEMANDE_ID.eq(DEMANDE.ID)));
+
+  static final Field<java.time.Instant> ETAPE_DEPUIS = ETAPE_DEPUIS_BRUT.as("etape_depuis");
+
+  /** Passages du dossier à l'étape actuelle (V11), lus sous la RLS : toujours 0 pour un usager. */
+  static final Field<Integer> PASSAGES_BRUT =
+      DSL.field(
+          DSL.selectCount()
+              .from(PASSAGE_DOSSIER)
+              .where(PASSAGE_DOSSIER.DEMANDE_ID.eq(DEMANDE.ID))
+              .and(PASSAGE_DOSSIER.CREATED_AT.ge(ETAPE_DEPUIS_BRUT)));
+
+  static final Field<Integer> PASSAGES = PASSAGES_BRUT.as("passages");
+
+  /** Dossier « Bloqué » : en cours et passé au moins 3 fois à l'étape actuelle. */
+  static final Condition CONDITION_BLOQUE =
+      DEMANDE
+          .STATUT
+          .in(VueDemandes.STATUTS_ACTIFS.stream().map(StatutDemande::lookupLiteral).toList())
+          .and(PASSAGES_BRUT.ge(Passage.SEUIL_BLOCAGE));
 
   /** Colonne calculée : la demande est « à traiter » par le profil connecté. */
   static final String A_TRAITER_PAR_MOI = "a_traiter_par_moi";
+
+  /** Colonne calculée : la demande est en retard sur le délai du catalogue, à ce jour. */
+  static final String EN_RETARD = "en_retard";
 
   SelectOnConditionStep<? extends Record> selection(RegleATraiter.Filtre moi) {
     Field<Boolean> aTraiterParMoi =
         DSL.field(moi == null ? DSL.falseCondition() : conditionATraiter(moi))
             .as(A_TRAITER_PAR_MOI);
+    Field<Boolean> enRetard = DSL.field(conditionEnRetard(Instant.now())).as(EN_RETARD);
     return dsl.select(
             DEMANDE.ID,
             DEMANDE.NUMERO,
@@ -351,7 +441,9 @@ public class DemandeRepository {
             SUBSTANCE.LIBELLE_FR,
             FRAIS_PAYES,
             ETAPE_DEPUIS,
-            aTraiterParMoi)
+            PASSAGES,
+            aTraiterParMoi,
+            enRetard)
         .from(DEMANDE)
         .join(TYPE_DOCUMENT)
         .on(TYPE_DOCUMENT.ID.eq(DEMANDE.TYPE_DOCUMENT_ID))
@@ -387,6 +479,15 @@ public class DemandeRepository {
         Boolean.TRUE.equals(r.get(FRAIS_PAYES)),
         r.get(DEMANDE.MOTIF_REJET),
         r.get(ETAPE_DEPUIS) == null ? r.get(DEMANDE.CREATED_AT) : r.get(ETAPE_DEPUIS),
-        Boolean.TRUE.equals(r.get(A_TRAITER_PAR_MOI, Boolean.class)));
+        Boolean.TRUE.equals(r.get(A_TRAITER_PAR_MOI, Boolean.class)),
+        passages(r),
+        passages(r) >= Passage.SEUIL_BLOCAGE
+            && VueDemandes.STATUTS_ACTIFS.contains(r.get(DEMANDE.STATUT).getLiteral()),
+        Boolean.TRUE.equals(r.get(EN_RETARD, Boolean.class)));
+  }
+
+  private static int passages(Record r) {
+    Integer n = r.get(PASSAGES);
+    return n == null ? 0 : n;
   }
 }

@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import type { ReactNode } from "react";
 import fr from "../../messages/fr.json";
-import type { DemandeDto } from "@emine/api-client";
+import type { DemandeDto, IndicateursDto } from "@emine/api-client";
 import { MessageConnexion, motifDepuisParametres } from "./message-connexion";
 import { actionAttendue, VueTableauDeBord } from "./vue-tableau-de-bord";
 
@@ -34,6 +34,9 @@ function demande(partiel: Partial<DemandeDto>): DemandeDto {
     motifRejet: null,
     etapeDepuis: "2026-11-15T10:00:00Z",
     aTraiterParMoi: false,
+    passages: 0,
+    bloque: false,
+    enRetard: false,
     ...partiel,
   };
 }
@@ -47,90 +50,61 @@ const deposee = demande({
 const brouillon = demande({ id: 3, typeDocumentCode: "COR" });
 const libelles = { PEX: "Permis d'exploitation", COR: "Carte d'orpailleur" };
 
-describe("tableau de bord (gabarit du socle)", () => {
-  it("salue l'investisseur, donne ses chiffres clés et ses demandes récentes", () => {
-    enFrancais(
-      <VueTableauDeBord
-        prenom="Fodé"
-        nom="Bangoura"
-        profilLibelle="Investisseur Extérieur"
-        interne={false}
-        demandes={[deposee, brouillon]}
-        libelles={libelles}
-      />,
-    );
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Bonjour, Fodé Bangoura");
-    expect(screen.getByText("Profil : Investisseur Extérieur")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Mes demandes\s*2/ })).toHaveAttribute(
-      "href",
-      "/demandes",
-    );
-    expect(screen.getByRole("link", { name: /Brouillons\s*1/ })).toHaveAttribute(
-      "href",
-      "/demandes?groupe=brouillons",
-    );
-    const lien = screen.getByRole("link", { name: "DEM-2026-000001" });
-    expect(lien).toHaveAttribute("href", "/demandes/2");
-    expect(screen.getByRole("link", { name: "Brouillon" })).toHaveAttribute(
-      "href",
-      "/demandes/3/modifier",
-    );
-    expect(screen.getByText("Frais à payer")).toBeInTheDocument();
-    expect(screen.getByText("Déposée le 20/11/2026")).toBeInTheDocument();
-    expect(screen.getAllByText(/En attente depuis \d+ jours?/).length).toBeGreaterThan(0);
-  });
+const indicateurs: IndicateursDto = {
+  periode: "mois",
+  debut: "2026-11-01T00:00:00Z",
+  fin: "2026-11-22T10:00:00Z",
+  enRetard: 3,
+  bloques: 0,
+  complementsAttendus: 2,
+  fraisAttendus: 4,
+  traitesAujourdhui: 5,
+  delivrees: 7,
+  delaiMoyenJours: 12.5,
+  encaissementsGnf: 45_000_000,
+  parDocument: [
+    {
+      code: "PEX",
+      enCours: 6,
+      enRetard: 3,
+      delivrees: 7,
+      delaiMoyenJours: 12.5,
+      encaissementsGnf: 45_000_000,
+    },
+  ],
+};
 
-  it("affiche un état vide explicite sans demande", () => {
-    enFrancais(
-      <VueTableauDeBord
-        prenom="Fodé"
-        nom="Bangoura"
-        profilLibelle="Investisseur"
-        interne={false}
-      />,
-    );
-    expect(screen.getByText("Vous n'avez encore aucune demande.")).toBeInTheDocument();
-  });
+const vuesDemandeur = {
+  total: 9,
+  vues: [
+    { cle: "a-traiter", nombre: 2 },
+    { cle: "en-cours", nombre: 3 },
+    { cle: "brouillons", nombre: 1 },
+    { cle: "terminees", nombre: 2 },
+    { cle: "rejetees", nombre: 1 },
+  ],
+};
 
-  it("montre à un agent interne les dossiers à traiter", () => {
-    enFrancais(
-      <VueTableauDeBord
-        prenom="Aïcha"
-        nom="Camara"
-        profilLibelle="Agent Guichet Unique"
-        interne
-        demandes={[deposee]}
-        libelles={libelles}
-      />,
-    );
-    expect(screen.getByRole("link", { name: /Déposées, à traiter\s*1/ })).toHaveAttribute(
-      "href",
-      "/demandes?groupe=a-traiter",
-    );
-    expect(
-      screen.getByRole("heading", { level: 2, name: "Dernières demandes" }),
-    ).toBeInTheDocument();
-  });
-});
-
-describe("tableau de bord orienté action (correctifs J4)", () => {
-  it("dit au demandeur ce qu'il doit payer, avec le montant et un bouton direct", () => {
+describe("tableau de bord du demandeur (correctifs ergonomie)", () => {
+  it("met « Ce que je dois faire » en tête, avec le montant et un bouton direct", () => {
     const decidee = demande({ id: 5, numero: "DEM-2026-000005", statut: "decision" });
     enFrancais(
       <VueTableauDeBord
         prenom="Fodé"
         nom="Bangoura"
         profilLibelle="Investisseur"
-        interne={false}
+        profil="demandeur"
         demandes={[deposee, decidee]}
         libelles={libelles}
+        vues={vuesDemandeur}
         aFaire={[
           { demande: decidee, action: "DROITS", montantGnf: 15_000_000 },
           { demande: deposee, action: "FRAIS", montantGnf: 5_000_000 },
         ]}
       />,
     );
-    expect(screen.getByRole("heading", { name: "À faire maintenant (2)" })).toBeInTheDocument();
+    const titres = screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent);
+    expect(titres[0]).toBe("Ce que je dois faire (2)");
     expect(screen.getByText(/droits à payer, 15\s000\s000\sGNF/)).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: /Payer les droits · DEM-2026-000005/ }),
@@ -141,21 +115,54 @@ describe("tableau de bord orienté action (correctifs J4)", () => {
     );
   });
 
-  it("donne à l'agent ses files de travail selon ses droits", () => {
+  it("donne des chiffres qui s'additionnent, rejetées comprises, chacun avec sa période", () => {
     enFrancais(
       <VueTableauDeBord
-        prenom="Ibrahima"
-        nom="Soumah"
-        profilLibelle="Ministre"
-        interne
-        taches={[{ cle: "decisions", valeur: 3 }]}
+        prenom="Fodé"
+        nom="Bangoura"
+        profilLibelle="Investisseur Extérieur"
+        profil="demandeur"
+        demandes={[deposee, brouillon]}
+        libelles={libelles}
+        vues={vuesDemandeur}
       />,
     );
-    expect(screen.getByRole("link", { name: /Décisions à prendre\s*3/ })).toHaveAttribute(
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Bonjour, Fodé Bangoura");
+    const cartes: [RegExp, string, number][] = [
+      [/Toutes mes demandes/, "/demandes", 9],
+      [/À faire/, "/demandes?groupe=a-traiter", 2],
+      [/En cours de traitement/, "/demandes?groupe=en-cours", 3],
+      [/Brouillons/, "/demandes?groupe=brouillons", 1],
+      [/Documents délivrés/, "/demandes?groupe=terminees", 2],
+      [/Demandes rejetées/, "/demandes?groupe=rejetees", 1],
+    ];
+    let somme = 0;
+    for (const [nom, href, valeur] of cartes) {
+      const lien = screen.getByRole("link", { name: nom });
+      expect(lien).toHaveAttribute("href", href);
+      expect(lien).toHaveTextContent("À ce jour");
+      expect(lien).toHaveTextContent(String(valeur));
+      if (href !== "/demandes") somme += valeur;
+    }
+    expect(somme).toBe(9);
+    expect(screen.getByText("Rien à faire de votre côté pour le moment")).toBeVisible();
+    expect(screen.getByRole("link", { name: "DEM-2026-000001" })).toHaveAttribute(
       "href",
-      "/a-traiter?groupe=a-decider",
+      "/demandes/2",
     );
-    expect(screen.queryByText("Déposées, à traiter")).not.toBeInTheDocument();
+    expect(screen.getByText("Déposée le 20/11/2026")).toBeInTheDocument();
+  });
+
+  it("affiche un état vide explicite sans demande", () => {
+    enFrancais(
+      <VueTableauDeBord
+        prenom="Fodé"
+        nom="Bangoura"
+        profilLibelle="Investisseur"
+        profil="demandeur"
+      />,
+    );
+    expect(screen.getByText("Vous n'avez encore aucune demande.")).toBeInTheDocument();
   });
 
   it("déduit l'action attendue du statut et des frais", () => {
@@ -166,6 +173,127 @@ describe("tableau de bord orienté action (correctifs J4)", () => {
   });
 });
 
+describe("tableau de bord du guichet (correctifs ergonomie)", () => {
+  it("montre les indicateurs de son rôle, chacun ouvrant sa liste filtrée", () => {
+    enFrancais(
+      <VueTableauDeBord
+        prenom="Aïcha"
+        nom="Camara"
+        profilLibelle="Agent Guichet Unique"
+        profil="guichet"
+        indicateurs={indicateurs}
+      />,
+    );
+    const attendues: [RegExp, string, string][] = [
+      [/Compléments attendus/, "/demandes?statut=complement_requis", "À ce jour"],
+      [/Frais attendus/, "/demandes?statut=deposee&fraisPayes=false", "À ce jour"],
+      [/Traités aujourd’hui/, "/demandes?traiteParMoi=1", "Aujourd'hui"],
+      [/En retard/, "/demandes?enRetard=1", "À ce jour"],
+    ];
+    for (const [nom, href, periode] of attendues) {
+      const lien = screen.getByRole("link", { name: nom });
+      expect(lien).toHaveAttribute("href", href);
+      expect(lien).toHaveTextContent(periode);
+    }
+    expect(screen.queryByText("Documents délivrés")).not.toBeInTheDocument();
+  });
+});
+
+describe("tableau de bord des décideurs (correctifs ergonomie)", () => {
+  it("signale les retards, donne les chiffres de la période et la répartition par document", () => {
+    enFrancais(
+      <VueTableauDeBord
+        prenom="Ibrahima"
+        nom="Soumah"
+        profilLibelle="Ministre"
+        profil="decideur"
+        aTraiterTotal={4}
+        periode="30-jours"
+        indicateurs={indicateurs}
+        libelles={libelles}
+      />,
+    );
+    const alerte = screen.getByRole("status", { name: "" });
+    expect(alerte).toHaveTextContent("3 dossiers en retard sur les délais du catalogue");
+    expect(screen.getByRole("link", { name: "Voir les dossiers en retard" })).toHaveAttribute(
+      "href",
+      "/demandes?enRetard=1",
+    );
+    expect(screen.getByRole("link", { name: "30 derniers jours" })).toHaveAttribute("aria-current");
+    const delivres = screen.getByRole("link", { name: /^Documents délivrés/ });
+    expect(delivres).toHaveAttribute("href", "/demandes?statut=delivree&periode=30-jours");
+    expect(delivres).toHaveTextContent("30 derniers jours");
+    expect(screen.getByRole("link", { name: /Délai moyen de délivrance/ })).toHaveTextContent(
+      "12,5 j",
+    );
+    expect(screen.getByRole("link", { name: /Encaissements/ })).toHaveTextContent(
+      /45\s000\s000\sGNF/,
+    );
+    expect(screen.getByRole("link", { name: /À décider ou à signer/ })).toHaveAttribute(
+      "href",
+      "/a-traiter",
+    );
+    expect(screen.getByRole("heading", { name: "Répartition par document" })).toBeVisible();
+    expect(screen.getByRole("link", { name: "Permis d'exploitation" })).toHaveAttribute(
+      "href",
+      "/demandes?document=PEX",
+    );
+  });
+
+  it("dit clairement qu'aucun dossier n'est en retard", () => {
+    enFrancais(
+      <VueTableauDeBord
+        prenom="Ibrahima"
+        nom="Soumah"
+        profilLibelle="Ministre"
+        profil="decideur"
+        indicateurs={{ ...indicateurs, enRetard: 0, parDocument: [] }}
+      />,
+    );
+    expect(screen.getByText("Aucun dossier en retard à ce jour")).toBeVisible();
+    expect(screen.getByText("Aucune activité sur la période")).toBeVisible();
+    expect(screen.queryByRole("link", { name: /dossiers bloqués/i })).not.toBeInTheDocument();
+  });
+
+  it("alerte sur les dossiers bloqués et ouvre leur liste (correctifs ergonomie · 7)", () => {
+    enFrancais(
+      <VueTableauDeBord
+        prenom="Ibrahima"
+        nom="Soumah"
+        profilLibelle="Ministre"
+        profil="decideur"
+        indicateurs={{ ...indicateurs, bloques: 2 }}
+      />,
+    );
+    const lien = screen.getByRole("link", { name: "Voir les dossiers bloqués" });
+    expect(lien).toHaveAttribute("href", "/demandes?bloque=1");
+    expect(lien.closest("[role=status]")).toHaveTextContent("2 dossiers bloqués");
+  });
+});
+
+describe("tableau de bord indisponible (revue B)", () => {
+  it("le dit clairement, sans état vide ni chiffres trompeurs", () => {
+    enFrancais(
+      <VueTableauDeBord
+        prenom="Ibrahima"
+        nom="Soumah"
+        profilLibelle="Ministre"
+        profil="autre"
+        indisponible
+      />,
+    );
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Tableau de bord momentanément indisponible",
+    );
+    expect(screen.getByRole("link", { name: "Réessayer" })).toHaveAttribute(
+      "href",
+      "/tableau-de-bord",
+    );
+    expect(screen.queryByText(/Aucun dossier/)).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /À ce jour/ })).not.toBeInTheDocument();
+  });
+});
+
 describe("droit de déposer (US-01.6)", () => {
   it("propose une nouvelle demande seulement si le profil peut déposer", () => {
     const { unmount } = enFrancais(
@@ -173,7 +301,7 @@ describe("droit de déposer (US-01.6)", () => {
         prenom="Fodé"
         nom="Bangoura"
         profilLibelle="Investisseur"
-        interne={false}
+        profil="demandeur"
         peutDeposer
       />,
     );
@@ -182,7 +310,9 @@ describe("droit de déposer (US-01.6)", () => {
       "/demandes/nouvelle",
     );
     unmount();
-    enFrancais(<VueTableauDeBord prenom="Aïcha" nom="Camara" profilLibelle="Guichet" interne />);
+    enFrancais(
+      <VueTableauDeBord prenom="Aïcha" nom="Camara" profilLibelle="Guichet" profil="guichet" />,
+    );
     expect(screen.queryByRole("link", { name: "Nouvelle demande" })).not.toBeInTheDocument();
   });
 });

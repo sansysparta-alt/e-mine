@@ -35,16 +35,22 @@ export function EnTetePage({ titre, description, actions, retour }: EnTetePagePr
 export type CarteChiffreProps = {
   libelle: string;
   valeur: string | number;
+  /** Période du chiffre (« Ce mois-ci », « À ce jour », « Aujourd'hui ») : toujours affichée. */
+  periode?: string;
   precision?: string;
   icone?: LucideIcon;
   /** Rend la carte cliquable (lien vers la liste filtrée correspondante). */
   href?: string;
 };
 
-/** Chiffre clé : valeur en grand, libellé, précision ; sobre (pas de bandeau coloré). */
+/**
+ * Chiffre clé : libellé, période, valeur en grand, précision ; sobre (pas de bandeau coloré, une
+ * bordure fine neutre qui ne change qu'au survol d'une carte cliquable).
+ */
 export function CarteChiffre({
   libelle,
   valeur,
+  periode,
   precision,
   icone: Icone,
   href,
@@ -52,16 +58,19 @@ export function CarteChiffre({
   const contenu = (
     <>
       <div className="flex items-start justify-between gap-3">
-        <p className="text-sm font-semibold text-texte-doux">{libelle}</p>
+        <p className="flex flex-col">
+          <span className="text-sm font-semibold text-texte-doux">{libelle}</span>
+          {periode ? <span className="text-xs text-texte-doux">{periode}</span> : null}
+        </p>
         {Icone ? <Icone aria-hidden="true" className="size-5 shrink-0 text-royal" /> : null}
       </div>
       <p className="mt-2 font-titre text-3xl font-bold text-navy">{valeur}</p>
       {precision ? <p className="mt-1 text-sm text-texte-doux">{precision}</p> : null}
     </>
   );
-  const classes = "block rounded-carte border border-bordure bg-white p-4 sm:p-5";
+  const classes = "block h-full rounded-carte border border-bordure bg-white p-4 sm:p-5";
   return href ? (
-    <a href={href} className={cn(classes, "hover:border-royal")}>
+    <a href={href} className={cn(classes, "hover:border-royal focus-visible:border-royal")}>
       {contenu}
     </a>
   ) : (
@@ -69,9 +78,27 @@ export function CarteChiffre({
   );
 }
 
-/** Grille responsive de chiffres clés (1 colonne sur mobile, jusqu'à 4). */
-export function GrilleChiffres({ children }: { children: ReactNode }) {
-  return <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">{children}</div>;
+/**
+ * Grille responsive de chiffres clés (1 colonne sur mobile, 2 sur tablette, 3 ou 4 sur grand
+ * écran) : choisir le nombre de colonnes qui remplit des rangées complètes.
+ */
+export function GrilleChiffres({
+  children,
+  colonnes = 4,
+}: {
+  children: ReactNode;
+  colonnes?: 3 | 4;
+}) {
+  return (
+    <div
+      className={cn(
+        "grid grid-cols-1 gap-4 sm:grid-cols-2",
+        colonnes === 3 ? "lg:grid-cols-3" : "lg:grid-cols-4",
+      )}
+    >
+      {children}
+    </div>
+  );
 }
 
 export type EtatVideProps = {

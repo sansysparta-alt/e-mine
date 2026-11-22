@@ -3,7 +3,9 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import { NextIntlClientProvider } from "next-intl";
 import type { ReactNode } from "react";
 import fr from "../../../messages/fr.json";
+import { FiltresActifs } from "../liste/filtres-actifs";
 import { PlusDeFiltres } from "../liste/plus-de-filtres";
+import { lireParametres } from "./parametres-liste";
 import { TableauDemandes } from "./tableau-demandes";
 
 const refresh = vi.fn();
@@ -44,6 +46,9 @@ function demande(id: number, statut: string, numero: string | null): DemandeDto 
     motifRejet: null,
     etapeDepuis: "2026-11-20T10:00:00Z",
     aTraiterParMoi: false,
+    passages: 0,
+    bloque: false,
+    enRetard: false,
   };
 }
 
@@ -78,6 +83,28 @@ describe("liste des demandes selon le profil (correctifs ergonomie)", () => {
     expect(screen.getByRole("columnheader", { name: "Demandeur" })).toBeVisible();
     expect(screen.getByText("Horizon")).toBeVisible();
     expect(screen.queryByRole("columnheader", { name: "Actions" })).toBeNull();
+  });
+
+  it("signale à l'agent le dossier hors délai, calculé par l'API (revue B)", () => {
+    const enRetard = { ...demande(3, "deposee", "DEM-2026-000003"), enRetard: true };
+    const { unmount } = afficher(
+      <TableauDemandes
+        demandes={[enRetard, demande(4, "deposee", "DEM-2026-000004")]}
+        libelles={libelles}
+        legende="Demandes"
+        interne
+      />,
+    );
+    const [ligneRetard, ligneDansLeDelai] = screen.getAllByRole("row").slice(1) as [
+      HTMLElement,
+      HTMLElement,
+    ];
+    expect(within(ligneRetard).getByText("Délai du catalogue dépassé")).toBeVisible();
+    expect(within(ligneDansLeDelai).queryByText("Délai du catalogue dépassé")).toBeNull();
+    unmount();
+    // Le demandeur garde une liste sobre : l'information est sur la fiche.
+    afficher(<TableauDemandes demandes={[enRetard]} libelles={libelles} legende="Mes demandes" />);
+    expect(screen.queryByText("Délai du catalogue dépassé")).toBeNull();
   });
 
   it("demande confirmation avant de supprimer un brouillon", async () => {
@@ -132,5 +159,45 @@ describe("« Plus de filtres » dans la rangée des pastilles", () => {
       "href",
       "/demandes",
     );
+  });
+});
+
+describe("filtres ouverts depuis le tableau de bord (correctifs ergonomie)", () => {
+  it("garde seulement les filtres connus de l'adresse", () => {
+    const p = lireParametres({
+      enRetard: "1",
+      traiteParMoi: "true",
+      periode: "30-jours",
+      fraisPayes: "false",
+      document: "PEX",
+    });
+    expect(p).toMatchObject({
+      enRetard: "1",
+      traiteParMoi: "1",
+      periode: "30-jours",
+      fraisPayes: "false",
+      document: "PEX",
+    });
+    const inconnus = lireParametres({ enRetard: "oui", periode: "siecle", document: "pex" });
+    expect(inconnus.enRetard).toBeUndefined();
+    expect(inconnus.periode).toBeUndefined();
+    expect(inconnus.document).toBeUndefined();
+  });
+
+  it("affiche chaque filtre actif avec de quoi l'effacer", () => {
+    afficher(
+      <FiltresActifs
+        titre="Filtres actifs"
+        libelleEffacer="Effacer ce filtre"
+        filtres={[
+          { cle: "enRetard", libelle: "En retard (à ce jour)", effacer: "/demandes" },
+          { cle: "document", libelle: "Document : PEX", effacer: "/demandes?enRetard=1" },
+        ]}
+      />,
+    );
+    expect(screen.getByText("En retard (à ce jour)")).toBeVisible();
+    expect(
+      screen.getByRole("link", { name: "Effacer ce filtre : Document : PEX" }),
+    ).toHaveAttribute("href", "/demandes?enRetard=1");
   });
 });

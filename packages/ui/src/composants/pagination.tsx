@@ -5,6 +5,7 @@ import { useId } from "react";
 import { classesChamp } from "../champ";
 import { cn } from "../cn";
 import { formaterNombre } from "../format";
+import { TAILLES_PAGE } from "../taille-page";
 import type { ComposantLien } from "./liste";
 
 export type LibellesPagination = {
@@ -83,7 +84,7 @@ export function Pagination({
   page,
   taille,
   total,
-  tailles = [10, 20, 50, 100],
+  tailles = [...TAILLES_PAGE],
   libelles,
   langue = "fr",
   Lien = LienParDefaut,

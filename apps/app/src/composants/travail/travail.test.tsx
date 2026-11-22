@@ -1,10 +1,19 @@
 import type { DemandeDto } from "@emine/api-client";
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import type { ReactNode } from "react";
 import fr from "../../../messages/fr.json";
 import { VueTableauDeBord } from "../vue-tableau-de-bord";
 import { BarreSerie } from "./barre-serie";
+import { HistoriquePassages } from "./historique-passages";
+import { MentionPassages } from "./mention-passages";
+
+const naviguer = vi.fn();
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: naviguer, refresh: vi.fn() }) }));
+const passerDossier = vi.fn();
+vi.mock("@/serveur/actions-demande", () => ({
+  passerDossier: (...args: unknown[]) => passerDossier(...args),
+}));
 import {
   actionPour,
   adresseApresAction,
@@ -44,6 +53,9 @@ function dossier(id: number, statut: string, fraisPayes = true): DemandeDto {
     motifRejet: null,
     etapeDepuis: "2026-11-15T10:00:00Z",
     aTraiterParMoi: false,
+    passages: 0,
+    bloque: false,
+    enRetard: false,
   };
 }
 
@@ -124,17 +136,16 @@ describe("traitement en série", () => {
   });
 
   it("affiche la position, précédent, passer et quitter", () => {
-    afficher(<BarreSerie groupe="tout" position={2} total={3} precedent={4} suivant={9} />);
+    afficher(
+      <BarreSerie demandeId={7} groupe="tout" position={2} total={3} precedent={4} suivant={9} />,
+    );
     const barre = screen.getByRole("navigation", { name: "Traitement en série" });
     expect(within(barre).getByText(/dossier 2 sur 3/)).toBeVisible();
     expect(within(barre).getByRole("link", { name: /Précédent/ })).toHaveAttribute(
       "href",
       "/demandes/4?file=tout",
     );
-    expect(within(barre).getByRole("link", { name: /Passer ce dossier/ })).toHaveAttribute(
-      "href",
-      "/demandes/9?file=tout",
-    );
+    expect(within(barre).getByRole("button", { name: /Passer ce dossier/ })).toBeVisible();
     expect(within(barre).getByRole("link", { name: /Quitter le traitement/ })).toHaveAttribute(
       "href",
       "/a-traiter?groupe=tout",
@@ -144,7 +155,11 @@ describe("traitement en série", () => {
   it("montre l'action attendue de chaque dossier et ouvre la fiche en série", () => {
     afficher(
       <TableauTravail
-        demandes={[dossier(4, "recevable"), dossier(9, "droits_payes")]}
+        demandes={[
+          { ...dossier(4, "recevable"), aTraiterParMoi: true },
+          { ...dossier(9, "droits_payes"), aTraiterParMoi: true },
+          dossier(12, "recevable"),
+        ]}
         libelles={{ PEX: "Permis d'exploitation" }}
         legende="Tout"
         groupe="tout"
@@ -153,6 +168,9 @@ describe("traitement en série", () => {
     );
     expect(screen.getByText("À décider")).toBeVisible();
     expect(screen.getByText("À signer")).toBeVisible();
+    // Même table que partout : pas d'orange pour un dossier qui n'attend pas le profil connecté.
+    expect(screen.getByText("En attente de décision")).toBeVisible();
+    expect(screen.getByRole("columnheader", { name: "Statut" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "DEM-2026-000004" })).toHaveAttribute(
       "href",
       "/demandes/4?file=tout",
@@ -167,8 +185,22 @@ describe("tableau de bord de l'agent", () => {
         prenom="Ibrahima"
         nom="Soumah"
         profilLibelle="Ministre"
-        interne
-        taches={[{ cle: "decisions", valeur: 1 }]}
+        profil="decideur"
+        aTraiterTotal={1}
+        indicateurs={{
+          periode: "mois",
+          debut: "2026-11-01T00:00:00Z",
+          fin: "2026-11-22T10:00:00Z",
+          enRetard: 0,
+          bloques: 0,
+          complementsAttendus: 0,
+          fraisAttendus: 0,
+          traitesAujourdhui: 0,
+          delivrees: 0,
+          delaiMoyenJours: null,
+          encaissementsGnf: 0,
+          parDocument: [],
+        }}
         travail={{ groupe: "tout", dossiers: [dossier(4, "recevable")], total: 1 }}
       />,
     );
@@ -178,5 +210,120 @@ describe("tableau de bord de l'agent", () => {
       "/demandes/4?file=tout",
     );
     expect(screen.queryByText(/Brouillon/)).not.toBeInTheDocument();
+  });
+});
+
+describe("passer ce dossier (correctifs ergonomie)", () => {
+  beforeEach(() => {
+    naviguer.mockClear();
+    passerDossier.mockReset();
+  });
+
+  function ouvrirDialogue() {
+    afficher(
+      <BarreSerie demandeId={7} groupe="tout" position={2} total={3} precedent={4} suivant={9} />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: /Passer ce dossier/ }));
+    return screen.getByRole("dialog", { name: "Passer ce dossier ?" });
+  }
+
+  it("exige un motif avant d'enregistrer le passage", () => {
+    const dialogue = ouvrirDialogue();
+    fireEvent.change(within(dialogue).getByLabelText(/Motif/), { target: { value: " a " } });
+    fireEvent.click(within(dialogue).getByRole("button", { name: "Passer et ouvrir le suivant" }));
+    expect(within(dialogue).getByText("Indiquez un motif d'au moins 3 caractères.")).toBeVisible();
+    expect(passerDossier).not.toHaveBeenCalled();
+    expect(naviguer).not.toHaveBeenCalled();
+  });
+
+  it("enregistre le motif puis ouvre le dossier suivant de la file", async () => {
+    passerDossier.mockResolvedValue({
+      ok: true,
+      valeur: { aLEtape: 1, bloque: false, passages: [] },
+    });
+    const dialogue = ouvrirDialogue();
+    fireEvent.change(within(dialogue).getByLabelText(/Motif/), {
+      target: { value: "Pièce illisible" },
+    });
+    fireEvent.click(within(dialogue).getByRole("button", { name: "Passer et ouvrir le suivant" }));
+    await waitFor(() => expect(naviguer).toHaveBeenCalledWith("/demandes/9?file=tout"));
+    expect(passerDossier).toHaveBeenCalledWith(7, "Pièce illisible");
+  });
+
+  it("reste sur le dossier et explique l'échec si l'API refuse", async () => {
+    passerDossier.mockResolvedValue({
+      ok: false,
+      erreur: { message: "Ce dossier n'est plus à traiter." },
+    });
+    const dialogue = ouvrirDialogue();
+    fireEvent.change(within(dialogue).getByLabelText(/Motif/), {
+      target: { value: "Attente d'un avis" },
+    });
+    fireEvent.click(within(dialogue).getByRole("button", { name: "Passer et ouvrir le suivant" }));
+    expect(await within(dialogue).findByText("Ce dossier n'est plus à traiter.")).toBeVisible();
+    expect(naviguer).not.toHaveBeenCalled();
+  });
+
+  it("ne propose pas de passer un dossier qui n'est plus dans la file", () => {
+    afficher(
+      <BarreSerie
+        demandeId={7}
+        groupe="tout"
+        position={null}
+        total={3}
+        precedent={null}
+        suivant={9}
+      />,
+    );
+    expect(screen.queryByRole("button", { name: /Passer ce dossier/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Dossier suivant/ })).toHaveAttribute(
+      "href",
+      "/demandes/9?file=tout",
+    );
+  });
+});
+
+describe("passages tracés (correctifs ergonomie)", () => {
+  const ligne = (motif: string) => ({
+    auteur: "Aïcha Camara",
+    statut: "deposee",
+    motif,
+    le: "2026-11-21T09:15:00Z",
+  });
+
+  it("liste les passages et signale le dossier bloqué au 3e passage à l'étape", () => {
+    afficher(
+      <HistoriquePassages
+        historique={{
+          aLEtape: 3,
+          bloque: true,
+          passages: [ligne("Pièce illisible"), ligne("Avis attendu"), ligne("Demandeur absent")],
+        }}
+      />,
+    );
+    expect(
+      screen.getByRole("heading", { name: /Passages dans le traitement en série \(3\)/ }),
+    ).toBeVisible();
+    expect(screen.getByText("Dossier bloqué : passé 3 fois à cette étape")).toBeVisible();
+    expect(screen.getByText("Pièce illisible")).toBeVisible();
+    expect(screen.getAllByText(/Aïcha Camara/)).toHaveLength(3);
+  });
+
+  it("ne montre ni alerte ni carte sans passage", () => {
+    const { container } = afficher(
+      <HistoriquePassages historique={{ aLEtape: 0, bloque: false, passages: [] }} />,
+    );
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it("mentionne les passages sous le numéro, « Bloqué » en évidence", () => {
+    const { rerender } = afficher(<MentionPassages passages={2} bloque={false} />);
+    expect(screen.getByText("Passé 2 fois")).toBeVisible();
+    rerender(
+      <NextIntlClientProvider locale="fr" messages={fr} timeZone="Africa/Conakry">
+        <MentionPassages passages={3} bloque />
+      </NextIntlClientProvider>,
+    );
+    expect(screen.getByText("Bloqué · passé 3 fois")).toBeVisible();
   });
 });

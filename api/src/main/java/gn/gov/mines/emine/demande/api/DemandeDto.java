@@ -15,6 +15,9 @@ import java.time.Instant;
  * @param etapeDepuis entrée dans le statut actuel : l'écran affiche « En attente depuis N jours »
  * @param aTraiterParMoi la demande attend une action du profil connecté (règle « À traiter » de
  *     l'API) : l'écran adapte le libellé et le ton du statut sans recoder la règle
+ * @param passages nombre de fois où un agent a passé le dossier à l'étape actuelle
+ * @param bloque dossier passé au moins 3 fois à cette étape : signalé « Bloqué » aux décideurs
+ * @param enRetard dossier en cours dont le délai du catalogue est dépassé (calculé par l'API)
  */
 record DemandeDto(
     long id,
@@ -32,7 +35,10 @@ record DemandeDto(
     boolean fraisPayes,
     @Schema(nullable = true) String motifRejet,
     Instant etapeDepuis,
-    boolean aTraiterParMoi) {
+    boolean aTraiterParMoi,
+    int passages,
+    boolean bloque,
+    boolean enRetard) {
 
   /** Auteur de la demande. */
   record Demandeur(
@@ -59,6 +65,9 @@ record DemandeDto(
         d.fraisPayes(),
         d.motifRejet(),
         d.etapeDepuis(),
-        d.aTraiterParMoi());
+        d.aTraiterParMoi(),
+        d.passages(),
+        d.bloque(),
+        d.enRetard());
   }
 }

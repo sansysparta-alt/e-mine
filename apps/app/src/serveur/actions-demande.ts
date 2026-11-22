@@ -5,6 +5,8 @@ import {
   type DemandeDto,
   deposerDemande,
   modifierBrouillon,
+  type PassagesDto,
+  passerDossier as passerDossierApi,
   supprimerBrouillon as supprimerBrouillonApi,
 } from "@emine/api-client";
 import {
@@ -81,6 +83,27 @@ export async function supprimerBrouillon(id: number): Promise<ResultatAction<nul
     const session = await lireSession();
     await supprimerBrouillonApi(id, { headers: await enTetesApi(session) });
     return { ok: true, valeur: null };
+  } catch (e) {
+    return { ok: false, erreur: versErreurFormulaire(e) };
+  }
+}
+
+/**
+ * « Passer ce dossier » dans le traitement en série (correctifs ergonomie) : passage tracé avec un
+ * motif court, visible des autres agents.
+ */
+export async function passerDossier(
+  id: number,
+  motif: string,
+): Promise<ResultatAction<PassagesDto>> {
+  try {
+    const session = await lireSession();
+    const reponse = await passerDossierApi(
+      id,
+      { motif: motif.trim() },
+      { headers: await enTetesApi(session) },
+    );
+    return { ok: true, valeur: reponse.data };
   } catch (e) {
     return { ok: false, erreur: versErreurFormulaire(e) };
   }
