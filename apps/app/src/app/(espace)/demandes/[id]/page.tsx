@@ -18,7 +18,8 @@ import { StatutDemande } from "@/composants/demande/statut-demande";
 import { ListePieces } from "@/composants/documents/liste-pieces";
 import { prochaineEtape } from "@/composants/demande/prochaine-etape";
 import { DocumentDelivre } from "@/composants/delivrance/document-delivre";
-import { PROFILS_REVOCATION, RevoquerDocument } from "@/composants/delivrance/revoquer-document";
+import { peutRevoquer } from "@/composants/delivrance/revocation";
+import { RevoquerDocument } from "@/composants/delivrance/revoquer-document";
 import { SignerDelivrer } from "@/composants/delivrance/signer-delivrer";
 import { DecisionRendue } from "@/composants/instruction/decision-rendue";
 import { ExamenRecevabilite } from "@/composants/instruction/examen-recevabilite";
@@ -164,7 +165,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
         demandeId={demande.id}
         document={documentDelivre}
         actions={
-          documentDelivre.valide && moi.interne && PROFILS_REVOCATION.includes(moi.profil.code) ? (
+          documentDelivre.valide && peutRevoquer(moi) ? (
             <RevoquerDocument
               demandeId={demande.id}
               numero={documentDelivre.numero}

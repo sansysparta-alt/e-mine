@@ -9,9 +9,6 @@ import { useId, useState, useTransition } from "react";
 import type { ResultatAction } from "@/serveur/erreurs-formulaire";
 import { ChampMotif, erreurMotif } from "../instruction/champ-motif";
 
-/** Profils autorisés à révoquer (indication d'interface ; l'API fait foi). */
-export const PROFILS_REVOCATION = ["DIRECTEUR", "BRIGADE"];
-
 export type RevoquerDocumentProps = {
   demandeId: number;
   numero: string;
