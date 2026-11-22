@@ -67,74 +67,90 @@ export function VisualiseurDocument({
     "inline-flex size-11 shrink-0 items-center justify-center rounded-lg text-navy hover:bg-ice";
 
   return (
-    <aside
-      ref={panneau}
-      tabIndex={-1}
-      aria-labelledby={idTitre}
-      className={cn(
-        "fixed inset-y-0 right-0 z-40 flex w-full flex-col border-l border-bordure bg-white shadow-2xl outline-none",
-        "motion-safe:animate-[glisser_200ms_ease-out]",
-        pleinEcran ? "sm:w-full" : "sm:w-[min(52rem,62vw)]",
-      )}
-    >
-      <style>
-        {"@keyframes glisser{from{transform:translateX(100%)}to{transform:translateX(0)}}"}
-      </style>
-      <div className="flex min-h-16 items-center gap-2 border-b border-bordure px-3 sm:px-4">
-        <p
-          id={idTitre}
-          className="min-w-0 flex-1 truncate font-semibold text-navy"
-          title={document.nomFichier}
-        >
-          {document.nomFichier}
-        </p>
-        <a href={document.urlTelechargement} download={document.nomFichier} className={bouton}>
-          <Download aria-hidden="true" className="size-5" />
-          <span className="sr-only">{libelles.telecharger}</span>
-        </a>
-        <button
-          type="button"
-          onClick={() => setPleinEcran((p) => !p)}
-          aria-pressed={pleinEcran}
-          className={cn(bouton, "hidden sm:inline-flex")}
-        >
-          {pleinEcran ? (
-            <Minimize2 aria-hidden="true" className="size-5" />
-          ) : (
-            <Maximize2 aria-hidden="true" className="size-5" />
-          )}
-          <span className="sr-only">
-            {pleinEcran ? libelles.quitterPleinEcran : libelles.pleinEcran}
-          </span>
-        </button>
-        <button type="button" onClick={surFermeture} className={bouton}>
-          <X aria-hidden="true" className="size-5" />
-          <span className="sr-only">{libelles.fermer}</span>
-        </button>
-      </div>
-      <div className="min-h-0 flex-1 bg-fond">
-        {pdf ? (
-          <iframe
-            title={document.nomFichier}
-            src={document.urlAffichage}
-            className="size-full border-0"
-          />
-        ) : image ? (
-          <div className="flex size-full items-center justify-center overflow-auto p-4">
-            {/* eslint-disable-next-line @next/next/no-img-element -- contenu privé servi par le BFF */}
-            <img
-              src={document.urlAffichage}
-              alt={document.nomFichier}
-              className="max-h-full max-w-full object-contain"
-            />
-          </div>
-        ) : (
-          <div className="flex size-full flex-col items-center justify-center gap-3 p-6 text-center">
-            <FileQuestion aria-hidden="true" className="size-8 text-texte-doux" />
-            <p>{libelles.formatNonAffichable}</p>
-          </div>
+    <>
+      {/* Fond assombri : la page reste visible ; un clic à côté du panneau le ferme (Échap ne
+          fonctionne plus quand le lecteur PDF du navigateur a le focus). */}
+      <div
+        aria-hidden="true"
+        onClick={surFermeture}
+        className="fixed inset-0 z-50 bg-navy/30 motion-safe:animate-[apparaitre_150ms_ease-out]"
+      />
+      <aside
+        ref={panneau}
+        tabIndex={-1}
+        aria-labelledby={idTitre}
+        className={cn(
+          "fixed inset-y-0 right-0 z-50 flex w-full flex-col border-l border-bordure bg-white shadow-2xl outline-none",
+          "motion-safe:animate-[glisser_200ms_ease-out]",
+          pleinEcran ? "sm:w-full" : "sm:w-[min(52rem,62vw)]",
         )}
-      </div>
-    </aside>
+      >
+        <style>
+          {
+            "@keyframes glisser{from{transform:translateX(100%)}to{transform:translateX(0)}}@keyframes apparaitre{from{opacity:0}to{opacity:1}}"
+          }
+        </style>
+        <div className="flex min-h-16 items-center gap-2 border-b border-bordure px-3 sm:px-4">
+          <p
+            id={idTitre}
+            className="min-w-0 flex-1 truncate font-semibold text-navy"
+            title={document.nomFichier}
+          >
+            {document.nomFichier}
+          </p>
+          <a href={document.urlTelechargement} download={document.nomFichier} className={bouton}>
+            <Download aria-hidden="true" className="size-5" />
+            <span className="sr-only">{libelles.telecharger}</span>
+          </a>
+          <button
+            type="button"
+            onClick={() => setPleinEcran((p) => !p)}
+            aria-pressed={pleinEcran}
+            className={cn(bouton, "hidden sm:inline-flex")}
+          >
+            {pleinEcran ? (
+              <Minimize2 aria-hidden="true" className="size-5" />
+            ) : (
+              <Maximize2 aria-hidden="true" className="size-5" />
+            )}
+            <span className="sr-only">
+              {pleinEcran ? libelles.quitterPleinEcran : libelles.pleinEcran}
+            </span>
+          </button>
+          {/* Fermer : toujours visible, avec son libellé (pas une simple croix). */}
+          <button
+            type="button"
+            onClick={surFermeture}
+            className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg border-2 border-royal bg-white px-3 font-semibold text-royal hover:bg-ice"
+          >
+            <X aria-hidden="true" className="size-5" />
+            <span className="sr-only sm:not-sr-only">{libelles.fermer}</span>
+          </button>
+        </div>
+        <div className="min-h-0 flex-1 bg-fond">
+          {pdf ? (
+            <iframe
+              title={document.nomFichier}
+              src={document.urlAffichage}
+              className="size-full border-0"
+            />
+          ) : image ? (
+            <div className="flex size-full items-center justify-center overflow-auto p-4">
+              {/* eslint-disable-next-line @next/next/no-img-element -- contenu privé servi par le BFF */}
+              <img
+                src={document.urlAffichage}
+                alt={document.nomFichier}
+                className="max-h-full max-w-full object-contain"
+              />
+            </div>
+          ) : (
+            <div className="flex size-full flex-col items-center justify-center gap-3 p-6 text-center">
+              <FileQuestion aria-hidden="true" className="size-8 text-texte-doux" />
+              <p>{libelles.formatNonAffichable}</p>
+            </div>
+          )}
+        </div>
+      </aside>
+    </>
   );
 }

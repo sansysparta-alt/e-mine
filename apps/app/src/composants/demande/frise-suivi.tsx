@@ -9,6 +9,11 @@ export type FriseSuiviProps = {
   interne: boolean;
   /** Document à paiement unique (attestation) : « Paiement » au lieu de « Paiement des frais ». */
   paiementUnique?: boolean;
+  /**
+   * Ce qui débloque l'étape en cours, par clé d'étape (« Avis attendus : Agent DNM… »,
+   * « Décision attendue : Ministre ») : chacun sait ce qu'on attend, et de qui.
+   */
+  precisions?: Record<string, string>;
 };
 
 /**
@@ -17,7 +22,12 @@ export type FriseSuiviProps = {
  * l'état se lit en texte et en icône, jamais par la couleur seule ; l'étape en cours porte
  * `aria-current="step"`. Horizontale sur grand écran, verticale sur mobile.
  */
-export function FriseSuivi({ etapes, interne, paiementUnique = false }: FriseSuiviProps) {
+export function FriseSuivi({
+  etapes,
+  interne,
+  paiementUnique = false,
+  precisions = {},
+}: FriseSuiviProps) {
   const t = useTranslations("suivi");
   if (etapes.length === 0) return null;
   return (
@@ -99,6 +109,9 @@ export function FriseSuivi({ etapes, interne, paiementUnique = false }: FriseSui
                       ? t(interne ? "etats.attenteDemandeur" : "etats.aVous")
                       : t(`etats.${e.etat}`)}
               </span>
+              {e.etat === "en-cours" && precisions[e.cle] ? (
+                <span className="text-sm text-texte-doux">{precisions[e.cle]}</span>
+              ) : null}
             </span>
           </li>
         );

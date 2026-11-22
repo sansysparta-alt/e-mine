@@ -76,4 +76,20 @@ describe("frise de suivi (US-07.3)", () => {
     expect(screen.getByText("Paiement")).toBeInTheDocument();
     expect(screen.queryByText("Paiement des frais")).not.toBeInTheDocument();
   });
+
+  it("sous l'étape en cours, dit ce qui la débloque (avis attendus, décision)", () => {
+    render(
+      <NextIntlClientProvider locale="fr" messages={fr} timeZone="Africa/Conakry">
+        <FriseSuivi
+          etapes={etapes(["faite", "faite", "faite", "en-cours"])}
+          interne
+          precisions={{ instruction: "Avis attendus : Inspecteur des Mines" }}
+        />
+      </NextIntlClientProvider>,
+    );
+    const items = within(screen.getByRole("list", { name: "Suivi de la demande" })).getAllByRole(
+      "listitem",
+    );
+    expect(items[3]).toHaveTextContent("Avis attendus : Inspecteur des Mines");
+  });
 });

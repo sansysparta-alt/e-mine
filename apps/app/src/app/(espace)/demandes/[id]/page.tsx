@@ -360,11 +360,26 @@ export default async function DetailDemande({ params, searchParams }: Props) {
       </dl>
     </Carte>
   );
+  // Ce qui débloque l'instruction : avis attendus (agents), puis décision du signataire.
+  const avisEnAttente =
+    demande.statut === "en_instruction" && etatAvis
+      ? etatAvis.requis.filter((a) => !a.rendu).map((a) => a.libelle)
+      : [];
+  const signataire = etatDecision?.signataire ?? document?.signataire ?? "";
+  const precisionInstruction =
+    demande.statut === "complement_requis"
+      ? undefined
+      : avisEnAttente.length > 0
+        ? tSuivi("precisions.avis", { profils: avisEnAttente.join(", ") })
+        : demande.statut === "en_instruction" && !moi.interne
+          ? tSuivi("precisions.examenTechnique", { signataire })
+          : tSuivi("precisions.decision", { signataire });
   const blocSuivi = (
     <Carte titre={tSuivi("titre")}>
       <FriseSuivi
         etapes={suivi.data.etapes}
         interne={moi.interne}
+        precisions={precisionInstruction ? { instruction: precisionInstruction } : {}}
         paiementUnique={
           document?.tarifs.fraisDossierGnf == null && document?.tarifs.attestationGnf != null
         }

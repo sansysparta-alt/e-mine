@@ -1130,6 +1130,11 @@
       "non-atteinte": "not reached",
       "aVous": "your action is needed",
       "attenteDemandeur": "awaiting the applicant"
+    },
+    "precisions": {
+      "avis": "Opinions pending: {profils}",
+      "examenTechnique": "Technical review by the services, then decision: {signataire}",
+      "decision": "Decision pending: {signataire}"
     }
   }
 }
