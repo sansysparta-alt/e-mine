@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${langue}">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title th:text="${sujet}">Objet</title>
+  </head>
+  <!-- E-mail de notification (US-07.1) : sobre, lisible sans images ni styles externes. -->
+  <body
+    style="margin: 0; padding: 0; background-color: #f4f6fa; font-family: Arial, Helvetica, sans-serif; color: #1b2a44"
+  >
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f6fa">
+      <tr>
+        <td align="center" style="padding: 24px 12px">
+          <table
+            role="presentation"
+            width="100%"
+            cellpadding="0"
+            cellspacing="0"
+            style="max-width: 600px; background-color: #ffffff; border: 1px solid #c3d3ea"
+          >
+            <tr>
+              <td style="padding: 20px 24px; border-bottom: 2px solid #0a1f44">
+                <div style="font-size: 13px; color: #3b4a66" th:text="${entete}">Ministère des Mines et de la Géologie</div>
+                <div style="font-size: 20px; font-weight: bold; color: #0a1f44">e-mine</div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 24px">
+                <h1 style="margin: 0 0 16px; font-size: 18px; color: #0a1f44" th:text="${sujet}">Objet</h1>
+                <p
+                  th:each="paragraphe : ${paragraphes}"
+                  style="margin: 0 0 14px; font-size: 15px; line-height: 1.5"
+                  th:text="${paragraphe}"
+                >
+                  Texte
+                </p>
+                <p th:if="${lien != null}" style="margin: 20px 0 0">
+                  <a
+                    th:href="${lien}"
+                    th:text="${libelleLien}"
+                    style="display: inline-block; padding: 12px 20px; background-color: #0b3a8f; color: #ffffff; text-decoration: none; font-weight: bold; border-radius: 4px"
+                    >Suivre ma demande</a
+                  >
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 16px 24px; border-top: 1px solid #c3d3ea; font-size: 12px; color: #3b4a66" th:text="${pied}">
+                Pied
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

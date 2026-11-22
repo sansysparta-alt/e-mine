@@ -34,6 +34,15 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 11MB
+  # E-mails des notifications (US-07.1) : Mailpit en dev (SMTP 1025, sans authentification)
+  mail:
+    host: ${SMTP_HOST:localhost}
+    port: ${SMTP_PORT:1025}
+    default-encoding: UTF-8
+    properties:
+      mail.smtp.connectiontimeout: 5000
+      mail.smtp.timeout: 10000
+      mail.smtp.writetimeout: 10000
   # Migrations : emine_owner, propriétaire du schéma emine
   flyway:
     user: emine_owner
@@ -92,3 +101,9 @@ emine:
   delivrance:
     compartiment: ${S3_BUCKET_DOCUMENTS:emine-documents}
     url-publique: ${PUBLIC_WEB_URL:http://localhost:3000}
+  # Notifications (US-07.1) : outbox envoyée par db-scheduler ; SMS simulés (D5) déposés dans Mailpit
+  notifications:
+    sms-mode: ${SMS_MODE:simulateur}
+    expediteur: ${NOTIFICATIONS_EXPEDITEUR:e-mine <ne-pas-repondre@e-mine.test>}
+    url-application: ${APP_URL:http://localhost:3001}
+    intervalle: PT15S
