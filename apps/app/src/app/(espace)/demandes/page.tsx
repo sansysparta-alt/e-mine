@@ -42,6 +42,7 @@ export default async function MesDemandes({ searchParams }: Props) {
           statut: statutDetail ? [statutDetail] : undefined,
           vue,
           enRetard: p.enRetard ? true : undefined,
+          procheDepassement: p.procheDepassement ? true : undefined,
           traiteParMoi: p.traiteParMoi ? true : undefined,
           bloque: p.bloque ? true : undefined,
           periode: p.periode,
@@ -72,6 +73,7 @@ export default async function MesDemandes({ searchParams }: Props) {
   // vue à l'autre, effaçables un à un.
   const indicateurs = {
     enRetard: p.enRetard,
+    procheDepassement: p.procheDepassement,
     traiteParMoi: p.traiteParMoi,
     bloque: p.bloque,
     periode: p.periode,
@@ -109,6 +111,9 @@ export default async function MesDemandes({ searchParams }: Props) {
   const tPeriodes = await getTranslations("tableauDeBord.periodes");
   const filtresActifs: FiltreActif[] = [
     p.enRetard ? { cle: "enRetard", libelle: tActifs("enRetard") } : null,
+    p.procheDepassement
+      ? { cle: "procheDepassement", libelle: tActifs("procheDepassement") }
+      : null,
     p.traiteParMoi ? { cle: "traiteParMoi", libelle: tActifs("traiteParMoi") } : null,
     p.bloque ? { cle: "bloque", libelle: tActifs("bloque") } : null,
     p.periode

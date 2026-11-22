@@ -84,6 +84,11 @@ export function TableauTravail({
               etapeDepuis={d.etapeDepuis}
               avecAttente
               enRetard={d.enRetard}
+              delai={{
+                procheDepassement: d.procheDepassement,
+                joursRestants: d.joursRestants,
+                suspendu: d.delaiSuspendu,
+              }}
               maintenant={maintenant}
             />
           ),

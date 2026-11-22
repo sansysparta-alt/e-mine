@@ -238,6 +238,13 @@
             "type" : "boolean"
           }
         }, {
+          "name" : "procheDepassement",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
           "name" : "periode",
           "in" : "query",
           "required" : false,
@@ -1668,9 +1675,19 @@
           },
           "enRetard" : {
             "type" : "boolean"
+          },
+          "joursRestants" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int32"
+          },
+          "procheDepassement" : {
+            "type" : "boolean"
+          },
+          "delaiSuspendu" : {
+            "type" : "boolean"
           }
         },
-        "required" : [ "aTraiterParMoi", "bloque", "creeLe", "demandeur", "deposeLe", "enRetard", "etapeDepuis", "fraisPayes", "id", "motifRejet", "numero", "passages", "prefectureId", "prefectureNom", "statut", "substanceCode", "substanceLibelle", "superficieHa", "typeDocumentCode" ]
+        "required" : [ "aTraiterParMoi", "bloque", "creeLe", "delaiSuspendu", "demandeur", "deposeLe", "enRetard", "etapeDepuis", "fraisPayes", "id", "joursRestants", "motifRejet", "numero", "passages", "prefectureId", "prefectureNom", "procheDepassement", "statut", "substanceCode", "substanceLibelle", "superficieHa", "typeDocumentCode" ]
       },
       "Demandeur" : {
         "type" : "object",
@@ -2627,6 +2644,10 @@
             "type" : "integer",
             "format" : "int64"
           },
+          "procheDepassement" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
           "complementsAttendus" : {
             "type" : "integer",
             "format" : "int64"
@@ -2662,7 +2683,7 @@
             }
           }
         },
-        "required" : [ "bloques", "complementsAttendus", "debut", "delaiMoyenJours", "delivrees", "enRetard", "encaissementsGnf", "fin", "fraisAttendus", "parDocument", "periode", "traitesAujourdhui" ]
+        "required" : [ "bloques", "complementsAttendus", "debut", "delaiMoyenJours", "delivrees", "enRetard", "encaissementsGnf", "fin", "fraisAttendus", "parDocument", "periode", "procheDepassement", "traitesAujourdhui" ]
       },
       "ParDocumentDto" : {
         "type" : "object",

@@ -23,7 +23,7 @@ import {
   formaterGnf,
   joursCalendairesDepuis,
 } from "@emine/ui";
-import { ArrowLeft, CreditCard, TriangleAlert } from "@emine/ui/icones";
+import { ArrowLeft, CreditCard, Hourglass, TriangleAlert } from "@emine/ui/icones";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -300,10 +300,31 @@ export default async function DetailDemande({ params, searchParams }: Props) {
             <dt className="font-semibold">{t("delai")}</dt>
             <dd>
               {t("delaiValeur", { jours: document.delaiJours })}
-              {demande.enRetard ? (
-                <span className="ml-2 inline-flex items-center gap-1 font-semibold text-danger">
+              {" · "}
+              {demande.enRetard && demande.joursRestants !== null ? (
+                <span className="inline-flex items-center gap-1 font-semibold text-danger">
                   <TriangleAlert aria-hidden="true" className="size-4" />
-                  {t("delaiDepasse")}
+                  {t("delaiDepasseDe", { jours: -demande.joursRestants })}
+                </span>
+              ) : demande.delaiSuspendu ? (
+                <span className="text-texte-doux">
+                  {t("delaiSuspendu")}
+                  {demande.joursRestants !== null
+                    ? ` (${t("delaiReste", { jours: demande.joursRestants })})`
+                    : ""}
+                </span>
+              ) : demande.joursRestants !== null ? (
+                <span
+                  className={
+                    demande.procheDepassement
+                      ? "inline-flex items-center gap-1 font-semibold text-avertissement"
+                      : "text-texte-doux"
+                  }
+                >
+                  {demande.procheDepassement ? (
+                    <Hourglass aria-hidden="true" className="size-4" />
+                  ) : null}
+                  {t("delaiReste", { jours: demande.joursRestants })}
                 </span>
               ) : null}
             </dd>

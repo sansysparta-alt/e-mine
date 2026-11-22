@@ -49,7 +49,8 @@ export const PERIODES = ["mois", "30-jours", "annee"] as const;
 export type ClePeriode = (typeof PERIODES)[number];
 
 /** Tableau de bord adapté au profil : ce que chacun doit voir en premier. */
-export type ProfilTableau = "demandeur" | "guichet" | "decideur" | "autre";
+/** Profil du tableau de bord ; « instruction » = profils qui rendent les avis techniques. */
+export type ProfilTableau = "demandeur" | "guichet" | "instruction" | "decideur" | "autre";
 
 /** Action attendue du demandeur sur une de ses demandes (bloc « Ce que je dois faire »). */
 export type ActionAFaire = {
@@ -85,6 +86,8 @@ export type VueTableauDeBordProps = {
   aFaire?: ActionAFaire[];
   /** Nombre total de demandes « à traiter » par le profil (règle unique de l'API). */
   aTraiterTotal?: number;
+  /** Nombre de chaque groupe « à traiter » du profil (API), pour les cartes de son rôle. */
+  groupes?: { cle: string; nombre: number }[];
   /** Vues exclusives du profil (API) : mêmes nombres que « Mes demandes ». */
   vues?: VuesTableau;
   /** Indicateurs de l'API (retards, attentes, période). */
@@ -124,6 +127,7 @@ export function VueTableauDeBord({
   libelles = {},
   aFaire = [],
   aTraiterTotal = 0,
+  groupes = [],
   vues,
   indicateurs,
   periode = "mois",
@@ -138,6 +142,28 @@ export function VueTableauDeBord({
   ) : null;
   const nombreVue = (cle: string) => vues?.vues.find((v) => v.cle === cle)?.nombre ?? 0;
   const aCeJour = t("periodes.aCeJour");
+  const nombreGroupe = (cle: string) => groupes.find((g) => g.cle === cle)?.nombre ?? 0;
+  // Délais (US-05.6) : mêmes chiffres que la liste filtrée « Proches du dépassement ».
+  const carteProches = indicateurs ? (
+    <CarteChiffre
+      libelle={t("guichet.proches")}
+      periode={aCeJour}
+      valeur={indicateurs.procheDepassement}
+      precision={t("guichet.prochesPrecision")}
+      icone={Hourglass}
+      href={liste({ procheDepassement: "1" })}
+    />
+  ) : null;
+  const carteRetard = indicateurs ? (
+    <CarteChiffre
+      libelle={t("guichet.retard")}
+      periode={aCeJour}
+      valeur={indicateurs.enRetard}
+      precision={t("guichet.retardPrecision")}
+      icone={TriangleAlert}
+      href={liste({ enRetard: "1" })}
+    />
+  ) : null;
 
   return (
     <div className="flex flex-col gap-6">
@@ -219,7 +245,15 @@ export function VueTableauDeBord({
 
       {profil === "guichet" && indicateurs ? (
         <>
-          <GrilleChiffres>
+          <GrilleChiffres colonnes={3}>
+            <CarteChiffre
+              libelle={t("guichet.aExaminer")}
+              periode={aCeJour}
+              valeur={nombreGroupe("a-examiner")}
+              precision={t("guichet.aExaminerPrecision")}
+              icone={Inbox}
+              href="/a-traiter?groupe=a-examiner"
+            />
             <CarteChiffre
               libelle={t("guichet.complements")}
               periode={aCeJour}
@@ -244,14 +278,34 @@ export function VueTableauDeBord({
               icone={CircleCheck}
               href={liste({ traiteParMoi: "1" })}
             />
+            {carteProches}
+            {carteRetard}
+          </GrilleChiffres>
+          <FileDeTravail travail={travail} libelles={libelles} />
+        </>
+      ) : null}
+
+      {profil === "instruction" && indicateurs ? (
+        <>
+          <GrilleChiffres>
             <CarteChiffre
-              libelle={t("guichet.retard")}
+              libelle={t("instruction.avis")}
               periode={aCeJour}
-              valeur={indicateurs.enRetard}
-              precision={t("guichet.retardPrecision")}
-              icone={TriangleAlert}
-              href={liste({ enRetard: "1" })}
+              valeur={nombreGroupe("avis-a-rendre")}
+              precision={t("instruction.avisPrecision")}
+              icone={Inbox}
+              href="/a-traiter?groupe=avis-a-rendre"
             />
+            <CarteChiffre
+              libelle={t("instruction.sansReponse")}
+              periode={aCeJour}
+              valeur={nombreGroupe("sans-reponse")}
+              precision={t("instruction.sansReponsePrecision")}
+              icone={FolderOpen}
+              href="/a-traiter?groupe=sans-reponse"
+            />
+            {carteProches}
+            {carteRetard}
           </GrilleChiffres>
           <FileDeTravail travail={travail} libelles={libelles} />
         </>
@@ -292,6 +346,20 @@ export function VueTableauDeBord({
                 {t("pilotage.retard.aucunTexte")}
               </Alerte>
             )}
+            {indicateurs.procheDepassement > 0 ? (
+              <Alerte
+                nature="info"
+                titre={t("pilotage.proches.titre", { nombre: indicateurs.procheDepassement })}
+              >
+                <p>{t("pilotage.proches.texte")}</p>
+                <Link
+                  href={liste({ procheDepassement: "1" })}
+                  className="mt-1 inline-flex min-h-11 items-center font-semibold text-royal underline"
+                >
+                  {t("pilotage.proches.lien")}
+                </Link>
+              </Alerte>
+            ) : null}
             {indicateurs.bloques > 0 ? (
               <Alerte
                 nature="avertissement"

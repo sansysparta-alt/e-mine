@@ -19,6 +19,7 @@ import gn.gov.mines.emine.demande.domaine.DemandeDetail;
 import gn.gov.mines.emine.demande.domaine.GroupeATraiter;
 import gn.gov.mines.emine.demande.domaine.Passage;
 import gn.gov.mines.emine.demande.domaine.RegleATraiter;
+import gn.gov.mines.emine.demande.domaine.RegleDelais;
 import gn.gov.mines.emine.demande.domaine.VueDemandes;
 import gn.gov.mines.emine.shared.jooq.Routines;
 import gn.gov.mines.emine.shared.jooq.enums.NatureAvis;
@@ -279,6 +280,9 @@ public class DemandeRepository {
     if (p.bloque()) {
       c = c.and(CONDITION_BLOQUE);
     }
+    if (p.procheDepassement()) {
+      c = c.and(conditionProcheDepassement(p.maintenant()));
+    }
     return c;
   }
 
@@ -306,15 +310,42 @@ public class DemandeRepository {
    * suspendu, US-05.2). Suppose la jointure sur le catalogue.
    */
   static Condition conditionEnRetard(Instant maintenant) {
-    return DEMANDE
-        .STATUT
-        .in(STATUTS_EN_COURS)
-        .and(DEMANDE.DATE_DEPOT.isNotNull())
-        .and(
-            joursCalendaires(DEMANDE.DATE_DEPOT, DSL.val(maintenant, DEMANDE.DATE_DEPOT))
-                .minus(
-                    Routines.fnJoursSuspendus(DEMANDE.ID, DSL.val(maintenant, DEMANDE.DATE_DEPOT)))
-                .gt(TYPE_DOCUMENT.DELAI_JOURS.cast(Integer.class)));
+    return enCoursDepose().and(joursRestants(maintenant).lt(0));
+  }
+
+  /** Dossier en cours, déposé : le délai du catalogue court (ou est suspendu). */
+  static Condition enCoursDepose() {
+    return DEMANDE.STATUT.in(STATUTS_EN_COURS).and(DEMANDE.DATE_DEPOT.isNotNull());
+  }
+
+  /**
+   * Jours restants sur le délai du catalogue (US-05.6) : délai moins les jours calendaires écoulés
+   * depuis le dépôt, hors jours passés en complément. Négatif = jours de retard.
+   */
+  static Field<Integer> joursRestants(Instant maintenant) {
+    Field<Instant> m = DSL.val(maintenant, DEMANDE.DATE_DEPOT);
+    return TYPE_DOCUMENT
+        .DELAI_JOURS
+        .cast(Integer.class)
+        .minus(joursCalendaires(DEMANDE.DATE_DEPOT, m))
+        .plus(Routines.fnJoursSuspendus(DEMANDE.ID, m));
+  }
+
+  /**
+   * Proche du dépassement ({@link RegleDelais}) : en cours, ni en retard ni suspendu, et il reste
+   * au plus 20 % du délai (2 jours au moins).
+   */
+  static Condition conditionProcheDepassement(Instant maintenant) {
+    Field<Integer> seuil =
+        DSL.field(
+            "greatest({0}, ceil({1} * {2} / 100.0))::integer",
+            Integer.class,
+            DSL.val(RegleDelais.SEUIL_MIN_JOURS),
+            TYPE_DOCUMENT.DELAI_JOURS,
+            DSL.val(RegleDelais.PROPORTION_POURCENT));
+    return enCoursDepose()
+        .and(DEMANDE.STATUT.ne(StatutDemande.complement_requis))
+        .and(joursRestants(maintenant).between(DSL.val(0), seuil));
   }
 
   /** Le profil connecté a changé le statut du dossier depuis cet instant (historique en base). */
@@ -478,11 +509,19 @@ public class DemandeRepository {
   /** Colonne calculée : la demande est en retard sur le délai du catalogue, à ce jour. */
   static final String EN_RETARD = "en_retard";
 
+  static final String JOURS_RESTANTS = "jours_restants";
+
+  static final String PROCHE = "proche_depassement";
+
   SelectOnConditionStep<? extends Record> selection(RegleATraiter.Filtre moi) {
     Field<Boolean> aTraiterParMoi =
         DSL.field(moi == null ? DSL.falseCondition() : conditionATraiter(moi))
             .as(A_TRAITER_PAR_MOI);
-    Field<Boolean> enRetard = DSL.field(conditionEnRetard(Instant.now())).as(EN_RETARD);
+    Instant maintenant = Instant.now();
+    Field<Boolean> enRetard = DSL.field(conditionEnRetard(maintenant)).as(EN_RETARD);
+    Field<Integer> joursRestants =
+        DSL.when(enCoursDepose(), joursRestants(maintenant)).as(JOURS_RESTANTS);
+    Field<Boolean> proche = DSL.field(conditionProcheDepassement(maintenant)).as(PROCHE);
     return dsl.select(
             DEMANDE.ID,
             DEMANDE.NUMERO,
@@ -505,7 +544,9 @@ public class DemandeRepository {
             ETAPE_DEPUIS,
             PASSAGES,
             aTraiterParMoi,
-            enRetard)
+            enRetard,
+            joursRestants,
+            proche)
         .from(DEMANDE)
         .join(TYPE_DOCUMENT)
         .on(TYPE_DOCUMENT.ID.eq(DEMANDE.TYPE_DOCUMENT_ID))
@@ -545,7 +586,10 @@ public class DemandeRepository {
         passages(r),
         passages(r) >= Passage.SEUIL_BLOCAGE
             && VueDemandes.STATUTS_ACTIFS.contains(r.get(DEMANDE.STATUT).getLiteral()),
-        Boolean.TRUE.equals(r.get(EN_RETARD, Boolean.class)));
+        Boolean.TRUE.equals(r.get(EN_RETARD, Boolean.class)),
+        r.get(JOURS_RESTANTS, Integer.class),
+        Boolean.TRUE.equals(r.get(PROCHE, Boolean.class)),
+        r.get(DEMANDE.STATUT) == StatutDemande.complement_requis);
   }
 
   private static int passages(Record r) {

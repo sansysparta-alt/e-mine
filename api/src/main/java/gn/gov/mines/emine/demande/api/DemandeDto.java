@@ -18,6 +18,10 @@ import java.time.Instant;
  * @param passages nombre de fois où un agent a passé le dossier à l'étape actuelle
  * @param bloque dossier passé au moins 3 fois à cette étape : signalé « Bloqué » aux décideurs
  * @param enRetard dossier en cours dont le délai du catalogue est dépassé (calculé par l'API)
+ * @param joursRestants dossier en cours : jours restants sur le délai du catalogue, hors suspension
+ *     (négatif = jours de retard), {@code null} sinon (US-05.6)
+ * @param procheDepassement il reste au plus 20 % du délai (2 jours au moins), sans retard
+ * @param delaiSuspendu un complément est en cours : le délai est suspendu
  */
 record DemandeDto(
     long id,
@@ -38,7 +42,10 @@ record DemandeDto(
     boolean aTraiterParMoi,
     int passages,
     boolean bloque,
-    boolean enRetard) {
+    boolean enRetard,
+    @Schema(nullable = true) Integer joursRestants,
+    boolean procheDepassement,
+    boolean delaiSuspendu) {
 
   /** Auteur de la demande. */
   record Demandeur(
@@ -68,6 +75,9 @@ record DemandeDto(
         d.aTraiterParMoi(),
         d.passages(),
         d.bloque(),
-        d.enRetard());
+        d.enRetard(),
+        d.joursRestants(),
+        d.procheDepassement(),
+        d.delaiSuspendu());
   }
 }

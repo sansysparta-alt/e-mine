@@ -107,6 +107,15 @@ export function TableauDemandes({
           etapeDepuis={d.etapeDepuis}
           avecAttente={STATUTS_EN_COURS.has(d.statut)}
           enRetard={interne && d.enRetard}
+          delai={
+            interne
+              ? {
+                  procheDepassement: d.procheDepassement,
+                  joursRestants: d.joursRestants,
+                  suspendu: d.delaiSuspendu,
+                }
+              : undefined
+          }
         />
       ),
     },

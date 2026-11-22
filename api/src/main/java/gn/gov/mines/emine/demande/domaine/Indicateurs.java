@@ -11,6 +11,7 @@ import java.util.List;
  * @param fin fin de la période (maintenant)
  * @param enRetard à ce jour : dossiers en cours dont le délai du catalogue, compté en jours
  *     calendaires depuis le dépôt, est dépassé
+ * @param procheDepassement à ce jour : dossiers en cours proches du dépassement du délai (US-05.6)
  * @param complementsAttendus à ce jour : dossiers en attente d'un complément du demandeur
  * @param fraisAttendus à ce jour : dossiers déposés dont les frais ne sont pas payés
  * @param bloques à ce jour : dossiers en cours passés au moins 3 fois à leur étape actuelle
@@ -26,6 +27,7 @@ public record Indicateurs(
     Instant debut,
     Instant fin,
     long enRetard,
+    long procheDepassement,
     long complementsAttendus,
     long fraisAttendus,
     long bloques,

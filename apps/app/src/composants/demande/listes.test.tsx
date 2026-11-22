@@ -49,6 +49,9 @@ function demande(id: number, statut: string, numero: string | null): DemandeDto 
     passages: 0,
     bloque: false,
     enRetard: false,
+    joursRestants: null,
+    procheDepassement: false,
+    delaiSuspendu: false,
   };
 }
 

@@ -1,5 +1,5 @@
 import { cn, formaterDate, joursCalendairesDepuis } from "@emine/ui";
-import { TriangleAlert } from "@emine/ui/icones";
+import { Hourglass, PauseCircle, TriangleAlert } from "@emine/ui/icones";
 import { useTranslations } from "next-intl";
 
 /** Attente à l'étape au-delà de laquelle le dossier est signalé (délai à surveiller). */
@@ -15,6 +15,11 @@ export type DateAttenteProps = {
   avecAttente: boolean;
   /** Délai du catalogue dépassé (calculé par l'API, même règle que l'indicateur « En retard »). */
   enRetard?: boolean;
+  /**
+   * Délai du catalogue (US-05.6, calculé par l'API) : proche du dépassement (jours restants) ou
+   * suspendu pendant un complément. Montré aux agents seulement.
+   */
+  delai?: { procheDepassement: boolean; joursRestants: number | null; suspendu: boolean };
   /** Date de référence (rendu serveur, tests). */
   maintenant?: Date;
 };
@@ -30,6 +35,7 @@ export function DateAttente({
   etapeDepuis,
   avecAttente,
   enRetard = false,
+  delai,
   maintenant = new Date(),
 }: DateAttenteProps) {
   const t = useTranslations("dates");
@@ -55,6 +61,16 @@ export function DateAttente({
         <span className="flex items-center gap-1 text-sm font-semibold text-danger">
           <TriangleAlert aria-hidden="true" className="size-4 shrink-0" />
           {t("horsDelai")}
+        </span>
+      ) : delai?.procheDepassement && delai.joursRestants !== null ? (
+        <span className="flex items-center gap-1 text-sm font-semibold text-avertissement">
+          <Hourglass aria-hidden="true" className="size-4 shrink-0" />
+          {t("echeance", { jours: delai.joursRestants })}
+        </span>
+      ) : delai?.suspendu ? (
+        <span className="flex items-center gap-1 text-sm text-texte-doux">
+          <PauseCircle aria-hidden="true" className="size-4 shrink-0" />
+          {t("delaiSuspendu")}
         </span>
       ) : null}
     </span>
