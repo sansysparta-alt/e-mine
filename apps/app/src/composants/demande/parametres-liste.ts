@@ -31,7 +31,8 @@ export type Parametres = {
 /** Paramètres d'adresse validés (toute valeur inconnue est ignorée). */
 export function lireParametres(p: Parametres) {
   const statut = STATUTS.find((s) => s === p.statut);
-  const groupe = p.groupe && /^[a-zA-Z]{1,30}$/.test(p.groupe) ? p.groupe : undefined;
+  // Vue de la liste (« a-traiter », « en-cours »…), validée ensuite contre les vues du profil.
+  const groupe = p.groupe && /^[a-z-]{1,20}$/.test(p.groupe) ? p.groupe : undefined;
   const tri = TRIS.find((s) => s === p.tri) ?? "date";
   const sens: SensTri =
     p.sens === "asc" || p.sens === "desc" ? p.sens : tri === "date" ? "desc" : "asc";

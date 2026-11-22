@@ -207,14 +207,14 @@ export function VueTableauDeBord({
                 libelle={t("chiffres.aTraiter")}
                 valeur={c.aTraiter}
                 icone={Hourglass}
-                href="/demandes?groupe=aTraiter"
+                href="/demandes?groupe=a-traiter"
               />
             )}
             <CarteChiffre
               libelle={t("chiffres.enCours")}
               valeur={c.enCours}
               icone={FileText}
-              href="/demandes?groupe=enCours"
+              href="/demandes?groupe=en-cours"
             />
             <CarteChiffre
               libelle={t("chiffres.delivrees")}
@@ -241,7 +241,7 @@ export function VueTableauDeBord({
               libelle={t("chiffres.enCours")}
               valeur={c.enCours}
               icone={Hourglass}
-              href="/demandes?groupe=enCours"
+              href="/demandes?groupe=en-cours"
             />
             <CarteChiffre
               libelle={t("chiffres.delivrees")}

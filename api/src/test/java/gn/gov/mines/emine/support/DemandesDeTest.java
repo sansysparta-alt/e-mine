@@ -29,6 +29,22 @@ public final class DemandesDeTest {
     }
   }
 
+  /** Brouillon (pas encore déposé) de la persona pour ce type de document. */
+  public static long brouillon(String keycloakId, String typeDocument) throws SQLException {
+    try (Connection c = BaseDeDonneesDeTest.connexionOwner();
+        PreparedStatement ps =
+            c.prepareStatement(
+                "INSERT INTO demande (type_document_id, demandeur_id)"
+                    + " SELECT td.id, u.id FROM type_document td, utilisateur u"
+                    + " WHERE td.code = ? AND u.keycloak_id = ?::uuid RETURNING id")) {
+      ps.setString(1, typeDocument);
+      ps.setString(2, keycloakId);
+      ResultSet rs = ps.executeQuery();
+      rs.next();
+      return rs.getLong(1);
+    }
+  }
+
   /** Fait suivre à la demande les statuts donnés, par les transitions autorisées. */
   public static void changerStatut(long demande, String... statuts) throws SQLException {
     try (Connection c = BaseDeDonneesDeTest.connexionOwner();

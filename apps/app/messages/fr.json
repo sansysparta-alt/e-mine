@@ -311,12 +311,12 @@
     "plusDeFiltres": "Plus de filtres (par statut)",
     "filtreDetail": "Filtrer par statut détaillé",
     "filtres": {
+      "a-faire": "À faire",
+      "a-traiter": "À traiter",
+      "attente-demandeur": "En attente du demandeur",
+      "en-cours": "En cours",
       "brouillons": "Brouillons",
-      "enCours": "En cours",
-      "actionRequise": "Action requise",
       "terminees": "Terminées",
-      "aTraiter": "À traiter",
-      "attenteDemandeur": "En attente du demandeur",
       "rejetees": "Rejetées"
     }
   },

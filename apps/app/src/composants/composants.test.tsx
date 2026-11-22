@@ -99,7 +99,7 @@ describe("tableau de bord (gabarit du socle)", () => {
     );
     expect(screen.getByRole("link", { name: /Déposées, à traiter\s*1/ })).toHaveAttribute(
       "href",
-      "/demandes?groupe=aTraiter",
+      "/demandes?groupe=a-traiter",
     );
     expect(
       screen.getByRole("heading", { level: 2, name: "Dernières demandes" }),

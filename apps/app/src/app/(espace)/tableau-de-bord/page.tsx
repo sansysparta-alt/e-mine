@@ -1,4 +1,5 @@
 import {
+  compterATraiter,
   compterDemandes,
   type DemandeDto,
   listerDemandes,
@@ -13,8 +14,7 @@ import {
   type TacheAgent,
   VueTableauDeBord,
 } from "@/composants/vue-tableau-de-bord";
-import { statutsVisibles } from "@/composants/demande/filtres";
-import { type CleGroupe, groupesPour, parametresListe } from "@/composants/travail/file-travail";
+import { type CleGroupe, groupesDepuis, parametresListe } from "@/composants/travail/file-travail";
 import { chargerMoi, optionsApi } from "@/serveur/donnees";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -44,54 +44,41 @@ async function chargerDemandes(moi: Profil): Promise<{
     const options = await optionsApi();
     const total = async (params: Parameters<typeof listerDemandes>[0]) =>
       (await listerDemandes({ ...params, taille: 10 }, options)).data;
-    // Un agent ne voit jamais les brouillons des usagers (règle du socle).
-    const groupeTravail = groupesPour(moi)[0];
-    const [demandes, compteurs, documents, fraisDus, aAgir, aExaminer, decisions, aSigner, file] =
-      await Promise.all([
-        listerDemandes(
-          moi.interne ? { statut: [...statutsVisibles(true)], taille: 10 } : { taille: 10 },
-          options,
-        ),
-        compterDemandes(options),
-        listerTypesDocuments(),
-        moi.interne
-          ? null
-          : total({ statut: ["deposee"], fraisPayes: false, tri: "date", sens: "asc" }),
-        moi.interne
-          ? null
-          : total({ statut: ["decision", "complement_requis"], tri: "date", sens: "asc" }),
-        moi.permissions.includes("INSTRUIRE")
-          ? total({ statut: ["deposee"], fraisPayes: true })
-          : null,
-        moi.interne && moi.permissions.includes("SIGNER")
-          ? total({ statut: ["recevable"], signataireProfil: moi.profil.code })
-          : null,
-        moi.interne && moi.permissions.includes("SIGNER")
-          ? total({ statut: ["droits_payes"], signataireProfil: moi.profil.code })
-          : null,
-        groupeTravail
-          ? listerDemandes(
-              { ...parametresListe(groupeTravail, moi.profil.code), taille: 10 },
-              options,
-            ).then((r) => r.data)
-          : null,
-      ]);
+    // Règle « À traiter » de l'API : mêmes nombres que « Mes demandes » et « À traiter ».
+    const compteur = (await compterATraiter(options)).data;
+    const groupeTravail = groupesDepuis(compteur, moi)[0];
+    const [demandes, compteurs, documents, aTraiter, file] = await Promise.all([
+      // L'API n'envoie jamais les brouillons des usagers à un agent (règle du socle).
+      listerDemandes({ taille: 10 }, options),
+      compterDemandes(options),
+      listerTypesDocuments(),
+      moi.interne ? null : total({ aTraiter: true, tri: "date", sens: "asc" }),
+      groupeTravail
+        ? listerDemandes({ ...parametresListe(groupeTravail), taille: 10 }, options).then(
+            (r) => r.data,
+          )
+        : null,
+    ]);
     const tarifs = Object.fromEntries(documents.data.map((d) => [d.code, d.tarifs]));
-    const aFaire: ActionAFaire[] = [...(aAgir?.elements ?? []), ...(fraisDus?.elements ?? [])]
-      .slice(0, A_FAIRE_MAX)
-      .flatMap((d) => {
-        const action = actionAttendue(d);
-        if (!action) return [];
-        const t = tarifs[d.typeDocumentCode];
-        const montantGnf =
-          action === "FRAIS" ? t?.aPayerAuDepotGnf : action === "DROITS" ? t?.droitsGnf : null;
-        return [{ demande: d, action, montantGnf }];
-      });
-    const taches: TacheAgent[] = [
-      ...(aExaminer ? [{ cle: "aExaminer" as const, valeur: aExaminer.total }] : []),
-      ...(decisions ? [{ cle: "decisions" as const, valeur: decisions.total }] : []),
-      ...(aSigner ? [{ cle: "aSigner" as const, valeur: aSigner.total }] : []),
-    ];
+    const aFaire: ActionAFaire[] = (aTraiter?.elements ?? []).slice(0, A_FAIRE_MAX).flatMap((d) => {
+      const action = actionAttendue(d);
+      if (!action) return [];
+      const t = tarifs[d.typeDocumentCode];
+      const montantGnf =
+        action === "FRAIS" ? t?.aPayerAuDepotGnf : action === "DROITS" ? t?.droitsGnf : null;
+      return [{ demande: d, action, montantGnf }];
+    });
+    const CLE_TACHE: Record<string, TacheAgent["cle"]> = {
+      "a-examiner": "aExaminer",
+      "a-decider": "decisions",
+      "a-signer": "aSigner",
+    };
+    const taches: TacheAgent[] = moi.interne
+      ? compteur.groupes.flatMap((g) => {
+          const cle = CLE_TACHE[g.cle];
+          return cle ? [{ cle, valeur: g.nombre }] : [];
+        })
+      : [];
     return {
       demandes: demandes.data.elements,
       compteurs: compteurs.data,

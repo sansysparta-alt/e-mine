@@ -7,6 +7,9 @@ import gn.gov.mines.emine.catalogue.TypeDocument;
 import gn.gov.mines.emine.demande.domaine.Brouillon;
 import gn.gov.mines.emine.demande.domaine.CritereDemandes;
 import gn.gov.mines.emine.demande.domaine.DemandeDetail;
+import gn.gov.mines.emine.demande.domaine.GroupeATraiter;
+import gn.gov.mines.emine.demande.domaine.RegleATraiter;
+import gn.gov.mines.emine.demande.domaine.VueDemandes;
 import gn.gov.mines.emine.demande.infrastructure.DemandeRepository;
 import gn.gov.mines.emine.shared.erreur.CodeErreur;
 import gn.gov.mines.emine.shared.erreur.ErreurMetier;
@@ -89,13 +92,71 @@ public class ServiceDemandes {
                         .findFirst()
                         .orElseThrow(() -> champInvalide("statut", "Statut inconnu.")))
             .toList();
-    return demandes.lister(filtre, critere, pagination);
+    // Règle du socle appliquée par l'API : un agent ne voit jamais les brouillons des usagers.
+    boolean interne = utilisateurCourant.get().map(UtilisateurConnecte::interne).orElse(false);
+    return demandes.lister(filtre, interne ? critere.sansBrouillons() : critere, pagination);
+  }
+
+  /**
+   * Filtre « À traiter » du profil connecté (correctifs J5) : tous ses groupes, ou le seul groupe
+   * demandé (VAL-001 s'il n'en fait pas partie).
+   */
+  public RegleATraiter.Filtre filtreATraiter(String groupe) {
+    UtilisateurConnecte moi = moi();
+    List<GroupeATraiter> groupes = groupesDe(moi);
+    if (groupe == null || groupe.isBlank()) {
+      return new RegleATraiter.Filtre(groupes, moi.profilCode());
+    }
+    GroupeATraiter g =
+        GroupeATraiter.depuis(groupe)
+            .filter(groupes::contains)
+            .orElseThrow(() -> champInvalide("groupe", "Groupe inconnu pour ce profil."));
+    return new RegleATraiter.Filtre(List.of(g), moi.profilCode());
+  }
+
+  /** Vue demandée, validée pour le profil connecté (VAL-001 sinon). */
+  public CritereDemandes.Vue vue(String cle) {
+    UtilisateurConnecte moi = moi();
+    RegleATraiter.Filtre aTraiter = filtreATraiter(null);
+    VueDemandes vue =
+        VueDemandes.depuis(cle)
+            .filter(v -> vuesDe(moi, aTraiter).contains(v))
+            .orElseThrow(() -> champInvalide("vue", "Vue inconnue pour ce profil."));
+    return new CritereDemandes.Vue(vue, aTraiter, moi.interne());
+  }
+
+  /** Nombre de demandes de chaque vue du profil connecté (exclusives : leur somme = toutes). */
+  @Transactional(readOnly = true)
+  public Map<VueDemandes, Long> vues() {
+    UtilisateurConnecte moi = moi();
+    RegleATraiter.Filtre aTraiter = filtreATraiter(null);
+    return demandes.compterVues(vuesDe(moi, aTraiter), aTraiter, moi.interne());
+  }
+
+  private static List<VueDemandes> vuesDe(UtilisateurConnecte moi, RegleATraiter.Filtre aTraiter) {
+    return VueDemandes.pour(moi.interne(), !aTraiter.groupes().isEmpty());
+  }
+
+  /** Nombre de demandes de chaque groupe « à traiter » du profil connecté. */
+  @Transactional(readOnly = true)
+  public Map<GroupeATraiter, Long> aTraiter() {
+    return demandes.compterATraiter(filtreATraiter(null));
+  }
+
+  private static List<GroupeATraiter> groupesDe(UtilisateurConnecte moi) {
+    return RegleATraiter.groupesPour(
+        moi.interne(),
+        moi.permissions().stream().map(Enum::name).collect(java.util.stream.Collectors.toSet()));
   }
 
   /** Nombre de demandes visibles par statut (tableau de bord). */
   @Transactional(readOnly = true)
   public Map<String, Long> compteurs() {
-    return demandes.compteursParStatut();
+    Map<String, Long> compteurs = demandes.compteursParStatut();
+    if (utilisateurCourant.get().map(UtilisateurConnecte::interne).orElse(false)) {
+      compteurs.remove("brouillon");
+    }
+    return compteurs;
   }
 
   private DemandeDetail lireVisible(long id) {

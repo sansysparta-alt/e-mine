@@ -1,4 +1,4 @@
-import { listerDemandes } from "@emine/api-client";
+import { compterATraiter, listerDemandes } from "@emine/api-client";
 import { Alerte, Bouton, EnTetePage, EtatVide, FiltresPastilles } from "@emine/ui";
 import { ArrowRight, Inbox, Play } from "@emine/ui/icones";
 import type { Metadata } from "next";
@@ -10,7 +10,7 @@ import { RechercheListe } from "@/composants/liste/recherche-liste";
 import {
   adresseFiche,
   type Groupe,
-  groupesPour,
+  groupesDepuis,
   lireParametresTravail,
   type ParametresTravail,
   parametresListe,
@@ -33,27 +33,31 @@ type Props = { searchParams: Promise<ParametresTravail> };
  */
 export default async function ATraiter({ searchParams }: Props) {
   const moi = await chargerMoi();
-  const groupes = groupesPour(moi);
+  if (!moi.interne) notFound();
+  // Règle « À traiter » : calculée par l'API, la même que pour « Mes demandes » et le tableau de bord.
+  const compteur = (await appelPage("/a-traiter", async () => compterATraiter(await optionsApi())))
+    .data;
+  const groupes = groupesDepuis(compteur, moi);
   if (groupes.length === 0) notFound();
   const p = lireParametresTravail(await searchParams, groupes);
   const t = await getTranslations("travail");
 
   const liste = async (g: Groupe, page: number, taille: number, q?: string) =>
-    listerDemandes({ ...parametresListe(g, moi.profil.code), q, page, taille }, await optionsApi());
+    listerDemandes({ ...parametresListe(g), q, page, taille }, await optionsApi());
+  // Les nombres viennent du compteur de l'API ; seul le suivi « frais attendus » est compté à part.
+  const sansNombre = groupes.filter((g) => g.nombre === undefined && g.cle !== p.groupe.cle);
   const [{ documents }, courant, ...autres] = await Promise.all([
     chargerReferentiels(),
     appelPage("/a-traiter", () => liste(p.groupe, p.page, p.taille, p.q)),
-    ...groupes
-      .filter((g) => g.cle !== p.groupe.cle)
-      .map((g) => appelPage("/a-traiter", () => liste(g, 1, 10))),
+    ...sansNombre.map((g) => appelPage("/a-traiter", () => liste(g, 1, 10))),
   ]);
   const resultat = courant.data;
-  const totaux: Record<string, number> = { [p.groupe.cle]: resultat.total };
-  groupes
-    .filter((g) => g.cle !== p.groupe.cle)
-    .forEach((g, i) => {
-      totaux[g.cle] = autres[i]?.data.total ?? 0;
-    });
+  const totaux: Record<string, number> = {};
+  for (const g of groupes) totaux[g.cle] = g.nombre ?? 0;
+  sansNombre.forEach((g, i) => {
+    totaux[g.cle] = autres[i]?.data.total ?? 0;
+  });
+  if (p.groupe.nombre === undefined && !p.q) totaux[p.groupe.cle] = resultat.total;
   const libelles = Object.fromEntries(documents.map((d) => [d.code, d.libelleFr]));
   const premier = resultat.elements[0];
   const adresse = (cle: string) =>

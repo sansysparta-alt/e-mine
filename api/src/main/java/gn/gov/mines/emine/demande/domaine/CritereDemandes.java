@@ -10,6 +10,10 @@ import java.util.List;
  * @param recherche texte cherché dans le numéro et le document (sans casse), ou {@code null}
  * @param fraisPayes seulement les demandes dont les frais sont payés ({@code true}) ou non payés
  *     ({@code false}) ; {@code null} = toutes (file du guichet, US-05.1)
+ * @param aTraiter seulement ce que le profil connecté doit faire maintenant, ou {@code null}
+ * @param exclureBrouillons profil interne : un agent ne voit jamais les brouillons des usagers
+ * @param vue vue exclusive du profil (« En cours »…), avec son filtre « à traiter », ou {@code
+ *     null}
  * @param signataireProfil seulement les documents dont ce profil est le signataire au catalogue
  *     (file des décisions, US-05.4), ou {@code null}
  * @param tri colonne de tri
@@ -21,11 +25,37 @@ public record CritereDemandes(
     String recherche,
     Boolean fraisPayes,
     String signataireProfil,
+    RegleATraiter.Filtre aTraiter,
+    Vue vue,
+    boolean exclureBrouillons,
     Tri tri,
     boolean croissant) {
 
   public CritereDemandes {
     statuts = statuts == null ? List.of() : List.copyOf(statuts);
+  }
+
+  /**
+   * Vue demandée et contexte du profil nécessaire pour la calculer.
+   *
+   * @param aTraiter filtre « à traiter » du profil (vide pour un profil sans action)
+   * @param interne profil interne : l'attente du demandeur est une vue à part
+   */
+  public record Vue(VueDemandes vue, RegleATraiter.Filtre aTraiter, boolean interne) {}
+
+  /** Les mêmes critères, sans les brouillons (profil interne). */
+  public CritereDemandes sansBrouillons() {
+    return new CritereDemandes(
+        statuts,
+        typeDocumentCode,
+        recherche,
+        fraisPayes,
+        signataireProfil,
+        aTraiter,
+        vue,
+        true,
+        tri,
+        croissant);
   }
 
   /** Colonnes triables de la liste. */

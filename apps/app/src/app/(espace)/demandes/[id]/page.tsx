@@ -4,6 +4,7 @@ import {
   lireDecision,
   lireDemande,
   lireDocumentDelivre,
+  compterATraiter,
   lireEtatDelivrance,
   listerDemandes,
   listerPaiementsDemande,
@@ -29,7 +30,7 @@ import { TableauPaiements } from "@/composants/paiement/tableau-paiements";
 import { BarreSerie } from "@/composants/travail/barre-serie";
 import {
   type ContexteSerie,
-  groupesPour,
+  groupesDepuis,
   lireActionFaite,
   parametresListe,
   positionDansFile,
@@ -131,15 +132,17 @@ export default async function DetailDemande({ params, searchParams }: Props) {
       : etapeCalculee;
   const numero = demande.numero ?? "";
   // Traitement en série (correctifs J5) : position dans la file, dossier suivant après l'action.
-  const groupeSerie = groupesPour(moi).find((g) => g.cle === file);
+  const groupeSerie = file
+    ? groupesDepuis(
+        (await appelPage(chemin, async () => compterATraiter(await optionsApi()))).data,
+        moi,
+      ).find((g) => g.cle === file)
+    : undefined;
   let barre = null;
   let serie: ContexteSerie | null = null;
   if (groupeSerie) {
     const enFile = await appelPage(chemin, async () =>
-      listerDemandes(
-        { ...parametresListe(groupeSerie, moi.profil.code), page: 1, taille: 100 },
-        await optionsApi(),
-      ),
+      listerDemandes({ ...parametresListe(groupeSerie), page: 1, taille: 100 }, await optionsApi()),
     );
     const ids = enFile.data.elements.map((d) => d.id);
     const position = positionDansFile(ids, demande.id);

@@ -11,6 +11,9 @@ import static gn.gov.mines.emine.shared.jooq.Tables.UTILISATEUR;
 
 import gn.gov.mines.emine.demande.domaine.CritereDemandes;
 import gn.gov.mines.emine.demande.domaine.DemandeDetail;
+import gn.gov.mines.emine.demande.domaine.GroupeATraiter;
+import gn.gov.mines.emine.demande.domaine.RegleATraiter;
+import gn.gov.mines.emine.demande.domaine.VueDemandes;
 import gn.gov.mines.emine.shared.jooq.enums.ObjetPaiement;
 import gn.gov.mines.emine.shared.jooq.enums.StatutDemande;
 import gn.gov.mines.emine.shared.jooq.enums.StatutPaiement;
@@ -115,6 +118,15 @@ public class DemandeRepository {
                       .from(PROFIL)
                       .where(PROFIL.CODE.eq(critere.signataireProfil()))));
     }
+    if (critere.aTraiter() != null) {
+      condition = condition.and(conditionATraiter(critere.aTraiter()));
+    }
+    if (critere.exclureBrouillons()) {
+      condition = condition.and(DEMANDE.STATUT.ne(StatutDemande.brouillon));
+    }
+    if (critere.vue() != null) {
+      condition = condition.and(conditionVue(critere.vue()));
+    }
     if (critere.recherche() != null && !critere.recherche().isBlank()) {
       String motif = "%" + echapperLike(critere.recherche().strip()) + "%";
       condition =
@@ -148,6 +160,86 @@ public class DemandeRepository {
             .offset(pagination.decalage())
             .fetch(DemandeRepository::detail);
     return new PageResultat<>(elements, pagination.page(), pagination.taille(), total);
+  }
+
+  /** Condition de la règle « À traiter » : un des groupes retenus (aucun groupe = rien). */
+  static Condition conditionATraiter(RegleATraiter.Filtre filtre) {
+    Condition c = DSL.falseCondition();
+    for (GroupeATraiter g : filtre.groupes()) {
+      c = c.or(condition(g, filtre.profilCode()));
+    }
+    return c;
+  }
+
+  private static Condition condition(GroupeATraiter groupe, String profilCode) {
+    Condition signataire =
+        TYPE_DOCUMENT.SIGNATAIRE_PROFIL_ID.in(
+            DSL.select(PROFIL.ID).from(PROFIL).where(PROFIL.CODE.eq(profilCode)));
+    return switch (groupe) {
+      case PAYER_FRAIS -> DEMANDE.STATUT.eq(StatutDemande.deposee).and(DSL.not(FRAIS_PAYES_COND));
+      case PAYER_DROITS -> DEMANDE.STATUT.eq(StatutDemande.decision);
+      case COMPLETER -> DEMANDE.STATUT.eq(StatutDemande.complement_requis);
+      case A_EXAMINER -> DEMANDE.STATUT.eq(StatutDemande.deposee).and(FRAIS_PAYES_COND);
+      case A_DECIDER -> DEMANDE.STATUT.eq(StatutDemande.recevable).and(signataire);
+      case A_SIGNER -> DEMANDE.STATUT.eq(StatutDemande.droits_payes).and(signataire);
+    };
+  }
+
+  /** Condition d'une vue : exclusive des autres vues du même profil. */
+  static Condition conditionVue(CritereDemandes.Vue v) {
+    Condition aTraiter = conditionATraiter(v.aTraiter());
+    Condition attente =
+        conditionATraiter(
+            new RegleATraiter.Filtre(VueDemandes.GROUPES_DEMANDEUR, v.aTraiter().profilCode()));
+    Condition actives =
+        DEMANDE.STATUT.in(
+            VueDemandes.STATUTS_ACTIFS.stream().map(StatutDemande::lookupLiteral).toList());
+    return switch (v.vue()) {
+      case A_TRAITER -> aTraiter;
+      case ATTENTE_DEMANDEUR -> attente.and(DSL.not(aTraiter));
+      case EN_COURS ->
+          v.interne()
+              ? actives.and(DSL.not(aTraiter)).and(DSL.not(attente))
+              : actives.and(DSL.not(aTraiter));
+      case BROUILLONS -> DEMANDE.STATUT.eq(StatutDemande.brouillon);
+      case TERMINEES -> DEMANDE.STATUT.in(StatutDemande.delivree, StatutDemande.archivee);
+      case REJETEES -> DEMANDE.STATUT.eq(StatutDemande.rejetee);
+    };
+  }
+
+  /** Nombre de demandes visibles (RLS) de chaque vue, pour les pastilles de la liste. */
+  public Map<VueDemandes, Long> compterVues(
+      List<VueDemandes> vues, RegleATraiter.Filtre aTraiter, boolean interne) {
+    Map<VueDemandes, Long> nombres = new LinkedHashMap<>();
+    for (VueDemandes v : vues) {
+      nombres.put(
+          v,
+          dsl.selectCount()
+              .from(DEMANDE)
+              .join(TYPE_DOCUMENT)
+              .on(TYPE_DOCUMENT.ID.eq(DEMANDE.TYPE_DOCUMENT_ID))
+              .where(DEMANDE.DELETED_AT.isNull())
+              .and(conditionVue(new CritereDemandes.Vue(v, aTraiter, interne)))
+              .fetchOne(0, Long.class));
+    }
+    return nombres;
+  }
+
+  /** Nombre de demandes visibles (RLS) de chaque groupe « à traiter ». */
+  public Map<GroupeATraiter, Long> compterATraiter(RegleATraiter.Filtre filtre) {
+    Map<GroupeATraiter, Long> nombres = new LinkedHashMap<>();
+    for (GroupeATraiter g : filtre.groupes()) {
+      nombres.put(
+          g,
+          dsl.selectCount()
+              .from(DEMANDE)
+              .join(TYPE_DOCUMENT)
+              .on(TYPE_DOCUMENT.ID.eq(DEMANDE.TYPE_DOCUMENT_ID))
+              .where(DEMANDE.DELETED_AT.isNull())
+              .and(condition(g, filtre.profilCode()))
+              .fetchOne(0, Long.class));
+    }
+    return nombres;
   }
 
   /** Nombre de demandes visibles (RLS) par statut. */
