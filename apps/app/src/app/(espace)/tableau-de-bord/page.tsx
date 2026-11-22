@@ -7,6 +7,7 @@ import {
   listerDemandes,
   listerTypesDocuments,
 } from "@emine/api-client";
+import { tailleDePagePour } from "@emine/ui";
 import type { Metadata } from "next";
 import { unstable_rethrow } from "next/navigation";
 import { getTranslations } from "next-intl/server";
@@ -76,7 +77,11 @@ async function charger(moi: Profil, periode: ClePeriode): Promise<Donnees> {
     const groupeTravail = groupesDepuis(compteur, moi)[0];
     const pilote = profil === "guichet" || profil === "decideur";
     const [recentes, aTraiter, indicateurs, file] = await Promise.all([
-      pilote ? null : listerDemandes({ taille: DEMANDES_RECENTES }, options).then((r) => r.data),
+      pilote
+        ? null
+        : listerDemandes({ taille: tailleDePagePour(DEMANDES_RECENTES) }, options).then(
+            (r) => r.data,
+          ),
       profil === "demandeur"
         ? listerDemandes({ aTraiter: true, tri: "date", sens: "asc", taille: 10 }, options).then(
             (r) => r.data,
@@ -84,9 +89,10 @@ async function charger(moi: Profil, periode: ClePeriode): Promise<Donnees> {
         : null,
       pilote ? lireIndicateurs({ periode }, options).then((r) => r.data) : undefined,
       pilote && groupeTravail
-        ? listerDemandes({ ...parametresListe(groupeTravail), taille: COURTE_LISTE }, options).then(
-            (r) => r.data,
-          )
+        ? listerDemandes(
+            { ...parametresListe(groupeTravail), taille: tailleDePagePour(COURTE_LISTE) },
+            options,
+          ).then((r) => r.data)
         : null,
     ]);
     const tarifs = Object.fromEntries(documents.map((d) => [d.code, d.tarifs]));
