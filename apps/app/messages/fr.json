@@ -831,5 +831,34 @@
       "suivant": "Dossier suivant",
       "quitter": "Quitter le traitement"
     }
+  },
+  "statutsAffiches": {
+    "demandeur": {
+      "brouillon": "Brouillon",
+      "fraisAPayer": "Frais à payer",
+      "verification": "En cours de vérification",
+      "complementAFournir": "Complément à fournir",
+      "instruction": "En cours d’instruction",
+      "droitsAPayer": "Droits à payer",
+      "preparation": "Document en préparation",
+      "delivre": "Document délivré",
+      "rejetee": "Rejetée",
+      "archivee": "Archivée"
+    },
+    "agent": {
+      "fraisAttendus": "Frais attendus",
+      "aExaminer": "À examiner",
+      "auGuichet": "Au guichet",
+      "complementAttendu": "Complément attendu",
+      "aDecider": "À décider",
+      "attenteDecision": "En attente de décision",
+      "instruction": "En instruction",
+      "droitsAttendus": "Droits attendus",
+      "aSigner": "À signer",
+      "attenteSignature": "En attente de signature",
+      "delivree": "Délivrée",
+      "rejetee": "Rejetée",
+      "archivee": "Archivée"
+    }
   }
 }

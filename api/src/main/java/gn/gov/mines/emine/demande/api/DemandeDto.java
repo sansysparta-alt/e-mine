@@ -12,6 +12,8 @@ import java.time.Instant;
  * @param numero {@code DEM-AAAA-NNNNNN}, attribué au dépôt ; {@code null} pour un brouillon
  * @param fraisPayes frais de dossier (ou attestation) payés, affiché « Frais payés »
  * @param motifRejet motif de la non-recevabilité ou du rejet, {@code null} sinon
+ * @param aTraiterParMoi la demande attend une action du profil connecté (règle « À traiter » de
+ *     l'API) : l'écran adapte le libellé et le ton du statut sans recoder la règle
  */
 record DemandeDto(
     long id,
@@ -27,7 +29,8 @@ record DemandeDto(
     Instant creeLe,
     @Schema(nullable = true) Instant deposeLe,
     boolean fraisPayes,
-    @Schema(nullable = true) String motifRejet) {
+    @Schema(nullable = true) String motifRejet,
+    boolean aTraiterParMoi) {
 
   /** Auteur de la demande. */
   record Demandeur(
@@ -52,6 +55,7 @@ record DemandeDto(
         d.creeLe(),
         d.deposeLe(),
         d.fraisPayes(),
-        d.motifRejet());
+        d.motifRejet(),
+        d.aTraiterParMoi());
   }
 }

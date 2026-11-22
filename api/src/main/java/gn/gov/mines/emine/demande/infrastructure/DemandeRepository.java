@@ -98,7 +98,10 @@ public class DemandeRepository {
    * la plus récente à la plus ancienne (date de dépôt, à défaut de création).
    */
   public PageResultat<DemandeDetail> lister(
-      List<StatutDemande> statuts, CritereDemandes critere, Pagination pagination) {
+      List<StatutDemande> statuts,
+      CritereDemandes critere,
+      Pagination pagination,
+      RegleATraiter.Filtre moi) {
     Condition condition = DEMANDE.DELETED_AT.isNull();
     if (!statuts.isEmpty()) {
       condition = condition.and(DEMANDE.STATUT.in(statuts));
@@ -153,7 +156,7 @@ public class DemandeRepository {
     SortField<?> ordre =
         critere.croissant() ? colonne.asc().nullsFirst() : colonne.desc().nullsLast();
     List<DemandeDetail> elements =
-        selection()
+        selection(moi)
             .where(condition)
             .orderBy(ordre, critere.croissant() ? DEMANDE.ID.asc() : DEMANDE.ID.desc())
             .limit(pagination.taille())
@@ -260,7 +263,12 @@ public class DemandeRepository {
   }
 
   public Optional<DemandeDetail> lire(long id) {
-    return selection()
+    return lire(id, null);
+  }
+
+  /** La demande, avec l'indication « à traiter par le profil connecté » si le filtre est donné. */
+  public Optional<DemandeDetail> lire(long id, RegleATraiter.Filtre moi) {
+    return selection(moi)
         .where(DEMANDE.ID.eq(id))
         .and(DEMANDE.DELETED_AT.isNull())
         .fetchOptional(DemandeRepository::detail);
@@ -294,7 +302,13 @@ public class DemandeRepository {
 
   static final Field<Boolean> FRAIS_PAYES = DSL.field(FRAIS_PAYES_COND).as("frais_payes");
 
-  SelectOnConditionStep<? extends Record> selection() {
+  /** Colonne calculée : la demande est « à traiter » par le profil connecté. */
+  static final String A_TRAITER_PAR_MOI = "a_traiter_par_moi";
+
+  SelectOnConditionStep<? extends Record> selection(RegleATraiter.Filtre moi) {
+    Field<Boolean> aTraiterParMoi =
+        DSL.field(moi == null ? DSL.falseCondition() : conditionATraiter(moi))
+            .as(A_TRAITER_PAR_MOI);
     return dsl.select(
             DEMANDE.ID,
             DEMANDE.NUMERO,
@@ -313,7 +327,8 @@ public class DemandeRepository {
             PREFECTURE.NOM,
             SUBSTANCE.CODE,
             SUBSTANCE.LIBELLE_FR,
-            FRAIS_PAYES)
+            FRAIS_PAYES,
+            aTraiterParMoi)
         .from(DEMANDE)
         .join(TYPE_DOCUMENT)
         .on(TYPE_DOCUMENT.ID.eq(DEMANDE.TYPE_DOCUMENT_ID))
@@ -347,6 +362,7 @@ public class DemandeRepository {
         r.get(DEMANDE.CREATED_AT),
         r.get(DEMANDE.DATE_DEPOT),
         Boolean.TRUE.equals(r.get(FRAIS_PAYES)),
-        r.get(DEMANDE.MOTIF_REJET));
+        r.get(DEMANDE.MOTIF_REJET),
+        Boolean.TRUE.equals(r.get(A_TRAITER_PAR_MOI, Boolean.class)));
   }
 }

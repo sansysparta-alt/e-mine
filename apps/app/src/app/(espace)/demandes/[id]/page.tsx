@@ -188,7 +188,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
       <dl className="grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-[auto_1fr]">
         <dt className="font-semibold">{t("statut")}</dt>
         <dd>
-          <StatutDemande statut={demande.statut} fraisPayes={demande.fraisPayes} />
+          <StatutDemande demande={demande} interne={moi.interne} />
         </dd>
         <dt className="font-semibold">{t("document")}</dt>
         <dd>{document ? `${document.libelleFr} (${document.code})` : demande.typeDocumentCode}</dd>

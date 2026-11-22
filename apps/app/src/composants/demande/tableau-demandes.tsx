@@ -13,6 +13,8 @@ export type TableauDemandesProps = {
   lienTri?: (colonne: string) => string;
   /** Colonnes triables (selon ce que l'API sait trier). */
   triables?: string[];
+  /** Profil interne : libellés de statut de l'agent (sinon ceux du demandeur). */
+  interne?: boolean;
 };
 
 const LienNext: ComposantLien = ({ href, children, ...props }) => (
@@ -37,6 +39,7 @@ export function TableauDemandes({
   tri,
   lienTri,
   triables = [],
+  interne = false,
 }: TableauDemandesProps) {
   const t = useTranslations("mesDemandes");
   return (
@@ -69,7 +72,7 @@ export function TableauDemandes({
           cle: "statut",
           entete: t("colonnes.statut"),
           triable: triables.includes("statut"),
-          rendu: (d) => <StatutDemande statut={d.statut} fraisPayes={d.fraisPayes} />,
+          rendu: (d) => <StatutDemande demande={d} interne={interne} />,
         },
         {
           cle: "date",

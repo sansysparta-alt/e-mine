@@ -831,5 +831,34 @@
       "suivant": "Next file",
       "quitter": "Stop processing"
     }
+  },
+  "statutsAffiches": {
+    "demandeur": {
+      "brouillon": "Draft",
+      "fraisAPayer": "Fee to pay",
+      "verification": "Being checked",
+      "complementAFournir": "Documents to provide",
+      "instruction": "Under review",
+      "droitsAPayer": "Duties to pay",
+      "preparation": "Document being prepared",
+      "delivre": "Document issued",
+      "rejetee": "Rejected",
+      "archivee": "Archived"
+    },
+    "agent": {
+      "fraisAttendus": "Fee pending",
+      "aExaminer": "To review",
+      "auGuichet": "At the front desk",
+      "complementAttendu": "Documents pending",
+      "aDecider": "To decide",
+      "attenteDecision": "Awaiting decision",
+      "instruction": "Under review",
+      "droitsAttendus": "Duties pending",
+      "aSigner": "To sign",
+      "attenteSignature": "Awaiting signature",
+      "delivree": "Issued",
+      "rejetee": "Rejected",
+      "archivee": "Archived"
+    }
   }
 }
