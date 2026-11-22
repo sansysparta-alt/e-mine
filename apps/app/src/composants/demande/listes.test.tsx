@@ -46,6 +46,8 @@ function demande(id: number, statut: string, numero: string | null): DemandeDto 
     motifRejet: null,
     etapeDepuis: "2026-11-20T10:00:00Z",
     aTraiterParMoi: false,
+    passages: 0,
+    bloque: false,
   };
 }
 
