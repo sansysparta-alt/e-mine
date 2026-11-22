@@ -34,7 +34,9 @@ function agent({ statut, fraisPayes, aTraiterParMoi: moi }: DemandeAffichee): [s
     if (!fraisPayes) return ["fraisAttendus", "neutre"];
     return moi ? ["aExaminer", "avertissement"] : ["auGuichet", "info"];
   }
-  if (statut === "complement_requis") return ["complementAttendu", "neutre"];
+  // US-05.2 : sans réponse dans le délai, l'agent qui l'a demandé relance ou clôt (orange).
+  if (statut === "complement_requis")
+    return moi ? ["sansReponse", "avertissement"] : ["complementAttendu", "neutre"];
   if (statut === "recevable")
     return moi ? ["aDecider", "avertissement"] : ["attenteDecision", "info"];
   if (statut === "en_instruction" || statut === "avis_rendu") return ["instruction", "info"];

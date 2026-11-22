@@ -4,6 +4,7 @@ import {
   lireDecision,
   lireDemande,
   lireDocumentDelivre,
+  lireComplements,
   compterATraiter,
   lireEtatDelivrance,
   listerDemandes,
@@ -16,6 +17,7 @@ import {
   Bouton,
   Carte,
   EnTetePage,
+  formaterDate,
   formaterDateHeure,
   formaterGnf,
   joursCalendairesDepuis,
@@ -33,6 +35,12 @@ import { DocumentDelivre } from "@/composants/delivrance/document-delivre";
 import { peutRevoquer } from "@/composants/delivrance/revocation";
 import { RevoquerDocument } from "@/composants/delivrance/revoquer-document";
 import { SignerDelivrer } from "@/composants/delivrance/signer-delivrer";
+import {
+  ComplementSansReponse,
+  HistoriqueComplements,
+  ReponseComplement,
+  ResumeComplement,
+} from "@/composants/instruction/complements";
 import { DecisionRendue } from "@/composants/instruction/decision-rendue";
 import { ExamenRecevabilite } from "@/composants/instruction/examen-recevabilite";
 import { PriseDecision } from "@/composants/instruction/prise-decision";
@@ -47,8 +55,12 @@ import {
   positionDansFile,
 } from "@/composants/travail/file-travail";
 import {
+  cloreSansReponse,
   declarer,
+  demanderUnComplement,
+  relancerDemandeur,
   rendreDecision,
+  repondreAuComplement,
   revoquer,
   signerEtDelivrer,
 } from "@/serveur/actions-instruction";
@@ -80,6 +92,8 @@ type Props = {
   params: Promise<{ id: string }>;
   searchParams: Promise<{
     deposee?: string;
+    /** Réponse au complément envoyée (US-05.2) : confirmation au demandeur. */
+    complement?: string;
     depuis?: string;
     /** Traitement en série : groupe de la file de travail d'où le dossier est ouvert. */
     file?: string;
@@ -93,7 +107,7 @@ type Props = {
 /** Une demande déposée (US-03.4) : numéro, statut, document, pièces et prochaine étape. */
 export default async function DetailDemande({ params, searchParams }: Props) {
   const [{ id }, recherche] = await Promise.all([params, searchParams]);
-  const { deposee, depuis, file } = recherche;
+  const { deposee, depuis, file, complement: complementEnvoye } = recherche;
   if (!/^\d{1,18}$/.test(id)) notFound();
   const chemin = `/demandes/${id}`;
   let demande;
@@ -117,6 +131,15 @@ export default async function DetailDemande({ params, searchParams }: Props) {
     ? (await appelPage(chemin, async () => listerPassages(Number(id), await optionsApi()))).data
     : null;
   const document = documents.find((d) => d.code === demande.typeDocumentCode);
+  // US-05.2 : compléments demandés (en cours et traités), lus par qui voit la demande.
+  const etatComplements = (
+    await appelPage(chemin, async () => lireComplements(Number(id), await optionsApi()))
+  ).data;
+  const complementOuvert = etatComplements.complements.find((c) => c.ouvert) ?? null;
+  const complementsTraites = etatComplements.complements.filter((c) => !c.ouvert);
+  // Délai dépassé et complément demandé par son service : l'agent relance ou clôt (À traiter).
+  const sansReponse =
+    complementOuvert !== null && etatComplements.delaiDepasse && demande.aTraiterParMoi;
   // US-05.1 : l'agent qui instruit examine la recevabilité d'une demande déposée.
   const examen =
     demande.statut === "deposee" && moi.interne && moi.permissions.includes("INSTRUIRE")
@@ -155,7 +178,9 @@ export default async function DetailDemande({ params, searchParams }: Props) {
     ? { cle: "signataireDecider", pour: "agent" as const }
     : etatDelivrance?.peutDelivrer
       ? { cle: "signataireDelivrer", pour: "agent" as const }
-      : etapeCalculee;
+      : sansReponse
+        ? { cle: "agentSansReponse", pour: "agent" as const }
+        : etapeCalculee;
   const numero = demande.numero ?? "";
   const attenteEtape = joursCalendairesDepuis(demande.etapeDepuis);
   // Traitement en série (correctifs J5) : position dans la file, dossier suivant après l'action.
@@ -195,6 +220,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
   });
   const tTravail = await getTranslations("travail");
   const tDates = await getTranslations("dates");
+  const tComplement = await getTranslations("instruction.complement");
   // Retour vers la file de travail d'où vient l'agent (correctifs J4 et J5).
   const retour = groupeSerie
     ? { href: `/a-traiter?groupe=${groupeSerie.cle}`, cle: "retourTravail" }
@@ -203,7 +229,10 @@ export default async function DetailDemande({ params, searchParams }: Props) {
       : { href: "/demandes", cle: "retourListe" };
   /** L'agent a une action à mener ici : mise en page dossier + panneau d'action. */
   const actionAgent =
-    examen !== null || etatDecision?.peutDecider === true || etatDelivrance?.peutDelivrer === true;
+    examen !== null ||
+    sansReponse ||
+    etatDecision?.peutDecider === true ||
+    etatDelivrance?.peutDelivrer === true;
   const actionPayer =
     etape?.cle === "demandeurPayerFrais"
       ? "FRAIS"
@@ -309,6 +338,12 @@ export default async function DetailDemande({ params, searchParams }: Props) {
         <DecisionRendue etat={etatDecision} />
       </Carte>
     ) : null;
+  const blocComplements =
+    complementsTraites.length > 0 ? (
+      <Carte titre={tComplement("historique.titre", { nombre: complementsTraites.length })}>
+        <HistoriqueComplements complements={complementsTraites} interne={moi.interne} />
+      </Carte>
+    ) : null;
   const blocPaiements =
     paiements.data.length > 0 ? (
       <Carte titre={t("paiements.titre", { nombre: paiements.data.length })}>
@@ -322,8 +357,35 @@ export default async function DetailDemande({ params, searchParams }: Props) {
           montant: aPayer != null ? formaterGnf(aPayer) : "—",
           droits: document?.tarifs.droitsGnf != null ? formaterGnf(document.tarifs.droitsGnf) : "—",
           signataire: etatDecision?.signataire ?? document?.signataire ?? "—",
+          limite: complementOuvert ? formaterDate(complementOuvert.dateLimite) : "—",
         })}
       </p>
+      {complementOuvert ? (
+        <div className="mt-4 border-t border-bordure pt-4">
+          <ResumeComplement complement={complementOuvert} interne={moi.interne} />
+        </div>
+      ) : null}
+      {complementOuvert && etatComplements.peutRepondre ? (
+        <div className="mt-4 border-t border-bordure pt-4">
+          <ReponseComplement
+            demandeId={demande.id}
+            complement={complementOuvert}
+            repondre={repondreAuComplement}
+          />
+        </div>
+      ) : null}
+      {complementOuvert && sansReponse ? (
+        <div className="mt-4 border-t border-bordure pt-4">
+          <ComplementSansReponse
+            demandeId={demande.id}
+            numero={numero}
+            dateLimite={complementOuvert.dateLimite}
+            relancer={relancerDemandeur}
+            clore={cloreSansReponse}
+            serie={serie}
+          />
+        </div>
+      ) : null}
       {examen ? (
         <div className="mt-4 border-t border-bordure pt-4">
           <ExamenRecevabilite
@@ -332,6 +394,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
             examen={examen}
             piecesRequises={document?.piecesRequises ?? []}
             declarer={declarer}
+            demanderComplement={demanderUnComplement}
             serie={serie}
           />
         </div>
@@ -387,6 +450,11 @@ export default async function DetailDemande({ params, searchParams }: Props) {
         </Alerte>
       ) : null}
       {barre}
+      {complementEnvoye === "envoye" && !moi.interne ? (
+        <Alerte nature="succes" titre={tComplement("reponse.envoyee")}>
+          {tComplement("reponse.envoyeeSuite")}
+        </Alerte>
+      ) : null}
       {deposee === "1" ? (
         <Alerte nature="succes" titre={t("confirmation", { numero })}>
           {t("confirmationSuite")}
@@ -412,6 +480,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
             {blocPassages}
             {blocDocument}
             {blocPieces}
+            {blocComplements}
             {blocDecision}
             {blocPaiements}
           </div>
@@ -429,6 +498,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
           {blocDocument}
           {blocEtape}
           {blocDecision}
+          {blocComplements}
           {blocPaiements}
           {blocPieces}
         </>

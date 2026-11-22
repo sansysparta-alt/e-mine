@@ -1,5 +1,6 @@
 package gn.gov.mines.emine.demande.infrastructure;
 
+import static gn.gov.mines.emine.shared.jooq.Tables.COMPLEMENT;
 import static gn.gov.mines.emine.shared.jooq.Tables.PIECE_JOINTE;
 
 import gn.gov.mines.emine.demande.domaine.Piece;
@@ -66,6 +67,27 @@ public class PieceRepository {
         .where(PIECE_JOINTE.ID.eq(pieceId))
         .and(PIECE_JOINTE.DEMANDE_ID.eq(demandeId))
         .and(PIECE_JOINTE.DELETED_AT.isNull())
+        .execute();
+  }
+
+  /**
+   * Retrait d'une pièce jointe <b>pendant le complément ouvert</b> (US-05.2) : seules les pièces
+   * ajoutées depuis la demande de complément peuvent être retirées ; le dossier déposé reste
+   * intact.
+   */
+  public int retirerPendantComplement(long demandeId, long pieceId) {
+    return dsl.update(PIECE_JOINTE)
+        .set(PIECE_JOINTE.DELETED_AT, Instant.now())
+        .where(PIECE_JOINTE.ID.eq(pieceId))
+        .and(PIECE_JOINTE.DEMANDE_ID.eq(demandeId))
+        .and(PIECE_JOINTE.DELETED_AT.isNull())
+        .and(
+            PIECE_JOINTE.CREATED_AT.ge(
+                dsl.select(COMPLEMENT.DEMANDE_LE)
+                    .from(COMPLEMENT)
+                    .where(COMPLEMENT.DEMANDE_ID.eq(demandeId))
+                    .and(COMPLEMENT.REPONDU_LE.isNull())
+                    .and(COMPLEMENT.CLOS_LE.isNull())))
         .execute();
   }
 

@@ -81,7 +81,7 @@ class ATraiterTest extends TestIntegration {
   @Test
   void leGuichetExamineLesDemandesDontLesFraisSontPayes() throws Exception {
     Map<String, List<Long>> groupes = verifierCoherence(jeton(GUICHET, "GUICHET"));
-    assertThat(groupes.keySet()).containsExactly("a-examiner");
+    assertThat(groupes.keySet()).containsExactly("a-examiner", "sans-reponse");
     assertThat(groupes.get("a-examiner")).contains(aExaminer).doesNotContain(fraisDus, pexADecider);
   }
 

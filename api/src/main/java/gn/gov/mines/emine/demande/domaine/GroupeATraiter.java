@@ -16,6 +16,11 @@ public enum GroupeATraiter {
   COMPLETER("completer"),
   /** Guichet : recevabilité à prononcer (demande déposée, frais payés). */
   A_EXAMINER("a-examiner"),
+  /**
+   * Agent qui instruit : complément demandé par son profil, sans réponse dans le délai (US-05.2) —
+   * relancer ou clore avec un motif.
+   */
+  SANS_REPONSE("sans-reponse"),
   /** Signataire du catalogue : décision à rendre (demande recevable). */
   A_DECIDER("a-decider"),
   /** Signataire du catalogue : document à signer et délivrer (droits payés). */

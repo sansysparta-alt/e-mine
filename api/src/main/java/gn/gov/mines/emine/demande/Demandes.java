@@ -51,6 +51,18 @@ public class Demandes {
   }
 
   /**
+   * Types des pièces jointes (non retirées) ajoutées depuis un instant : réponse à un complément
+   * (US-05.2). Liste vide si la demande n'est pas visible.
+   */
+  @Transactional(readOnly = true)
+  public List<String> typesPiecesAjouteesDepuis(long id, java.time.Instant depuis) {
+    return pieces.lister(id).stream()
+        .filter(p -> !p.deposeLe().isBefore(depuis))
+        .map(Piece::typePiece)
+        .toList();
+  }
+
+  /**
    * Résumé d'une demande pour les autres modules.
    *
    * @param numero {@code DEM-AAAA-NNNNNN}, {@code null} pour un brouillon

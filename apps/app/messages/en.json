@@ -314,13 +314,13 @@
         "demandeur": "Next step"
       },
       "agentVerifier": "The application fee has been paid. Check the attached documents, then declare the application admissible or inadmissible.",
-      "agentAttenteComplement": "Additional information was requested: the application is waiting for the applicant's documents.",
+      "agentAttenteComplement": "Additional information was requested: the application awaits the applicant’s answer until {limite}. The processing time is suspended.",
       "agentInstruire": "Review the application and give your opinion.",
       "agentDecision": "Opinion given: the signatory's decision is expected.",
       "agentAttenteDroits": "Approval given: the application awaits payment of the duties by the applicant.",
       "agentDelivrer": "The application is ready for issuance: the document can be prepared, signed and issued.",
       "demandeurPayerFrais": "Pay the application fee ({montant}) so that the one-stop shop officer can review your application.",
-      "demandeurCompleter": "Additional information is requested: attach the documents indicated by the front desk officer.",
+      "demandeurCompleter": "Additional information is requested: attach the listed documents and send your answer before {limite}.",
       "demandeurInstruction": "Your application is being reviewed by the Ministry's services.",
       "demandeurPayerDroits": "A favourable decision was issued: pay the duties ({droits}) to obtain your document.",
       "demandeurDelivrance": "Your application is ready for issuance: your document is being prepared.",
@@ -334,7 +334,8 @@
       "demandeurAttenteGuichet": "Application fee paid. The one-stop shop officer is now reviewing your file; you will be informed of the decision.",
       "agentAttenteDecision": "Admissible application: the signatory’s decision ({signataire}) is awaited.",
       "signataireDecider": "This application is admissible and you are its signatory. Review the file and the attached documents below, then give your decision.",
-      "signataireDelivrer": "The duties are paid: you can sign and issue the document. Check the file one last time."
+      "signataireDelivrer": "The duties are paid: you can sign and issue the document. Check the file one last time.",
+      "agentSansReponse": "The applicant did not answer in time: send a reminder or close the file."
     },
     "fraisPayes": "Fee paid",
     "paiements": {
@@ -638,7 +639,7 @@
       "verificationRequise": "Tick this box after checking the documents.",
       "pasEncoreTitre": "The application cannot be declared admissible yet",
       "pasEncoreFrais": "The application fee has not been paid. You can declare it admissible as soon as the payment is confirmed.",
-      "pasEncorePieces": "A mandatory document has no file. If the file cannot succeed, declare it inadmissible and give the reason.",
+      "pasEncorePieces": "A mandatory document has no file. Request additional information from the applicant; if the file cannot succeed, declare it inadmissible and give the reason.",
       "declarerRecevable": "Declare admissible",
       "declarerNonRecevable": "Declare inadmissible…",
       "enCours": "Saving…",
@@ -692,6 +693,66 @@
         "par": "By",
         "motif": "Reason",
         "observations": "Remarks"
+      }
+    },
+    "complement": {
+      "titre": "Additional information requested",
+      "demandeLe": "Requested on",
+      "demandeLeValeur": "{date}, by {auteur}",
+      "motif": "What is requested",
+      "piecesDemandees": "Documents to provide",
+      "dateLimite": "Answer expected before",
+      "relanceLe": "reminder sent on {date}",
+      "demande": {
+        "bouton": "Request additional information…",
+        "titre": "Request additional information for application {numero}",
+        "explication": "The applicant will be notified and will have 5 days to answer. The processing time is suspended until the answer; the application will then come back to you.",
+        "pieces": "Documents to provide",
+        "piecesAide": "Tick the expected documents. Mandatory documents without a file are already ticked.",
+        "autre": "Other expected document (optional)",
+        "motif": "What the applicant must do",
+        "motifAide": "Be specific: what is missing or unsuitable, and what is expected. At least 10 characters.",
+        "annuler": "Cancel",
+        "confirmer": "Send the request",
+        "enCours": "Sending…",
+        "echec": "The request was not sent"
+      },
+      "reponse": {
+        "message": "Your answer",
+        "messageAide": "Add a note for the officer if needed.",
+        "messageAideObligatoire": "Answer the officer’s request. At least 10 characters.",
+        "piecesManquantes": "First attach: {pieces}.",
+        "envoyer": "Send my answer",
+        "enCours": "Sending…",
+        "echec": "Your answer was not sent",
+        "envoyee": "Your answer has been sent",
+        "envoyeeSuite": "Your application is back with the Ministry’s services. The processing time resumes.",
+        "erreurs": {
+          "court": "Write your answer in at least 10 characters.",
+          "long": "Your answer exceeds 2000 characters: please shorten it."
+        }
+      },
+      "sansReponse": {
+        "titre": "Answer deadline passed",
+        "explication": "The applicant did not answer before {date}. Send a reminder (new 5-day deadline) or close the file.",
+        "relancer": "Remind the applicant",
+        "clore": "Close the file…",
+        "enCours": "Saving…",
+        "echec": "The action was not saved",
+        "dialogue": {
+          "titre": "Close application {numero} without an answer",
+          "explication": "The application will be rejected and the applicant notified. This decision cannot be undone.",
+          "motif": "Reason given to the applicant",
+          "aide": "Recall what was requested and the lack of answer within the deadline. At least 10 characters.",
+          "annuler": "Cancel",
+          "confirmer": "Close the file"
+        }
+      },
+      "historique": {
+        "titre": "Additional information ({nombre})",
+        "repondu": "Answer received on {date}",
+        "clos": "Closed without an answer on {date}",
+        "enAttente": "Awaiting an answer"
       }
     }
   },
@@ -876,7 +937,8 @@
       "a-examiner": "To review",
       "frais-attendus": "Fee pending",
       "a-decider": "To decide",
-      "a-signer": "To sign"
+      "a-signer": "To sign",
+      "sans-reponse": "No answer"
     },
     "commencer": "{nombre, plural, one {Start processing (# file)} other {Start processing (# files)}}",
     "continuer": "{nombre, plural, one {Continue: # file left} other {Continue: # files left}}",
@@ -888,11 +950,12 @@
       "bouton": "Search"
     },
     "aide": {
-      "tout": "Decisions and signatures that fall to you, oldest first.",
+      "tout": "Everything that is yours to handle now, oldest files first.",
       "a-examiner": "Fee paid: check the documents and rule on admissibility. A wait of 5 days or more is highlighted.",
       "frais-attendus": "For information: these applications can be reviewed once the fee is paid.",
       "a-decider": "Admissible applications you sign: give your decision.",
-      "a-signer": "Duties paid: sign and issue the document."
+      "a-signer": "Duties paid: sign and issue the document.",
+      "sans-reponse": "Additional information requested by your service with no answer after the 5-day deadline: remind the applicant or close the file."
     },
     "colonnes": {
       "numero": "Number",
@@ -916,7 +979,9 @@
       "rejetee": "Application {numero} rejected.",
       "decision": "Approval recorded for application {numero}.",
       "droits_payes": "Approval recorded for application {numero}: it is ready for issuance.",
-      "delivree": "Document {document} signed and issued for application {numero}."
+      "delivree": "Document {document} signed and issued for application {numero}.",
+      "complement_requis": "Additional information requested for application {numero}.",
+      "relance": "Applicant reminded for application {numero}: new 5-day deadline."
     },
     "serie": {
       "libelle": "Batch processing",
@@ -982,7 +1047,8 @@
       "attenteSignature": "Awaiting signature",
       "delivree": "Issued",
       "rejetee": "Rejected",
-      "archivee": "Archived"
+      "archivee": "Archived",
+      "sansReponse": "No answer"
     }
   },
   "dates": {

@@ -28,6 +28,11 @@ export type SectionPiecesProps = {
   piecesRequises: string[];
   /** Prévenu à chaque changement de la liste (récapitulatif, dépôt). */
   surChangement?: (pieces: PieceDto[]) => void;
+  /**
+   * Réponse à un complément (US-05.2) : seules les pièces ajoutées depuis cet instant (ISO 8601)
+   * sont affichées, comptées et modifiables ; le dossier déjà déposé reste intact.
+   */
+  depuis?: string;
 };
 
 type Erreur = { code: string; message?: string };
@@ -50,7 +55,12 @@ async function lireErreur(r: Response): Promise<Erreur> {
  * l'envoie aussitôt ; une pièce obligatoire déjà fournie se remplace en un geste ; chaque fichier
  * s'ouvre dans le visualiseur (consultation, puis téléchargement si besoin) ou se retire.
  */
-export function SectionPieces({ demandeId, piecesRequises, surChangement }: SectionPiecesProps) {
+export function SectionPieces({
+  demandeId,
+  piecesRequises,
+  surChangement,
+  depuis,
+}: SectionPiecesProps) {
   const t = useTranslations("demande.pieces");
   const [pieces, setPieces] = useState<PieceDto[] | null>(null);
   const [erreurChargement, setErreurChargement] = useState<Erreur | null>(null);
@@ -71,7 +81,9 @@ export function SectionPieces({ demandeId, piecesRequises, surChangement }: Sect
         return (await r.json()) as PieceDto[];
       })
       .then((liste) => {
-        if (actif) setPieces(liste);
+        if (!actif) return;
+        const seuil = depuis ? Date.parse(depuis) : null;
+        setPieces(seuil === null ? liste : liste.filter((p) => Date.parse(p.deposeLe) >= seuil));
       })
       .catch((e: Erreur) => {
         if (actif) setErreurChargement(e);
@@ -79,7 +91,7 @@ export function SectionPieces({ demandeId, piecesRequises, surChangement }: Sect
     return () => {
       actif = false;
     };
-  }, [url]);
+  }, [url, depuis]);
 
   // Le parent (récapitulatif, dépôt) est prévenu après chaque changement de la liste, dans un
   // effet : jamais pendant le rendu ni dans une fonction de mise à jour d'état (interdit par React).

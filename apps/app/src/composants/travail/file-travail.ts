@@ -7,6 +7,7 @@ import { tailleAutorisee } from "@emine/ui";
 export const CLES_GROUPE = [
   "tout",
   "a-examiner",
+  "sans-reponse",
   "frais-attendus",
   "a-decider",
   "a-signer",
@@ -43,7 +44,7 @@ export type ProfilTravail = {
 /** Réponse de l'API « à traiter » (même règle que la liste filtrée). */
 export type CompteurATraiter = { total: number; groupes: { cle: string; nombre: number }[] };
 
-const CLES_AGENT: readonly string[] = ["a-examiner", "a-decider", "a-signer"];
+const CLES_AGENT: readonly string[] = ["a-examiner", "sans-reponse", "a-decider", "a-signer"];
 
 /**
  * Groupes de la file de travail de l'agent, construits à partir du compteur « à traiter » de l'API
@@ -100,7 +101,15 @@ export const GROUPE_PAR_ACTION: Record<ActionAttendue, CleGroupe> = {
   signer: "a-signer",
 };
 
-const RESULTATS = ["recevable", "rejetee", "decision", "droits_payes", "delivree"] as const;
+const RESULTATS = [
+  "recevable",
+  "rejetee",
+  "decision",
+  "droits_payes",
+  "delivree",
+  "complement_requis",
+  "relance",
+] as const;
 export type ResultatAction = (typeof RESULTATS)[number];
 const NUMERO = /^DEM-\d{4}-\d{6}$/;
 const NUMERO_DOCUMENT = /^[A-Z]{3}-\d{4}-\d{4,}$/;

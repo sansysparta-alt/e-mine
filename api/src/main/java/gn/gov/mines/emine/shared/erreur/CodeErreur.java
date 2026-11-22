@@ -41,6 +41,13 @@ public enum CodeErreur {
   DEM_007("DEM-007", HttpStatus.UNPROCESSABLE_CONTENT),
   /** Décision réservée au signataire désigné par le catalogue (D4, {@code details.signataire}). */
   DEM_008("DEM-008", HttpStatus.FORBIDDEN),
+  /** Relance ou clôture d'un complément avant la fin du délai de réponse (US-05.2). */
+  DEM_009("DEM-009", HttpStatus.CONFLICT),
+  /**
+   * Réponse à un complément sans une pièce demandée ({@code details.piecesManquantes}), ou sans
+   * message quand aucune pièce n'est demandée (US-05.2).
+   */
+  DEM_010("DEM-010", HttpStatus.UNPROCESSABLE_CONTENT),
   /** Objet déjà payé pour cette demande (index {@code ux_paiement_paye}). */
   PAY_001("PAY-001", HttpStatus.CONFLICT),
   /** Trois tentatives de paiement en ligne atteintes aujourd'hui pour cet objet (US-04.3). */
