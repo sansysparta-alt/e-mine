@@ -5,6 +5,7 @@ import {
   declarerRecevabilite,
   delivrer,
   type DocumentDelivreDto,
+  revoquerDocument,
   type ResultatDecisionDto,
   type ResultatRecevabiliteDto,
 } from "@emine/api-client";
@@ -63,6 +64,27 @@ export async function signerEtDelivrer(id: number): Promise<ResultatAction<Docum
   try {
     const session = await lireSession();
     const reponse = await delivrer(id, { headers: await enTetesApi(session) });
+    return { ok: true, valeur: reponse.data };
+  } catch (e) {
+    return { ok: false, erreur: versErreurFormulaire(e) };
+  }
+}
+
+/**
+ * Révoque le document délivré (US-06.6) avec un motif : l'API réserve l'action aux profils Directeur
+ * et Brigade.
+ */
+export async function revoquer(
+  id: number,
+  motif: string,
+): Promise<ResultatAction<DocumentDelivreDto>> {
+  try {
+    const session = await lireSession();
+    const reponse = await revoquerDocument(
+      id,
+      { motif: motif.trim() },
+      { headers: await enTetesApi(session) },
+    );
     return { ok: true, valeur: reponse.data };
   } catch (e) {
     return { ok: false, erreur: versErreurFormulaire(e) };

@@ -379,6 +379,44 @@
         }
       }
     },
+    "/api/v1/demandes/{id}/document/revocation" : {
+      "post" : {
+        "tags" : [ "Délivrance" ],
+        "summary" : "Révoquer le document délivré (Directeur, Brigade) avec un motif de 10 à 2000 caractères : la vérification affiche « NON VALIDE »",
+        "operationId" : "revoquerDocument",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RevocationDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DocumentDelivreDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/demandes/{id}/depot" : {
       "post" : {
         "tags" : [ "Demandes" ],
@@ -1279,14 +1317,14 @@
         },
         "required" : [ "creeLe", "dateExpiration", "datePaiement", "demandeId", "montantGnf", "montantRecuGnf", "moyen", "objet", "recuNumero", "reference", "statut" ]
       },
-      "DepotDto" : {
+      "RevocationDto" : {
         "type" : "object",
         "properties" : {
-          "declarationHonneur" : {
-            "type" : "boolean"
+          "motif" : {
+            "type" : [ "string", "null" ]
           }
         },
-        "required" : [ "declarationHonneur" ]
+        "required" : [ "motif" ]
       },
       "DocumentDelivreDto" : {
         "type" : "object",
@@ -1318,6 +1356,15 @@
           }
         },
         "required" : [ "codeType", "delivreLe", "empreinteSha256", "motifInvalidation", "numero", "signataire", "urlVerification", "valide" ]
+      },
+      "DepotDto" : {
+        "type" : "object",
+        "properties" : {
+          "declarationHonneur" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "declarationHonneur" ]
       },
       "DecisionDto" : {
         "type" : "object",

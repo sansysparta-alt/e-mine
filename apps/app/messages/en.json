@@ -829,6 +829,19 @@
       "voir": "View the document",
       "verifier": "Verification page",
       "nouvelOnglet": "(opens in a new tab)"
+    },
+    "revocation": {
+      "action": "Revoke…",
+      "titre": "Revoke document {numero}",
+      "explication": "The document will show as “NOT VALID” on the public verification page, immediately. Revocation is final.",
+      "motif": "Reason for revocation",
+      "aide": "Give the reason (fraud, clerical error, title withdrawn…). At least 10 characters.",
+      "annuler": "Cancel",
+      "confirmer": "Revoke permanently",
+      "enCours": "Revoking…",
+      "echec": "The document was not revoked",
+      "indisponible": "The service is temporarily unavailable. Try again in a moment.",
+      "succes": "Document {numero} is revoked: its verification shows “NOT VALID”."
     }
   }
 }
