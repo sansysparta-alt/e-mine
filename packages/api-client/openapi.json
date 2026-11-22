@@ -653,6 +653,33 @@
         }
       }
     },
+    "/api/v1/verification/{code}" : {
+      "get" : {
+        "tags" : [ "Vérification" ],
+        "summary" : "Document authentique ou NON VALIDE (révoqué), par le code du QR",
+        "operationId" : "verifierDocument",
+        "parameters" : [ {
+          "name" : "code",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/VerificationDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/types-documents" : {
       "get" : {
         "tags" : [ "Catalogue" ],
@@ -1420,6 +1447,34 @@
           }
         },
         "required" : [ "deposeLe", "empreinteSha256", "id", "nomFichier", "tailleOctets", "typeMime", "typePiece" ]
+      },
+      "VerificationDto" : {
+        "type" : "object",
+        "properties" : {
+          "statut" : {
+            "type" : "string"
+          },
+          "numero" : {
+            "type" : "string"
+          },
+          "codeType" : {
+            "type" : "string"
+          },
+          "document" : {
+            "type" : "string"
+          },
+          "delivreLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "signataire" : {
+            "type" : [ "string", "null" ]
+          },
+          "empreinteSha256" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "codeType", "delivreLe", "document", "empreinteSha256", "numero", "signataire", "statut" ]
       },
       "Famille" : {
         "type" : "object",

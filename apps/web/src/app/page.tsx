@@ -8,9 +8,12 @@ export default async function Accueil() {
     <main id="contenu" className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-12 sm:px-6">
       <h1 className="text-3xl sm:text-5xl">{t("titre")}</h1>
       <p className="max-w-2xl text-lg text-texte-doux sm:text-xl">{t("presentation")}</p>
-      <div>
+      <div className="flex flex-col gap-3 sm:flex-row">
         <Bouton asChild taille="grande">
           <Link href="/catalogue">{t("lienCatalogue")}</Link>
+        </Bouton>
+        <Bouton asChild taille="grande" variante="secondaire">
+          <Link href="/verifier">{t("lienVerifier")}</Link>
         </Bouton>
       </div>
       <Alerte titre={t("avertissement")} />

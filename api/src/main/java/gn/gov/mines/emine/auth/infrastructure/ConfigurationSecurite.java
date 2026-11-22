@@ -58,6 +58,10 @@ class ConfigurationSecurite {
                         "/api/v1/types-documents/*",
                         "/api/v1/referentiels/*")
                     .permitAll()
+                    // Vérification publique d'un document délivré (US-06.5) : sans donnée
+                    // personnelle
+                    .requestMatchers(HttpMethod.GET, "/api/v1/verification/*")
+                    .permitAll()
                     // Notification TrésorPay (US-04.4) : authentifiée par sa signature HMAC
                     .requestMatchers(HttpMethod.POST, "/api/v1/paiements/notifications/tresorpay")
                     .permitAll()

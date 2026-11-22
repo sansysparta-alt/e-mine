@@ -71,6 +71,8 @@ public enum CodeErreur {
   DOC_005("DOC-005", HttpStatus.NOT_FOUND),
   /** Document déjà révoqué : la révocation est définitive. */
   DOC_006("DOC-006", HttpStatus.CONFLICT),
+  /** Aucun document ne correspond à ce code de vérification (vérification publique). */
+  DOC_007("DOC-007", HttpStatus.NOT_FOUND),
   /** Erreur interne : un identifiant d'incident est donné dans le message et les détails. */
   SYS_001("SYS-001", HttpStatus.INTERNAL_SERVER_ERROR),
   /** Ressource ou adresse introuvable. */
