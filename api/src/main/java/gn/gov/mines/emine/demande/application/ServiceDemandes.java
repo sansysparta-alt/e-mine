@@ -104,8 +104,7 @@ public class ServiceDemandes {
     return suivis
         .lire(
             id,
-            code ->
-                catalogue.trouverActif(code).map(t -> t.tarifs().droitsGnf() != null).orElse(false))
+            code -> catalogue.trouver(code).map(t -> t.tarifs().droitsGnf() != null).orElse(false))
         .map(l -> RegleSuivi.suivi(l.situation()))
         .orElseThrow(() -> new ErreurMetier(CodeErreur.DEM_002, Map.of("id", id)));
   }

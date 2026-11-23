@@ -38,7 +38,8 @@ public class Demandes {
                     d.demandeur().id(),
                     (d.demandeur().prenom() + " " + d.demandeur().nom()).strip(),
                     d.demandeur().organisation(),
-                    d.fraisPayes()));
+                    d.fraisPayes(),
+                    demandes.versionDocument(d.id()).orElse(null)));
   }
 
   /**
@@ -79,6 +80,8 @@ public class Demandes {
    * @param demandeurNom prénom et nom du demandeur
    * @param organisation organisation du demandeur, {@code null} pour une personne physique
    * @param fraisPayes frais de dossier (ou attestation) payés : condition de la recevabilité (V8)
+   * @param versionDocumentId version de la fiche en vigueur au dépôt (V18) : délai, avis requis et
+   *     signataire de cette demande ; {@code null} pour un brouillon
    */
   public record DemandeResume(
       long id,
@@ -88,5 +91,6 @@ public class Demandes {
       long demandeurId,
       String demandeurNom,
       String organisation,
-      boolean fraisPayes) {}
+      boolean fraisPayes,
+      Long versionDocumentId) {}
 }

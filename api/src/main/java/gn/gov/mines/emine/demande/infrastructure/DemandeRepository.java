@@ -11,7 +11,6 @@ import static gn.gov.mines.emine.shared.jooq.Tables.PREFECTURE;
 import static gn.gov.mines.emine.shared.jooq.Tables.PROFIL;
 import static gn.gov.mines.emine.shared.jooq.Tables.SUBSTANCE;
 import static gn.gov.mines.emine.shared.jooq.Tables.TYPE_DOCUMENT;
-import static gn.gov.mines.emine.shared.jooq.Tables.TYPE_DOCUMENT_AVIS;
 import static gn.gov.mines.emine.shared.jooq.Tables.UTILISATEUR;
 
 import gn.gov.mines.emine.demande.domaine.CritereDemandes;
@@ -139,7 +138,7 @@ public class DemandeRepository {
     if (critere.signataireProfil() != null) {
       condition =
           condition.and(
-              TYPE_DOCUMENT.SIGNATAIRE_PROFIL_ID.in(
+              DEMANDE.SIGNATAIRE_PROFIL_ID.in(
                   DSL.select(PROFIL.ID)
                       .from(PROFIL)
                       .where(PROFIL.CODE.eq(critere.signataireProfil()))));
@@ -211,7 +210,7 @@ public class DemandeRepository {
 
   private static Condition condition(GroupeATraiter groupe, String profilCode) {
     Condition signataire =
-        TYPE_DOCUMENT.SIGNATAIRE_PROFIL_ID.in(
+        DEMANDE.SIGNATAIRE_PROFIL_ID.in(
             DSL.select(PROFIL.ID).from(PROFIL).where(PROFIL.CODE.eq(profilCode)));
     return switch (groupe) {
       case PAYER_FRAIS -> DEMANDE.STATUT.eq(StatutDemande.deposee).and(DSL.not(FRAIS_PAYES_COND));
@@ -242,10 +241,8 @@ public class DemandeRepository {
               .and(
                   DSL.exists(
                       DSL.selectOne()
-                          .from(TYPE_DOCUMENT_AVIS)
-                          .join(PROFIL)
-                          .on(PROFIL.ID.eq(TYPE_DOCUMENT_AVIS.PROFIL_ID))
-                          .where(TYPE_DOCUMENT_AVIS.TYPE_DOCUMENT_ID.eq(DEMANDE.TYPE_DOCUMENT_ID))
+                          .from(PROFIL)
+                          .where(PROFIL.ID.eq(DSL.any(Routines.fnAvisRequis(DEMANDE.ID))))
                           .and(PROFIL.CODE.eq(profilCode))
                           .and(
                               DSL.notExists(
@@ -262,13 +259,7 @@ public class DemandeRepository {
                   DEMANDE
                       .STATUT
                       .eq(StatutDemande.recevable)
-                      .and(
-                          DSL.notExists(
-                              DSL.selectOne()
-                                  .from(TYPE_DOCUMENT_AVIS)
-                                  .where(
-                                      TYPE_DOCUMENT_AVIS.TYPE_DOCUMENT_ID.eq(
-                                          DEMANDE.TYPE_DOCUMENT_ID)))))
+                      .and(DSL.cardinality(Routines.fnAvisRequis(DEMANDE.ID)).eq(0)))
               .and(signataire);
       case A_SIGNER -> DEMANDE.STATUT.eq(StatutDemande.droits_payes).and(signataire);
     };
@@ -305,8 +296,8 @@ public class DemandeRepository {
 
   /**
    * Dossier en retard ({@link RegleDelais}) : en cours, et ses jours de traitement dépassent le
-   * délai du catalogue ({@code type_document.delai_jours}). Un dossier déjà en retard le reste
-   * pendant une pause. Suppose la jointure sur le catalogue.
+   * délai de la fiche en vigueur au dépôt ({@code demande.delai_jours}, V18). Un dossier déjà en
+   * retard le reste pendant une pause. Suppose la jointure sur le catalogue.
    */
   static Condition conditionEnRetard(Instant maintenant) {
     return enCoursDepose().and(joursRestants(maintenant).lt(0));
@@ -323,7 +314,7 @@ public class DemandeRepository {
    * {@code null} tant que le délai n'a pas commencé.
    */
   static Field<Integer> joursRestants(Instant maintenant) {
-    return TYPE_DOCUMENT
+    return DEMANDE
         .DELAI_JOURS
         .cast(Integer.class)
         .minus(Routines.fnJoursTraitement(DEMANDE.ID, DSL.val(maintenant, DEMANDE.DATE_DEPOT)));
@@ -345,8 +336,7 @@ public class DemandeRepository {
         .and(
             joursRestants(maintenant)
                 .between(
-                    DSL.val(0),
-                    Routines.fnSeuilProche(TYPE_DOCUMENT.DELAI_JOURS.cast(Integer.class))));
+                    DSL.val(0), Routines.fnSeuilProche(DEMANDE.DELAI_JOURS.cast(Integer.class))));
   }
 
   /** Le profil connecté a changé le statut du dossier depuis cet instant (historique en base). */
@@ -448,6 +438,17 @@ public class DemandeRepository {
         .where(DEMANDE.ID.eq(id))
         .and(DEMANDE.DELETED_AT.isNull())
         .fetchOptional(DemandeRepository::detail);
+  }
+
+  /**
+   * Version de la fiche en vigueur au dépôt de la demande (V18) ; vide pour un brouillon ou une
+   * demande invisible (RLS).
+   */
+  public Optional<Long> versionDocument(long id) {
+    return dsl.select(DEMANDE.VERSION_DOCUMENT_ID)
+        .from(DEMANDE)
+        .where(DEMANDE.ID.eq(id))
+        .fetchOptional(DEMANDE.VERSION_DOCUMENT_ID);
   }
 
   public Optional<Short> prefecture(short id) {

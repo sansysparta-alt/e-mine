@@ -56,7 +56,7 @@ public class ServiceVerification {
       throw introuvable();
     }
     DocumentDelivre d = registre.parCode(normalise).orElseThrow(ServiceVerification::introuvable);
-    TypeDocument type = catalogue.trouverActif(d.codeType()).orElse(null);
+    TypeDocument type = catalogue.trouver(d.codeType()).orElse(null);
     return new Verification(
         d.valide(),
         d.numero(),

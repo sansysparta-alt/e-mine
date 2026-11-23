@@ -97,6 +97,11 @@ export type VueTableauDeBordProps = {
   periode?: ClePeriode;
   /** Premiers dossiers de la file de travail de l'agent, avec de quoi commencer le traitement. */
   travail?: { groupe: CleGroupe; dossiers: DemandeDto[]; total: number };
+  /**
+   * Ministre (US-02.4) : modifications du catalogue à approuver (même nombre que la liste filtrée
+   * « À approuver » du catalogue) ; absent pour les autres profils.
+   */
+  catalogueAApprouver?: number;
   /** Données indisponibles (API injoignable) : état d'erreur explicite, aucun chiffre. */
   indisponible?: boolean;
 };
@@ -133,6 +138,7 @@ export function VueTableauDeBord({
   indicateurs,
   periode = "mois",
   travail,
+  catalogueAApprouver = 0,
   indisponible = false,
 }: VueTableauDeBordProps) {
   const t = useTranslations("tableauDeBord");
@@ -187,6 +193,21 @@ export function VueTableauDeBord({
             </Bouton>
           }
         />
+      ) : null}
+
+      {catalogueAApprouver > 0 ? (
+        <Alerte
+          nature="avertissement"
+          titre={t("catalogue.titre", { nombre: catalogueAApprouver })}
+        >
+          <p>{t("catalogue.texte")}</p>
+          <Link
+            href="/catalogue?filtre=A_VALIDER"
+            className="mt-1 inline-flex min-h-11 items-center font-semibold text-royal underline"
+          >
+            {t("catalogue.lien")}
+          </Link>
+        </Alerte>
       ) : null}
 
       {profil === "demandeur" ? (

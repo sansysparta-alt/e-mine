@@ -1,5 +1,6 @@
 import {
   Bell,
+  BookOpen,
   FilePlus2,
   FileText,
   Inbox,
@@ -87,6 +88,15 @@ export const NAVIGATION: SectionConfig[] = [
   {
     cle: "administration",
     entrees: [
+      // Catalogue et tarifs (US-02.2) : l'administrateur propose, le Ministre approuve.
+      {
+        cle: "catalogue",
+        module: "catalogue",
+        href: "/catalogue",
+        icone: BookOpen,
+        auMoinsUnDroit: ["PARAMETRER", "VALIDER_CATALOGUE"],
+        interne: true,
+      },
       {
         cle: "journalAudit",
         module: "audit",

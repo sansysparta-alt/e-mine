@@ -188,6 +188,11 @@
       "avisPrecision": "Applications under review awaiting your opinion",
       "sansReponse": "Unanswered requests",
       "sansReponsePrecision": "Requested by your service, answer deadline passed"
+    },
+    "catalogue": {
+      "titre": "{nombre, plural, one {# catalogue change to approve} other {# catalogue changes to approve}}",
+      "texte": "Nothing applies to the catalogue without your approval.",
+      "lien": "See the changes"
     }
   },
   "demande": {
@@ -505,7 +510,8 @@
       "nouvelleDemande": "New application",
       "journalAudit": "Audit log",
       "aTraiter": "To do",
-      "notifications": "Notifications"
+      "notifications": "Notifications",
+      "catalogue": "Catalogue and fees"
     }
   },
   "etats": {
@@ -867,7 +873,9 @@
       "tarif": "Fee",
       "titre": "Mining title",
       "document_delivre": "Issued document",
-      "remboursement": "Refund"
+      "remboursement": "Refund",
+      "version_document": "Catalogue version",
+      "type_document_avis": "Required opinion"
     },
     "champs": {
       "statut": "Status",
@@ -1171,6 +1179,210 @@
     "cloche": {
       "sansNonLues": "Notifications",
       "avecNonLues": "Notifications, {nombre, plural, =1 {1 unread} other {# unread}}"
+    }
+  },
+  "catalogue": {
+    "titre": "Catalogue and fees",
+    "description": {
+      "admin": "Records of the Ministry’s 15 documents. Each change is proposed here, then approved by the Minister before it applies.",
+      "ministre": "Catalogue changes proposed by the administrator: approve or reject them. Nothing applies without your approval."
+    },
+    "chiffres": {
+      "periode": "To date",
+      "documents": "Documents in the catalogue",
+      "propositions": {
+        "admin": "Changes awaiting the Minister",
+        "ministre": "Changes to approve"
+      },
+      "inactifs": "Withdrawn from the catalogue"
+    },
+    "recherche": {
+      "libelle": "Search a document",
+      "exemple": "Document code or name",
+      "bouton": "Search"
+    },
+    "filtres": {
+      "libelle": "Show",
+      "TOUS": "All",
+      "A_VALIDER_admin": "Awaiting the Minister",
+      "A_VALIDER_ministre": "To approve",
+      "INACTIFS": "Withdrawn"
+    },
+    "colonnes": {
+      "code": "Code",
+      "document": "Document",
+      "delai": "Time limit",
+      "signataire": "Signatory",
+      "version": "Version",
+      "statut": "Status"
+    },
+    "jours": "{n, plural, one {# day} other {# days}}",
+    "version": "v{n}",
+    "elements": "documents",
+    "statuts": {
+      "aApprouver": "To approve",
+      "enAttenteMinistre": "Awaiting the Minister",
+      "enVigueur": "In force",
+      "refusee": "Rejected",
+      "retiree": "Withdrawn",
+      "remplacee": "Superseded",
+      "inactif": "Withdrawn from the catalogue"
+    },
+    "vide": {
+      "recherche": "No document matches this search.",
+      "A_VALIDER_admin": "No change awaiting the Minister.",
+      "A_VALIDER_ministre": "No change to approve.",
+      "INACTIFS": "No document withdrawn from the catalogue.",
+      "toutVoir": "See the whole catalogue"
+    },
+    "fiche": {
+      "retour": "Catalogue and fees",
+      "proposer": "Propose a change",
+      "motif": "Purpose of the change",
+      "motifRefus": "Reason for rejection",
+      "vide": "Not provided",
+      "aucunAvis": "No technical opinion required",
+      "jours": "{n, plural, one {# day} other {# days}}",
+      "versionInitiale": "Initial catalogue version.",
+      "actif": {
+        "oui": "Open to applications",
+        "non": "Withdrawn from the catalogue"
+      },
+      "decision": {
+        "publiee": "Approved on {date} by {nom}",
+        "remplacee": "Approved on {date} by {nom}",
+        "refusee": "Rejected on {date} by {nom}",
+        "retiree": "Withdrawn on {date} by {nom}",
+        "a_valider": "Pending"
+      },
+      "champs": {
+        "libelleFr": "Name (French)",
+        "libelleEn": "Name (English)",
+        "pieces": "Required documents",
+        "delaiJours": "Processing time",
+        "instruitPar": "Processed by",
+        "signataire": "Signatory",
+        "avis": "Required technical opinions",
+        "actif": "In the catalogue",
+        "motif": "Purpose of the change"
+      },
+      "changements": {
+        "champ": "Item",
+        "avant": "Currently",
+        "apres": "Proposed"
+      },
+      "proposition": {
+        "titre": "Proposed change (v{numero})",
+        "proposee": "Proposed on {date} by {nom}",
+        "attente": "Waiting for {n, plural, =0 {less than a day} one {# day} other {# days}}",
+        "legende": "What the proposal changes",
+        "aide": {
+          "ministre": "Check each change: it applies as soon as you approve, to applications filed afterwards. Pending applications keep the record in force when they were filed.",
+          "admin": "This change is awaiting the Minister’s approval. You can withdraw it until a decision is made."
+        }
+      },
+      "inactif": {
+        "titre": "Document withdrawn from the catalogue",
+        "texte": "This document can no longer be applied for. Applications already filed will be completed."
+      },
+      "enVigueur": {
+        "titre": "Record in force (v{numero})"
+      },
+      "historique": {
+        "titre": "Version history",
+        "voir": "Show {n, plural, one {the change} other {the # changes}}",
+        "legende": "Changes in version {numero}"
+      },
+      "resultat": {
+        "titre": "Saved",
+        "approuver": "The change is approved: the record in force is updated and the action is recorded in the audit log.",
+        "refuser": "The change is rejected; the administrator will see your reason.",
+        "retirer": "The proposal is withdrawn. The record in force has not changed.",
+        "proposee": "The change (v{numero}) has been sent to the Minister for approval. Nothing changes before the decision."
+      }
+    },
+    "decision": {
+      "approuver": "Approve",
+      "refuser": "Reject",
+      "retirer": "Withdraw the proposal",
+      "annuler": "Cancel",
+      "motif": "Reason for rejection",
+      "motifAide": "The administrator will see it on the record. At least 10 characters.",
+      "echec": "The decision could not be saved",
+      "indisponible": "The service is temporarily unavailable. Please try again shortly.",
+      "signataire": {
+        "titre": "The signatory changes",
+        "texte": "Documents for applications filed after your approval will be decided and signed by the new signatory. Pending applications keep the signatory in force when they were filed."
+      },
+      "desactivation": {
+        "titre": "The document leaves the catalogue",
+        "texte": "It can no longer be applied for. Applications already filed will be completed."
+      },
+      "confirmation": {
+        "approuver": {
+          "titre": "Approve version v{numero}?",
+          "texte": "The record in force will be replaced now. The approval is recorded in your name.",
+          "bouton": "Confirm approval"
+        },
+        "refuser": {
+          "titre": "Reject version v{numero}?",
+          "texte": "The record in force does not change.",
+          "bouton": "Confirm rejection"
+        },
+        "retirer": {
+          "titre": "Withdraw version v{numero}?",
+          "texte": "The proposal will not be submitted to the Minister. You can propose another one.",
+          "bouton": "Withdraw"
+        }
+      }
+    },
+    "formulaire": {
+      "titre": "Propose a change",
+      "retour": "Record {code}",
+      "versionActuelle": "version in force v{numero}",
+      "obligatoire": "required",
+      "facultatif": "optional",
+      "circuit": {
+        "titre": "Minister’s approval",
+        "texte": "Your proposal will be submitted to the Minister. Nothing changes before approval; applications already filed keep the record in force when they were filed."
+      },
+      "sections": {
+        "document": "Document",
+        "circuit": "Processing and signature",
+        "publication": "Catalogue and purpose"
+      },
+      "aide": {
+        "pieces": "One document per line, without commas (20 at most).",
+        "delai": "In calendar days, from 1 to 365. It will apply to applications filed after approval.",
+        "signataire": "The person who decides and signs this document.",
+        "avis": "Profiles that give a reasoned technical opinion before the decision, in this order.",
+        "motif": "Explain the reason for the change to the Minister (at least 10 characters).",
+        "motifDesactivation": "Explain why the document leaves the catalogue (at least 10 characters)."
+      },
+      "actif": "This document can be applied for (in the catalogue)",
+      "signataireChange": {
+        "titre": "Change of signatory",
+        "texte": "It affects the legal value of issued documents: the Minister will see it highlighted."
+      },
+      "desactivation": {
+        "titre": "Withdrawal from the catalogue",
+        "texte": "After approval, the document can no longer be applied for. Applications already filed will be completed. A reason is required."
+      },
+      "erreurs": {
+        "libelleFr": "Enter a name of 3 to 150 characters.",
+        "libelleEn": "Leave empty or enter 3 to 150 characters.",
+        "pieces": "1 to 20 documents, one per line, no commas, 2 to 200 characters each.",
+        "delaiJours": "Enter a number of days between 1 and 365.",
+        "instruitPar": "Enter 2 to 150 characters.",
+        "signataire": "Choose a signatory.",
+        "avis": "Invalid opinion choice.",
+        "actif": "Invalid choice.",
+        "motif": "Explain the change in 10 to 2,000 characters."
+      },
+      "echec": "The proposal could not be sent",
+      "indisponible": "The service is temporarily unavailable. Please try again shortly.",
+      "annuler": "Cancel",
+      "envoyer": "Submit to the Minister"
     }
   }
 }

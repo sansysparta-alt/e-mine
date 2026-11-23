@@ -99,7 +99,7 @@ public class ServiceRecevabilite {
 
   private TypeDocument type(DemandeResume demande) {
     return catalogue
-        .trouverActif(demande.typeDocumentCode())
+        .pourDemande(demande.typeDocumentCode(), demande.versionDocumentId())
         .orElseThrow(
             () -> new ErreurMetier(CodeErreur.DEM_005, Map.of("code", demande.typeDocumentCode())));
   }
@@ -107,7 +107,7 @@ public class ServiceRecevabilite {
   private Examen examen(DemandeResume demande) {
     List<String> requises =
         catalogue
-            .trouverActif(demande.typeDocumentCode())
+            .pourDemande(demande.typeDocumentCode(), demande.versionDocumentId())
             .map(TypeDocument::piecesRequises)
             .orElse(List.of());
     return RegleRecevabilite.examiner(

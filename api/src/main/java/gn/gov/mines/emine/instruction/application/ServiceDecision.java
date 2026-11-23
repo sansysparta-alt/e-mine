@@ -131,7 +131,7 @@ public class ServiceDecision {
 
   private TypeDocument type(DemandeResume demande) {
     return catalogue
-        .trouverActif(demande.typeDocumentCode())
+        .pourDemande(demande.typeDocumentCode(), demande.versionDocumentId())
         .orElseThrow(
             () -> new ErreurMetier(CodeErreur.DEM_005, Map.of("code", demande.typeDocumentCode())));
   }

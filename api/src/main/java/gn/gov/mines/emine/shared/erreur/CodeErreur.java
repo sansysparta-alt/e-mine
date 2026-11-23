@@ -84,6 +84,12 @@ public enum CodeErreur {
   DOC_006("DOC-006", HttpStatus.CONFLICT),
   /** Aucun document ne correspond à ce code de vérification (vérification publique). */
   DOC_007("DOC-007", HttpStatus.NOT_FOUND),
+  /** Une proposition de fiche attend déjà l'approbation du Ministre pour ce document (US-02.2). */
+  DOC_008("DOC-008", HttpStatus.CONFLICT),
+  /** Version du catalogue déjà décidée ou retirée : elle ne se modifie plus (US-02.2). */
+  DOC_009("DOC-009", HttpStatus.CONFLICT),
+  /** La proposition ne change rien à la fiche en vigueur (US-02.2). */
+  DOC_010("DOC-010", HttpStatus.UNPROCESSABLE_CONTENT),
   /** Erreur interne : un identifiant d'incident est donné dans le message et les détails. */
   SYS_001("SYS-001", HttpStatus.INTERNAL_SERVER_ERROR),
   /** Ressource ou adresse introuvable. */

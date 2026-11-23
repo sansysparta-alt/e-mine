@@ -303,10 +303,9 @@ public final class DemandesDeTest {
             c.prepareStatement(
                 "INSERT INTO avis_decision (demande_id, auteur_id, nature, sens, motif)"
                     + " SELECT d.id, (SELECT u.id FROM utilisateur u WHERE u.profil_id ="
-                    + " tda.profil_id ORDER BY u.id LIMIT 1), 'avis', 'favorable',"
-                    + " 'Avis favorable : dossier technique conforme.' FROM demande d"
-                    + " JOIN type_document_avis tda ON tda.type_document_id = d.type_document_id"
-                    + " WHERE d.id = ?")) {
+                    + " r.profil_id ORDER BY u.id LIMIT 1), 'avis', 'favorable',"
+                    + " 'Avis favorable : dossier technique conforme.' FROM demande d,"
+                    + " unnest(fn_avis_requis(d.id)) AS r(profil_id) WHERE d.id = ?")) {
       ps.setLong(1, demande);
       n = ps.executeUpdate();
     }
@@ -314,13 +313,10 @@ public final class DemandesDeTest {
     return n;
   }
 
-  /** Nombre d'avis requis par le catalogue pour le document de la demande. */
+  /** Nombre d'avis requis pour la demande : ceux de la fiche en vigueur à son dépôt (V18). */
   public static int avisRequis(long demande) throws SQLException {
     try (Connection c = BaseDeDonneesDeTest.connexionOwner();
-        PreparedStatement ps =
-            c.prepareStatement(
-                "SELECT count(*) FROM type_document_avis tda JOIN demande d"
-                    + " ON d.type_document_id = tda.type_document_id WHERE d.id = ?")) {
+        PreparedStatement ps = c.prepareStatement("SELECT cardinality(fn_avis_requis(?))")) {
       ps.setLong(1, demande);
       ResultSet rs = ps.executeQuery();
       rs.next();

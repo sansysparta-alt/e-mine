@@ -185,6 +185,141 @@
         }
       }
     },
+    "/api/v1/fiches-documents/{code}/versions" : {
+      "post" : {
+        "tags" : [ "Catalogue" ],
+        "summary" : "Propose une nouvelle version de la fiche (soumise à l'approbation du Ministre)",
+        "operationId" : "proposerVersionFiche",
+        "parameters" : [ {
+          "name" : "code",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "^[A-Z]{3}$"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PropositionDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Created",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PropositionCreeeDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fiches-documents/{code}/versions/{numero}/retrait" : {
+      "post" : {
+        "tags" : [ "Catalogue" ],
+        "summary" : "L'administrateur retire sa proposition avant la décision du Ministre",
+        "operationId" : "retirerVersionFiche",
+        "parameters" : [ {
+          "name" : "code",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "^[A-Z]{3}$"
+          }
+        }, {
+          "name" : "numero",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        }
+      }
+    },
+    "/api/v1/fiches-documents/{code}/versions/{numero}/refus" : {
+      "post" : {
+        "tags" : [ "Catalogue" ],
+        "summary" : "Le Ministre refuse la proposition",
+        "operationId" : "refuserVersionFiche",
+        "parameters" : [ {
+          "name" : "code",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "^[A-Z]{3}$"
+          }
+        }, {
+          "name" : "numero",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/MotifDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        }
+      }
+    },
+    "/api/v1/fiches-documents/{code}/versions/{numero}/approbation" : {
+      "post" : {
+        "tags" : [ "Catalogue" ],
+        "summary" : "Le Ministre approuve la proposition : elle devient la fiche en vigueur",
+        "operationId" : "approuverVersionFiche",
+        "parameters" : [ {
+          "name" : "code",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "^[A-Z]{3}$"
+          }
+        }, {
+          "name" : "numero",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        }
+      }
+    },
     "/api/v1/demandes" : {
       "get" : {
         "tags" : [ "Demandes" ],
@@ -1423,6 +1558,106 @@
         }
       }
     },
+    "/api/v1/fiches-documents" : {
+      "get" : {
+        "tags" : [ "Catalogue" ],
+        "summary" : "Fiches du catalogue (actives ou non), paginées, avec les propositions en attente",
+        "operationId" : "listerFichesDocuments",
+        "parameters" : [ {
+          "name" : "filtre",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "^(TOUS|A_VALIDER|INACTIFS)$"
+          }
+        }, {
+          "name" : "q",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "name" : "page",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "name" : "taille",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageFichesDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fiches-documents/{code}" : {
+      "get" : {
+        "tags" : [ "Catalogue" ],
+        "summary" : "Fiche d'un document : version en vigueur, proposition en attente, historique",
+        "operationId" : "lireFicheDocument",
+        "parameters" : [ {
+          "name" : "code",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "^[A-Z]{3}$"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FicheDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fiches-documents/references" : {
+      "get" : {
+        "tags" : [ "Catalogue" ],
+        "summary" : "Signataires et profils d'avis possibles (formulaire de proposition)",
+        "operationId" : "referencesFichesDocuments",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReferencesDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/demandes/{id}/suivi" : {
       "get" : {
         "tags" : [ "Demandes" ],
@@ -1858,6 +2093,85 @@
           }
         },
         "required" : [ "nombre" ]
+      },
+      "PropositionDto" : {
+        "type" : "object",
+        "properties" : {
+          "libelleFr" : {
+            "type" : "string",
+            "maxLength" : 150,
+            "minLength" : 3
+          },
+          "libelleEn" : {
+            "type" : "string",
+            "maxLength" : 150,
+            "minLength" : 0
+          },
+          "pieces" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "maxLength" : 200,
+              "minLength" : 0
+            },
+            "maxItems" : 20,
+            "minItems" : 1
+          },
+          "delaiJours" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 365,
+            "minimum" : 1
+          },
+          "instruitPar" : {
+            "type" : "string",
+            "maxLength" : 150,
+            "minLength" : 2
+          },
+          "signataire" : {
+            "type" : "string",
+            "minLength" : 1
+          },
+          "avis" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "pattern" : "^[A-Z_]{2,30}$"
+            },
+            "maxItems" : 10,
+            "minItems" : 0
+          },
+          "actif" : {
+            "type" : "boolean"
+          },
+          "motif" : {
+            "type" : "string",
+            "maxLength" : 2000,
+            "minLength" : 10
+          }
+        },
+        "required" : [ "actif", "avis", "delaiJours", "instruitPar", "libelleEn", "libelleFr", "motif", "pieces", "signataire" ]
+      },
+      "PropositionCreeeDto" : {
+        "type" : "object",
+        "properties" : {
+          "numero" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "numero" ]
+      },
+      "MotifDto" : {
+        "type" : "object",
+        "properties" : {
+          "motif" : {
+            "type" : "string",
+            "maxLength" : 2000,
+            "minLength" : 10
+          }
+        },
+        "required" : [ "motif" ]
       },
       "DeclarationRecevabiliteDto" : {
         "type" : "object",
@@ -2596,6 +2910,221 @@
           }
         },
         "required" : [ "compteurs", "elements", "page", "taille", "total", "totalPages" ]
+      },
+      "LigneFicheDto" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "libelleFr" : {
+            "type" : "string"
+          },
+          "famille" : {
+            "type" : "string"
+          },
+          "delaiJours" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "signataire" : {
+            "type" : "string"
+          },
+          "actif" : {
+            "type" : "boolean"
+          },
+          "numeroEnVigueur" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "numeroProposee" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int32"
+          },
+          "proposeeLe" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "action" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "actif", "action", "code", "delaiJours", "famille", "libelleFr", "numeroEnVigueur", "numeroProposee", "proposeeLe", "signataire" ]
+      },
+      "PageFichesDto" : {
+        "type" : "object",
+        "properties" : {
+          "elements" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/LigneFicheDto"
+            }
+          },
+          "page" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "taille" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "total" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "compteurs" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "integer",
+              "format" : "int64"
+            }
+          }
+        },
+        "required" : [ "compteurs", "elements", "page", "taille", "total", "totalPages" ]
+      },
+      "ChangementFicheDto" : {
+        "type" : "object",
+        "properties" : {
+          "champ" : {
+            "type" : "string"
+          },
+          "avant" : {
+            "type" : [ "string", "null" ]
+          },
+          "apres" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "apres", "avant", "champ" ]
+      },
+      "FicheDto" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "famille" : {
+            "type" : "string"
+          },
+          "actif" : {
+            "type" : "boolean"
+          },
+          "enVigueur" : {
+            "$ref" : "#/components/schemas/VersionDto"
+          },
+          "proposition" : {
+            "oneOf" : [ {
+              "$ref" : "#/components/schemas/VersionDto"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "historique" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/VersionDto"
+            }
+          },
+          "action" : {
+            "type" : "string"
+          },
+          "peutProposer" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "actif", "action", "code", "enVigueur", "famille", "historique", "peutProposer", "proposition" ]
+      },
+      "VersionDto" : {
+        "type" : "object",
+        "properties" : {
+          "numero" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "statut" : {
+            "type" : "string"
+          },
+          "libelleFr" : {
+            "type" : "string"
+          },
+          "libelleEn" : {
+            "type" : [ "string", "null" ]
+          },
+          "pieces" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "delaiJours" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "instruitPar" : {
+            "type" : "string"
+          },
+          "signataire" : {
+            "type" : "string"
+          },
+          "avis" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Profil"
+            }
+          },
+          "actif" : {
+            "type" : "boolean"
+          },
+          "motif" : {
+            "type" : "string"
+          },
+          "proposeePar" : {
+            "type" : [ "string", "null" ]
+          },
+          "proposeeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "decideePar" : {
+            "type" : [ "string", "null" ]
+          },
+          "decideeLe" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "motifRefus" : {
+            "type" : [ "string", "null" ]
+          },
+          "changements" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ChangementFicheDto"
+            }
+          }
+        },
+        "required" : [ "actif", "avis", "changements", "decideeLe", "decideePar", "delaiJours", "instruitPar", "libelleEn", "libelleFr", "motif", "motifRefus", "numero", "pieces", "proposeeLe", "proposeePar", "signataire", "statut" ]
+      },
+      "ReferencesDto" : {
+        "type" : "object",
+        "properties" : {
+          "signataires" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "profilsAvis" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Profil"
+            }
+          }
+        },
+        "required" : [ "profilsAvis", "signataires" ]
       },
       "PageDemandesDto" : {
         "type" : "object",

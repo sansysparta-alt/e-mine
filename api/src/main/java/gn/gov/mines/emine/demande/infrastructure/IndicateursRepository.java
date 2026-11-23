@@ -62,7 +62,7 @@ public class IndicateursRepository {
     Field<Integer> joursTraitement = Routines.fnJoursTraitement(DEMANDE.ID, DELIVREE_LE);
     Field<BigDecimal> delai = DSL.avg(joursTraitement);
     Field<Integer> dansLeDelai =
-        DSL.count().filterWhere(joursTraitement.le(TYPE_DOCUMENT.DELAI_JOURS.cast(Integer.class)));
+        DSL.count().filterWhere(joursTraitement.le(DEMANDE.DELAI_JOURS.cast(Integer.class)));
     Map<String, Long> delivrees = new HashMap<>();
     Map<String, Long> dansLesDelais = new HashMap<>();
     Map<String, Double> delais = new HashMap<>();
