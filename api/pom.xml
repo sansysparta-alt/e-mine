@@ -19,6 +19,8 @@
 
   <properties>
     <java.version>25</java.version>
+    <!-- Tâches planifiées et outbox des notifications (stack docs/02 : db-scheduler, US-07.1) -->
+    <db-scheduler.version>17.0.0</db-scheduler.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <spring-modulith.version>2.1.2</spring-modulith.version>
     <springdoc.version>3.2.0</springdoc.version>
@@ -91,6 +93,17 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-flyway</artifactId>
+    </dependency>
+    <!-- Notifications (US-07.1) : e-mail SMTP (Mailpit en dev) et tâches planifiées partagées entre
+         instances (db-scheduler, configuré sans son starter, qui vise Spring Boot 3) -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-mail</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.github.kagkarlsson</groupId>
+      <artifactId>db-scheduler</artifactId>
+      <version>${db-scheduler.version}</version>
     </dependency>
     <dependency>
       <groupId>org.flywaydb</groupId>
