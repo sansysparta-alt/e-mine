@@ -61,6 +61,7 @@ function dossier(id: number, statut: string, fraisPayes = true): DemandeDto {
     delaiSuspendu: false,
     motifSuspension: null,
     delaiDemarre: true,
+    avancement: null,
   };
 }
 

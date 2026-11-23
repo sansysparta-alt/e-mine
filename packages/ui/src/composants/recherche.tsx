@@ -1,7 +1,7 @@
 "use client";
 
-import { Loader2, Search } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { Loader2, Search, X } from "lucide-react";
+import { useEffect, useId, useRef, useState } from "react";
 import { classesChamp } from "../champ";
 import { cn } from "../cn";
 
@@ -24,7 +24,17 @@ export type ChampRechercheProps = {
   /** Recherche en cours (indicateur discret dans le champ). */
   enCours?: boolean;
   delaiMs?: number;
+  /**
+   * Suggestions proposées pendant la saisie (recherches récentes, noms de documents…), filtrées
+   * par le navigateur (`datalist`, accessible au clavier et aux lecteurs d'écran).
+   */
+  suggestions?: string[];
+  /** Libellé de la croix qui vide le champ (affichée dès qu'un texte est saisi). */
+  libelleVider?: string;
 };
+
+/** Nombre maximal de suggestions proposées. */
+const MAX_SUGGESTIONS = 12;
 
 /**
  * Champ de recherche du socle : formulaire GET (Entrée, sans JavaScript) et, avec `surRecherche`,
@@ -41,9 +51,25 @@ export function ChampRecherche({
   surRecherche,
   enCours = false,
   delaiMs = DELAI_RECHERCHE_MS,
+  suggestions = [],
+  libelleVider = "Effacer la recherche",
 }: ChampRechercheProps) {
   const minuterie = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const champ = useRef<HTMLInputElement>(null);
+  const [texte, setTexte] = useState(valeur ?? "");
+  const idSuggestions = useId();
+  // Recherche changée hors du champ (lien « Effacer la recherche », retour arrière) : le champ suit,
+  // sans toucher à ce que l'utilisateur est en train de taper.
+  const [valeurConnue, setValeurConnue] = useState(valeur);
+  if (valeur !== valeurConnue) {
+    setValeurConnue(valeur);
+    if ((valeur ?? "") !== texte.trim()) setTexte(valeur ?? "");
+  }
   useEffect(() => () => clearTimeout(minuterie.current), []);
+  const proposees = [...new Set(suggestions.map((x) => x.trim()).filter(Boolean))].slice(
+    0,
+    MAX_SUGGESTIONS,
+  );
 
   return (
     <form
@@ -70,24 +96,53 @@ export function ChampRecherche({
         <input
           type="search"
           name={nom}
-          defaultValue={valeur}
+          ref={champ}
+          value={texte}
           placeholder={placeholder}
           autoComplete="off"
+          list={proposees.length > 0 ? idSuggestions : undefined}
           onChange={(e) => {
+            setTexte(e.target.value);
             if (!surRecherche) return;
-            const texte = e.target.value.trim();
+            const saisi = e.target.value.trim();
             clearTimeout(minuterie.current);
-            minuterie.current = setTimeout(() => surRecherche(texte), delaiMs);
+            minuterie.current = setTimeout(() => surRecherche(saisi), delaiMs);
           }}
-          className={cn(classesChamp, "pl-9", surRecherche && "pr-9")}
+          className={cn(
+            classesChamp,
+            "pl-9 [&::-webkit-search-cancel-button]:appearance-none",
+            (surRecherche || texte) && "pr-20",
+          )}
         />
+        {proposees.length > 0 ? (
+          <datalist id={idSuggestions}>
+            {proposees.map((x) => (
+              <option key={x} value={x} />
+            ))}
+          </datalist>
+        ) : null}
         {enCours ? (
           <Loader2
             aria-hidden="true"
-            className="absolute top-1/2 right-3 size-4 -translate-y-1/2 text-texte-doux motion-safe:animate-spin"
+            className="absolute top-1/2 right-12 size-4 -translate-y-1/2 text-texte-doux motion-safe:animate-spin"
           />
         ) : null}
       </label>
+      {texte ? (
+        <button
+          type="button"
+          aria-label={libelleVider}
+          onClick={() => {
+            setTexte("");
+            clearTimeout(minuterie.current);
+            surRecherche?.("");
+            champ.current?.focus();
+          }}
+          className="-ml-13 flex size-11 shrink-0 items-center justify-center self-center rounded-lg text-texte-doux hover:bg-ice"
+        >
+          <X aria-hidden="true" className="size-4" />
+        </button>
+      ) : null}
       <button
         type="submit"
         className={cn(

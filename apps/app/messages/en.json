@@ -433,7 +433,6 @@
     "brouillon": "Draft",
     "effacerFiltre": "Clear the status filter",
     "actions": {
-      "reprendre": "Resume",
       "supprimer": "Delete",
       "telecharger": "Download",
       "echec": "The draft was not deleted",
@@ -443,7 +442,11 @@
         "annuler": "Cancel",
         "confirmer": "Delete the draft",
         "enCours": "Deleting…"
-      }
+      },
+      "continuer": "Continue",
+      "payerFrais": "Pay the fee",
+      "payerDroits": "Pay the duties",
+      "completer": "Complete"
     },
     "filtresTableau": {
       "titre": "Active filters",
@@ -459,7 +462,18 @@
     },
     "aucuneInterne": "No request has been submitted yet.",
     "aucuneFiltreAide": "Change the search or clear the filters to see the whole list.",
-    "effacerTout": "Clear filters"
+    "effacerTout": "Clear filters",
+    "avancement": "Step {etape} of {total}",
+    "bandeau": {
+      "titre": "{nombre, plural, =1 {1 request awaits your action} other {# requests await your action}}",
+      "lien": "Show them"
+    },
+    "aucunResultat": {
+      "titre": "No request matches “{texte}”",
+      "conseil": "Check the spelling, or type part of the number (for example 000009), the document or applicant name. Accents and capitals do not matter.",
+      "effacer": "Clear search",
+      "partout": "Search all requests"
+    }
   },
   "session": {
     "avertissement": {
@@ -1791,5 +1805,8 @@
       "titre": "Accessibility",
       "texte": "e-mine aims for level AA of the WCAG accessibility guidelines: keyboard navigation, sufficient contrast, compatibility with screen readers. Report any difficulty to support."
     }
+  },
+  "rechercheListe": {
+    "vider": "Clear search"
   }
 }

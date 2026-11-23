@@ -3,7 +3,10 @@ import { FileText, LayoutDashboard, ScrollText } from "@emine/ui/icones";
 import { NextIntlClientProvider } from "next-intl";
 import en from "../../../messages/en.json";
 import fr from "../../../messages/fr.json";
-import { lireRecentes, memoriserRecente, RechercheGlobale } from "./recherche-globale";
+import { lireRecentesGlobales as lireRecentes, RechercheGlobale } from "./recherche-globale";
+import { memoriserRecente as memoriser } from "./recentes";
+
+const memoriserRecente = (texte: string) => memoriser("emine.recherches-recentes", texte);
 
 const pousser = vi.fn();
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: pousser }) }));

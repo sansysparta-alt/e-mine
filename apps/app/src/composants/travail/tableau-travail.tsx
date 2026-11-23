@@ -1,5 +1,5 @@
 import type { DemandeDto } from "@emine/api-client";
-import { type ComposantLien, TableauDonnees } from "@emine/ui";
+import { type ComposantLien, TableauDonnees, TexteSurligne } from "@emine/ui";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { DateAttente } from "../demande/date-attente";
@@ -16,6 +16,8 @@ export type TableauTravailProps = {
   groupe: CleGroupe;
   /** Date de référence du calcul de l'attente (rendu serveur). */
   maintenant: Date;
+  /** Texte recherché : parties trouvées surlignées. */
+  recherche?: string;
 };
 
 const LienNext: ComposantLien = ({ href, children, ...props }) => (
@@ -35,8 +37,10 @@ export function TableauTravail({
   legende,
   groupe,
   maintenant,
+  recherche = "",
 }: TableauTravailProps) {
   const t = useTranslations("travail");
+  const surligne = (texte: string) => <TexteSurligne texte={texte} recherche={recherche} />;
   return (
     <TableauDonnees
       legende={legende}
@@ -50,7 +54,7 @@ export function TableauTravail({
           entete: t("colonnes.numero"),
           rendu: (d) => (
             <span className="flex flex-col">
-              <span className="font-semibold">{d.numero}</span>
+              <span className="font-semibold tabular-nums">{surligne(d.numero ?? "")}</span>
               <MentionPassages passages={d.passages} bloque={d.bloque} />
             </span>
           ),
@@ -58,18 +62,18 @@ export function TableauTravail({
         {
           cle: "document",
           entete: t("colonnes.document"),
-          rendu: (d) => libelles[d.typeDocumentCode] ?? d.typeDocumentCode,
+          rendu: (d) => surligne(libelles[d.typeDocumentCode] ?? d.typeDocumentCode),
         },
         {
           cle: "demandeur",
           entete: t("colonnes.demandeur"),
           rendu: (d) => (
             <span className="flex flex-col">
-              <span>
-                {d.demandeur.prenom} {d.demandeur.nom}
-              </span>
+              <span>{surligne(`${d.demandeur.prenom} ${d.demandeur.nom}`)}</span>
               {d.demandeur.organisation ? (
-                <span className="text-sm text-texte-doux">{d.demandeur.organisation}</span>
+                <span className="text-sm text-texte-doux">
+                  {surligne(d.demandeur.organisation)}
+                </span>
               ) : null}
             </span>
           ),

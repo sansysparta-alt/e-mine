@@ -2242,6 +2242,20 @@
         },
         "required" : [ "prefectureId", "substanceCode", "superficieHa", "typeDocumentCode" ]
       },
+      "Avancement" : {
+        "type" : "object",
+        "properties" : {
+          "etape" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "total" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "etape", "total" ]
+      },
       "DemandeDto" : {
         "type" : "object",
         "properties" : {
@@ -2324,9 +2338,16 @@
           },
           "delaiDemarre" : {
             "type" : "boolean"
+          },
+          "avancement" : {
+            "oneOf" : [ {
+              "$ref" : "#/components/schemas/Avancement"
+            }, {
+              "type" : "null"
+            } ]
           }
         },
-        "required" : [ "aTraiterParMoi", "bloque", "creeLe", "delaiDemarre", "delaiSuspendu", "demandeur", "deposeLe", "enRetard", "etapeDepuis", "fraisPayes", "id", "joursRestants", "motifRejet", "motifSuspension", "numero", "passages", "prefectureId", "prefectureNom", "procheDepassement", "statut", "substanceCode", "substanceLibelle", "superficieHa", "typeDocumentCode" ]
+        "required" : [ "aTraiterParMoi", "avancement", "bloque", "creeLe", "delaiDemarre", "delaiSuspendu", "demandeur", "deposeLe", "enRetard", "etapeDepuis", "fraisPayes", "id", "joursRestants", "motifRejet", "motifSuspension", "numero", "passages", "prefectureId", "prefectureNom", "procheDepassement", "statut", "substanceCode", "substanceLibelle", "superficieHa", "typeDocumentCode" ]
       },
       "Demandeur" : {
         "type" : "object",

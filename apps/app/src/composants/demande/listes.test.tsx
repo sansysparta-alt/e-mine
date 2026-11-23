@@ -54,6 +54,7 @@ function demande(id: number, statut: string, numero: string | null): DemandeDto 
     delaiSuspendu: false,
     motifSuspension: null,
     delaiDemarre: true,
+    avancement: null,
   };
 }
 
@@ -66,12 +67,12 @@ beforeEach(() => {
 });
 
 describe("liste des demandes selon le profil (correctifs ergonomie)", () => {
-  it("donne au demandeur des actions directes : reprendre, supprimer, télécharger", () => {
+  it("donne au demandeur des actions directes : continuer, supprimer, télécharger", () => {
     afficher(<TableauDemandes demandes={lignes} libelles={libelles} legende="Mes demandes" />);
     expect(screen.queryByRole("columnheader", { name: "Demandeur" })).toBeNull();
     const [brouillon, delivree] = screen.getAllByRole("row").slice(1) as [HTMLElement, HTMLElement];
     expect(within(brouillon).getByText("Brouillon")).toBeVisible();
-    expect(within(brouillon).getByRole("link", { name: /Reprendre/ })).toHaveAttribute(
+    expect(within(brouillon).getByRole("link", { name: /Continuer/ })).toHaveAttribute(
       "href",
       "/demandes/1/modifier",
     );
@@ -79,6 +80,42 @@ describe("liste des demandes selon le profil (correctifs ergonomie)", () => {
     const telecharger = within(delivree).getByRole("link", { name: /Télécharger/ });
     expect(telecharger).toHaveAttribute("href", "/api/demandes/2/document/contenu");
     expect(telecharger).toHaveAttribute("download");
+  });
+
+  it("propose l'action attendue du demandeur, l'étape en cours, statut juste après le numéro", () => {
+    const frais = {
+      ...demande(5, "deposee", "DEM-2026-000005"),
+      fraisPayes: false,
+      avancement: { etape: 2, total: 6 },
+    };
+    const droits = { ...demande(6, "decision", "DEM-2026-000006"), fraisPayes: true };
+    const complement = { ...demande(7, "complement_requis", "DEM-2026-000007"), fraisPayes: true };
+    afficher(
+      <TableauDemandes
+        demandes={[frais, droits, complement]}
+        libelles={libelles}
+        legende="Mes demandes"
+        recherche="0005"
+      />,
+    );
+    const entetes = screen.getAllByRole("columnheader").map((c) => c.textContent);
+    expect(entetes.indexOf("Statut")).toBe(1);
+    const [l1, l2, l3] = screen.getAllByRole("row").slice(1) as [
+      HTMLElement,
+      HTMLElement,
+      HTMLElement,
+    ];
+    expect(within(l1).getByRole("link", { name: /Payer les frais/ })).toHaveAttribute(
+      "href",
+      "/demandes/5/paiement",
+    );
+    expect(within(l1).getByText("Étape 2 sur 6")).toBeVisible();
+    expect(l1.querySelector("mark")).toHaveTextContent("0005");
+    expect(within(l2).getByRole("link", { name: /Payer les droits/ })).toBeVisible();
+    expect(within(l3).getByRole("link", { name: /Compléter/ })).toHaveAttribute(
+      "href",
+      "/demandes/7",
+    );
   });
 
   it("montre à l'agent la colonne Demandeur, sans actions de demandeur", () => {

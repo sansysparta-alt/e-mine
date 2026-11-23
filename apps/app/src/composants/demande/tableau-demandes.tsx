@@ -1,5 +1,11 @@
 import type { DemandeDto } from "@emine/api-client";
-import { type ColonneTableau, type ComposantLien, type SensTri, TableauDonnees } from "@emine/ui";
+import {
+  type ColonneTableau,
+  type ComposantLien,
+  type SensTri,
+  TableauDonnees,
+  TexteSurligne,
+} from "@emine/ui";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { MentionPassages } from "../travail/mention-passages";
@@ -32,6 +38,8 @@ export type TableauDemandesProps = {
    * demandeur et colonne Actions (reprendre ou supprimer un brouillon, télécharger un document).
    */
   interne?: boolean;
+  /** Texte recherché : parties trouvées surlignées (numéro, document, demandeur). */
+  recherche?: string;
 };
 
 const LienNext: ComposantLien = ({ href, children, ...props }) => (
@@ -59,8 +67,10 @@ export function TableauDemandes({
   lienTri,
   triables = [],
   interne = false,
+  recherche = "",
 }: TableauDemandesProps) {
   const t = useTranslations("mesDemandes");
+  const surligne = (texte: string) => <TexteSurligne texte={texte} recherche={recherche} />;
   const colonnes: ColonneTableau<DemandeDto>[] = [
     {
       cle: "numero",
@@ -68,7 +78,7 @@ export function TableauDemandes({
       triable: triables.includes("numero"),
       rendu: (d) => (
         <span className="flex flex-col">
-          <span className="font-semibold">{d.numero ?? t("brouillon")}</span>
+          <span className="font-semibold tabular-nums">{surligne(d.numero ?? t("brouillon"))}</span>
           {interne ? <MentionPassages passages={d.passages} bloque={d.bloque} /> : null}
         </span>
       ),
@@ -76,57 +86,64 @@ export function TableauDemandes({
     {
       cle: "document",
       entete: t("colonnes.document"),
-      rendu: (d) => libelles[d.typeDocumentCode] ?? d.typeDocumentCode,
+      rendu: (d) => surligne(libelles[d.typeDocumentCode] ?? d.typeDocumentCode),
     },
   ];
+  // Le statut suit le numéro : c'est ce qu'on cherche d'abord en parcourant la liste. Sous le
+  // badge, l'avancement dans le circuit (« Étape 3 sur 6 »), calculé par l'API.
+  colonnes.splice(1, 0, {
+    cle: "statut",
+    entete: t("colonnes.statut"),
+    triable: triables.includes("statut"),
+    rendu: (d) => (
+      <span className="flex flex-col items-start gap-1">
+        <StatutDemande demande={d} interne={interne} />
+        {d.avancement ? (
+          <span className="text-sm text-texte-doux">
+            {t("avancement", { etape: d.avancement.etape, total: d.avancement.total })}
+          </span>
+        ) : null}
+      </span>
+    ),
+  });
   if (interne) {
     colonnes.push({
       cle: "demandeur",
       entete: t("colonnes.demandeur"),
       rendu: (d) => (
         <span className="flex flex-col">
-          <span>
-            {d.demandeur.prenom} {d.demandeur.nom}
-          </span>
+          <span>{surligne(`${d.demandeur.prenom} ${d.demandeur.nom}`)}</span>
           {d.demandeur.organisation ? (
-            <span className="text-sm text-texte-doux">{d.demandeur.organisation}</span>
+            <span className="text-sm text-texte-doux">{surligne(d.demandeur.organisation)}</span>
           ) : null}
         </span>
       ),
     });
   }
-  colonnes.push(
-    {
-      cle: "date",
-      entete: t("colonnes.date"),
-      triable: triables.includes("date"),
-      rendu: (d) => (
-        <DateAttente
-          deposeLe={d.deposeLe}
-          creeLe={d.creeLe}
-          etapeDepuis={d.etapeDepuis}
-          avecAttente={STATUTS_EN_COURS.has(d.statut)}
-          enRetard={interne && d.enRetard}
-          delai={
-            interne
-              ? {
-                  procheDepassement: d.procheDepassement,
-                  joursRestants: d.joursRestants,
-                  suspendu: d.delaiSuspendu,
-                  motifSuspension: d.motifSuspension,
-                }
-              : undefined
-          }
-        />
-      ),
-    },
-    {
-      cle: "statut",
-      entete: t("colonnes.statut"),
-      triable: triables.includes("statut"),
-      rendu: (d) => <StatutDemande demande={d} interne={interne} />,
-    },
-  );
+  colonnes.push({
+    cle: "date",
+    entete: t("colonnes.date"),
+    triable: triables.includes("date"),
+    rendu: (d) => (
+      <DateAttente
+        deposeLe={d.deposeLe}
+        creeLe={d.creeLe}
+        etapeDepuis={d.etapeDepuis}
+        avecAttente={STATUTS_EN_COURS.has(d.statut)}
+        enRetard={interne && d.enRetard}
+        delai={
+          interne
+            ? {
+                procheDepassement: d.procheDepassement,
+                joursRestants: d.joursRestants,
+                suspendu: d.delaiSuspendu,
+                motifSuspension: d.motifSuspension,
+              }
+            : undefined
+        }
+      />
+    ),
+  });
   if (!interne) {
     colonnes.push({
       cle: "actions",

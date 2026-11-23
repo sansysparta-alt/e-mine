@@ -417,6 +417,8 @@ public class DemandeRepository {
   }
 
   /** Échappe les caractères spéciaux de LIKE (le texte cherché est pris littéralement). */
+  private static final String ORIGINE_COMPLEMENT_COL = "origine_complement";
+
   /** Seuil de ressemblance (pg_trgm) au-delà duquel un mot mal orthographié est retenu. */
   private static final double RESSEMBLANCE_MIN = 0.5;
 
@@ -582,6 +584,16 @@ public class DemandeRepository {
     Field<Boolean> proche = DSL.field(conditionProcheDepassement(maintenant)).as(PROCHE);
     Field<String> motifPause = DSL.when(enCoursDepose(), MOTIF_PAUSE).as(MOTIF_PAUSE_COL);
     Field<Boolean> demarre = DSL.field(DELAI_DEMARRE).as(DELAI_DEMARRE_COL);
+    // Étape d'où vient le complément en cours (contrôle ou instruction) : avancement de la frise.
+    Field<String> origine =
+        DSL.field(
+                DSL.select(COMPLEMENT.STATUT_ORIGINE.cast(String.class))
+                    .from(COMPLEMENT)
+                    .where(COMPLEMENT.DEMANDE_ID.eq(DEMANDE.ID))
+                    .and(COMPLEMENT.REPONDU_LE.isNull())
+                    .and(COMPLEMENT.CLOS_LE.isNull())
+                    .limit(1))
+            .as(ORIGINE_COMPLEMENT_COL);
     return dsl.select(
             DEMANDE.ID,
             DEMANDE.NUMERO,
@@ -608,7 +620,8 @@ public class DemandeRepository {
             joursRestants,
             proche,
             motifPause,
-            demarre)
+            demarre,
+            origine)
         .from(DEMANDE)
         .join(TYPE_DOCUMENT)
         .on(TYPE_DOCUMENT.ID.eq(DEMANDE.TYPE_DOCUMENT_ID))
@@ -653,7 +666,9 @@ public class DemandeRepository {
         Boolean.TRUE.equals(r.get(PROCHE, Boolean.class)),
         r.get(MOTIF_PAUSE_COL, String.class) != null,
         r.get(MOTIF_PAUSE_COL, String.class),
-        Boolean.TRUE.equals(r.get(DELAI_DEMARRE_COL, Boolean.class)));
+        Boolean.TRUE.equals(r.get(DELAI_DEMARRE_COL, Boolean.class)),
+        r.get(ORIGINE_COMPLEMENT_COL, String.class),
+        null);
   }
 
   private static int passages(Record r) {

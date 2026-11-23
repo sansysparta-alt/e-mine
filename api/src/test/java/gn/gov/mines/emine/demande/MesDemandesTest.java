@@ -73,10 +73,13 @@ class MesDemandesTest extends TestIntegration {
       if (d.path("id").asLong() == deposeeA) {
         assertThat(d.path("statut").asString()).isEqualTo("deposee");
         assertThat(d.path("numero").asString()).startsWith("DEM-");
+        // Déposée, frais non payés : 2e étape de la frise (paiement des frais).
+        assertThat(d.path("avancement").path("etape").asInt()).isEqualTo(2);
       }
       if (d.path("id").asLong() == brouillonA) {
         assertThat(d.path("statut").asString()).isEqualTo("brouillon");
         assertThat(d.path("numero").isNull()).isTrue();
+        assertThat(d.path("avancement").isNull()).as("pas d'étape pour un brouillon").isTrue();
       }
     }
   }

@@ -50,7 +50,40 @@ public record DemandeDetail(
     boolean procheDepassement,
     boolean delaiSuspendu,
     String motifSuspension,
-    boolean delaiDemarre) {
+    boolean delaiDemarre,
+    String origineComplement,
+    RegleSuivi.Avancement avancement) {
+
+  /** La même demande, avec son avancement dans le circuit (calculé avec le catalogue). */
+  public DemandeDetail avec(RegleSuivi.Avancement a) {
+    return new DemandeDetail(
+        id,
+        numero,
+        statut,
+        typeDocumentCode,
+        demandeur,
+        prefectureId,
+        prefectureNom,
+        substanceCode,
+        substanceLibelle,
+        superficieHa,
+        creeLe,
+        deposeLe,
+        fraisPayes,
+        motifRejet,
+        etapeDepuis,
+        aTraiterParMoi,
+        passages,
+        bloque,
+        enRetard,
+        joursRestants,
+        procheDepassement,
+        delaiSuspendu,
+        motifSuspension,
+        delaiDemarre,
+        origineComplement,
+        a);
+  }
 
   public boolean estBrouillon() {
     return "brouillon".equals(statut);

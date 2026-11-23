@@ -124,7 +124,7 @@ export default async function Catalogue({ searchParams }: Props) {
         />
       ) : (
         <div className="flex flex-col gap-4">
-          <TableauFiches lignes={data.elements} legende={t("titre")} />
+          <TableauFiches lignes={data.elements} legende={t("titre")} recherche={p.q} />
           <PaginationListe
             chemin="/catalogue"
             parametres={{ filtre: p.filtre === "TOUS" ? undefined : p.filtre, q: p.q }}

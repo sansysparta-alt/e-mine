@@ -1,5 +1,5 @@
 import type { LigneFicheDto } from "@emine/api-client";
-import { BadgeStatut, type ComposantLien, TableauDonnees } from "@emine/ui";
+import { BadgeStatut, type ComposantLien, TableauDonnees, TexteSurligne } from "@emine/ui";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { libelleSignataire, libelleWorkflowParNom } from "../referentiels";
@@ -16,7 +16,16 @@ const LienNext: ComposantLien = ({ href, children, ...props }) => (
  * en vigueur et un seul badge (proposition en attente, retrait du catalogue ou « En vigueur ») ; la
  * ligne entière ouvre la fiche.
  */
-export function TableauFiches({ lignes, legende }: { lignes: LigneFicheDto[]; legende: string }) {
+export function TableauFiches({
+  lignes,
+  legende,
+  recherche = "",
+}: {
+  lignes: LigneFicheDto[];
+  legende: string;
+  /** Texte recherché : parties trouvées surlignées. */
+  recherche?: string;
+}) {
   const t = useTranslations("catalogue");
   const tReferentiels = useTranslations("referentiels");
   return (
@@ -33,7 +42,10 @@ export function TableauFiches({ lignes, legende }: { lignes: LigneFicheDto[]; le
           rendu: (l) => (
             <span className="flex flex-col">
               <span className="font-semibold text-navy">
-                <span className="font-mono">{l.code}</span> · {l.libelleFr}
+                <span className="font-mono">
+                  <TexteSurligne texte={l.code} recherche={recherche} />
+                </span>{" "}
+                · <TexteSurligne texte={l.libelleFr} recherche={recherche} />
               </span>
               <span className="text-sm text-texte-doux">
                 {libelleWorkflowParNom(l.famille, tReferentiels)}
