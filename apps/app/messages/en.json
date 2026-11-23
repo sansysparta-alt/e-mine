@@ -512,7 +512,8 @@
       "aTraiter": "To do",
       "notifications": "Notifications",
       "catalogue": "Catalogue and fees",
-      "workflows": "Workflows"
+      "workflows": "Workflows",
+      "parametres": "Time limits and notifications"
     }
   },
   "etats": {
@@ -879,7 +880,9 @@
       "type_document_avis": "Required opinion",
       "workflow": "Workflow",
       "version_workflow": "Workflow version",
-      "workflow_etape": "Workflow step"
+      "workflow_etape": "Workflow step",
+      "parametre_delai": "Time limit rule",
+      "notification_evenement": "Notification channels"
     },
     "champs": {
       "statut": "Status",
@@ -1486,6 +1489,66 @@
       "indisponible": "The service is temporarily unavailable. Please try again shortly.",
       "annuler": "Cancel",
       "enregistrer": "Save the new version"
+    }
+  },
+  "parametres": {
+    "titre": "Time limits and notifications",
+    "description": {
+      "admin": "How time limits are calculated and the channels for each notification. A change applies at once and is recorded in the audit log.",
+      "lecture": "How time limits are calculated and the channels for each notification, set by the administrator."
+    },
+    "provisoire": {
+      "titre": "Choices to be validated by the Ministry",
+      "texte": "The specifications do not set these rules: current values are provisional choices (analysis, § 3, points 17 to 22)."
+    },
+    "delais": {
+      "titre": "Time limit rule",
+      "depart": {
+        "titre": "The time limit starts",
+        "paiement_frais": "When the application fee is paid",
+        "paiement_fraisAide": "Before payment, the Ministry cannot process. A document without a fee starts on filing.",
+        "depot": "When the application is filed",
+        "depotAide": "The time limit runs even if the fee is not yet paid."
+      },
+      "pauses": {
+        "titre": "The time limit is paused",
+        "complement": "While additional information is requested",
+        "droits": "While waiting for duties to be paid"
+      },
+      "seuil": {
+        "titre": "“Close to the limit”",
+        "aide": "A file is flagged when at most {pct}% of the time limit remains, and at least {min, plural, =0 {0 days} one {# day} other {# days}}.",
+        "pourcent": "Percentage of time remaining",
+        "minimum": "Days remaining, at least",
+        "erreurPourcent": "Enter a whole number between 1 and 100.",
+        "erreurMinimum": "Enter a whole number between 0 and 30."
+      },
+      "enregistre": {
+        "titre": "Saved",
+        "texte": "The new rule already applies to records, lists and dashboards."
+      },
+      "echec": "The rule could not be saved",
+      "indisponible": "The service is temporarily unavailable. Please try again shortly.",
+      "enregistrer": "Save the time limit rule"
+    },
+    "canaux": {
+      "titre": "Notification channels",
+      "resume": "SMS enabled for {n} of {total} events. Each SMS has a cost for the Ministry.",
+      "legende": "Channels for each notification to the applicant",
+      "evenement": "Event",
+      "canal": {
+        "sms": "SMS",
+        "email": "Email",
+        "interne": "App"
+      },
+      "auMoinsUn": "Keep at least one channel.",
+      "enregistre": {
+        "titre": "Saved",
+        "texte": "Upcoming notifications are sent through the chosen channels."
+      },
+      "echec": "The channels could not be saved",
+      "indisponible": "The service is temporarily unavailable. Please try again shortly.",
+      "enregistrer": "Save the channels"
     }
   }
 }

@@ -512,7 +512,8 @@
       "aTraiter": "À traiter",
       "notifications": "Notifications",
       "catalogue": "Catalogue et tarifs",
-      "workflows": "Workflows"
+      "workflows": "Workflows",
+      "parametres": "Délais et notifications"
     }
   },
   "etats": {
@@ -879,7 +880,9 @@
       "type_document_avis": "Avis requis",
       "workflow": "Workflow",
       "version_workflow": "Version de workflow",
-      "workflow_etape": "Étape de workflow"
+      "workflow_etape": "Étape de workflow",
+      "parametre_delai": "Règle des délais",
+      "notification_evenement": "Canaux de notification"
     },
     "champs": {
       "statut": "Statut",
@@ -1486,6 +1489,66 @@
       "indisponible": "Le service est momentanément indisponible. Réessayez dans un instant.",
       "annuler": "Annuler",
       "enregistrer": "Enregistrer la nouvelle version"
+    }
+  },
+  "parametres": {
+    "titre": "Délais et notifications",
+    "description": {
+      "admin": "Règle de calcul des délais et canaux de chaque notification. Une modification s’applique aussitôt et est tracée au journal d’audit.",
+      "lecture": "Règle de calcul des délais et canaux de chaque notification, réglés par l’administrateur."
+    },
+    "provisoire": {
+      "titre": "Choix à faire valider par le Ministère",
+      "texte": "Le cahier des charges ne fixe pas ces règles : les valeurs actuelles sont des choix provisoires (analyse, § 3, points 17 à 22)."
+    },
+    "delais": {
+      "titre": "Règle des délais",
+      "depart": {
+        "titre": "Le délai commence",
+        "paiement_frais": "Au paiement des frais de dossier",
+        "paiement_fraisAide": "Avant le paiement, le Ministère ne peut pas instruire. Un document sans frais commence au dépôt.",
+        "depot": "Au dépôt de la demande",
+        "depotAide": "Le délai court même si les frais ne sont pas encore payés."
+      },
+      "pauses": {
+        "titre": "Le délai est en pause",
+        "complement": "Pendant un complément demandé au demandeur",
+        "droits": "Pendant l’attente du paiement des droits"
+      },
+      "seuil": {
+        "titre": "« Proche du dépassement »",
+        "aide": "Un dossier est signalé quand il reste au plus {pct} % du délai, et au moins {min, plural, =0 {0 jour} one {# jour} other {# jours}}.",
+        "pourcent": "Pourcentage du délai restant",
+        "minimum": "Jours restants, au moins",
+        "erreurPourcent": "Saisissez un nombre entier entre 1 et 100.",
+        "erreurMinimum": "Saisissez un nombre entier entre 0 et 30."
+      },
+      "enregistre": {
+        "titre": "C’est enregistré",
+        "texte": "La nouvelle règle s’applique déjà aux fiches, aux listes et aux tableaux de bord."
+      },
+      "echec": "La règle n’a pas pu être enregistrée",
+      "indisponible": "Le service est momentanément indisponible. Réessayez dans un instant.",
+      "enregistrer": "Enregistrer la règle des délais"
+    },
+    "canaux": {
+      "titre": "Canaux des notifications",
+      "resume": "SMS actif pour {n} événement(s) sur {total}. Chaque SMS a un coût pour le Ministère.",
+      "legende": "Canaux de chaque notification au demandeur",
+      "evenement": "Événement",
+      "canal": {
+        "sms": "SMS",
+        "email": "E-mail",
+        "interne": "Application"
+      },
+      "auMoinsUn": "Gardez au moins un canal.",
+      "enregistre": {
+        "titre": "C’est enregistré",
+        "texte": "Les prochaines notifications partent par les canaux choisis."
+      },
+      "echec": "Les canaux n’ont pas pu être enregistrés",
+      "indisponible": "Le service est momentanément indisponible. Réessayez dans un instant.",
+      "enregistrer": "Enregistrer les canaux"
     }
   }
 }

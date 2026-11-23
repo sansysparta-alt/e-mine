@@ -39,6 +39,7 @@ describe("configuration unique de la navigation", () => {
       "mesDemandes",
       "catalogue",
       "workflows",
+      "parametres",
       "journalAudit",
     ]);
     const agent = navigationPour({ permissions: ["INSTRUIRE"], interne: true });
