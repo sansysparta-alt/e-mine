@@ -102,7 +102,12 @@ test("la langue choisie sur la page de connexion est reprise par l'application",
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.getByText("Foreign investor").first()).toBeVisible();
   // Retour au français depuis l'application : la page de connexion suit.
-  await page.getByRole("button", { name: /User menu/ }).click();
-  await page.getByRole("menuitemradio", { name: "Français" }).click();
+  // Le menu ne s'ouvre qu'une fois la page interactive : nouvel essai tant qu'il reste fermé.
+  const francais = page.getByRole("menuitemradio", { name: "Français" });
+  await expect(async () => {
+    await page.getByRole("button", { name: /User menu/ }).click();
+    await expect(francais).toBeVisible({ timeout: 1000 });
+  }).toPass();
+  await francais.click();
   await expect(page.locator("html")).toHaveAttribute("lang", "fr");
 });

@@ -10,6 +10,16 @@ const MOT_DE_PASSE = process.env.DEMO_PASSWORD ?? "";
 const INVESTISSEUR = "f.bangoura@horizon-invest.test";
 const ADMIN = "o.bah@e-mine.test";
 
+/** Ouvre la recherche globale au clavier (nouvel essai tant que la page n'est pas interactive). */
+async function ouvrirRecherche(page: Page) {
+  const champ = page.getByRole("combobox", { name: "Rechercher dans e-mine" });
+  await expect(async () => {
+    await page.keyboard.press("Control+k");
+    await expect(champ).toBeVisible({ timeout: 1000 });
+  }).toPass();
+  return champ;
+}
+
 async function connecter(browser: Browser, email: string): Promise<Page> {
   expect(MOT_DE_PASSE, "DEMO_PASSWORD doit être défini dans .env").not.toBe("");
   const page = await (await browser.newContext()).newPage();
@@ -49,14 +59,12 @@ test("le demandeur : « Nouvelle demande » en tête du menu, cloche, aide et pi
 
 test("la recherche globale ne propose que les écrans du profil", async ({ browser }) => {
   const investisseur = await connecter(browser, INVESTISSEUR);
-  await investisseur.keyboard.press("Control+k");
-  const champ = investisseur.getByRole("combobox", { name: "Rechercher dans e-mine" });
+  const champ = await ouvrirRecherche(investisseur);
   await champ.fill("journal");
   await expect(investisseur.getByText("Aucun résultat pour « journal »")).toBeVisible();
 
   const admin = await connecter(browser, ADMIN);
-  await admin.keyboard.press("Control+k");
-  await admin.getByRole("combobox", { name: "Rechercher dans e-mine" }).fill("journal");
+  await (await ouvrirRecherche(admin)).fill("journal");
   await admin.getByRole("option", { name: /Journal d’audit/ }).click();
   await expect(admin).toHaveURL(/\/journal-audit$/);
   // Les agents ne reçoivent pas de notification : ni cloche, ni centre de notifications.

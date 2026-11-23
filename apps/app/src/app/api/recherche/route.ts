@@ -6,7 +6,9 @@ import type { ResultatDemande } from "@/composants/recherche/recherche-globale";
 import { chargerMoi, chargerReferentiels, optionsApi } from "@/serveur/donnees";
 
 /** Nombre de dossiers proposés par la recherche globale. */
-const TAILLE = 6;
+const PROPOSES = 6;
+/** Plus petite page acceptée par l'API (tailles 10, 20, 50 ou 100). */
+const TAILLE_API = 10;
 
 /**
  * Recherche globale (barre du haut, Ctrl+K) : dossiers dont le numéro, le code ou le nom du
@@ -19,12 +21,12 @@ export async function GET(requete: Request) {
   try {
     const options = await optionsApi();
     const [page, moi, { documents }, langue] = await Promise.all([
-      listerDemandes({ q, taille: TAILLE, tri: "DATE", sens: "DESC" }, options),
+      listerDemandes({ q, taille: TAILLE_API, tri: "date", sens: "desc" }, options),
       chargerMoi(),
       chargerReferentiels(),
       getLocale(),
     ]);
-    const demandes: ResultatDemande[] = page.data.elements.map((d) => ({
+    const demandes: ResultatDemande[] = page.data.elements.slice(0, PROPOSES).map((d) => ({
       id: d.id,
       numero: d.numero,
       document: libelleDocument(
@@ -43,6 +45,7 @@ export async function GET(requete: Request) {
     );
   } catch (e) {
     const statut = e instanceof ErreurApi && e.status === 401 ? 401 : 503;
+    if (statut !== 401) console.error("Recherche globale : réponse de l'API inattendue", e);
     return NextResponse.json({ code: statut === 401 ? "AUTH-001" : "SYS-001" }, { status: statut });
   }
 }

@@ -23,7 +23,7 @@ export async function compteursNavigation(moi: MoiDto): Promise<CompteursNavigat
   }
   if (droits.has("VALIDER_CATALOGUE")) {
     lectures.push(
-      listerFichesDocuments({ filtre: "A_VALIDER", taille: 1 }, options).then((r) => [
+      listerFichesDocuments({ filtre: "A_VALIDER", taille: 10 }, options).then((r) => [
         "catalogue",
         r.data.total,
       ]),
