@@ -4,6 +4,9 @@ import { NextRequest } from "next/server";
 import { proxy } from "./proxy";
 import type { SessionEmine } from "./serveur/session";
 
+const { lireMoi } = vi.hoisted(() => ({ lireMoi: vi.fn() }));
+vi.mock("@emine/api-client", () => ({ lireMoi }));
+
 vi.mock("./serveur/oidc", () => ({
   renouveler: vi.fn(async () => ({
     jetonAcces: "jeton-neuf",
@@ -73,5 +76,53 @@ describe("proxy : renouvellement du jeton (correctif A2)", () => {
   it("répond 401 JSON à un relais du BFF sans session", async () => {
     const reponse = await proxy(new NextRequest("http://localhost:3001/api/demandes/1/pieces"));
     expect(reponse.status).toBe(401);
+  });
+});
+
+describe("proxy : écrans réservés à d'autres profils", () => {
+  beforeEach(() => {
+    vi.stubEnv("OIDC_ISSUER", "http://localhost:8081/realms/emine");
+    vi.stubEnv("OIDC_CLIENT_ID_APP", "emine-app");
+    vi.stubEnv("OIDC_CLIENT_SECRET_APP", "secret-de-test");
+    vi.stubEnv("SESSION_SECRET", SECRET);
+    lireMoi.mockReset();
+  });
+  afterEach(() => vi.unstubAllEnvs());
+
+  const valide = {
+    jetonAcces: "jeton-valide",
+    jetonRafraichissement: "rafraichissement",
+    expireA: Math.floor(Date.now() / 1000) + 200,
+  };
+  const profil = (permissions: string[], interne = true) =>
+    lireMoi.mockResolvedValue({ data: { permissions, interne } });
+
+  it("ouvre workflows et paramètres à l'administrateur et au Ministre", async () => {
+    for (const droits of [["PARAMETRER"], ["SIGNER", "VALIDER_CATALOGUE"]]) {
+      profil(droits);
+      for (const chemin of ["/workflows", "/parametres", "/workflows/EXPORT/modifier"]) {
+        const reponse = await proxy(await requeteAvecSession(valide, chemin));
+        expect(reponse.headers.get("x-middleware-next")).toBe("1");
+        expect(reponse.headers.get("x-middleware-rewrite")).toBeNull();
+      }
+    }
+  });
+
+  it("répond comme une adresse inconnue (404, page introuvable) à un autre profil", async () => {
+    profil(["DEPOSER", "PAYER"], false);
+    const reponse = await proxy(await requeteAvecSession(valide, "/parametres"));
+    expect(reponse.status).toBe(404);
+    expect(reponse.headers.get("x-middleware-rewrite")).toContain("/introuvable");
+  });
+
+  it("ne consulte pas l'API pour un écran ouvert à tous", async () => {
+    await proxy(await requeteAvecSession(valide, "/tableau-de-bord"));
+    expect(lireMoi).not.toHaveBeenCalled();
+  });
+
+  it("laisse l'écran décider si l'API est injoignable", async () => {
+    lireMoi.mockRejectedValue(new Error("ECONNREFUSED"));
+    const reponse = await proxy(await requeteAvecSession(valide, "/workflows"));
+    expect(reponse.headers.get("x-middleware-next")).toBe("1");
   });
 });

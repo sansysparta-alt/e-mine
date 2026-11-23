@@ -1,24 +1,28 @@
-import { Bouton, EtatVide } from "@emine/ui";
-import { SearchX } from "@emine/ui/icones";
-import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import { PageIntrouvable } from "@/composants/page-introuvable";
+import { NavigationApplication } from "@/navigation/navigation-application";
+import { chargerMoi } from "@/serveur/donnees";
 
-/** Page introuvable hors de l'espace connecté : même message, sur fond clair, en français. */
+/**
+ * Adresse sans écran, ou écran réservé à un autre profil (le proxy y renvoie, statut 404) : la même
+ * page « introuvable », dans le gabarit de l'espace connecté (menu de l'utilisateur) quand une
+ * session existe ; sinon sur fond clair. Rien ne distingue un écran réservé d'une adresse inconnue.
+ */
 export default async function IntrouvableRacine() {
-  const t = await getTranslations("etats.introuvable");
+  const moi = await chargerMoi().catch(() => null);
+  if (moi) {
+    return (
+      <NavigationApplication
+        utilisateur={{ nomComplet: `${moi.prenom} ${moi.nom}`, profil: moi.profil.libelle }}
+        profil={{ permissions: moi.permissions, interne: moi.interne }}
+      >
+        <PageIntrouvable />
+      </NavigationApplication>
+    );
+  }
   return (
     <main id="contenu" className="mx-auto flex min-h-dvh max-w-2xl items-center bg-fond px-4">
       <div className="w-full">
-        <EtatVide
-          icone={SearchX}
-          titre={t("titre")}
-          description={t("description")}
-          action={
-            <Bouton asChild>
-              <Link href="/tableau-de-bord">{t("retour")}</Link>
-            </Bouton>
-          }
-        />
+        <PageIntrouvable />
       </div>
     </main>
   );

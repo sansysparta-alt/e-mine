@@ -1,5 +1,7 @@
+import { lireMoi } from "@emine/api-client";
 import { getIronSession } from "iron-session";
 import { type NextRequest, NextResponse } from "next/server";
+import { cheminAutorise, entreeDuChemin, estReservee } from "@/navigation/acces";
 import { renouveler } from "@/serveur/oidc";
 import { aRenouveler, optionsSession, type SessionEmine } from "@/serveur/session";
 
@@ -61,12 +63,13 @@ export async function proxy(requete: NextRequest) {
     return NextResponse.redirect(connexion);
   }
 
+  let suite = provisoire;
   if (aRenouveler(session)) {
     try {
       if (!session.jetonRafraichissement) throw new Error("pas de jeton de rafraîchissement");
       Object.assign(session, await renouveler(session.jetonRafraichissement));
       await session.save();
-      return prolongerAvecCookie(requete, provisoire, options.cookieName);
+      suite = prolongerAvecCookie(requete, provisoire, options.cookieName);
     } catch {
       const expiree = pathname.startsWith("/api/")
         ? NextResponse.json({ code: "AUTH-001" }, { status: 401 })
@@ -76,7 +79,37 @@ export async function proxy(requete: NextRequest) {
       return expiree;
     }
   }
-  return provisoire;
+  if (!pathname.startsWith("/api/") && !(await accesAutorise(pathname, session.jetonAcces))) {
+    return introuvable(requete);
+  }
+  return suite;
+}
+
+/** Adresse sans écran : la page « introuvable » de l'application, avec le statut 404. */
+export const ADRESSE_INTROUVABLE = "/introuvable";
+
+/**
+ * Écran réservé à un autre profil : même réponse qu'une adresse inconnue (page « introuvable »,
+ * statut 404), décidée avant tout affichage, pour ne rien révéler des écrans des autres profils.
+ */
+function introuvable(requete: NextRequest): NextResponse {
+  return NextResponse.rewrite(new URL(ADRESSE_INTROUVABLE, requete.url), { status: 404 });
+}
+
+/**
+ * Le profil connecté peut-il ouvrir cette adresse (règle de la navigation, `navigation/acces`) ?
+ * Le profil n'est lu auprès de l'API que pour une adresse réservée ; si l'API ne répond pas,
+ * l'écran décide (et affiche l'indisponibilité).
+ */
+async function accesAutorise(chemin: string, jeton: string | undefined): Promise<boolean> {
+  const entree = entreeDuChemin(chemin);
+  if (!entree || !estReservee(entree)) return true;
+  try {
+    const moi = (await lireMoi({ headers: { Authorization: `Bearer ${jeton ?? ""}` } })).data;
+    return cheminAutorise(chemin, { permissions: moi.permissions, interne: moi.interne });
+  } catch {
+    return true;
+  }
 }
 
 export const config = {
