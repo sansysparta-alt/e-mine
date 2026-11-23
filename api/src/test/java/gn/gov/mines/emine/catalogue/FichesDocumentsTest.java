@@ -284,8 +284,7 @@ class FichesDocumentsTest extends TestIntegration {
 
   @Test
   @Order(10)
-  void unDocumentDesactiveQuitteLeCatalogue_etSesDemandesEnCoursVontASonTerme()
-      throws Exception {
+  void unDocumentDesactiveQuitteLeCatalogue_etSesDemandesEnCoursVontASonTerme() throws Exception {
     long brouillon = DemandesDeTest.brouillon(INVESTISSEUR, "KIM");
     int n =
         numero(
