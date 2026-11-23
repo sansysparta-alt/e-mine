@@ -1,4 +1,4 @@
-import { listerWorkflows } from "@emine/api-client";
+import { listerTypesDocuments, listerWorkflows } from "@emine/api-client";
 import { EnTetePage, EtatVide } from "@emine/ui";
 import { Workflow } from "@emine/ui/icones";
 import type { Metadata } from "next";
@@ -28,9 +28,14 @@ export default async function Workflows({ searchParams }: Props) {
   const page = Math.max(1, Number.parseInt(p.page ?? "1", 10) || 1);
   const taille = [10, 20, 50, 100].includes(Number(p.taille)) ? Number(p.taille) : 20;
 
-  const { data } = await appelPage("/workflows", async () =>
-    listerWorkflows({ page, taille }, await optionsApi()),
-  );
+  const [{ data }, documents] = await Promise.all([
+    appelPage("/workflows", async () => listerWorkflows({ page, taille }, await optionsApi())),
+    // Noms des documents (catalogue public) : les codes seuls sont obscurs pour un non-initié.
+    listerTypesDocuments()
+      .then((r) => r.data)
+      .catch(() => []),
+  ]);
+  const libelles = Object.fromEntries(documents.map((d) => [d.code, d.libelleFr]));
 
   return (
     <div className="flex flex-col gap-6">
@@ -42,7 +47,7 @@ export default async function Workflows({ searchParams }: Props) {
         <EtatVide icone={Workflow} titre={t("vide")} />
       ) : (
         <div className="flex flex-col gap-4">
-          <TableauWorkflows lignes={data.elements} legende={t("titre")} />
+          <TableauWorkflows lignes={data.elements} legende={t("titre")} libelles={libelles} />
           <PaginationListe
             chemin="/workflows"
             page={data.page}

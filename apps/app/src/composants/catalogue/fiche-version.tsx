@@ -71,42 +71,76 @@ export function TableauChangements({
   );
 }
 
-/** Contenu d'une fiche (version en vigueur) : liste de définitions lisible au lecteur d'écran. */
+/**
+ * Contenu d'une fiche, en trois groupes (document, instruction et signature, tarifs) : chaque
+ * intitulé porte une aide courte pour qui ne connaît pas le domaine ; les champs vides sont omis.
+ */
 export function ContenuFiche({ version }: { version: VersionDto }) {
   const t = useTranslations("catalogue.fiche");
-  const ligne = (libelle: string, contenu: React.ReactNode) => (
+  const ligne = (cle: string, contenu: React.ReactNode, aide?: string) => (
     <div className="flex flex-col gap-1 border-b border-bordure py-3 last:border-0 sm:flex-row sm:gap-6">
-      <dt className="font-semibold text-navy sm:w-56 sm:shrink-0">{libelle}</dt>
+      <dt className="sm:w-60 sm:shrink-0">
+        <span className="font-semibold text-navy">{t(`champs.${cle}`)}</span>
+        {aide ? <span className="block text-sm text-texte-doux">{aide}</span> : null}
+      </dt>
       <dd className="min-w-0">{contenu}</dd>
     </div>
   );
+  const montants = CHAMPS_MONTANT.flatMap((m) => {
+    const montant = version[m as "fraisDossierGnf" | "droitsGnf" | "attestationGnf"];
+    return montant == null ? [] : [{ m, montant }];
+  });
+  const groupe = (titre: string, contenu: React.ReactNode) => (
+    <section className="flex flex-col gap-1">
+      <h3 className="text-sm font-semibold tracking-wide text-texte-doux uppercase">{titre}</h3>
+      <dl>{contenu}</dl>
+    </section>
+  );
   return (
-    <dl>
-      {ligne(t("champs.libelleFr"), version.libelleFr)}
-      {ligne(t("champs.libelleEn"), version.libelleEn ?? t("vide"))}
-      {ligne(t("champs.delaiJours"), t("jours", { n: version.delaiJours }))}
-      {ligne(
-        t("champs.pieces"),
-        <ul className="list-disc pl-5">
-          {version.pieces.map((p) => (
-            <li key={p}>{p}</li>
-          ))}
-        </ul>,
+    <div className="flex flex-col gap-6">
+      {groupe(
+        t("sections.document"),
+        <>
+          {ligne("libelleFr", version.libelleFr)}
+          {version.libelleEn
+            ? ligne("libelleEn", <span lang="en">{version.libelleEn}</span>)
+            : null}
+          {ligne("delaiJours", t("jours", { n: version.delaiJours }), t("aide.delaiJours"))}
+          {ligne(
+            "pieces",
+            <ul className="list-disc pl-5">
+              {version.pieces.map((p) => (
+                <li key={p}>{p}</li>
+              ))}
+            </ul>,
+            t("aide.pieces"),
+          )}
+          {ligne("actif", version.actif ? t("actif.oui") : t("actif.non"))}
+        </>,
       )}
-      {ligne(t("champs.instruitPar"), version.instruitPar)}
-      {ligne(t("champs.signataire"), version.signataire)}
-      {ligne(
-        t("champs.avis"),
-        version.avis.length ? version.avis.map((a) => a.libelle).join(" · ") : t("aucunAvis"),
+      {groupe(
+        t("sections.circuit"),
+        <>
+          {ligne("instruitPar", version.instruitPar, t("aide.instruitPar"))}
+          {ligne("signataire", version.signataire, t("aide.signataire"))}
+          {ligne(
+            "avis",
+            version.avis.length ? version.avis.map((a) => a.libelle).join(" · ") : t("aucunAvis"),
+            t("aide.avis"),
+          )}
+        </>,
       )}
-      {ligne(t("champs.actif"), version.actif ? t("actif.oui") : t("actif.non"))}
-      {CHAMPS_MONTANT.map((m) => {
-        const montant = version[m as "fraisDossierGnf" | "droitsGnf" | "attestationGnf"];
-        return montant == null ? null : (
-          <Fragment key={m}>{ligne(t(`champs.${m}`), formaterGnf(montant))}</Fragment>
-        );
-      })}
-    </dl>
+      {montants.length
+        ? groupe(
+            t("sections.tarifs"),
+            <>
+              {montants.map(({ m, montant }) => (
+                <Fragment key={m}>{ligne(m, formaterGnf(montant))}</Fragment>
+              ))}
+            </>,
+          )
+        : null}
+    </div>
   );
 }
 

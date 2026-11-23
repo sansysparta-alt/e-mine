@@ -2,22 +2,28 @@ import type { EtapeDto } from "@emine/api-client";
 import { useTranslations } from "next-intl";
 
 /**
- * Étapes d'un workflow dans l'ordre : numéro, intervenant, action. Liste ordonnée, lisible au
- * lecteur d'écran (« Étape 2 sur 6 »).
+ * Étapes d'un workflow en frise verticale : numéro, intervenant, action, reliés par un trait.
+ * Liste ordonnée, lisible au lecteur d'écran (« Étape 2 sur 6 »).
  */
 export function EtapesWorkflow({ etapes }: { etapes: EtapeDto[] }) {
   const t = useTranslations("workflows");
   return (
-    <ol className="flex flex-col gap-2">
+    <ol className="flex flex-col">
       {etapes.map((e, i) => (
-        <li key={`${i}-${e.acteur}`} className="flex items-start gap-3">
+        <li key={`${i}-${e.acteur}`} className="relative flex gap-3 pb-4 last:pb-0">
+          {i < etapes.length - 1 ? (
+            <span
+              aria-hidden="true"
+              className="absolute top-8 bottom-0 left-3.5 w-px -translate-x-1/2 bg-bordure"
+            />
+          ) : null}
           <span
             aria-hidden="true"
-            className="flex size-7 shrink-0 items-center justify-center rounded-full bg-ice text-sm font-semibold text-navy"
+            className="relative flex size-7 shrink-0 items-center justify-center rounded-full bg-ice text-sm font-semibold text-navy"
           >
             {i + 1}
           </span>
-          <span className="flex flex-col">
+          <span className="flex flex-col pt-0.5">
             <span className="sr-only">{t("etape", { n: i + 1, total: etapes.length })} : </span>
             <span className="font-semibold text-navy">{e.acteur}</span>
             <span className="text-texte-doux">{e.libelle}</span>

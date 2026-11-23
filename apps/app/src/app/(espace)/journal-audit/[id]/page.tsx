@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { formaterValeur } from "@/composants/audit/journal";
+import { formaterValeur, libelleChamp, trierChangements } from "@/composants/audit/journal";
 import { appelPage, chargerMoi, optionsApi } from "@/serveur/donnees";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -38,13 +38,16 @@ export default async function EntreeJournal({ params }: Props) {
   const t = await getTranslations("audit");
   const tStatut = await getTranslations("statuts");
   const tStatutPaiement = await getTranslations("statutsPaiement");
+  const tValeurs = await getTranslations("audit.valeurs");
   const traductions = {
     statuts: tStatut,
     statutsPaiement: tStatutPaiement,
     oui: t("oui"),
     non: t("non"),
+    valeurs: tValeurs,
+    jours: (n: number) => tValeurs("jours", { n }),
   };
-  const champ = (c: string) => (t.has(`champs.${c}`) ? t(`champs.${c}`) : c);
+  const champ = (c: string) => libelleChamp(c, t);
   const table = t.has(`tables.${entree.table}`) ? t(`tables.${entree.table}`) : entree.table;
   const modification = entree.operation === "U";
 
@@ -123,7 +126,7 @@ export default async function EntreeJournal({ params }: Props) {
                 </tr>
               </thead>
               <tbody>
-                {entree.changements.map((c) => (
+                {trierChangements(entree.changements).map((c) => (
                   <tr key={c.champ} className="border-b border-bordure align-top">
                     <th scope="row" className="py-2 pr-4 font-semibold">
                       {champ(c.champ)}

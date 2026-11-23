@@ -92,9 +92,9 @@ describe("canaux des notifications (US-02.7)", () => {
       valeur: c.map((x, i) => ({ ...canaux[i]!, ...x })),
     }));
     avecTraductions(<FormulaireCanaux initial={canaux} modifiable enregistrer={enregistrer} />);
-    expect(screen.getByText(/SMS actif pour 1 événement\(s\) sur 2/)).toBeInTheDocument();
+    expect(screen.getByText(/Le SMS est actif pour 1 événement sur 2/)).toBeInTheDocument();
     fireEvent.click(screen.getByLabelText("SMS — Demande déposée"));
-    expect(screen.getByText(/SMS actif pour 0 événement\(s\) sur 2/)).toBeInTheDocument();
+    expect(screen.getByText(/Le SMS est actif pour aucun événement sur 2/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Enregistrer les canaux" }));
     await waitFor(() =>
       expect(enregistrer).toHaveBeenCalledWith([

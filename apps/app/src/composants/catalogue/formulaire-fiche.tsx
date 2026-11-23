@@ -293,17 +293,22 @@ export function FormulaireFiche({
             <p id="delaiJours-aide" className="text-sm text-texte-doux">
               {t("aide.delai")}
             </p>
-            <input
-              id="delaiJours"
-              type="number"
-              inputMode="numeric"
-              min={1}
-              max={BORNES_FICHE.delaiMax}
-              {...register("delaiJours")}
-              aria-invalid={errors.delaiJours ? true : undefined}
-              aria-describedby={decrit("delaiJours", true)}
-              className={`${classesChamp} sm:max-w-40`}
-            />
+            <div className="flex items-center gap-2">
+              <input
+                id="delaiJours"
+                type="number"
+                inputMode="numeric"
+                min={1}
+                max={BORNES_FICHE.delaiMax}
+                {...register("delaiJours")}
+                aria-invalid={errors.delaiJours ? true : undefined}
+                aria-describedby={decrit("delaiJours", true)}
+                className={`${classesChamp} sm:max-w-32`}
+              />
+              <span aria-hidden="true" className="text-texte-doux">
+                {t("unites.jours")}
+              </span>
+            </div>
             {erreur("delaiJours")}
           </div>
         </div>
@@ -313,11 +318,14 @@ export function FormulaireFiche({
         <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-1">
             {libelle("instruitPar")}
+            <p id="instruitPar-aide" className="text-sm text-texte-doux">
+              {t("aide.instruitPar")}
+            </p>
             <input
               id="instruitPar"
               {...register("instruitPar")}
               aria-invalid={errors.instruitPar ? true : undefined}
-              aria-describedby={decrit("instruitPar")}
+              aria-describedby={decrit("instruitPar", true)}
               className={classesChamp}
             />
             {erreur("instruitPar")}

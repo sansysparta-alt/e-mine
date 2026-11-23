@@ -1,4 +1,9 @@
-import { type DetailWorkflowDto, ErreurApi, lireWorkflow } from "@emine/api-client";
+import {
+  type DetailWorkflowDto,
+  ErreurApi,
+  listerTypesDocuments,
+  lireWorkflow,
+} from "@emine/api-client";
 import { Alerte, Bouton, Carte, EnTetePage, formaterDate } from "@emine/ui";
 import { ArrowLeft, FilePen } from "@emine/ui/icones";
 import type { Metadata } from "next";
@@ -37,6 +42,9 @@ export default async function DetailWorkflow({ params, searchParams }: Props) {
   const t = await getTranslations("workflows");
 
   let d: DetailWorkflowDto;
+  const documents = listerTypesDocuments()
+    .then((r) => r.data)
+    .catch(() => []);
   try {
     d = (await appelPage(`/workflows/${code}`, async () => lireWorkflow(code, await optionsApi())))
       .data;
@@ -45,6 +53,7 @@ export default async function DetailWorkflow({ params, searchParams }: Props) {
     throw e;
   }
   const w = d.workflow;
+  const libelles = Object.fromEntries((await documents).map((x) => [x.code, x.libelleFr]));
   const v = w.enVigueur;
   const delai =
     w.delaiMinJours === w.delaiMaxJours
@@ -64,7 +73,7 @@ export default async function DetailWorkflow({ params, searchParams }: Props) {
           </Link>
         }
         titre={v.libelle}
-        description={t("documents", { liste: w.documents.join(" · ") })}
+        description={t("etapesNombre", { n: v.etapes.length })}
         actions={
           d.peutModifier ? (
             <Bouton asChild>
@@ -86,7 +95,25 @@ export default async function DetailWorkflow({ params, searchParams }: Props) {
       <Carte titre={t("enVigueur", { n: v.version })}>
         <div className="flex flex-col gap-5">
           <EtapesWorkflow etapes={v.etapes} />
-          <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <dt className="font-semibold text-navy">{t("documentsFamille")}</dt>
+              <dd>
+                <ul className="mt-1 flex flex-col gap-1">
+                  {w.documents.map((c) => (
+                    <li key={c}>
+                      <Link
+                        href={`/catalogue/${c}`}
+                        className="inline-flex min-h-11 items-center text-royal underline-offset-4 hover:underline"
+                      >
+                        <span className="font-mono font-semibold">{c}</span>
+                        {libelles[c] ? <>&nbsp;· {libelles[c]}</> : null}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </dd>
+            </div>
             <div>
               <dt className="font-semibold text-navy">{t("colonnes.paiements")}</dt>
               <dd>{v.reglePaiement}</dd>
