@@ -511,7 +511,8 @@
       "journalAudit": "Audit log",
       "aTraiter": "To do",
       "notifications": "Notifications",
-      "catalogue": "Catalogue and fees"
+      "catalogue": "Catalogue and fees",
+      "workflows": "Workflows"
     }
   },
   "etats": {
@@ -875,7 +876,10 @@
       "document_delivre": "Issued document",
       "remboursement": "Refund",
       "version_document": "Catalogue version",
-      "type_document_avis": "Required opinion"
+      "type_document_avis": "Required opinion",
+      "workflow": "Workflow",
+      "version_workflow": "Workflow version",
+      "workflow_etape": "Workflow step"
     },
     "champs": {
       "statut": "Status",
@@ -1404,6 +1408,84 @@
       "indisponible": "The service is temporarily unavailable. Please try again shortly.",
       "annuler": "Cancel",
       "envoyer": "Submit to the Minister"
+    }
+  },
+  "workflows": {
+    "titre": "Workflows",
+    "description": {
+      "admin": "The Ministry’s 5 processes, one per document family. A change applies at once and is recorded; pending applications keep the process in force when they were filed.",
+      "lecture": "The Ministry’s 5 processes, one per document family: steps, stakeholders, payments and time limits."
+    },
+    "colonnes": {
+      "famille": "Family and documents",
+      "etapes": "Steps",
+      "delai": "Time limits",
+      "version": "Version",
+      "paiements": "Payments"
+    },
+    "jours": "{n, plural, one {# day} other {# days}}",
+    "fourchette": "{min} to {max} days",
+    "version": "v{n}",
+    "modifieeLe": "Since {date}",
+    "elements": "workflows",
+    "vide": "No workflow.",
+    "etape": "Step {n} of {total}",
+    "documents": "Documents: {liste}",
+    "modifier": "Edit the workflow",
+    "enVigueur": "Process in force (v{n})",
+    "delaiAide": "Derived from the time limits of these documents’ records, approved by the Minister.",
+    "affichage": "This process informs applicants and staff. Actual processing follows each document’s record: required opinions and signatory.",
+    "historique": "Version history",
+    "actuelle": "in force",
+    "par": "Changed on {date} by {nom}",
+    "initiale": "Initial version (schema provided by the Ministry).",
+    "voirEtapes": "Show the {n} steps",
+    "enregistre": {
+      "titre": "Saved",
+      "texte": "Version v{n} is in force and recorded in the audit log. Applications already filed keep their process."
+    },
+    "formulaire": {
+      "titre": "Edit the workflow",
+      "description": "{libelle} — version in force v{n}",
+      "obligatoire": "required",
+      "effet": {
+        "titre": "Immediate effect",
+        "texte": "The new version applies on saving to applications filed afterwards. Pending applications keep the version in force when they were filed."
+      },
+      "sections": {
+        "famille": "Family",
+        "etapes": "Steps and stakeholders",
+        "motif": "Reason"
+      },
+      "champs": {
+        "libelle": "Family name",
+        "reglePaiement": "Payments (displayed)",
+        "acteur": "Stakeholder",
+        "action": "Action",
+        "motif": "Reason for the change"
+      },
+      "aide": {
+        "reglePaiement": "Displayed text. Amounts and payment items come from the documents’ records.",
+        "motif": "Why this change? At least 10 characters."
+      },
+      "etape": "Step {n}",
+      "monter": "Move step {n} up",
+      "descendre": "Move step {n} down",
+      "retirer": "Remove step {n}",
+      "ajouter": "Add a step",
+      "maximum": "{n} steps at most.",
+      "erreurs": {
+        "libelle": "3 to 150 characters.",
+        "reglePaiement": "3 to 300 characters.",
+        "acteur": "2 to 100 characters.",
+        "action": "2 to 150 characters.",
+        "motif": "Explain the change in 10 to 2,000 characters."
+      },
+      "aucunChangement": "Nothing has changed compared with the version in force.",
+      "echec": "The change could not be saved",
+      "indisponible": "The service is temporarily unavailable. Please try again shortly.",
+      "annuler": "Cancel",
+      "enregistrer": "Save the new version"
     }
   }
 }

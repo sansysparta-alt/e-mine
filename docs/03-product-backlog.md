@@ -93,6 +93,8 @@
 | US-02.3 | En tant qu'administrateur, je crée une nouvelle version de tarif soumise à validation | 5 | M |
 | US-02.4 | En tant que Ministre, je valide une version de tarif avant sa publication | 3 | M |
 | US-02.5 | En tant qu'administrateur, je paramètre les 5 workflows (étapes, intervenants, délais) | 5 | S |
+| US-02.6 | En tant qu'administrateur, je règle les paramètres des délais (départ, pauses, seuil « proche du dépassement ») | 2 | S |
+| US-02.7 | En tant qu'administrateur, je choisis les canaux (SMS, e-mail, application) de chaque notification | 2 | S |
 
 **Critères d'acceptation**
 

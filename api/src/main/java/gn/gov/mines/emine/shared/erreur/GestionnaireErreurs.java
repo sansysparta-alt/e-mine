@@ -62,8 +62,8 @@ class GestionnaireErreurs extends ResponseEntityExceptionHandler {
     return fabrique.reponse(CodeErreur.PERM_001, FabriqueProblemes.langue(requete), Map.of());
   }
 
-  @ExceptionHandler(DataAccessException.class)
-  ResponseEntity<Probleme> base(DataAccessException e, HttpServletRequest requete) {
+  @ExceptionHandler({DataAccessException.class, org.jooq.exception.DataAccessException.class})
+  ResponseEntity<Probleme> base(RuntimeException e, HttpServletRequest requete) {
     Optional<CodeErreur> code = codeBase(e);
     if (code.isPresent()) {
       return fabrique.reponse(code.get(), FabriqueProblemes.langue(requete), Map.of());

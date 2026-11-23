@@ -26,7 +26,16 @@ public final class RegleJournal {
     c.put("decisions", List.of("avis_decision"));
     c.put("pieces", List.of("piece_jointe"));
     c.put("comptes", List.of("utilisateur", "organisation"));
-    c.put("catalogue", List.of("type_document", "version_document", "type_document_avis", "tarif"));
+    c.put(
+        "catalogue",
+        List.of(
+            "type_document",
+            "version_document",
+            "type_document_avis",
+            "tarif",
+            "workflow",
+            "version_workflow",
+            "workflow_etape"));
     CATEGORIES = java.util.Collections.unmodifiableMap(c);
   }
 

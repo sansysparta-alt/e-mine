@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   type LucideIcon,
   ScrollText,
+  Workflow,
 } from "@emine/ui/icones";
 
 /**
@@ -94,6 +95,15 @@ export const NAVIGATION: SectionConfig[] = [
         module: "catalogue",
         href: "/catalogue",
         icone: BookOpen,
+        auMoinsUnDroit: ["PARAMETRER", "VALIDER_CATALOGUE"],
+        interne: true,
+      },
+      // Workflows (US-02.5) : étapes et intervenants affichés, modifiés par l'administrateur.
+      {
+        cle: "workflows",
+        module: "catalogue",
+        href: "/workflows",
+        icone: Workflow,
         auMoinsUnDroit: ["PARAMETRER", "VALIDER_CATALOGUE"],
         interne: true,
       },

@@ -93,6 +93,44 @@
         }
       }
     },
+    "/api/v1/workflows/{code}/versions" : {
+      "post" : {
+        "tags" : [ "Catalogue" ],
+        "summary" : "Nouvelle version du workflow (immédiate, tracée ; sans effet sur les demandes en cours)",
+        "operationId" : "modifierWorkflow",
+        "parameters" : [ {
+          "name" : "code",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "^[A-Z_]{2,30}$"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ModificationDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Created",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/VersionCreeeDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/paiements/notifications/tresorpay" : {
       "post" : {
         "tags" : [ "Paiements" ],
@@ -1202,6 +1240,70 @@
         }
       }
     },
+    "/api/v1/workflows" : {
+      "get" : {
+        "tags" : [ "Catalogue" ],
+        "summary" : "Workflows du catalogue, paginés",
+        "operationId" : "listerWorkflows",
+        "parameters" : [ {
+          "name" : "page",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "name" : "taille",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageWorkflowsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/workflows/{code}" : {
+      "get" : {
+        "tags" : [ "Catalogue" ],
+        "summary" : "Un workflow et toutes ses versions",
+        "operationId" : "lireWorkflow",
+        "parameters" : [ {
+          "name" : "code",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "^[A-Z_]{2,30}$"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DetailWorkflowDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/verification/{code}" : {
       "get" : {
         "tags" : [ "Vérification" ],
@@ -2072,6 +2174,61 @@
         },
         "required" : [ "email", "nom", "organisation", "prenom" ]
       },
+      "EtapeDto" : {
+        "type" : "object",
+        "properties" : {
+          "acteur" : {
+            "type" : "string",
+            "maxLength" : 100,
+            "minLength" : 2
+          },
+          "libelle" : {
+            "type" : "string",
+            "maxLength" : 150,
+            "minLength" : 2
+          }
+        },
+        "required" : [ "acteur", "libelle" ]
+      },
+      "ModificationDto" : {
+        "type" : "object",
+        "properties" : {
+          "libelle" : {
+            "type" : "string",
+            "maxLength" : 150,
+            "minLength" : 3
+          },
+          "reglePaiement" : {
+            "type" : "string",
+            "maxLength" : 300,
+            "minLength" : 3
+          },
+          "etapes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/EtapeDto"
+            },
+            "maxItems" : 12,
+            "minItems" : 1
+          },
+          "motif" : {
+            "type" : "string",
+            "maxLength" : 2000,
+            "minLength" : 10
+          }
+        },
+        "required" : [ "etapes", "libelle", "motif", "reglePaiement" ]
+      },
+      "VersionCreeeDto" : {
+        "type" : "object",
+        "properties" : {
+          "version" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "version" ]
+      },
       "AccuseDto" : {
         "type" : "object",
         "properties" : {
@@ -2572,6 +2729,110 @@
           }
         },
         "required" : [ "deposeLe", "empreinteSha256", "id", "nomFichier", "remplaceeLe", "remplaceeParId", "tailleOctets", "typeMime", "typePiece" ]
+      },
+      "PageWorkflowsDto" : {
+        "type" : "object",
+        "properties" : {
+          "elements" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/WorkflowDto"
+            }
+          },
+          "page" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "taille" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "total" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "elements", "page", "taille", "total", "totalPages" ]
+      },
+      "VersionWorkflowDto" : {
+        "type" : "object",
+        "properties" : {
+          "version" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "libelle" : {
+            "type" : "string"
+          },
+          "reglePaiement" : {
+            "type" : "string"
+          },
+          "motif" : {
+            "type" : "string"
+          },
+          "modifieePar" : {
+            "type" : [ "string", "null" ]
+          },
+          "modifieeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "etapes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/EtapeDto"
+            }
+          }
+        },
+        "required" : [ "etapes", "libelle", "modifieeLe", "modifieePar", "motif", "reglePaiement", "version" ]
+      },
+      "WorkflowDto" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "delaiMinJours" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "delaiMaxJours" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "documents" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "enVigueur" : {
+            "$ref" : "#/components/schemas/VersionWorkflowDto"
+          }
+        },
+        "required" : [ "code", "delaiMaxJours", "delaiMinJours", "documents", "enVigueur" ]
+      },
+      "DetailWorkflowDto" : {
+        "type" : "object",
+        "properties" : {
+          "workflow" : {
+            "$ref" : "#/components/schemas/WorkflowDto"
+          },
+          "versions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/VersionWorkflowDto"
+            }
+          },
+          "peutModifier" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "peutModifier", "versions", "workflow" ]
       },
       "VerificationDto" : {
         "type" : "object",
