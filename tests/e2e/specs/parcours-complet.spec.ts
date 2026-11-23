@@ -1,4 +1,4 @@
-import { type Browser, expect, type Page, test } from "@playwright/test";
+import { type APIRequestContext, type Browser, expect, type Page, test } from "@playwright/test";
 
 /**
  * Démonstration V1 de bout en bout (docs/07 §1, US-07.4), avec les personas fictives du seed :
@@ -6,12 +6,27 @@ import { type Browser, expect, type Page, test } from "@playwright/test";
  * recevable ; le DNM et l'Inspection rendent leur avis motivé (requis par le catalogue, US-05.3) ;
  * le Ministre (signataire du catalogue) décide au vu des avis ; l'investisseur paie les droits ; le
  * Ministre signe et délivre ; n'importe qui vérifie le QR (« Document authentique ») ; après
- * révocation par le Directeur, la vérification affiche « NON VALIDE ».
+ * révocation par le Directeur, la vérification affiche « NON VALIDE ». À chaque étape,
+ * l'investisseur est prévenu par e-mail et par SMS (Mailpit, SMS simulés) et retrouve ses
+ * notifications dans l'application (US-07.2).
  */
 
 /** Mot de passe commun des personas, lu dans .env (chargé par playwright.config.ts). */
 const MOT_DE_PASSE = process.env.DEMO_PASSWORD ?? "";
 const SITE = process.env.PUBLIC_WEB_URL ?? "http://localhost:3000";
+/** Mailpit : e-mails et SMS simulés de la démonstration (US-07.1). */
+const MAILPIT = process.env.MAILPIT_URL ?? "http://localhost:8025";
+
+type MessageMailpit = { Subject: string; To: { Address: string }[] };
+
+/** Messages reçus par Mailpit qui citent ce texte (objet ou corps). */
+async function messagesCitant(request: APIRequestContext, texte: string) {
+  const reponse = await request.get(`${MAILPIT}/api/v1/search`, {
+    params: { query: `"${texte}"`, limit: 100 },
+  });
+  expect(reponse.ok()).toBeTruthy();
+  return ((await reponse.json()) as { messages: MessageMailpit[] }).messages;
+}
 
 const COMPTES = {
   investisseur: "f.bangoura@horizon-invest.test",
@@ -54,6 +69,7 @@ async function payerParTresorPay(page: Page, lien: RegExp) {
 
 test("parcours V1 : dépôt, paiements, recevabilité, décision, délivrance, vérification, révocation", async ({
   browser,
+  request,
 }) => {
   // 1. L'investisseur dépose un permis d'exploitation avec ses pièces obligatoires.
   const investisseur = await connecter(browser, COMPTES.investisseur);
@@ -168,7 +184,33 @@ test("parcours V1 : dépôt, paiements, recevabilité, décision, délivrance, v
   await expect(visiteur.getByRole("heading", { name: "Document authentique" })).toBeVisible();
   await expect(visiteur.getByText("Bangoura")).toHaveCount(0);
 
-  // 8. Le Directeur révoque le document : la vérification affiche « NON VALIDE ».
+  // 8. L'investisseur a été prévenu à chaque étape, par e-mail et par SMS (envoyés par l'outbox,
+  //    toutes les 15 s), et retrouve ses notifications dans l'application.
+  const sujets = [
+    `Demande déposée · ${numero}`,
+    `Dossier complet · ${numero}`,
+    `Décision favorable, droits à payer · ${numero}`,
+    `Document délivré · ${numero}`,
+  ];
+  await expect
+    .poll(async () => (await messagesCitant(request, numero ?? "")).map((m) => m.Subject), {
+      timeout: 90_000,
+      intervals: [3_000],
+    })
+    .toEqual(expect.arrayContaining(sujets));
+  const sms = (await messagesCitant(request, numero ?? "")).filter((m) =>
+    m.To.some((d) => d.Address.endsWith("@sms.test")),
+  );
+  expect(sms.length).toBeGreaterThanOrEqual(sujets.length);
+  await investisseur.goto("/notifications");
+  const notification = investisseur.getByRole("link", {
+    name: new RegExp(`Document délivré · ${numero}$`),
+  });
+  await expect(notification).toBeVisible();
+  await notification.click();
+  await expect(investisseur).toHaveURL(new RegExp(`/demandes/${id}$`));
+
+  // 9. Le Directeur révoque le document : la vérification affiche « NON VALIDE ».
   const directeur = await connecter(browser, COMPTES.directeur);
   await directeur.goto(`/demandes/${id}`);
   await directeur.getByRole("button", { name: "Révoquer…" }).click();
