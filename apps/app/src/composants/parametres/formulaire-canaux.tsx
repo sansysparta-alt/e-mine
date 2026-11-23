@@ -60,9 +60,18 @@ export function FormulaireCanaux({ initial, modifiable, enregistrer }: Formulair
 
   return (
     <form onSubmit={envoyer} noValidate className="flex flex-col gap-4">
-      <p className="text-sm text-texte-doux">
-        {t("resume", { n: smsActifs, total: lignes.length })}
-      </p>
+      <div className="flex flex-col gap-2">
+        <ul className="flex flex-col gap-1 text-sm text-texte-doux sm:flex-row sm:flex-wrap sm:gap-x-6">
+          {CANAUX.map((c) => (
+            <li key={c}>
+              <span className="font-semibold text-navy">{t(`canal.${c}`)}</span> : {t(`aide.${c}`)}
+            </li>
+          ))}
+        </ul>
+        <p className="text-sm text-texte-doux">
+          {t("resume", { n: smsActifs, total: lignes.length })}
+        </p>
+      </div>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-left">
           <caption className="sr-only">{t("legende")}</caption>
@@ -97,9 +106,9 @@ export function FormulaireCanaux({ initial, modifiable, enregistrer }: Formulair
                         checked={l[c]}
                         disabled={!modifiable}
                         onChange={() => basculer(l.modele, c)}
-                        className="justify-center"
+                        variante="cellule"
                       >
-                        <span className="sr-only">{`${t(`canal.${c}`)} — ${libelle(l)}`}</span>
+                        {`${t(`canal.${c}`)} — ${libelle(l)}`}
                       </CaseACocher>
                     </td>
                   ))}

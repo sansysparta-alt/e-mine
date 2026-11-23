@@ -190,8 +190,8 @@
       "sansReponsePrecision": "Demandés par votre service, délai de réponse dépassé"
     },
     "catalogue": {
-      "titre": "{nombre, plural, one {# modification du catalogue à approuver} other {# modifications du catalogue à approuver}}",
-      "texte": "Rien ne s’applique au catalogue sans votre approbation.",
+      "titre": "{nombre, plural, one {# modification du catalogue à valider} other {# modifications du catalogue à valider}}",
+      "texte": "Rien n’est publié au catalogue sans votre validation.",
       "lien": "Voir les modifications"
     }
   },
@@ -850,7 +850,7 @@
       "decisions": "Décisions",
       "pieces": "Pièces jointes",
       "comptes": "Comptes",
-      "catalogue": "Catalogue"
+      "catalogue": "Catalogue et paramètres"
     },
     "colonnes": {
       "date": "Date et heure",
@@ -925,14 +925,57 @@
       "mot_de_passe_hash": "Mot de passe",
       "created_at": "Créé le",
       "deleted_at": "Supprimé le",
-      "rendu_le": "Rendu le"
+      "rendu_le": "Rendu le",
+      "delai_jours": "Délai cible",
+      "version_document_id": "Fiche en vigueur au dépôt (n°)",
+      "signataire_profil_id": "Signataire (profil n°)",
+      "workflow_version": "Version du workflow au dépôt",
+      "workflow_id": "Workflow (n°)",
+      "libelle_fr": "Libellé",
+      "libelle_en": "Libellé anglais",
+      "libelle": "Libellé",
+      "pieces_cles": "Pièces requises",
+      "instruit_par": "Instruit par",
+      "signe_par": "Signataire",
+      "actif": "Disponible à la demande",
+      "avis_profils": "Avis requis (profils n°)",
+      "frais_dossier_gnf": "Frais de dossier",
+      "droits_gnf": "Droits",
+      "attestation_gnf": "Paiement unique",
+      "tarifs_date_effet": "Entrée en vigueur des tarifs",
+      "date_effet": "Date d’effet",
+      "valide_par": "Validé par",
+      "proposee_par": "Proposée par (n°)",
+      "proposee_le": "Proposée le",
+      "decidee_par": "Décidée par (n°)",
+      "decidee_le": "Décidée le",
+      "motif_refus": "Motif du refus",
+      "regle_paiement": "Paiements (affichés)",
+      "acteur": "Intervenant",
+      "ordre": "Ordre",
+      "version": "Version",
+      "modifiee_par": "Modifiée par (n°)",
+      "modifiee_le": "Modifiée le",
+      "delai_min_jours": "Délai cible le plus court",
+      "delai_max_jours": "Délai cible le plus long",
+      "sms": "SMS",
+      "interne": "Espace en ligne",
+      "depart": "Départ du délai",
+      "pause_complement": "Pause pendant un complément",
+      "pause_droits": "Pause pendant l’attente des droits",
+      "seuil_proche_pourcent": "Seuil « proche du dépassement »",
+      "seuil_proche_min_jours": "Seuil minimal « proche du dépassement »",
+      "modele": "Événement",
+      "code": "Code",
+      "renouvelable": "Renouvelable",
+      "genere_titre": "Génère un titre"
     },
     "systeme": "Système",
     "systemeDetail": "Système (notification TrésorPay, tâche automatique ou migration)",
     "ouvrirDemande": "Ouvrir la demande",
     "voirDetail": "Voir le détail",
     "devient": "devient",
-    "autres": "{nombre, plural, one {et # autre champ} other {et # autres champs}}",
+    "autres": "{nombre, plural, one {Voir 1 autre changement} other {Voir les # autres changements}}",
     "oui": "Oui",
     "non": "Non",
     "elements": "entrées",
@@ -955,7 +998,16 @@
       "avant": "Avant",
       "apres": "Après",
       "valeur": "Valeur"
-    }
+    },
+    "valeurs": {
+      "jours": "{n, plural, one {# jour} other {# jours}}",
+      "depart": {
+        "paiement_frais": "Au paiement des frais",
+        "depot": "Au dépôt"
+      }
+    },
+    "renseigne": "renseigné",
+    "systemeAide": "Action automatique de la plateforme"
   },
   "delivrance": {
     "signer": {
@@ -1191,15 +1243,15 @@
   "catalogue": {
     "titre": "Catalogue et tarifs",
     "description": {
-      "admin": "Fiches des 15 documents du Ministère. Chaque modification est proposée ici puis approuvée par le Ministre avant de s’appliquer.",
-      "ministre": "Modifications du catalogue proposées par l’administrateur : approuvez-les ou refusez-les. Rien ne s’applique sans votre approbation."
+      "admin": "Fiches des 15 documents du Ministère : pièces, délai cible, signataire et tarifs. Chaque modification est proposée ici, puis validée par le Ministre avant d’être publiée.",
+      "ministre": "Modifications du catalogue proposées par l’administrateur : validez-les ou refusez-les. Rien n’est publié sans votre validation."
     },
     "chiffres": {
       "periode": "À ce jour",
       "documents": "Documents au catalogue",
       "propositions": {
-        "admin": "Modifications en attente du Ministre",
-        "ministre": "Modifications à approuver"
+        "admin": "Modifications en attente de validation",
+        "ministre": "Modifications à valider"
       },
       "inactifs": "Retirés du catalogue"
     },
@@ -1211,25 +1263,25 @@
     "filtres": {
       "libelle": "Afficher",
       "TOUS": "Tous",
-      "A_VALIDER_admin": "En attente du Ministre",
-      "A_VALIDER_ministre": "À approuver",
+      "A_VALIDER_admin": "En attente de validation",
+      "A_VALIDER_ministre": "À valider",
       "INACTIFS": "Retirés du catalogue"
     },
     "colonnes": {
       "code": "Code",
       "document": "Document",
-      "delai": "Délai",
+      "delai": "Délai cible",
       "signataire": "Signataire",
       "version": "Version",
       "statut": "Statut"
     },
     "jours": "{n, plural, one {# jour} other {# jours}}",
-    "version": "v{n}",
+    "version": "Version {n}",
     "elements": "documents",
     "statuts": {
-      "aApprouver": "À approuver",
-      "enAttenteMinistre": "En attente du Ministre",
-      "enVigueur": "En vigueur",
+      "aApprouver": "À valider",
+      "enAttenteMinistre": "En attente de validation",
+      "enVigueur": "Publiée",
       "refusee": "Refusée",
       "retiree": "Retirée",
       "remplacee": "Remplacée",
@@ -1237,8 +1289,8 @@
     },
     "vide": {
       "recherche": "Aucun document ne correspond à cette recherche.",
-      "A_VALIDER_admin": "Aucune modification en attente du Ministre.",
-      "A_VALIDER_ministre": "Aucune modification à approuver.",
+      "A_VALIDER_admin": "Aucune modification en attente de validation.",
+      "A_VALIDER_ministre": "Aucune modification à valider.",
       "INACTIFS": "Aucun document retiré du catalogue.",
       "toutVoir": "Voir tout le catalogue"
     },
@@ -1250,27 +1302,27 @@
       "vide": "Non renseigné",
       "aucunAvis": "Aucun avis technique requis",
       "jours": "{n, plural, one {# jour} other {# jours}}",
-      "versionInitiale": "Version initiale du catalogue.",
+      "versionInitiale": "Version initiale du catalogue (schéma fourni par le Ministère).",
       "actif": {
-        "oui": "Proposé au dépôt",
-        "non": "Retiré du catalogue"
+        "oui": "Oui",
+        "non": "Non, retiré du catalogue"
       },
       "decision": {
-        "publiee": "Approuvée le {date} par {nom}",
-        "remplacee": "Approuvée le {date} par {nom}",
+        "publiee": "Validée le {date} par {nom}",
+        "remplacee": "Validée le {date} par {nom}",
         "refusee": "Refusée le {date} par {nom}",
         "retiree": "Retirée le {date} par {nom}",
         "a_valider": "En attente"
       },
       "champs": {
-        "libelleFr": "Libellé (français)",
-        "libelleEn": "Libellé (anglais)",
+        "libelleFr": "Libellé",
+        "libelleEn": "Libellé anglais",
         "pieces": "Pièces requises",
-        "delaiJours": "Délai de traitement",
+        "delaiJours": "Délai cible",
         "instruitPar": "Instruit par",
         "signataire": "Signataire",
         "avis": "Avis techniques requis",
-        "actif": "Au catalogue",
+        "actif": "Disponible à la demande",
         "motif": "Objet de la modification",
         "fraisDossierGnf": "Frais de dossier",
         "droitsGnf": "Droits",
@@ -1283,22 +1335,22 @@
         "apres": "Proposé"
       },
       "proposition": {
-        "titre": "Modification proposée (v{numero})",
+        "titre": "Modification proposée (version {numero})",
         "proposee": "Proposée le {date} par {nom}",
         "attente": "En attente depuis {n, plural, =0 {moins d’un jour} one {# jour} other {# jours}}",
         "legende": "Ce que change la proposition",
         "aide": {
-          "ministre": "Vérifiez chaque changement : il s’appliquera dès votre approbation, aux demandes déposées ensuite. Les demandes en cours gardent la fiche de leur dépôt.",
-          "admin": "Cette modification attend l’approbation du Ministre. Vous pouvez la retirer tant qu’il n’a pas décidé."
+          "ministre": "Vérifiez chaque changement : il sera publié dès votre validation et s’appliquera aux demandes déposées ensuite. Les demandes en cours gardent la fiche de leur dépôt.",
+          "admin": "Cette modification attend la validation du Ministre. Vous pouvez la retirer tant qu’il n’a pas décidé."
         },
-        "tarifsDateEffet": "Nouveaux tarifs applicables à partir du {date} (au plus tôt le jour de l’approbation)."
+        "tarifsDateEffet": "Nouveaux tarifs applicables à partir du {date} (au plus tôt le jour de la validation)."
       },
       "inactif": {
         "titre": "Document retiré du catalogue",
         "texte": "Ce document ne peut plus être demandé. Les demandes déjà déposées vont à leur terme."
       },
       "enVigueur": {
-        "titre": "Fiche en vigueur (v{numero})"
+        "titre": "Fiche publiée (version {numero})"
       },
       "historique": {
         "titre": "Historique des versions",
@@ -1307,10 +1359,10 @@
       },
       "resultat": {
         "titre": "C’est enregistré",
-        "approuver": "La modification est approuvée : la fiche en vigueur est à jour et l’action est tracée au journal d’audit.",
+        "approuver": "La modification est validée et publiée ; l’action est tracée au journal d’audit.",
         "refuser": "La modification est refusée ; l’administrateur voit votre motif.",
         "retirer": "La proposition est retirée. La fiche en vigueur n’a pas changé.",
-        "proposee": "La modification (v{numero}) est envoyée au Ministre pour approbation. Rien ne change avant sa décision."
+        "proposee": "La modification (version {numero}) est envoyée au Ministre pour validation. Rien ne change avant sa décision."
       },
       "objets": {
         "FRAIS_DOSSIER": "Frais de dossier",
@@ -1318,12 +1370,25 @@
         "ATTESTATION": "Paiement unique"
       },
       "tarifsAVenir": {
-        "titre": "Tarifs approuvés à venir",
+        "titre": "Tarifs validés à venir",
         "ligne": "{objet} : {montant} à partir du {date}"
+      },
+      "aide": {
+        "pieces": "Documents que l’usager joint à sa demande.",
+        "delaiJours": "Jours calendaires visés entre le paiement des frais et la délivrance.",
+        "instruitPar": "Service qui examine le dossier.",
+        "signataire": "Autorité qui décide et signe le document.",
+        "avis": "Services qui rendent un avis motivé avant la décision.",
+        "tarifs": "Montants payés par l’usager, en francs guinéens."
+      },
+      "sections": {
+        "document": "Document",
+        "circuit": "Instruction et signature",
+        "tarifs": "Tarifs"
       }
     },
     "decision": {
-      "approuver": "Approuver",
+      "approuver": "Valider",
       "refuser": "Refuser",
       "retirer": "Retirer la proposition",
       "annuler": "Annuler",
@@ -1333,7 +1398,7 @@
       "indisponible": "Le service est momentanément indisponible. Réessayez dans un instant.",
       "signataire": {
         "titre": "Le signataire change",
-        "texte": "Les documents des demandes déposées après votre approbation seront décidés et signés par le nouveau signataire. Les demandes en cours gardent le signataire de leur dépôt."
+        "texte": "Les documents des demandes déposées après votre validation seront décidés et signés par le nouveau signataire. Les demandes en cours gardent le signataire de leur dépôt."
       },
       "desactivation": {
         "titre": "Le document quitte le catalogue",
@@ -1341,17 +1406,17 @@
       },
       "confirmation": {
         "approuver": {
-          "titre": "Approuver la version v{numero} ?",
-          "texte": "La fiche en vigueur sera remplacée dès maintenant. L’approbation est tracée à votre nom.",
-          "bouton": "Confirmer l’approbation"
+          "titre": "Valider la version {numero} ?",
+          "texte": "La fiche sera publiée dès maintenant. La validation est tracée à votre nom.",
+          "bouton": "Confirmer la validation"
         },
         "refuser": {
-          "titre": "Refuser la version v{numero} ?",
+          "titre": "Refuser la version {numero} ?",
           "texte": "La fiche en vigueur ne change pas.",
           "bouton": "Confirmer le refus"
         },
         "retirer": {
-          "titre": "Retirer la version v{numero} ?",
+          "titre": "Retirer la version {numero} ?",
           "texte": "La proposition ne sera pas soumise au Ministre. Vous pourrez en proposer une autre.",
           "bouton": "Retirer"
         }
@@ -1360,12 +1425,12 @@
     "formulaire": {
       "titre": "Proposer une modification",
       "retour": "Fiche {code}",
-      "versionActuelle": "version en vigueur v{numero}",
+      "versionActuelle": "version publiée {numero}",
       "obligatoire": "obligatoire",
       "facultatif": "facultatif",
       "circuit": {
-        "titre": "Approbation du Ministre",
-        "texte": "Votre proposition sera soumise au Ministre. Rien ne change avant son approbation ; les demandes déjà déposées gardent la fiche de leur dépôt."
+        "titre": "Validation du Ministre",
+        "texte": "Votre proposition sera soumise au Ministre. Rien n’est publié avant sa validation ; les demandes déjà déposées gardent la fiche de leur dépôt."
       },
       "sections": {
         "document": "Document",
@@ -1375,28 +1440,29 @@
       },
       "aide": {
         "pieces": "Une pièce par ligne, sans virgule (20 au plus).",
-        "delai": "En jours calendaires, de 1 à 365. Il s’appliquera aux demandes déposées après l’approbation.",
+        "delai": "En jours calendaires (1 à 365), entre le paiement des frais et la délivrance. S’applique aux demandes déposées après la validation.",
         "signataire": "La personne qui décide et signe ce document.",
         "avis": "Profils qui rendent un avis technique motivé avant la décision, dans cet ordre.",
         "motif": "Expliquez au Ministre la raison de la modification (10 caractères au moins).",
         "motifDesactivation": "Expliquez pourquoi le document quitte le catalogue (10 caractères au moins).",
         "tarifs": "Montants en francs guinéens entiers. Un paiement garde le montant en vigueur à sa création.",
-        "tarifsDateEffet": "Aujourd’hui ou plus tard. Les tarifs s’appliquent à cette date, et jamais avant l’approbation du Ministre."
+        "tarifsDateEffet": "Aujourd’hui ou plus tard. Les tarifs s’appliquent à cette date, jamais avant la validation du Ministre.",
+        "instruitPar": "Service qui examine le dossier, tel qu’affiché aux usagers."
       },
       "actif": "Ce document peut être demandé (au catalogue)",
       "signataireChange": {
         "titre": "Changement de signataire",
-        "texte": "Il touche la valeur juridique des documents délivrés : le Ministre le verra en évidence."
+        "texte": "Il touche la valeur juridique des documents délivrés : le Ministre le verra en évidence avant de valider."
       },
       "desactivation": {
         "titre": "Retrait du catalogue",
-        "texte": "Après l’approbation, le document ne pourra plus être demandé. Les demandes déjà déposées vont à leur terme. Le motif est obligatoire."
+        "texte": "Après la validation, le document ne pourra plus être demandé. Les demandes déjà déposées vont à leur terme. Le motif est obligatoire."
       },
       "erreurs": {
         "libelleFr": "Saisissez un libellé de 3 à 150 caractères.",
         "libelleEn": "Laissez vide ou saisissez 3 à 150 caractères.",
         "pieces": "De 1 à 20 pièces, une par ligne, sans virgule, de 2 à 200 caractères chacune.",
-        "delaiJours": "Saisissez un nombre de jours entre 1 et 365.",
+        "delaiJours": "Saisissez un délai cible entre 1 et 365 jours.",
         "instruitPar": "Saisissez de 2 à 150 caractères.",
         "signataire": "Choisissez un signataire.",
         "avis": "Choix d’avis invalide.",
@@ -1410,7 +1476,10 @@
       "echec": "La proposition n’a pas pu être envoyée",
       "indisponible": "Le service est momentanément indisponible. Réessayez dans un instant.",
       "annuler": "Annuler",
-      "envoyer": "Soumettre au Ministre"
+      "envoyer": "Soumettre au Ministre",
+      "unites": {
+        "jours": "jours"
+      }
     }
   },
   "workflows": {
@@ -1421,23 +1490,22 @@
     },
     "colonnes": {
       "famille": "Famille et documents",
-      "etapes": "Étapes",
-      "delai": "Délais",
+      "etapes": "Circuit",
+      "delai": "Délais cibles",
       "version": "Version",
       "paiements": "Paiements"
     },
     "jours": "{n, plural, one {# jour} other {# jours}}",
     "fourchette": "{min} à {max} jours",
-    "version": "v{n}",
-    "modifieeLe": "Depuis le {date}",
+    "version": "Version {n}",
+    "modifieeLe": "depuis le {date}",
     "elements": "workflows",
     "vide": "Aucun workflow.",
     "etape": "Étape {n} sur {total}",
-    "documents": "Documents : {liste}",
     "modifier": "Modifier le workflow",
-    "enVigueur": "Circuit en vigueur (v{n})",
-    "delaiAide": "Déduits des délais des fiches de ces documents, approuvés par le Ministre.",
-    "affichage": "Ce circuit informe les usagers et les agents. Le traitement réel suit la fiche de chaque document : avis requis et signataire.",
+    "enVigueur": "Circuit en vigueur (version {n})",
+    "delaiAide": "Délais cibles des documents de la famille, fixés sur leur fiche et validés par le Ministre.",
+    "affichage": "Ce circuit informe les usagers et les agents. Le traitement d’un dossier suit la fiche de son document (avis requis, signataire).",
     "historique": "Historique des versions",
     "actuelle": "en vigueur",
     "par": "Modifiée le {date} par {nom}",
@@ -1489,7 +1557,10 @@
       "indisponible": "Le service est momentanément indisponible. Réessayez dans un instant.",
       "annuler": "Annuler",
       "enregistrer": "Enregistrer la nouvelle version"
-    }
+    },
+    "etapesNombre": "{n, plural, one {Circuit en # étape} other {Circuit en # étapes}}",
+    "selonDocument": "selon le document",
+    "documentsFamille": "Documents de cette famille"
   },
   "parametres": {
     "titre": "Délais et notifications",
@@ -1533,13 +1604,13 @@
     },
     "canaux": {
       "titre": "Canaux des notifications",
-      "resume": "SMS actif pour {n} événement(s) sur {total}. Chaque SMS a un coût pour le Ministère.",
+      "resume": "Le SMS est actif pour {n, plural, =0 {aucun événement} one {# événement} other {# événements}} sur {total}. Chaque SMS a un coût pour le Ministère.",
       "legende": "Canaux de chaque notification au demandeur",
       "evenement": "Événement",
       "canal": {
         "sms": "SMS",
         "email": "E-mail",
-        "interne": "Application"
+        "interne": "Espace en ligne"
       },
       "auMoinsUn": "Gardez au moins un canal.",
       "enregistre": {
@@ -1548,7 +1619,12 @@
       },
       "echec": "Les canaux n’ont pas pu être enregistrés",
       "indisponible": "Le service est momentanément indisponible. Réessayez dans un instant.",
-      "enregistrer": "Enregistrer les canaux"
+      "enregistrer": "Enregistrer les canaux",
+      "aide": {
+        "sms": "message court sur le téléphone de l’usager (payant)",
+        "email": "message détaillé à son adresse e-mail",
+        "interne": "notification dans son espace (cloche)"
+      }
     }
   }
 }

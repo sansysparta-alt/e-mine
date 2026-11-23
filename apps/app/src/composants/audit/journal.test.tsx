@@ -101,7 +101,30 @@ describe("tableau du journal", () => {
     );
     const seconde = within(lignes[1]!);
     expect(seconde.getByText("Système")).toBeVisible();
-    expect(seconde.getByText("et 1 autre champ")).toBeVisible();
+    // Essentiel d'abord (statut, montant), le reste replié.
+    expect(seconde.getByText("Voir 1 autre changement")).toBeVisible();
+    expect(seconde.getByText("Montant reçu")).toBeVisible();
+    expect(seconde.getAllByText("(renseigné)")[0]).toBeVisible();
+    expect(seconde.getByText("N° de reçu")).not.toBeVisible();
+  });
+
+  it("met les champs métier en clair et replie les identifiants techniques", () => {
+    afficher([
+      entree({
+        auteur: null,
+        auteurProfil: null,
+        changements: [
+          { champ: "version_document_id", avant: null, apres: "3" },
+          { champ: "delai_jours", avant: null, apres: "60" },
+        ],
+      }),
+    ]);
+    const ligne = within(screen.getAllByRole("row")[1]!);
+    expect(ligne.getByText("Délai cible")).toBeVisible();
+    expect(ligne.getByText(/60 jours/)).toBeVisible();
+    expect(ligne.getByText("Action automatique de la plateforme")).toBeVisible();
+    expect(ligne.getByText("Fiche en vigueur au dépôt (n°)")).not.toBeVisible();
+    expect(ligne.queryByText("delai_jours")).toBeNull();
   });
 
   it("ouvre l'entrée du journal par un vrai lien sur toute la ligne", () => {

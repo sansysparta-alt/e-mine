@@ -98,7 +98,7 @@ describe("liste du catalogue", () => {
       "href",
       "/catalogue/PEX",
     );
-    expect(screen.getAllByText("À approuver")).toHaveLength(1);
+    expect(screen.getAllByText("À valider")).toHaveLength(1);
     expect(screen.getAllByText("60 jours").length).toBeGreaterThan(0);
   });
 });
@@ -140,7 +140,7 @@ describe("décision sur une proposition (US-02.4)", () => {
         decider={vi.fn()}
       />,
     );
-    fireEvent.click(screen.getByRole("button", { name: "Approuver" }));
+    fireEvent.click(screen.getByRole("button", { name: "Valider" }));
     expect(screen.getByText("Le signataire change")).toBeInTheDocument();
   });
 
@@ -155,7 +155,7 @@ describe("décision sur une proposition (US-02.4)", () => {
         decider={vi.fn()}
       />,
     );
-    expect(screen.queryByRole("button", { name: "Approuver" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Valider" })).toBeNull();
     expect(screen.getByRole("button", { name: "Retirer la proposition" })).toBeInTheDocument();
   });
 });
@@ -225,14 +225,14 @@ describe("proposition d'une modification (US-02.2)", () => {
         proposer={proposer}
       />,
     );
-    expect(screen.getByLabelText(/Délai de traitement/)).toHaveValue(60);
+    expect(screen.getByLabelText(/Délai cible/)).toHaveValue(60);
     fireEvent.click(screen.getByRole("button", { name: "Soumettre au Ministre" }));
     expect(
       await screen.findByText("Expliquez la modification en 10 à 2 000 caractères."),
     ).toBeInTheDocument();
     expect(proposer).not.toHaveBeenCalled();
 
-    fireEvent.change(screen.getByLabelText(/Délai de traitement/), { target: { value: "45" } });
+    fireEvent.change(screen.getByLabelText(/Délai cible/), { target: { value: "45" } });
     fireEvent.change(screen.getByLabelText(/Signataire/), {
       target: { value: "Directeur général" },
     });
@@ -275,7 +275,7 @@ describe("tableau de bord du Ministre (US-02.4)", () => {
         catalogueAApprouver={2}
       />,
     );
-    expect(screen.getByText("2 modifications du catalogue à approuver")).toBeInTheDocument();
+    expect(screen.getByText("2 modifications du catalogue à valider")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Voir les modifications" })).toHaveAttribute(
       "href",
       "/catalogue?filtre=A_VALIDER",
