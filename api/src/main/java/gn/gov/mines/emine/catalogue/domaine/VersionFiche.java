@@ -1,6 +1,7 @@
 package gn.gov.mines.emine.catalogue.domaine;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -13,6 +14,8 @@ import java.util.List;
  * @param motif objet de la modification (motif de la désactivation le cas échéant)
  * @param proposeePar nom de l'administrateur, {@code null} pour la version initiale
  * @param decideePar nom de la personne qui a approuvé, refusé ou retiré
+ * @param tarifsDateEffet entrée en vigueur des montants proposés (US-02.3), {@code null} si la
+ *     version ne change pas le barème
  */
 public record VersionFiche(
     int numero,
@@ -23,7 +26,8 @@ public record VersionFiche(
     Instant proposeeLe,
     String decideePar,
     Instant decideeLe,
-    String motifRefus) {
+    String motifRefus,
+    LocalDate tarifsDateEffet) {
 
   public static final String A_VALIDER = "a_valider";
   public static final String PUBLIEE = "publiee";
@@ -43,6 +47,8 @@ public record VersionFiche(
    * @param signataire titre du signataire (D4) : Ministre, Directeur général…
    * @param avis profils qui rendent un avis technique avant la décision, dans l'ordre
    * @param actif document proposé au dépôt
+   * @param fraisDossierGnf barème en GNF entiers (US-02.3), {@code null} si le document n'a pas cet
+   *     objet de paiement ; de même pour les droits et l'attestation
    */
   public record ContenuFiche(
       String libelleFr,
@@ -52,7 +58,10 @@ public record VersionFiche(
       String instruitPar,
       String signataire,
       List<Profil> avis,
-      boolean actif) {
+      boolean actif,
+      Long fraisDossierGnf,
+      Long droitsGnf,
+      Long attestationGnf) {
 
     public ContenuFiche {
       pieces = List.copyOf(pieces);

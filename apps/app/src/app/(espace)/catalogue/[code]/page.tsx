@@ -18,6 +18,7 @@ import {
   ContenuFiche,
   LigneDecision,
   TableauChangements,
+  TarifsAVenir,
 } from "@/composants/catalogue/fiche-version";
 import { type ActionFiche, presentationVersion } from "@/composants/catalogue/presentation";
 import { deciderFiche } from "@/serveur/actions-catalogue";
@@ -144,6 +145,13 @@ export default async function FicheDocument({ params, searchParams }: Props) {
               changements={proposition.changements}
               legende={t("fiche.proposition.legende")}
             />
+            {proposition.tarifsDateEffet ? (
+              <p className="font-semibold">
+                {t("fiche.proposition.tarifsDateEffet", {
+                  date: formaterDate(proposition.tarifsDateEffet),
+                })}
+              </p>
+            ) : null}
             {action !== "AUCUNE" ? (
               <DecisionVersion
                 code={fiche.code}
@@ -171,6 +179,13 @@ export default async function FicheDocument({ params, searchParams }: Props) {
           <LigneDecision version={v} />
         </p>
         <ContenuFiche version={v} />
+        {fiche.tarifsAVenir.length ? (
+          <div className="mt-4">
+            <Alerte nature="info" titre={t("fiche.tarifsAVenir.titre")}>
+              <TarifsAVenir tarifs={fiche.tarifsAVenir} />
+            </Alerte>
+          </div>
+        ) : null}
       </Carte>
 
       <Carte titre={t("fiche.historique.titre")}>

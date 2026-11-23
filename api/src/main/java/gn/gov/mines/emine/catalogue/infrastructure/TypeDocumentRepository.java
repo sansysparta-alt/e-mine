@@ -176,8 +176,9 @@ public class TypeDocumentRepository {
   }
 
   /**
-   * Par document et par objet : montant de la version active la plus récente dont la date d'effet
-   * est passée.
+   * Par document et par objet : montant de la version active dont la date d'effet est la plus
+   * récente parmi celles passées (à date égale, la dernière version), comme {@code
+   * fn_tarif_en_vigueur}.
    */
   private Map<Short, Map<ObjetPaiement, Long>> tarifsEnVigueur() {
     Map<Short, Map<ObjetPaiement, Long>> parDocument = new HashMap<>();
@@ -185,7 +186,7 @@ public class TypeDocumentRepository {
         .from(TARIF)
         .where(TARIF.ACTIF.isTrue())
         .and(TARIF.DATE_EFFET.le(LocalDate.now(CONAKRY)))
-        .orderBy(TARIF.TYPE_DOCUMENT_ID, TARIF.OBJET, TARIF.VERSION.desc())
+        .orderBy(TARIF.TYPE_DOCUMENT_ID, TARIF.OBJET, TARIF.DATE_EFFET.desc(), TARIF.VERSION.desc())
         .fetch()
         .forEach(
             r ->

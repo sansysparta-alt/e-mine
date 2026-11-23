@@ -18,6 +18,8 @@ import gn.gov.mines.emine.shared.pagination.PageResultat;
 import gn.gov.mines.emine.shared.pagination.Pagination;
 import java.text.Normalizer;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
@@ -119,6 +121,7 @@ public class ServiceFiches {
    *     changements par rapport à la version en vigueur avant elle
    * @param action action attendue du profil connecté sur la proposition
    * @param peutProposer le profil connecté peut proposer une modification maintenant
+   * @param tarifsAVenir tarifs approuvés pas encore en vigueur (US-02.3)
    */
   public record Fiche(
       TypeDocument document,
@@ -127,7 +130,8 @@ public class ServiceFiches {
       List<Changement> changements,
       List<VersionAvecChangements> historique,
       Action action,
-      boolean peutProposer) {}
+      boolean peutProposer,
+      List<VersionDocumentRepository.TarifAVenir> tarifsAVenir) {}
 
   /** Version et ses changements par rapport à la version en vigueur avant elle. */
   public record VersionAvecChangements(VersionFiche version, List<Changement> changements) {}
@@ -164,13 +168,15 @@ public class ServiceFiches {
             : RegleFiche.changements(enVigueur.contenu(), proposition.contenu()),
         historique,
         proposition == null ? Action.AUCUNE : action(moi),
-        moi.peut(Permission.PARAMETRER) && proposition == null);
+        moi.peut(Permission.PARAMETRER) && proposition == null,
+        versions.tarifsAVenir(document.id()));
   }
 
   /**
    * Saisie d'une proposition (avis en codes de profil).
    *
    * @param pieces pièces requises, une par ligne
+   * @param tarifsDateEffet entrée en vigueur des montants, requise s'ils changent (US-02.3)
    */
   public record Proposition(
       String libelleFr,
@@ -181,6 +187,10 @@ public class ServiceFiches {
       String signataire,
       List<String> avis,
       boolean actif,
+      Long fraisDossierGnf,
+      Long droitsGnf,
+      Long attestationGnf,
+      LocalDate tarifsDateEffet,
       String motif) {}
 
   /**
@@ -228,11 +238,31 @@ public class ServiceFiches {
             p.instruitPar().strip(),
             p.signataire(),
             codesAvis.stream().map(possibles::get).toList(),
-            p.actif());
-    if (RegleFiche.changements(fiche.enVigueur().contenu(), contenu).isEmpty()) {
+            p.actif(),
+            p.fraisDossierGnf(),
+            p.droitsGnf(),
+            p.attestationGnf());
+    ContenuFiche actuel = fiche.enVigueur().contenu();
+    if (!RegleFiche.memesObjets(actuel, contenu)) {
+      throw champInvalide(
+          "tarifs",
+          "Les objets payés pour ce document (frais, droits, attestation) ne changent pas.");
+    }
+    boolean tarifsChangent = RegleFiche.changeTarifs(actuel, contenu);
+    if (tarifsChangent
+        && (p.tarifsDateEffet() == null || p.tarifsDateEffet().isBefore(aujourdhui()))) {
+      throw champInvalide(
+          "tarifsDateEffet", "Date d'entrée en vigueur : aujourd'hui ou plus tard.");
+    }
+    if (RegleFiche.changements(actuel, contenu).isEmpty()) {
       throw new ErreurMetier(CodeErreur.DOC_010, Map.of("code", code));
     }
-    return versions.proposer(fiche.document().id(), contenu, p.motif().strip(), moi.id());
+    return versions.proposer(
+        fiche.document().id(),
+        contenu,
+        tarifsChangent ? p.tarifsDateEffet() : null,
+        p.motif().strip(),
+        moi.id());
   }
 
   /** Le Ministre approuve la proposition : la base l'applique à la fiche. */
@@ -284,6 +314,10 @@ public class ServiceFiches {
         .findFirst()
         .map(a -> RegleFiche.changements(a.contenu(), v.contenu()))
         .orElse(List.of());
+  }
+
+  private static LocalDate aujourdhui() {
+    return LocalDate.now(ZoneId.of("Africa/Conakry"));
   }
 
   private static ErreurMetier champInvalide(String champ, String message) {

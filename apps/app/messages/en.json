@@ -1264,7 +1264,11 @@
         "signataire": "Signatory",
         "avis": "Required technical opinions",
         "actif": "In the catalogue",
-        "motif": "Purpose of the change"
+        "motif": "Purpose of the change",
+        "fraisDossierGnf": "Application fee",
+        "droitsGnf": "Duties",
+        "attestationGnf": "Single payment (certificate)",
+        "tarifsDateEffet": "Fees take effect on"
       },
       "changements": {
         "champ": "Item",
@@ -1279,7 +1283,8 @@
         "aide": {
           "ministre": "Check each change: it applies as soon as you approve, to applications filed afterwards. Pending applications keep the record in force when they were filed.",
           "admin": "This change is awaiting the Minister’s approval. You can withdraw it until a decision is made."
-        }
+        },
+        "tarifsDateEffet": "New fees apply from {date} (at the earliest on the day of approval)."
       },
       "inactif": {
         "titre": "Document withdrawn from the catalogue",
@@ -1299,6 +1304,15 @@
         "refuser": "The change is rejected; the administrator will see your reason.",
         "retirer": "The proposal is withdrawn. The record in force has not changed.",
         "proposee": "The change (v{numero}) has been sent to the Minister for approval. Nothing changes before the decision."
+      },
+      "objets": {
+        "FRAIS_DOSSIER": "Application fee",
+        "DROITS": "Duties",
+        "ATTESTATION": "Single payment"
+      },
+      "tarifsAVenir": {
+        "titre": "Approved upcoming fees",
+        "ligne": "{objet}: {montant} from {date}"
       }
     },
     "decision": {
@@ -1349,7 +1363,8 @@
       "sections": {
         "document": "Document",
         "circuit": "Processing and signature",
-        "publication": "Catalogue and purpose"
+        "publication": "Catalogue and purpose",
+        "tarifs": "Fees (GNF)"
       },
       "aide": {
         "pieces": "One document per line, without commas (20 at most).",
@@ -1357,7 +1372,9 @@
         "signataire": "The person who decides and signs this document.",
         "avis": "Profiles that give a reasoned technical opinion before the decision, in this order.",
         "motif": "Explain the reason for the change to the Minister (at least 10 characters).",
-        "motifDesactivation": "Explain why the document leaves the catalogue (at least 10 characters)."
+        "motifDesactivation": "Explain why the document leaves the catalogue (at least 10 characters).",
+        "tarifs": "Amounts in whole Guinean francs. A payment keeps the amount in force when it was created.",
+        "tarifsDateEffet": "Today or later. Fees apply from this date, never before the Minister’s approval."
       },
       "actif": "This document can be applied for (in the catalogue)",
       "signataireChange": {
@@ -1377,7 +1394,11 @@
         "signataire": "Choose a signatory.",
         "avis": "Invalid opinion choice.",
         "actif": "Invalid choice.",
-        "motif": "Explain the change in 10 to 2,000 characters."
+        "motif": "Explain the change in 10 to 2,000 characters.",
+        "fraisDossierGnf": "Enter a positive whole amount in GNF.",
+        "droitsGnf": "Enter a positive whole amount in GNF.",
+        "attestationGnf": "Enter a positive whole amount in GNF.",
+        "tarifsDateEffet": "Choose an effective date from today onwards."
       },
       "echec": "The proposal could not be sent",
       "indisponible": "The service is temporarily unavailable. Please try again shortly.",

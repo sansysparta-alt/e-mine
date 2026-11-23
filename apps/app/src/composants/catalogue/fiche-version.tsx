@@ -1,6 +1,11 @@
 import type { ChangementFicheDto, VersionDto } from "@emine/api-client";
-import { formaterDate } from "@emine/ui";
+import type { TarifAVenirDto } from "@emine/api-client";
+import { formaterDate, formaterGnf } from "@emine/ui";
+
+/** Champs du barème (US-02.3), montants en GNF entiers. */
+const CHAMPS_MONTANT = ["fraisDossierGnf", "droitsGnf", "attestationGnf"];
 import { useTranslations } from "next-intl";
+import { Fragment } from "react";
 
 /** Valeur d'un champ en texte, traduite pour l'activation et le délai. */
 function useValeur() {
@@ -9,6 +14,7 @@ function useValeur() {
     if (valeur == null || valeur === "") return t("vide");
     if (champ === "actif") return valeur === "true" ? t("actif.oui") : t("actif.non");
     if (champ === "delaiJours") return t("jours", { n: Number(valeur) });
+    if (CHAMPS_MONTANT.includes(champ)) return formaterGnf(Number(valeur));
     return valeur;
   };
 }
@@ -94,7 +100,32 @@ export function ContenuFiche({ version }: { version: VersionDto }) {
         version.avis.length ? version.avis.map((a) => a.libelle).join(" · ") : t("aucunAvis"),
       )}
       {ligne(t("champs.actif"), version.actif ? t("actif.oui") : t("actif.non"))}
+      {CHAMPS_MONTANT.map((m) => {
+        const montant = version[m as "fraisDossierGnf" | "droitsGnf" | "attestationGnf"];
+        return montant == null ? null : (
+          <Fragment key={m}>{ligne(t(`champs.${m}`), formaterGnf(montant))}</Fragment>
+        );
+      })}
     </dl>
+  );
+}
+
+/** Tarifs approuvés dont la date d'effet n'est pas encore arrivée (US-02.3). */
+export function TarifsAVenir({ tarifs }: { tarifs: TarifAVenirDto[] }) {
+  const t = useTranslations("catalogue.fiche");
+  if (!tarifs.length) return null;
+  return (
+    <ul className="flex flex-col gap-1">
+      {tarifs.map((x) => (
+        <li key={`${x.objet}-${x.dateEffet}`}>
+          {t("tarifsAVenir.ligne", {
+            objet: t(`objets.${x.objet}`),
+            montant: formaterGnf(x.montantGnf),
+            date: formaterDate(x.dateEffet),
+          })}
+        </li>
+      ))}
+    </ul>
   );
 }
 

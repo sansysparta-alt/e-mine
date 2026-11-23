@@ -86,6 +86,14 @@ function jourConakry(valeur: string | Date): number {
 }
 
 /**
+ * Date du jour à l'heure de Conakry au format ISO `AAAA-MM-JJ` (borne d'un champ de date, date
+ * d'effet d'un tarif).
+ */
+export function dateDuJour(maintenant: Date = new Date()): string {
+  return new Date(jourConakry(maintenant)).toISOString().slice(0, 10);
+}
+
+/**
  * Nombre de **jours calendaires** écoulés depuis une date, à l'heure de Conakry (0 = le jour même,
  * 1 = la veille). Base des temps d'attente : « En attente depuis 1 jour » pour une demande déposée
  * hier soir, même moins de 24 heures plus tard.
