@@ -9,6 +9,9 @@ import { useTranslations } from "next-intl";
 import { useEffect, useId, useRef, useState } from "react";
 import { adresseOuverture } from "./liste-notifications";
 
+/** Nombre de notifications du panneau. */
+const TAILLE_PANNEAU = 5;
+
 /** Fréquence de mise à jour du nombre de non lues pendant que la page est ouverte. */
 const INTERVALLE_MS = 60_000;
 
@@ -72,7 +75,7 @@ export function ClocheNotifications({ initial = 0 }: { initial?: number }) {
         if (!r.ok) throw new Error(String(r.status));
         const corps = (await r.json()) as { elements: NotificationDto[]; nonLues?: number };
         if (!actif) return;
-        setPanneau({ etat: "pret", elements: corps.elements });
+        setPanneau({ etat: "pret", elements: corps.elements.slice(0, TAILLE_PANNEAU) });
         if (typeof corps.nonLues === "number") setNonLues(corps.nonLues);
       })
       .catch(() => {
