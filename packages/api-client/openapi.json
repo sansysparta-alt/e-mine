@@ -10,6 +10,107 @@
     "description" : "Generated server url"
   } ],
   "paths" : {
+    "/api/v1/parametres/notifications" : {
+      "get" : {
+        "tags" : [ "Notifications" ],
+        "summary" : "Canaux de chaque événement",
+        "operationId" : "listerCanauxNotification",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/CanauxDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "Notifications" ],
+        "summary" : "Enregistre les canaux de chaque événement (au moins un canal par événement)",
+        "operationId" : "modifierCanauxNotification",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "$ref" : "#/components/schemas/ChoixDto"
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/CanauxDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/parametres/delais" : {
+      "get" : {
+        "tags" : [ "Demandes" ],
+        "summary" : "Règle des délais en vigueur",
+        "operationId" : "lireParametresDelai",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ParametresDelaiDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "Demandes" ],
+        "summary" : "Modifie la règle des délais (s'applique aussitôt à tous les calculs)",
+        "operationId" : "modifierParametresDelai",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ParametresDelaiDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ParametresDelaiDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/demandes/{id}" : {
       "get" : {
         "tags" : [ "Demandes" ],
@@ -2047,6 +2148,77 @@
   },
   "components" : {
     "schemas" : {
+      "ChoixDto" : {
+        "type" : "object",
+        "properties" : {
+          "modele" : {
+            "type" : "string",
+            "pattern" : "^[A-Z_]{3,40}$"
+          },
+          "sms" : {
+            "type" : "boolean"
+          },
+          "email" : {
+            "type" : "boolean"
+          },
+          "interne" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "email", "interne", "modele", "sms" ]
+      },
+      "CanauxDto" : {
+        "type" : "object",
+        "properties" : {
+          "modele" : {
+            "type" : "string"
+          },
+          "libelleFr" : {
+            "type" : "string"
+          },
+          "libelleEn" : {
+            "type" : "string"
+          },
+          "sms" : {
+            "type" : "boolean"
+          },
+          "email" : {
+            "type" : "boolean"
+          },
+          "interne" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "email", "interne", "libelleEn", "libelleFr", "modele", "sms" ]
+      },
+      "ParametresDelaiDto" : {
+        "type" : "object",
+        "properties" : {
+          "depart" : {
+            "type" : "string",
+            "pattern" : "^(paiement_frais|depot)$"
+          },
+          "pauseComplement" : {
+            "type" : "boolean"
+          },
+          "pauseDroits" : {
+            "type" : "boolean"
+          },
+          "seuilProchePourcent" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 100,
+            "minimum" : 1
+          },
+          "seuilProcheMinJours" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 30,
+            "minimum" : 0
+          }
+        },
+        "required" : [ "depart", "pauseComplement", "pauseDroits", "seuilProcheMinJours", "seuilProchePourcent" ]
+      },
       "BrouillonDto" : {
         "type" : "object",
         "properties" : {
@@ -3839,30 +4011,6 @@
           }
         },
         "required" : [ "code", "delaiJours", "delaiMoyenJours", "delivrees", "delivreesDansLeDelai", "enCours", "enRetard", "encaissementsGnf", "rejetees", "tauxDansLeDelai" ]
-      },
-      "ParametresDelaiDto" : {
-        "type" : "object",
-        "properties" : {
-          "depart" : {
-            "type" : "string",
-            "enum" : [ "paiement_frais", "depot" ]
-          },
-          "pauseComplement" : {
-            "type" : "boolean"
-          },
-          "pauseDroits" : {
-            "type" : "boolean"
-          },
-          "seuilProchePourcent" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "seuilProcheMinJours" : {
-            "type" : "integer",
-            "format" : "int32"
-          }
-        },
-        "required" : [ "depart", "pauseComplement", "pauseDroits", "seuilProcheMinJours", "seuilProchePourcent" ]
       },
       "ATraiterDto" : {
         "type" : "object",

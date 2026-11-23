@@ -35,7 +35,9 @@ public final class RegleJournal {
             "tarif",
             "workflow",
             "version_workflow",
-            "workflow_etape"));
+            "workflow_etape",
+            "parametre_delai",
+            "notification_evenement"));
     CATEGORIES = java.util.Collections.unmodifiableMap(c);
   }
 

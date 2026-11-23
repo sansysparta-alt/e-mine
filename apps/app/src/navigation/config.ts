@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   type LucideIcon,
   ScrollText,
+  SlidersHorizontal,
   Workflow,
 } from "@emine/ui/icones";
 
@@ -104,6 +105,15 @@ export const NAVIGATION: SectionConfig[] = [
         module: "catalogue",
         href: "/workflows",
         icone: Workflow,
+        auMoinsUnDroit: ["PARAMETRER", "VALIDER_CATALOGUE"],
+        interne: true,
+      },
+      // Délais et notifications (US-02.6, US-02.7) : règle des délais, canaux par événement.
+      {
+        cle: "parametres",
+        module: "demande",
+        href: "/parametres",
+        icone: SlidersHorizontal,
         auMoinsUnDroit: ["PARAMETRER", "VALIDER_CATALOGUE"],
         interne: true,
       },
