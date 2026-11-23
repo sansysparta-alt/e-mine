@@ -80,6 +80,12 @@ public class ServiceEnvoiNotifications {
     return envoyees;
   }
 
+  /** Alerte J-2 des références de paiement proches de l'expiration (US-07.2). */
+  public int alerterReferencesExpirantes() {
+    Integer n = transaction.execute(s -> notifications.alerterReferencesExpirantes());
+    return n == null ? 0 : n;
+  }
+
   private boolean envoyer(NotificationAEnvoyer n) {
     String erreur = null;
     try {

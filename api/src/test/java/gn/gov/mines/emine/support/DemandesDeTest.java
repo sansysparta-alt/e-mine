@@ -225,12 +225,16 @@ public final class DemandesDeTest {
     }
   }
 
-  /** Nombre de notifications d'un modèle pour la demande, lu hors RLS. */
+  /**
+   * Nombre d'événements notifiés (un e-mail par événement ; chaque événement écrit aussi un SMS et
+   * une notification interne selon ses canaux, US-07.2).
+   */
   public static int notifications(long demande, String modele) throws SQLException {
     try (Connection c = BaseDeDonneesDeTest.connexionOwner();
         PreparedStatement ps =
             c.prepareStatement(
-                "SELECT count(*) FROM notification WHERE demande_id = ? AND modele = ?")) {
+                "SELECT count(*) FROM notification WHERE demande_id = ? AND modele = ?"
+                    + " AND canal = 'email'")) {
       ps.setLong(1, demande);
       ps.setString(2, modele);
       ResultSet rs = ps.executeQuery();

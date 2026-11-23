@@ -11,8 +11,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Tâche planifiée d'envoi des notifications (US-07.1), exécutée par db-scheduler : une seule
- * instance de l'API la prend à chaque passage.
+ * Tâches planifiées des notifications : envoi (US-07.1) et alerte J-2 des références de paiement
+ * (US-07.2), exécutées par db-scheduler : une seule instance de l'API prend chaque passage.
  */
 @Configuration(proxyBeanMethods = false)
 class TacheEnvoiNotifications {
@@ -29,6 +29,19 @@ class TacheEnvoiNotifications {
               int n = service.envoyerDues();
               if (n > 0) {
                 LOG.info("Notifications : {} message(s) envoyé(s)", n);
+              }
+            });
+  }
+
+  /** Alerte J-2 des références de paiement (virement) proches de l'expiration, chaque heure. */
+  @Bean
+  RecurringTask<Void> alerteReferencesExpirantes(ServiceEnvoiNotifications service) {
+    return Tasks.recurring("alerte-references-expirantes", FixedDelay.of(Duration.ofHours(1)))
+        .execute(
+            (instance, contexte) -> {
+              int n = service.alerterReferencesExpirantes();
+              if (n > 0) {
+                LOG.info("Références de paiement proches de l'expiration : {} alerte(s)", n);
               }
             });
   }

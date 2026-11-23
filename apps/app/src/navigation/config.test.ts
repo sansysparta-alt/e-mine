@@ -8,6 +8,7 @@ describe("configuration unique de la navigation", () => {
     expect(cles(navigationPour({ permissions: ["DEPOSER", "PAYER"], interne: false }))).toEqual([
       "tableauDeBord",
       "mesDemandes",
+      "notifications",
       "nouvelleDemande",
     ]);
     const fiscal = navigationPour({ permissions: ["ENCAISSER"], interne: true });
@@ -36,6 +37,17 @@ describe("configuration unique de la navigation", () => {
     expect(cles(admin)).toEqual(["tableauDeBord", "mesDemandes", "journalAudit"]);
     const agent = navigationPour({ permissions: ["INSTRUIRE"], interne: true });
     expect(cles(agent)).not.toContain("journalAudit");
+  });
+
+  it("montre les notifications aux seuls usagers externes, qui seuls en reçoivent (US-07.2)", () => {
+    expect(cles(navigationPour({ permissions: ["DEPOSER"], interne: false }))).toContain(
+      "notifications",
+    );
+    for (const droit of ["INSTRUIRE", "SIGNER", "PARAMETRER"]) {
+      expect(cles(navigationPour({ permissions: [droit], interne: true }))).not.toContain(
+        "notifications",
+      );
+    }
   });
 
   it("chaque entrée a une adresse, une icône et un module", () => {
