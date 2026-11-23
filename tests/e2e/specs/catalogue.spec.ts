@@ -28,23 +28,23 @@ async function proposerDelai(admin: Page, jours: number, motif: string) {
   await admin.goto("/catalogue");
   await admin.getByRole("link", { name: /CCC · Copie certifiée conforme/ }).click();
   await admin.getByRole("link", { name: "Proposer une modification" }).click();
-  await admin.getByLabel(/Délai de traitement/).fill(String(jours));
+  await admin.getByLabel(/Délai cible/).fill(String(jours));
   await admin.getByLabel(/Objet de la modification/).fill(motif);
   await admin.getByRole("button", { name: "Soumettre au Ministre" }).click();
-  await expect(admin.getByText(/est envoyée au Ministre pour approbation/)).toBeVisible();
-  await expect(admin.getByText("En attente du Ministre").first()).toBeVisible();
+  await expect(admin.getByText(/est envoyée au Ministre pour validation/)).toBeVisible();
+  await expect(admin.getByText("En attente de validation").first()).toBeVisible();
 }
 
-/** Le Ministre approuve depuis son tableau de bord. */
+/** Le Ministre valide depuis son tableau de bord. */
 async function approuver(ministre: Page) {
   await ministre.goto("/tableau-de-bord");
-  await expect(ministre.getByText("1 modification du catalogue à approuver")).toBeVisible();
+  await expect(ministre.getByText("1 modification du catalogue à valider")).toBeVisible();
   await ministre.getByRole("link", { name: "Voir les modifications" }).click();
   await ministre.getByRole("link", { name: /CCC · Copie certifiée conforme/ }).click();
-  await expect(ministre.getByText("À approuver").first()).toBeVisible();
-  await ministre.getByRole("button", { name: "Approuver" }).click();
-  await ministre.getByRole("button", { name: "Confirmer l’approbation" }).click();
-  await expect(ministre.getByText(/La modification est approuvée/)).toBeVisible();
+  await expect(ministre.getByText("À valider").first()).toBeVisible();
+  await ministre.getByRole("button", { name: "Valider" }).click();
+  await ministre.getByRole("button", { name: "Confirmer la validation" }).click();
+  await expect(ministre.getByText(/La modification est validée et publiée/)).toBeVisible();
 }
 
 async function delaiPublic(request: APIRequestContext) {
@@ -67,7 +67,7 @@ test("catalogue : l'administrateur propose, le Ministre approuve, le catalogue p
 
   await approuver(ministre);
   expect(await delaiPublic(request)).toBe(nouveau);
-  await expect(ministre.getByText(`Fiche en vigueur`).first()).toBeVisible();
+  await expect(ministre.getByText(`Fiche publiée`).first()).toBeVisible();
 
   // Remise en état, par le même circuit.
   await proposerDelai(admin, initial, "Démonstration E2E : retour au délai initial");
