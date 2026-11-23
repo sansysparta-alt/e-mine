@@ -3,6 +3,7 @@ package gn.gov.mines.emine.catalogue.infrastructure;
 import static gn.gov.mines.emine.shared.jooq.Tables.PERMISSION;
 import static gn.gov.mines.emine.shared.jooq.Tables.PROFIL;
 import static gn.gov.mines.emine.shared.jooq.Tables.PROFIL_PERMISSION;
+import static gn.gov.mines.emine.shared.jooq.Tables.TARIF;
 import static gn.gov.mines.emine.shared.jooq.Tables.TITRE_SIGNATAIRE;
 import static gn.gov.mines.emine.shared.jooq.Tables.TYPE_DOCUMENT;
 import static gn.gov.mines.emine.shared.jooq.Tables.UTILISATEUR;
@@ -97,7 +98,12 @@ public class VersionDocumentRepository {
   public record Etat(int numeroEnVigueur, Integer numeroProposee, Instant proposeeLe) {}
 
   /** Nouvelle proposition ; numéro, date et profil signataire posés par la base. */
-  public int proposer(short typeDocumentId, ContenuFiche c, String motif, long auteurId) {
+  public int proposer(
+      short typeDocumentId,
+      ContenuFiche c,
+      java.time.LocalDate tarifsDateEffet,
+      String motif,
+      long auteurId) {
     Map<String, Short> idsProfils =
         dsl.select(PROFIL.CODE, PROFIL.ID).from(PROFIL).fetchMap(PROFIL.CODE, PROFIL.ID);
     Short[] avis = c.avis().stream().map(p -> idsProfils.get(p.code())).toArray(Short[]::new);
@@ -118,6 +124,10 @@ public class VersionDocumentRepository {
                 .<Short>asField())
         .set(VERSION_DOCUMENT.AVIS_PROFILS, avis)
         .set(VERSION_DOCUMENT.ACTIF, c.actif())
+        .set(VERSION_DOCUMENT.FRAIS_DOSSIER_GNF, c.fraisDossierGnf())
+        .set(VERSION_DOCUMENT.DROITS_GNF, c.droitsGnf())
+        .set(VERSION_DOCUMENT.ATTESTATION_GNF, c.attestationGnf())
+        .set(VERSION_DOCUMENT.TARIFS_DATE_EFFET, tarifsDateEffet)
         .set(VERSION_DOCUMENT.MOTIF, motif)
         .set(VERSION_DOCUMENT.PROPOSEE_PAR, auteurId)
         .returningResult(VERSION_DOCUMENT.NUMERO)
@@ -139,6 +149,24 @@ public class VersionDocumentRepository {
             .and(VERSION_DOCUMENT.STATUT.eq(VersionFiche.A_VALIDER))
             .execute()
         == 1;
+  }
+
+  /**
+   * Tarif approuvé qui n'est pas encore en vigueur (US-02.3).
+   *
+   * @param objet {@code FRAIS_DOSSIER}, {@code DROITS} ou {@code ATTESTATION}
+   */
+  public record TarifAVenir(String objet, long montantGnf, java.time.LocalDate dateEffet) {}
+
+  /** Tarifs approuvés d'un document dont la date d'effet n'est pas encore arrivée (Conakry). */
+  public List<TarifAVenir> tarifsAVenir(short typeDocumentId) {
+    return dsl.select(TARIF.OBJET, TARIF.MONTANT_GNF, TARIF.DATE_EFFET)
+        .from(TARIF)
+        .where(TARIF.TYPE_DOCUMENT_ID.eq(typeDocumentId))
+        .and(TARIF.ACTIF.isTrue())
+        .and(TARIF.DATE_EFFET.gt(java.time.LocalDate.now(java.time.ZoneId.of("Africa/Conakry"))))
+        .orderBy(TARIF.DATE_EFFET, TARIF.OBJET)
+        .fetch(r -> new TarifAVenir(r.value1().getLiteral(), r.value2(), r.value3()));
   }
 
   /** Titres de signataire possibles (D4), dans l'ordre. */
@@ -192,12 +220,16 @@ public class VersionDocumentRepository {
             r.get(VERSION_DOCUMENT.INSTRUIT_PAR),
             r.get(VERSION_DOCUMENT.SIGNE_PAR),
             Arrays.stream(r.get(VERSION_DOCUMENT.AVIS_PROFILS)).map(profils::get).toList(),
-            r.get(VERSION_DOCUMENT.ACTIF)),
+            r.get(VERSION_DOCUMENT.ACTIF),
+            r.get(VERSION_DOCUMENT.FRAIS_DOSSIER_GNF),
+            r.get(VERSION_DOCUMENT.DROITS_GNF),
+            r.get(VERSION_DOCUMENT.ATTESTATION_GNF)),
         r.get(VERSION_DOCUMENT.MOTIF),
         proposant == null || proposant.isBlank() ? null : proposant,
         r.get(VERSION_DOCUMENT.PROPOSEE_LE),
         decideur == null || decideur.isBlank() ? null : decideur,
         r.get(VERSION_DOCUMENT.DECIDEE_LE),
-        r.get(VERSION_DOCUMENT.MOTIF_REFUS));
+        r.get(VERSION_DOCUMENT.MOTIF_REFUS),
+        r.get(VERSION_DOCUMENT.TARIFS_DATE_EFFET));
   }
 }

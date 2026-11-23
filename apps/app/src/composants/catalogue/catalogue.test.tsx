@@ -4,7 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import en from "../../../messages/en.json";
 import fr from "../../../messages/fr.json";
 import { DecisionVersion } from "./decision-version";
-import { FormulaireFiche, lignesPieces, schemaFiche } from "./formulaire-fiche";
+import { baremeApprouve, FormulaireFiche, lignesPieces, schemaFiche } from "./formulaire-fiche";
 import { lireParametresCatalogue, presentationLigne, presentationVersion } from "./presentation";
 import { TableauFiches } from "./tableau-fiches";
 
@@ -171,6 +171,10 @@ const enVigueur: VersionDto = {
   signataire: "Ministre",
   avis: [{ code: "DNM", libelle: "Agent DNM" }],
   actif: true,
+  fraisDossierGnf: 5_000_000,
+  droitsGnf: 15_000_000,
+  attestationGnf: null,
+  tarifsDateEffet: null,
   motif: "Version initiale",
   proposeePar: null,
   proposeeLe: "2026-01-01T00:00:00Z",
@@ -195,6 +199,10 @@ describe("proposition d'une modification (US-02.2)", () => {
       avis: [],
       actif: true,
       motif: "Motif suffisamment long",
+      fraisDossierGnf: "5000000",
+      droitsGnf: "",
+      attestationGnf: "",
+      tarifsDateEffet: "",
     };
     expect(schemaFiche.safeParse({ ...base, pieces: "EIES" }).success).toBe(true);
     expect(schemaFiche.safeParse({ ...base, pieces: "EIES, statuts" }).success).toBe(false);
@@ -208,6 +216,7 @@ describe("proposition d'une modification (US-02.2)", () => {
       <FormulaireFiche
         code="PEX"
         enVigueur={enVigueur}
+        aujourdhui="2026-11-23"
         signataires={["Ministre", "Directeur général"]}
         profilsAvis={[
           { code: "DNM", libelle: "Agent DNM" },
@@ -243,6 +252,10 @@ describe("proposition d'une modification (US-02.2)", () => {
           pieces: ["Étude de faisabilité", "EIES"],
           actif: true,
           libelleEn: null,
+          fraisDossierGnf: 5_000_000,
+          droitsGnf: 15_000_000,
+          attestationGnf: null,
+          tarifsDateEffet: null,
         }),
       ),
     );
@@ -266,6 +279,62 @@ describe("tableau de bord du Ministre (US-02.4)", () => {
     expect(screen.getByRole("link", { name: "Voir les modifications" })).toHaveAttribute(
       "href",
       "/catalogue?filtre=A_VALIDER",
+    );
+  });
+});
+
+describe("tarifs versionnés (US-02.3)", () => {
+  function formulaire(proposer = vi.fn().mockResolvedValue({ ok: true, valeur: { numero: 4 } })) {
+    avecTraductions(
+      <FormulaireFiche
+        code="PEX"
+        enVigueur={enVigueur}
+        tarifsAVenir={[{ objet: "DROITS", montantGnf: 16_000_000, dateEffet: "2026-12-01" }]}
+        aujourdhui="2026-11-23"
+        signataires={["Ministre"]}
+        profilsAvis={[{ code: "DNM", libelle: "Agent DNM" }]}
+        proposer={proposer}
+      />,
+    );
+    return proposer;
+  }
+
+  it("le barème de référence reprend un tarif approuvé à venir", () => {
+    expect(
+      baremeApprouve(enVigueur, [
+        { objet: "DROITS", montantGnf: 16_000_000, dateEffet: "2026-12-01" },
+      ]),
+    ).toEqual({ fraisDossierGnf: 5_000_000, droitsGnf: 16_000_000, attestationGnf: null });
+    formulaire();
+    expect(screen.getByLabelText(/^Droits/)).toHaveValue("16000000");
+    expect(screen.queryByLabelText(/Paiement unique/)).toBeNull();
+    expect(screen.queryByLabelText(/Entrée en vigueur des tarifs/)).toBeNull();
+  });
+
+  it("un montant changé exige une date d'entrée en vigueur, envoyée avec la proposition", async () => {
+    const proposer = formulaire();
+    fireEvent.change(screen.getByLabelText(/^Frais de dossier/), { target: { value: "6000000" } });
+    fireEvent.change(screen.getByLabelText(/Objet de la modification/), {
+      target: { value: "Arrêté de test : frais revus" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Soumettre au Ministre" }));
+    expect(
+      await screen.findByText("Choisissez une date d’entrée en vigueur à partir d’aujourd’hui."),
+    ).toBeInTheDocument();
+    expect(proposer).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByLabelText(/Entrée en vigueur des tarifs/), {
+      target: { value: "2026-12-15" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Soumettre au Ministre" }));
+    await waitFor(() =>
+      expect(proposer).toHaveBeenCalledWith(
+        "PEX",
+        expect.objectContaining({
+          fraisDossierGnf: 6_000_000,
+          droitsGnf: 16_000_000,
+          tarifsDateEffet: "2026-12-15",
+        }),
+      ),
     );
   });
 });

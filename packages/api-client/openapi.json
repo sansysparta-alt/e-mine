@@ -2144,13 +2144,35 @@
           "actif" : {
             "type" : "boolean"
           },
+          "fraisDossierGnf" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64",
+            "exclusiveMinimum" : 0,
+            "maximum" : 1000000000000
+          },
+          "droitsGnf" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64",
+            "exclusiveMinimum" : 0,
+            "maximum" : 1000000000000
+          },
+          "attestationGnf" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64",
+            "exclusiveMinimum" : 0,
+            "maximum" : 1000000000000
+          },
+          "tarifsDateEffet" : {
+            "type" : [ "string", "null" ],
+            "format" : "date"
+          },
           "motif" : {
             "type" : "string",
             "maxLength" : 2000,
             "minLength" : 10
           }
         },
-        "required" : [ "actif", "avis", "delaiJours", "instruitPar", "libelleEn", "libelleFr", "motif", "pieces", "signataire" ]
+        "required" : [ "actif", "attestationGnf", "avis", "delaiJours", "droitsGnf", "fraisDossierGnf", "instruitPar", "libelleEn", "libelleFr", "motif", "pieces", "signataire", "tarifsDateEffet" ]
       },
       "PropositionCreeeDto" : {
         "type" : "object",
@@ -3034,9 +3056,32 @@
           },
           "peutProposer" : {
             "type" : "boolean"
+          },
+          "tarifsAVenir" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/TarifAVenirDto"
+            }
           }
         },
-        "required" : [ "actif", "action", "code", "enVigueur", "famille", "historique", "peutProposer", "proposition" ]
+        "required" : [ "actif", "action", "code", "enVigueur", "famille", "historique", "peutProposer", "proposition", "tarifsAVenir" ]
+      },
+      "TarifAVenirDto" : {
+        "type" : "object",
+        "properties" : {
+          "objet" : {
+            "type" : "string"
+          },
+          "montantGnf" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "dateEffet" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        },
+        "required" : [ "dateEffet", "montantGnf", "objet" ]
       },
       "VersionDto" : {
         "type" : "object",
@@ -3079,6 +3124,22 @@
           "actif" : {
             "type" : "boolean"
           },
+          "fraisDossierGnf" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "droitsGnf" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "attestationGnf" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "tarifsDateEffet" : {
+            "type" : [ "string", "null" ],
+            "format" : "date"
+          },
           "motif" : {
             "type" : "string"
           },
@@ -3106,7 +3167,7 @@
             }
           }
         },
-        "required" : [ "actif", "avis", "changements", "decideeLe", "decideePar", "delaiJours", "instruitPar", "libelleEn", "libelleFr", "motif", "motifRefus", "numero", "pieces", "proposeeLe", "proposeePar", "signataire", "statut" ]
+        "required" : [ "actif", "attestationGnf", "avis", "changements", "decideeLe", "decideePar", "delaiJours", "droitsGnf", "fraisDossierGnf", "instruitPar", "libelleEn", "libelleFr", "motif", "motifRefus", "numero", "pieces", "proposeeLe", "proposeePar", "signataire", "statut", "tarifsDateEffet" ]
       },
       "ReferencesDto" : {
         "type" : "object",

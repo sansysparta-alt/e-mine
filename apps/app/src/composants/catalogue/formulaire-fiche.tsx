@@ -1,6 +1,11 @@
 "use client";
 
-import type { PropositionCreeeDto, PropositionDto, VersionDto } from "@emine/api-client";
+import type {
+  PropositionCreeeDto,
+  PropositionDto,
+  TarifAVenirDto,
+  VersionDto,
+} from "@emine/api-client";
 import { Alerte, Bouton, CaseACocher, Carte, classesChamp } from "@emine/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
@@ -20,6 +25,7 @@ export const BORNES_FICHE = {
   pieceMax: 200,
   motifMin: 10,
   motifMax: 2000,
+  montantMax: 1_000_000_000_000,
 } as const;
 
 /** Pièces saisies une par ligne, sans ligne vide ni doublon (comme l'API). */
@@ -33,6 +39,41 @@ export function lignesPieces(texte: string): string[] {
     pieces.push(p);
   }
   return pieces;
+}
+
+/** Montant du barème en GNF entiers (vide si le document n'a pas cet objet de paiement). */
+const montant = z
+  .string()
+  .trim()
+  .refine(
+    (v) =>
+      v === "" || (/^\d{1,13}$/.test(v) && Number(v) > 0 && Number(v) <= BORNES_FICHE.montantMax),
+  );
+
+/** Objets du barème (US-02.3), dans l'ordre d'affichage. */
+export const OBJETS_BAREME = [
+  { champ: "fraisDossierGnf", objet: "FRAIS_DOSSIER" },
+  { champ: "droitsGnf", objet: "DROITS" },
+  { champ: "attestationGnf", objet: "ATTESTATION" },
+] as const;
+
+/**
+ * Barème de référence du formulaire : le dernier montant approuvé de chaque objet, y compris un
+ * montant à venir (une nouvelle proposition ne doit pas l'annuler par mégarde).
+ */
+export function baremeApprouve(
+  enVigueur: VersionDto,
+  aVenir: TarifAVenirDto[],
+): Record<(typeof OBJETS_BAREME)[number]["champ"], number | null> {
+  const dernier = (objet: string) =>
+    aVenir
+      .filter((x) => x.objet === objet)
+      .sort((a, b) => b.dateEffet.localeCompare(a.dateEffet))[0]?.montantGnf;
+  return {
+    fraisDossierGnf: dernier("FRAIS_DOSSIER") ?? enVigueur.fraisDossierGnf ?? null,
+    droitsGnf: dernier("DROITS") ?? enVigueur.droitsGnf ?? null,
+    attestationGnf: dernier("ATTESTATION") ?? enVigueur.attestationGnf ?? null,
+  };
 }
 
 export const schemaFiche = z.object({
@@ -56,6 +97,10 @@ export const schemaFiche = z.object({
   avis: z.array(z.string()),
   actif: z.boolean(),
   motif: z.string().trim().min(BORNES_FICHE.motifMin).max(BORNES_FICHE.motifMax),
+  fraisDossierGnf: montant,
+  droitsGnf: montant,
+  attestationGnf: montant,
+  tarifsDateEffet: z.string(),
 });
 
 type Saisie = z.input<typeof schemaFiche>;
@@ -64,6 +109,10 @@ type Valeurs = z.output<typeof schemaFiche>;
 export type FormulaireFicheProps = {
   code: string;
   enVigueur: VersionDto;
+  /** Tarifs approuvés pas encore en vigueur (US-02.3). */
+  tarifsAVenir?: TarifAVenirDto[];
+  /** Date du jour à Conakry (AAAA-MM-JJ), borne de la date d'effet. */
+  aujourdhui: string;
   signataires: string[];
   profilsAvis: { code: string; libelle: string }[];
   proposer: (
@@ -80,6 +129,8 @@ export type FormulaireFicheProps = {
 export function FormulaireFiche({
   code,
   enVigueur,
+  tarifsAVenir = [],
+  aujourdhui,
   signataires,
   profilsAvis,
   proposer,
@@ -89,6 +140,7 @@ export function FormulaireFiche({
   const router = useRouter();
   const [erreurApi, setErreurApi] = useState<string | null>(null);
   const [enCours, demarrer] = useTransition();
+  const bareme = baremeApprouve(enVigueur, tarifsAVenir);
   const {
     register,
     handleSubmit,
@@ -106,13 +158,28 @@ export function FormulaireFiche({
       signataire: enVigueur.signataire,
       avis: enVigueur.avis.map((a) => a.code),
       actif: enVigueur.actif,
+      fraisDossierGnf: texteMontant(bareme.fraisDossierGnf),
+      droitsGnf: texteMontant(bareme.droitsGnf),
+      attestationGnf: texteMontant(bareme.attestationGnf),
+      tarifsDateEffet: "",
       motif: "",
     },
   });
   const actif = useWatch({ control, name: "actif" });
+  const saisieBareme = useWatch({
+    control,
+    name: ["fraisDossierGnf", "droitsGnf", "attestationGnf"],
+  });
+  const baremeChange = OBJETS_BAREME.some(
+    (o, i) => texteMontant(bareme[o.champ]) !== (saisieBareme[i] ?? "").trim(),
+  );
   const signataire = useWatch({ control, name: "signataire" });
 
   function envoyer(v: Valeurs) {
+    if (baremeChange && (!v.tarifsDateEffet || v.tarifsDateEffet < aujourdhui)) {
+      setError("tarifsDateEffet", { type: "validation" });
+      return;
+    }
     setErreurApi(null);
     demarrer(async () => {
       const r = await proposer(code, {
@@ -124,6 +191,10 @@ export function FormulaireFiche({
         signataire: v.signataire,
         avis: profilsAvis.map((p) => p.code).filter((c) => v.avis.includes(c)),
         actif: v.actif,
+        fraisDossierGnf: v.fraisDossierGnf ? Number(v.fraisDossierGnf) : null,
+        droitsGnf: v.droitsGnf ? Number(v.droitsGnf) : null,
+        attestationGnf: v.attestationGnf ? Number(v.attestationGnf) : null,
+        tarifsDateEffet: baremeChange ? v.tarifsDateEffet : null,
         motif: v.motif,
       } as PropositionDto);
       if (r.ok) {
@@ -289,6 +360,50 @@ export function FormulaireFiche({
         </div>
       </Carte>
 
+      <Carte titre={t("sections.tarifs")}>
+        <div className="flex flex-col gap-5">
+          <p className="text-sm text-texte-doux">{t("aide.tarifs")}</p>
+          {OBJETS_BAREME.filter((o) => bareme[o.champ] != null).map((o) => (
+            <div key={o.champ} className="flex flex-col gap-1">
+              {libelle(o.champ)}
+              <div className="flex items-center gap-2">
+                <input
+                  id={o.champ}
+                  inputMode="numeric"
+                  autoComplete="off"
+                  {...register(o.champ)}
+                  aria-invalid={errors[o.champ] ? true : undefined}
+                  aria-describedby={decrit(o.champ)}
+                  className={`${classesChamp} sm:max-w-56`}
+                />
+                <span aria-hidden="true" className="text-texte-doux">
+                  GNF
+                </span>
+              </div>
+              {erreur(o.champ)}
+            </div>
+          ))}
+          {baremeChange ? (
+            <div className="flex flex-col gap-1">
+              {libelle("tarifsDateEffet")}
+              <p id="tarifsDateEffet-aide" className="text-sm text-texte-doux">
+                {t("aide.tarifsDateEffet")}
+              </p>
+              <input
+                id="tarifsDateEffet"
+                type="date"
+                min={aujourdhui}
+                {...register("tarifsDateEffet")}
+                aria-invalid={errors.tarifsDateEffet ? true : undefined}
+                aria-describedby={decrit("tarifsDateEffet", true)}
+                className={`${classesChamp} sm:max-w-56`}
+              />
+              {erreur("tarifsDateEffet")}
+            </div>
+          ) : null}
+        </div>
+      </Carte>
+
       <Carte titre={t("sections.publication")}>
         <div className="flex flex-col gap-5">
           <CaseACocher {...register("actif")}>{t("actif")}</CaseACocher>
@@ -331,4 +446,9 @@ export function FormulaireFiche({
       </div>
     </form>
   );
+}
+
+/** Montant affiché dans un champ : chiffres seuls, vide s'il n'existe pas. */
+function texteMontant(m: number | null | undefined): string {
+  return m == null ? "" : String(m);
 }

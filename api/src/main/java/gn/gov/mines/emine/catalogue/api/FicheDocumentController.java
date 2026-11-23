@@ -16,8 +16,10 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
@@ -104,11 +106,14 @@ class FicheDocumentController {
         d.code(),
         d.famille().libelle(),
         d.actif(),
-        VersionDto.depuis(f.enVigueur(), List.of()),
+        VersionDto.depuis(f.enVigueur(), List.of()).avecTarifs(d.tarifs()),
         f.proposition() == null ? null : VersionDto.depuis(f.proposition(), f.changements()),
         f.historique().stream().map(h -> VersionDto.depuis(h.version(), h.changements())).toList(),
         f.action().name(),
-        f.peutProposer());
+        f.peutProposer(),
+        f.tarifsAVenir().stream()
+            .map(x -> new TarifAVenirDto(x.objet(), x.montantGnf(), x.dateEffet()))
+            .toList());
   }
 
   @PostMapping("/{code}/versions")
@@ -132,6 +137,10 @@ class FicheDocumentController {
                 p.signataire(),
                 p.avis(),
                 p.actif(),
+                p.fraisDossierGnf(),
+                p.droitsGnf(),
+                p.attestationGnf(),
+                p.tarifsDateEffet(),
                 p.motif())));
   }
 
@@ -211,7 +220,11 @@ class FicheDocumentController {
       @Schema(nullable = true) VersionDto proposition,
       List<VersionDto> historique,
       String action,
-      boolean peutProposer) {}
+      boolean peutProposer,
+      List<TarifAVenirDto> tarifsAVenir) {}
+
+  /** Tarif approuvé, en vigueur à partir de sa date d'effet (heure de Conakry). */
+  record TarifAVenirDto(String objet, long montantGnf, LocalDate dateEffet) {}
 
   /** Version d'une fiche. */
   record VersionDto(
@@ -225,6 +238,10 @@ class FicheDocumentController {
       String signataire,
       List<Profil> avis,
       boolean actif,
+      @Schema(nullable = true) Long fraisDossierGnf,
+      @Schema(nullable = true) Long droitsGnf,
+      @Schema(nullable = true) Long attestationGnf,
+      @Schema(nullable = true) LocalDate tarifsDateEffet,
       String motif,
       @Schema(nullable = true) String proposeePar,
       Instant proposeeLe,
@@ -232,6 +249,35 @@ class FicheDocumentController {
       @Schema(nullable = true) Instant decideeLe,
       @Schema(nullable = true) String motifRefus,
       List<ChangementFicheDto> changements) {
+
+    /**
+     * Montants réellement appliqués aujourd'hui (un barème approuvé dont la date d'effet n'est pas
+     * arrivée figure dans {@code tarifsAVenir}).
+     */
+    VersionDto avecTarifs(TypeDocument.Tarifs t) {
+      return new VersionDto(
+          numero,
+          statut,
+          libelleFr,
+          libelleEn,
+          pieces,
+          delaiJours,
+          instruitPar,
+          signataire,
+          avis,
+          actif,
+          t.fraisDossierGnf(),
+          t.droitsGnf(),
+          t.attestationGnf(),
+          tarifsDateEffet,
+          motif,
+          proposeePar,
+          proposeeLe,
+          decideePar,
+          decideeLe,
+          motifRefus,
+          changements);
+    }
 
     static VersionDto depuis(VersionFiche v, List<RegleFiche.Changement> changements) {
       var c = v.contenu();
@@ -246,6 +292,10 @@ class FicheDocumentController {
           c.signataire(),
           c.avis(),
           c.actif(),
+          c.fraisDossierGnf(),
+          c.droitsGnf(),
+          c.attestationGnf(),
+          v.tarifsDateEffet(),
           v.motif(),
           v.proposeePar(),
           v.proposeeLe(),
@@ -275,7 +325,14 @@ class FicheDocumentController {
       @NotBlank String signataire,
       @NotNull @Size(max = 10) List<@Pattern(regexp = "^[A-Z_]{2,30}$") String> avis,
       boolean actif,
+      @Schema(nullable = true) @Positive @Max(MONTANT_MAX) Long fraisDossierGnf,
+      @Schema(nullable = true) @Positive @Max(MONTANT_MAX) Long droitsGnf,
+      @Schema(nullable = true) @Positive @Max(MONTANT_MAX) Long attestationGnf,
+      @Schema(nullable = true) LocalDate tarifsDateEffet,
       @NotBlank @Size(min = 10, max = 2000) String motif) {}
+
+  /** Montant le plus élevé accepté au barème : mille milliards de GNF (garde-fou de saisie). */
+  static final long MONTANT_MAX = 1_000_000_000_000L;
 
   /**
    * Champ modifié par une version, avec l'ancienne et la nouvelle valeur en texte.

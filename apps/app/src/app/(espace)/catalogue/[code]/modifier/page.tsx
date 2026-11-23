@@ -1,5 +1,5 @@
 import { ErreurApi, lireFicheDocument, referencesFichesDocuments } from "@emine/api-client";
-import { EnTetePage } from "@emine/ui";
+import { dateDuJour, EnTetePage } from "@emine/ui";
 import { ArrowLeft } from "@emine/ui/icones";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -62,6 +62,8 @@ export default async function ModifierFiche({ params }: Props) {
       <FormulaireFiche
         code={fiche.code}
         enVigueur={fiche.enVigueur}
+        tarifsAVenir={fiche.tarifsAVenir}
+        aujourdhui={dateDuJour()}
         signataires={references.signataires}
         profilsAvis={references.profilsAvis}
         proposer={proposerFiche}

@@ -83,15 +83,19 @@ class FichesDocumentsTest extends TestIntegration {
               .get("historique");
       var initiale = v1.get(v1.size() - 1);
       var propo =
-          Map.of(
-              "libelleFr", initiale.get("libelleFr").asString(),
-              "pieces", json.convertValue(initiale.get("pieces"), List.class),
-              "delaiJours", initiale.get("delaiJours").asInt(),
-              "instruitPar", initiale.get("instruitPar").asString(),
-              "signataire", initiale.get("signataire").asString(),
-              "avis", List.of(),
-              "actif", true,
-              "motif", "Retour au catalogue initial après les tests");
+          new java.util.HashMap<String, Object>(
+              Map.of(
+                  "libelleFr", initiale.get("libelleFr").asString(),
+                  "pieces", json.convertValue(initiale.get("pieces"), List.class),
+                  "delaiJours", initiale.get("delaiJours").asInt(),
+                  "instruitPar", initiale.get("instruitPar").asString(),
+                  "signataire", initiale.get("signataire").asString(),
+                  "avis", List.of(),
+                  "actif", true,
+                  "motif", "Retour au catalogue initial après les tests"));
+      for (String m : List.of("fraisDossierGnf", "droitsGnf", "attestationGnf")) {
+        propo.put(m, initiale.get(m).isNull() ? null : initiale.get(m).asLong());
+      }
       var r =
           mvc.perform(
                   post(FICHES + "/" + code + "/versions")
@@ -369,6 +373,7 @@ class FichesDocumentsTest extends TestIntegration {
         "signataire", signataire,
         "avis", avis,
         "actif", actif,
+        "fraisDossierGnf", 300_000,
         "motif", motif);
   }
 
@@ -388,6 +393,8 @@ class FichesDocumentsTest extends TestIntegration {
         avis,
         "actif",
         true,
+        "attestationGnf",
+        150_000,
         "motif",
         motif);
   }

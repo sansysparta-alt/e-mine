@@ -59,7 +59,8 @@ public final class RegleFiche {
    * Un champ modifié par une version.
    *
    * @param champ {@code libelleFr}, {@code libelleEn}, {@code pieces}, {@code delaiJours}, {@code
-   *     instruitPar}, {@code signataire}, {@code avis} ou {@code actif}
+   *     instruitPar}, {@code signataire}, {@code avis}, {@code actif}, {@code fraisDossierGnf},
+   *     {@code droitsGnf} ou {@code attestationGnf} (montants en GNF entiers)
    * @param avant valeur de la fiche de référence, en texte ({@code null} si vide)
    * @param apres valeur proposée, en texte ({@code null} si vide)
    */
@@ -77,7 +78,31 @@ public final class RegleFiche {
     ajouter(c, "signataire", avant.signataire(), apres.signataire());
     ajouter(c, "avis", avis(avant.avis()), avis(apres.avis()));
     ajouter(c, "actif", String.valueOf(avant.actif()), String.valueOf(apres.actif()));
+    ajouter(c, "fraisDossierGnf", texte(avant.fraisDossierGnf()), texte(apres.fraisDossierGnf()));
+    ajouter(c, "droitsGnf", texte(avant.droitsGnf()), texte(apres.droitsGnf()));
+    ajouter(c, "attestationGnf", texte(avant.attestationGnf()), texte(apres.attestationGnf()));
     return List.copyOf(c);
+  }
+
+  /** La version change-t-elle un montant du barème (US-02.3) ? */
+  public static boolean changeTarifs(ContenuFiche avant, ContenuFiche apres) {
+    return !Objects.equals(avant.fraisDossierGnf(), apres.fraisDossierGnf())
+        || !Objects.equals(avant.droitsGnf(), apres.droitsGnf())
+        || !Objects.equals(avant.attestationGnf(), apres.attestationGnf());
+  }
+
+  /**
+   * Les objets payés pour un document (frais, droits, attestation) ne changent pas par une version
+   * de fiche : ils décident du circuit de paiement.
+   */
+  public static boolean memesObjets(ContenuFiche avant, ContenuFiche apres) {
+    return (avant.fraisDossierGnf() == null) == (apres.fraisDossierGnf() == null)
+        && (avant.droitsGnf() == null) == (apres.droitsGnf() == null)
+        && (avant.attestationGnf() == null) == (apres.attestationGnf() == null);
+  }
+
+  private static String texte(Long montant) {
+    return montant == null ? null : String.valueOf(montant);
   }
 
   /** La version change-t-elle le signataire (valeur juridique des documents) ? */

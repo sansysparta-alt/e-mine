@@ -22,7 +22,10 @@ class RegleFicheTest {
           "DNM + Inspection",
           "Ministre",
           List.of(new Profil("DNM", "Agent DNM")),
-          true);
+          true,
+          5_000_000L,
+          15_000_000L,
+          null);
 
   @Test
   void lesPiecesSontNettoyeesSansDoublonNiVirgule() {
@@ -48,16 +51,40 @@ class RegleFicheTest {
             "DNM + Inspection",
             "Directeur général",
             List.of(new Profil("DNM", "Agent DNM"), new Profil("GEOLOGUE", "Géologue (DNG)")),
-            false);
+            false,
+            5_000_000L,
+            16_000_000L,
+            null);
     assertThat(RegleFiche.changements(PEX, apres))
         .containsExactly(
             new Changement("libelleEn", null, "Mining licence"),
             new Changement("delaiJours", "60", "45"),
             new Changement("signataire", "Ministre", "Directeur général"),
             new Changement("avis", "Agent DNM", "Agent DNM · Géologue (DNG)"),
-            new Changement("actif", "true", "false"));
+            new Changement("actif", "true", "false"),
+            new Changement("droitsGnf", "15000000", "16000000"));
+    assertThat(RegleFiche.changeTarifs(PEX, apres)).isTrue();
+    assertThat(RegleFiche.memesObjets(PEX, apres)).isTrue();
     assertThat(RegleFiche.changeSignataire(PEX, apres)).isTrue();
     assertThat(RegleFiche.changements(PEX, PEX)).isEmpty();
+  }
+
+  @Test
+  void lesObjetsPayesNeChangentPasParUneVersion() {
+    ContenuFiche avecAttestation =
+        new ContenuFiche(
+            PEX.libelleFr(),
+            null,
+            PEX.pieces(),
+            60,
+            PEX.instruitPar(),
+            "Ministre",
+            PEX.avis(),
+            true,
+            5_000_000L,
+            15_000_000L,
+            100_000L);
+    assertThat(RegleFiche.memesObjets(PEX, avecAttestation)).isFalse();
   }
 
   @Test
