@@ -176,7 +176,7 @@ public class ServicePaiements {
 
   private TypeDocument.Tarifs tarifs(DemandeResume demande) {
     return catalogue
-        .trouverActif(demande.typeDocumentCode())
+        .pourDemande(demande.typeDocumentCode(), demande.versionDocumentId())
         .map(TypeDocument::tarifs)
         .orElseThrow(
             () -> new ErreurMetier(CodeErreur.DEM_005, Map.of("code", demande.typeDocumentCode())));

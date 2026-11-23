@@ -55,7 +55,7 @@ public class ServiceRecus {
             .orElseThrow(() -> new ErreurMetier(CodeErreur.DEM_002, Map.of("id", p.demandeId())));
     String document =
         catalogue
-            .trouverActif(demande.typeDocumentCode())
+            .pourDemande(demande.typeDocumentCode(), demande.versionDocumentId())
             .map(t -> t.libelleFr() + " (" + t.code() + ")")
             .orElse(demande.typeDocumentCode());
     long montant = p.montantRecuGnf() != null ? p.montantRecuGnf() : p.montantGnf();

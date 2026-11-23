@@ -34,9 +34,23 @@ describe("configuration unique de la navigation", () => {
 
   it("montre le journal d'audit seulement à l'administrateur interne (US-11.7)", () => {
     const admin = navigationPour({ permissions: ["PARAMETRER"], interne: true });
-    expect(cles(admin)).toEqual(["tableauDeBord", "mesDemandes", "journalAudit"]);
+    expect(cles(admin)).toEqual(["tableauDeBord", "mesDemandes", "catalogue", "journalAudit"]);
     const agent = navigationPour({ permissions: ["INSTRUIRE"], interne: true });
     expect(cles(agent)).not.toContain("journalAudit");
+  });
+
+  it("montre le catalogue à l'administrateur et au Ministre seulement (US-02.2)", () => {
+    const ministre = navigationPour({
+      permissions: ["SIGNER", "VALIDER_CATALOGUE"],
+      interne: true,
+    });
+    expect(cles(ministre)).toContain("catalogue");
+    expect(cles(ministre)).not.toContain("journalAudit");
+    for (const droit of ["INSTRUIRE", "SIGNER", "DEPOSER"]) {
+      expect(
+        cles(navigationPour({ permissions: [droit], interne: droit !== "DEPOSER" })),
+      ).not.toContain("catalogue");
+    }
   });
 
   it("montre les notifications aux seuls usagers externes, qui seuls en reçoivent (US-07.2)", () => {

@@ -188,6 +188,11 @@
       "avisPrecision": "Demandes à l’instruction qui attendent votre avis",
       "sansReponse": "Compléments sans réponse",
       "sansReponsePrecision": "Demandés par votre service, délai de réponse dépassé"
+    },
+    "catalogue": {
+      "titre": "{nombre, plural, one {# modification du catalogue à approuver} other {# modifications du catalogue à approuver}}",
+      "texte": "Rien ne s’applique au catalogue sans votre approbation.",
+      "lien": "Voir les modifications"
     }
   },
   "demande": {
@@ -505,7 +510,8 @@
       "nouvelleDemande": "Nouvelle demande",
       "journalAudit": "Journal d’audit",
       "aTraiter": "À traiter",
-      "notifications": "Notifications"
+      "notifications": "Notifications",
+      "catalogue": "Catalogue et tarifs"
     }
   },
   "etats": {
@@ -867,7 +873,9 @@
       "tarif": "Tarif",
       "titre": "Titre minier",
       "document_delivre": "Document délivré",
-      "remboursement": "Remboursement"
+      "remboursement": "Remboursement",
+      "version_document": "Version du catalogue",
+      "type_document_avis": "Avis requis"
     },
     "champs": {
       "statut": "Statut",
@@ -1171,6 +1179,210 @@
     "cloche": {
       "sansNonLues": "Notifications",
       "avecNonLues": "Notifications, {nombre, plural, =1 {1 non lue} other {# non lues}}"
+    }
+  },
+  "catalogue": {
+    "titre": "Catalogue et tarifs",
+    "description": {
+      "admin": "Fiches des 15 documents du Ministère. Chaque modification est proposée ici puis approuvée par le Ministre avant de s’appliquer.",
+      "ministre": "Modifications du catalogue proposées par l’administrateur : approuvez-les ou refusez-les. Rien ne s’applique sans votre approbation."
+    },
+    "chiffres": {
+      "periode": "À ce jour",
+      "documents": "Documents au catalogue",
+      "propositions": {
+        "admin": "Modifications en attente du Ministre",
+        "ministre": "Modifications à approuver"
+      },
+      "inactifs": "Retirés du catalogue"
+    },
+    "recherche": {
+      "libelle": "Rechercher un document",
+      "exemple": "Code ou nom du document",
+      "bouton": "Rechercher"
+    },
+    "filtres": {
+      "libelle": "Afficher",
+      "TOUS": "Tous",
+      "A_VALIDER_admin": "En attente du Ministre",
+      "A_VALIDER_ministre": "À approuver",
+      "INACTIFS": "Retirés du catalogue"
+    },
+    "colonnes": {
+      "code": "Code",
+      "document": "Document",
+      "delai": "Délai",
+      "signataire": "Signataire",
+      "version": "Version",
+      "statut": "Statut"
+    },
+    "jours": "{n, plural, one {# jour} other {# jours}}",
+    "version": "v{n}",
+    "elements": "documents",
+    "statuts": {
+      "aApprouver": "À approuver",
+      "enAttenteMinistre": "En attente du Ministre",
+      "enVigueur": "En vigueur",
+      "refusee": "Refusée",
+      "retiree": "Retirée",
+      "remplacee": "Remplacée",
+      "inactif": "Retiré du catalogue"
+    },
+    "vide": {
+      "recherche": "Aucun document ne correspond à cette recherche.",
+      "A_VALIDER_admin": "Aucune modification en attente du Ministre.",
+      "A_VALIDER_ministre": "Aucune modification à approuver.",
+      "INACTIFS": "Aucun document retiré du catalogue.",
+      "toutVoir": "Voir tout le catalogue"
+    },
+    "fiche": {
+      "retour": "Catalogue et tarifs",
+      "proposer": "Proposer une modification",
+      "motif": "Objet de la modification",
+      "motifRefus": "Motif du refus",
+      "vide": "Non renseigné",
+      "aucunAvis": "Aucun avis technique requis",
+      "jours": "{n, plural, one {# jour} other {# jours}}",
+      "versionInitiale": "Version initiale du catalogue.",
+      "actif": {
+        "oui": "Proposé au dépôt",
+        "non": "Retiré du catalogue"
+      },
+      "decision": {
+        "publiee": "Approuvée le {date} par {nom}",
+        "remplacee": "Approuvée le {date} par {nom}",
+        "refusee": "Refusée le {date} par {nom}",
+        "retiree": "Retirée le {date} par {nom}",
+        "a_valider": "En attente"
+      },
+      "champs": {
+        "libelleFr": "Libellé (français)",
+        "libelleEn": "Libellé (anglais)",
+        "pieces": "Pièces requises",
+        "delaiJours": "Délai de traitement",
+        "instruitPar": "Instruit par",
+        "signataire": "Signataire",
+        "avis": "Avis techniques requis",
+        "actif": "Au catalogue",
+        "motif": "Objet de la modification"
+      },
+      "changements": {
+        "champ": "Élément",
+        "avant": "Actuellement",
+        "apres": "Proposé"
+      },
+      "proposition": {
+        "titre": "Modification proposée (v{numero})",
+        "proposee": "Proposée le {date} par {nom}",
+        "attente": "En attente depuis {n, plural, =0 {moins d’un jour} one {# jour} other {# jours}}",
+        "legende": "Ce que change la proposition",
+        "aide": {
+          "ministre": "Vérifiez chaque changement : il s’appliquera dès votre approbation, aux demandes déposées ensuite. Les demandes en cours gardent la fiche de leur dépôt.",
+          "admin": "Cette modification attend l’approbation du Ministre. Vous pouvez la retirer tant qu’il n’a pas décidé."
+        }
+      },
+      "inactif": {
+        "titre": "Document retiré du catalogue",
+        "texte": "Ce document ne peut plus être demandé. Les demandes déjà déposées vont à leur terme."
+      },
+      "enVigueur": {
+        "titre": "Fiche en vigueur (v{numero})"
+      },
+      "historique": {
+        "titre": "Historique des versions",
+        "voir": "Voir {n, plural, one {le changement} other {les # changements}}",
+        "legende": "Changements de la version {numero}"
+      },
+      "resultat": {
+        "titre": "C’est enregistré",
+        "approuver": "La modification est approuvée : la fiche en vigueur est à jour et l’action est tracée au journal d’audit.",
+        "refuser": "La modification est refusée ; l’administrateur voit votre motif.",
+        "retirer": "La proposition est retirée. La fiche en vigueur n’a pas changé.",
+        "proposee": "La modification (v{numero}) est envoyée au Ministre pour approbation. Rien ne change avant sa décision."
+      }
+    },
+    "decision": {
+      "approuver": "Approuver",
+      "refuser": "Refuser",
+      "retirer": "Retirer la proposition",
+      "annuler": "Annuler",
+      "motif": "Motif du refus",
+      "motifAide": "L’administrateur le verra sur la fiche. 10 caractères au moins.",
+      "echec": "La décision n’a pas pu être enregistrée",
+      "indisponible": "Le service est momentanément indisponible. Réessayez dans un instant.",
+      "signataire": {
+        "titre": "Le signataire change",
+        "texte": "Les documents des demandes déposées après votre approbation seront décidés et signés par le nouveau signataire. Les demandes en cours gardent le signataire de leur dépôt."
+      },
+      "desactivation": {
+        "titre": "Le document quitte le catalogue",
+        "texte": "Il ne pourra plus être demandé. Les demandes déjà déposées vont à leur terme."
+      },
+      "confirmation": {
+        "approuver": {
+          "titre": "Approuver la version v{numero} ?",
+          "texte": "La fiche en vigueur sera remplacée dès maintenant. L’approbation est tracée à votre nom.",
+          "bouton": "Confirmer l’approbation"
+        },
+        "refuser": {
+          "titre": "Refuser la version v{numero} ?",
+          "texte": "La fiche en vigueur ne change pas.",
+          "bouton": "Confirmer le refus"
+        },
+        "retirer": {
+          "titre": "Retirer la version v{numero} ?",
+          "texte": "La proposition ne sera pas soumise au Ministre. Vous pourrez en proposer une autre.",
+          "bouton": "Retirer"
+        }
+      }
+    },
+    "formulaire": {
+      "titre": "Proposer une modification",
+      "retour": "Fiche {code}",
+      "versionActuelle": "version en vigueur v{numero}",
+      "obligatoire": "obligatoire",
+      "facultatif": "facultatif",
+      "circuit": {
+        "titre": "Approbation du Ministre",
+        "texte": "Votre proposition sera soumise au Ministre. Rien ne change avant son approbation ; les demandes déjà déposées gardent la fiche de leur dépôt."
+      },
+      "sections": {
+        "document": "Document",
+        "circuit": "Instruction et signature",
+        "publication": "Catalogue et motif"
+      },
+      "aide": {
+        "pieces": "Une pièce par ligne, sans virgule (20 au plus).",
+        "delai": "En jours calendaires, de 1 à 365. Il s’appliquera aux demandes déposées après l’approbation.",
+        "signataire": "La personne qui décide et signe ce document.",
+        "avis": "Profils qui rendent un avis technique motivé avant la décision, dans cet ordre.",
+        "motif": "Expliquez au Ministre la raison de la modification (10 caractères au moins).",
+        "motifDesactivation": "Expliquez pourquoi le document quitte le catalogue (10 caractères au moins)."
+      },
+      "actif": "Ce document peut être demandé (au catalogue)",
+      "signataireChange": {
+        "titre": "Changement de signataire",
+        "texte": "Il touche la valeur juridique des documents délivrés : le Ministre le verra en évidence."
+      },
+      "desactivation": {
+        "titre": "Retrait du catalogue",
+        "texte": "Après l’approbation, le document ne pourra plus être demandé. Les demandes déjà déposées vont à leur terme. Le motif est obligatoire."
+      },
+      "erreurs": {
+        "libelleFr": "Saisissez un libellé de 3 à 150 caractères.",
+        "libelleEn": "Laissez vide ou saisissez 3 à 150 caractères.",
+        "pieces": "De 1 à 20 pièces, une par ligne, sans virgule, de 2 à 200 caractères chacune.",
+        "delaiJours": "Saisissez un nombre de jours entre 1 et 365.",
+        "instruitPar": "Saisissez de 2 à 150 caractères.",
+        "signataire": "Choisissez un signataire.",
+        "avis": "Choix d’avis invalide.",
+        "actif": "Choix invalide.",
+        "motif": "Expliquez la modification en 10 à 2 000 caractères."
+      },
+      "echec": "La proposition n’a pas pu être envoyée",
+      "indisponible": "Le service est momentanément indisponible. Réessayez dans un instant.",
+      "annuler": "Annuler",
+      "envoyer": "Soumettre au Ministre"
     }
   }
 }

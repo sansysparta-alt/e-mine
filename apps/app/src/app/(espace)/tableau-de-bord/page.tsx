@@ -5,6 +5,7 @@ import {
   type IndicateursDto,
   lireIndicateurs,
   listerDemandes,
+  listerFichesDocuments,
   listerTypesDocuments,
 } from "@emine/api-client";
 import { tailleDePagePour } from "@emine/ui";
@@ -44,6 +45,8 @@ type Donnees = {
   vues?: VuesTableau;
   indicateurs?: IndicateursDto;
   travail?: { groupe: CleGroupe; dossiers: DemandeDto[]; total: number };
+  /** Ministre : modifications du catalogue à approuver (US-02.4). */
+  catalogueAApprouver?: number;
   /** Données indisponibles : on le dit, plutôt qu'un état vide trompeur (revue B). */
   indisponible?: boolean;
 };
@@ -81,7 +84,7 @@ async function charger(moi: Profil, periode: ClePeriode): Promise<Donnees> {
     const libelles = Object.fromEntries(documents.map((d) => [d.code, d.libelleFr]));
     const groupeTravail = groupesDepuis(compteur, moi)[0];
     const pilote = profil === "guichet" || profil === "instruction" || profil === "decideur";
-    const [recentes, aTraiter, indicateurs, file] = await Promise.all([
+    const [recentes, aTraiter, indicateurs, file, catalogue] = await Promise.all([
       pilote
         ? null
         : listerDemandes({ taille: tailleDePagePour(DEMANDES_RECENTES) }, options).then(
@@ -99,6 +102,12 @@ async function charger(moi: Profil, periode: ClePeriode): Promise<Donnees> {
             options,
           ).then((r) => r.data)
         : null,
+      // Même nombre que la liste « À approuver » du catalogue (compteur de l'API).
+      moi.permissions.includes("VALIDER_CATALOGUE")
+        ? listerFichesDocuments({ filtre: "A_VALIDER", taille: 10 }, options).then(
+            (r) => r.data.compteurs["A_VALIDER"] ?? 0,
+          )
+        : 0,
     ]);
     const tarifs = Object.fromEntries(documents.map((d) => [d.code, d.tarifs]));
     const aFaire: ActionAFaire[] = (aTraiter?.elements ?? [])
@@ -120,6 +129,7 @@ async function charger(moi: Profil, periode: ClePeriode): Promise<Donnees> {
       groupes: compteur.groupes,
       vues,
       indicateurs,
+      catalogueAApprouver: catalogue,
       ...(groupeTravail && file
         ? {
             travail: {

@@ -39,7 +39,7 @@ class MigrationsTest extends TestIntegration {
   void lesReferentielsSontCharges() {
     assertThat(compter("profil")).isEqualTo(16);
     assertThat(compter("type_document")).isEqualTo(15);
-    assertThat(compter("permission")).isEqualTo(10);
+    assertThat(compter("permission")).isEqualTo(11);
     assertThat(compter("transition_statut")).isPositive();
     assertThat(compter("tarif")).isPositive();
   }

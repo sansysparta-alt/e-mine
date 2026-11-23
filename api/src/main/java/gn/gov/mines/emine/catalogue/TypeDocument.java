@@ -17,6 +17,8 @@ import java.util.List;
  * @param signataireProfil code du profil qui décide et signe ce document (D4, V9), par exemple
  *     {@code MINISTRE}
  * @param tarifs montants en vigueur, en GNF entiers
+ * @param actif document proposé au dépôt ; un document retiré du catalogue (US-02.2) ne se dépose
+ *     plus, mais ses demandes en cours vont à leur terme
  */
 public record TypeDocument(
     short id,
@@ -31,7 +33,8 @@ public record TypeDocument(
     String signataire,
     String signataireProfil,
     Tarifs tarifs,
-    List<AvisRequis> avisRequis) {
+    List<AvisRequis> avisRequis,
+    boolean actif) {
 
   public TypeDocument {
     piecesRequises = List.copyOf(piecesRequises);
