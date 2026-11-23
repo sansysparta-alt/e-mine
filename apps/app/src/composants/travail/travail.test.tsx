@@ -59,6 +59,8 @@ function dossier(id: number, statut: string, fraisPayes = true): DemandeDto {
     joursRestants: null,
     procheDepassement: false,
     delaiSuspendu: false,
+    motifSuspension: null,
+    delaiDemarre: true,
   };
 }
 
@@ -74,7 +76,7 @@ describe("file de travail selon le profil (correctifs J5)", () => {
     const groupes = groupesDepuis(signataire, ministre);
     expect(groupes.map((g) => g.cle)).toEqual(["tout", "a-decider", "a-signer"]);
     expect(groupes.map((g) => g.nombre)).toEqual([3, 1, 2]);
-    expect(parametresListe(groupes[0]!)).toEqual({ aTraiter: true, tri: "date", sens: "asc" });
+    expect(parametresListe(groupes[0]!)).toEqual({ aTraiter: true, tri: "echeance", sens: "asc" });
     expect(parametresListe(groupes[1]!)).toMatchObject({ groupe: "a-decider" });
     const auGuichet = groupesDepuis(
       { total: 1, groupes: [{ cle: "a-examiner", nombre: 1 }] },
@@ -201,7 +203,17 @@ describe("tableau de bord de l'agent", () => {
           fraisAttendus: 0,
           traitesAujourdhui: 0,
           delivrees: 0,
+          delivreesDansLeDelai: 0,
+          tauxDansLeDelai: null,
+          rejetees: 0,
           delaiMoyenJours: null,
+          parametresDelai: {
+            depart: "paiement_frais",
+            pauseComplement: true,
+            pauseDroits: true,
+            seuilProchePourcent: 20,
+            seuilProcheMinJours: 2,
+          },
           encaissementsGnf: 0,
           parDocument: [],
         }}

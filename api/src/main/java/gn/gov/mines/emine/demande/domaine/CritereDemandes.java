@@ -97,6 +97,12 @@ public record CritereDemandes(
   public enum Tri {
     NUMERO,
     DATE,
-    STATUT
+    STATUT,
+    /**
+     * Échéance du délai (US-05.6) : les plus en retard d'abord, puis les plus proches du
+     * dépassement, puis les dossiers dont le délai n'a pas commencé ; à égalité, le plus ancien.
+     * Ordre de la file « À traiter ».
+     */
+    ECHEANCE
   }
 }

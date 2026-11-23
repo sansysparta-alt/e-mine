@@ -88,6 +88,7 @@ export function TableauTravail({
                 procheDepassement: d.procheDepassement,
                 joursRestants: d.joursRestants,
                 suspendu: d.delaiSuspendu,
+                motifSuspension: d.motifSuspension,
               }}
               maintenant={maintenant}
             />

@@ -1,32 +1,51 @@
 package gn.gov.mines.emine.demande.domaine;
 
 /**
- * Délais de traitement par dossier (US-05.6) : le délai du catalogue ({@code
- * type_document.delai_jours}) se compte en jours calendaires depuis le dépôt, à l'heure de Conakry,
- * hors jours passés en complément (délai suspendu, US-05.2). Un dossier en cours est :
+ * Délai de traitement d'un dossier (US-05.6) : <b>une seule règle</b>, calculée par la base ({@code
+ * fn_jours_traitement}, V17) et réutilisée partout — jours restants de la fiche, filtres « en
+ * retard » et « proche du dépassement », indicateurs, part des dossiers délivrés dans le délai et
+ * délai moyen.
+ *
+ * <p>Le cahier des charges ne fixe que des « délais cibles » par document ({@code
+ * type_document.delai_jours}). Choix du porteur du projet du 22/11/2026, paramétrables (table
+ * {@code parametre_delai}) et à faire valider par le Ministère :
  *
  * <ul>
- *   <li><b>en retard</b> quand il ne lui reste plus de jour (jours restants &lt; 0) ;
- *   <li><b>proche du dépassement</b> quand il lui reste au plus {@value #PROPORTION_POURCENT} % du
- *       délai, et au moins {@value #SEUIL_MIN_JOURS} jours (pour les délais courts), sans être en
- *       retard ni suspendu.
+ *   <li>jours calendaires, à l'heure de Conakry, <b>jour de départ inclus</b> (délivré le jour même
+ *       = 1 jour) ;
+ *   <li>départ au <b>paiement des frais</b> de dossier (ou du paiement unique d'une attestation) :
+ *       avant, le délai ne court pas ; au dépôt pour un document sans frais au barème ;
+ *   <li><b>pauses</b> pendant un complément et pendant l'attente du paiement des droits ;
+ *   <li>fin à la délivrance ;
+ *   <li><b>en retard</b> : jours de traitement supérieurs au délai (jours restants &lt; 0) ;
+ *   <li><b>proche du dépassement</b> : en cours, sans pause, et il reste au plus {@value
+ *       #SEUIL_POURCENT_DEFAUT} % du délai, {@value #SEUIL_MIN_JOURS_DEFAUT} jours au moins
+ *       (valeurs par défaut).
  * </ul>
- *
- * Le calcul est fait par la base (même condition pour la fiche, les listes, les filtres et les
- * indicateurs) ; cette classe en donne les paramètres.
  */
 public final class RegleDelais {
 
-  /** Seuil « proche du dépassement » : part du délai du catalogue restant, en pourcentage. */
-  public static final int PROPORTION_POURCENT = 20;
+  /** Seuil « proche du dépassement » par défaut : part du délai restant, en pourcentage. */
+  public static final int SEUIL_POURCENT_DEFAUT = 20;
 
-  /** Seuil « proche du dépassement » minimal, en jours (délais de 2 à 10 jours). */
-  public static final int SEUIL_MIN_JOURS = 2;
+  /** Seuil « proche du dépassement » minimal par défaut, en jours. */
+  public static final int SEUIL_MIN_JOURS_DEFAUT = 2;
 
   private RegleDelais() {}
 
-  /** Seuil en jours pour un délai du catalogue donné. */
-  public static int seuilProcheJours(int delaiJours) {
-    return Math.max(SEUIL_MIN_JOURS, (int) Math.ceil(delaiJours * PROPORTION_POURCENT / 100.0));
-  }
+  /**
+   * Paramètres en vigueur (table {@code parametre_delai}).
+   *
+   * @param depart {@code paiement_frais} ou {@code depot}
+   * @param pauseComplement le délai est en pause pendant un complément
+   * @param pauseDroits le délai est en pause pendant l'attente du paiement des droits
+   * @param seuilProchePourcent seuil « proche du dépassement », en % du délai
+   * @param seuilProcheMinJours seuil « proche du dépassement » minimal, en jours
+   */
+  public record Parametres(
+      String depart,
+      boolean pauseComplement,
+      boolean pauseDroits,
+      int seuilProchePourcent,
+      int seuilProcheMinJours) {}
 }

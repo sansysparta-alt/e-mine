@@ -52,6 +52,8 @@ function demande(id: number, statut: string, numero: string | null): DemandeDto 
     joursRestants: null,
     procheDepassement: false,
     delaiSuspendu: false,
+    motifSuspension: null,
+    delaiDemarre: true,
   };
 }
 

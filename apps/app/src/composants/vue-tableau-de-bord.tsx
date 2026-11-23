@@ -30,6 +30,7 @@ import {
   ListChecks,
   Play,
   Stamp,
+  Timer,
   TriangleAlert,
   Wallet,
 } from "@emine/ui/icones";
@@ -149,7 +150,10 @@ export function VueTableauDeBord({
       libelle={t("guichet.proches")}
       periode={aCeJour}
       valeur={indicateurs.procheDepassement}
-      precision={t("guichet.prochesPrecision")}
+      precision={t("guichet.prochesPrecision", {
+        pourcent: indicateurs.parametresDelai.seuilProchePourcent,
+        min: indicateurs.parametresDelai.seuilProcheMinJours,
+      })}
       icone={Hourglass}
       href={liste({ procheDepassement: "1" })}
     />
@@ -351,7 +355,11 @@ export function VueTableauDeBord({
                 nature="info"
                 titre={t("pilotage.proches.titre", { nombre: indicateurs.procheDepassement })}
               >
-                <p>{t("pilotage.proches.texte")}</p>
+                <p>
+                  {t("pilotage.proches.texte", {
+                    pourcent: indicateurs.parametresDelai.seuilProchePourcent,
+                  })}
+                </p>
                 <Link
                   href={liste({ procheDepassement: "1" })}
                   className="mt-1 inline-flex min-h-11 items-center font-semibold text-royal underline"
@@ -374,7 +382,9 @@ export function VueTableauDeBord({
                 </Link>
               </Alerte>
             ) : null}
-            <GrilleChiffres>
+            {/* Six cartes sur trois colonnes : ce qui attend le décideur, puis le respect des
+                délais du catalogue (US-05.6) et l'activité de la période. */}
+            <GrilleChiffres colonnes={3}>
               <CarteChiffre
                 libelle={t("pilotage.aTraiter")}
                 periode={aCeJour}
@@ -391,6 +401,33 @@ export function VueTableauDeBord({
                 href={liste({ statut: "delivree", periode })}
               />
               <CarteChiffre
+                libelle={t("pilotage.dansLeDelai")}
+                periode={t(`periodes.${periode}`)}
+                valeur={
+                  indicateurs.tauxDansLeDelai == null
+                    ? t("pilotage.delaiAucun")
+                    : t("pilotage.dansLeDelaiValeur", { taux: indicateurs.tauxDansLeDelai })
+                }
+                precision={
+                  indicateurs.delivrees === 0
+                    ? t("pilotage.dansLeDelaiAucun")
+                    : t("pilotage.dansLeDelaiPrecision", {
+                        dans: indicateurs.delivreesDansLeDelai,
+                        total: indicateurs.delivrees,
+                      })
+                }
+                icone={Timer}
+                href="#repartition"
+              />
+              <CarteChiffre
+                libelle={t("pilotage.rejetees")}
+                periode={t(`periodes.${periode}`)}
+                valeur={indicateurs.rejetees}
+                precision={t("pilotage.rejeteesPrecision")}
+                icone={CircleX}
+                href={liste({ statut: "rejetee", periode })}
+              />
+              <CarteChiffre
                 libelle={t("pilotage.delai")}
                 periode={t(`periodes.${periode}`)}
                 valeur={
@@ -402,7 +439,7 @@ export function VueTableauDeBord({
                 }
                 precision={t("pilotage.delaiPrecision")}
                 icone={Clock}
-                href={liste({ statut: "delivree", periode })}
+                href="#repartition"
               />
               <CarteChiffre
                 libelle={t("pilotage.encaissements")}

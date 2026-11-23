@@ -40,6 +40,8 @@ function demande(partiel: Partial<DemandeDto>): DemandeDto {
     joursRestants: null,
     procheDepassement: false,
     delaiSuspendu: false,
+    motifSuspension: null,
+    delaiDemarre: true,
     ...partiel,
   };
 }
@@ -64,7 +66,17 @@ const indicateurs: IndicateursDto = {
   fraisAttendus: 4,
   traitesAujourdhui: 5,
   delivrees: 7,
+  delivreesDansLeDelai: 5,
+  tauxDansLeDelai: 71,
+  rejetees: 1,
   delaiMoyenJours: 12.5,
+  parametresDelai: {
+    depart: "paiement_frais",
+    pauseComplement: true,
+    pauseDroits: true,
+    seuilProchePourcent: 20,
+    seuilProcheMinJours: 2,
+  },
   encaissementsGnf: 45_000_000,
   parDocument: [
     {
@@ -72,6 +84,10 @@ const indicateurs: IndicateursDto = {
       enCours: 6,
       enRetard: 3,
       delivrees: 7,
+      delaiJours: 60,
+      delivreesDansLeDelai: 5,
+      tauxDansLeDelai: 71,
+      rejetees: 1,
       delaiMoyenJours: 12.5,
       encaissementsGnf: 45_000_000,
     },
@@ -227,9 +243,22 @@ describe("tableau de bord des décideurs (correctifs ergonomie)", () => {
     const delivres = screen.getByRole("link", { name: /^Documents délivrés/ });
     expect(delivres).toHaveAttribute("href", "/demandes?statut=delivree&periode=30-jours");
     expect(delivres).toHaveTextContent("30 derniers jours");
-    expect(screen.getByRole("link", { name: /Délai moyen de délivrance/ })).toHaveTextContent(
+    expect(screen.getByRole("link", { name: /Délai moyen de traitement/ })).toHaveTextContent(
       "12,5 j",
     );
+    // US-05.6 : part délivrée dans le délai du catalogue (calculée par l'API), justifiée par son
+    // nombre ; les rejets à part, vers leur liste de la période.
+    const dansLeDelai = screen.getByRole("link", { name: /Délivrés dans le délai/ });
+    expect(dansLeDelai).toHaveTextContent("71 %");
+    expect(dansLeDelai).toHaveTextContent("5 sur 7 documents délivrés");
+    expect(dansLeDelai).toHaveTextContent("30 derniers jours");
+    expect(dansLeDelai).toHaveAttribute("href", "#repartition");
+    expect(screen.getByRole("link", { name: /Demandes rejetées/ })).toHaveAttribute(
+      "href",
+      "/demandes?statut=rejetee&periode=30-jours",
+    );
+    expect(screen.getByText("Délai : 60 j")).toBeInTheDocument();
+    expect(screen.getByText("71 % (5 sur 7)")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Encaissements/ })).toHaveTextContent(
       /45\s000\s000\sGNF/,
     );
@@ -238,7 +267,7 @@ describe("tableau de bord des décideurs (correctifs ergonomie)", () => {
       "/a-traiter",
     );
     expect(screen.getByRole("heading", { name: "Répartition par document" })).toBeVisible();
-    expect(screen.getByRole("link", { name: "Permis d'exploitation" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /^Permis d'exploitation/ })).toHaveAttribute(
       "href",
       "/demandes?document=PEX",
     );

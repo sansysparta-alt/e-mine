@@ -287,15 +287,16 @@ class ComplementTest extends TestIntegration {
 
   @Test
   void leDelaiDeTraitementEstSuspenduPendantLeComplement() throws Exception {
-    // Carte d'orpailleur : délai de 5 jours au catalogue. Déposée il y a 8 jours, dont 4 en
-    // complément : 4 jours décomptés, pas de retard ; sans complément, elle serait en retard.
+    // Carte d'orpailleur : délai de 5 jours au catalogue. Frais payés il y a 8 jours (9 jours de
+    // traitement, jour du paiement compté), dont 4 en complément : 5 jours décomptés, pas de
+    // retard ; sans complément, elle serait en retard.
     long suspendue = DemandesDeTest.deposee(INVESTISSEUR, "COR");
-    DemandesDeTest.deposeeIlYA(suspendue, 8);
+    DemandesDeTest.fraisPayesIlYA(suspendue, 8);
     DemandesDeTest.complementOuvert(suspendue, GUICHET, "deposee", 7);
     DemandesDeTest.complementRepondu(suspendue, 3);
     DemandesDeTest.changerStatut(suspendue, "deposee");
     long sansComplement = DemandesDeTest.deposee(INVESTISSEUR, "COR");
-    DemandesDeTest.deposeeIlYA(sansComplement, 8);
+    DemandesDeTest.fraisPayesIlYA(sansComplement, 8);
     mvc.perform(get("/api/v1/demandes/" + suspendue).with(guichet()))
         .andExpect(jsonPath("$.enRetard").value(false));
     mvc.perform(get("/api/v1/demandes/" + sansComplement).with(guichet()))

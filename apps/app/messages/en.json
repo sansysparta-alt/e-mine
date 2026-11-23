@@ -117,17 +117,17 @@
       "traites": "Processed today",
       "traitesPrecision": "Files whose status you changed",
       "retard": "Overdue",
-      "retardPrecision": "Catalogue deadline exceeded, excluding additional information",
+      "retardPrecision": "Catalogue time limit exceeded, pauses deducted",
       "aExaminer": "To examine",
       "aExaminerPrecision": "Fees paid, admissibility to decide",
       "proches": "Close to the deadline",
-      "prochesPrecision": "20% or less of the catalogue deadline left"
+      "prochesPrecision": "{pourcent}% of the catalogue time limit or less remaining (at least {min} days)"
     },
     "pilotage": {
       "titre": "Steering",
       "retard": {
         "titre": "{nombre, plural, one {# file overdue against the catalogue time limit} other {# files overdue against the catalogue time limits}}",
-        "texte": "Deadline counted in calendar days since filing, excluding time spent on additional information, as of today.",
+        "texte": "Catalogue time limit counted in calendar days from payment of the fees, payment day included, excluding pauses (additional information, fees due), to date.",
         "lien": "See overdue files",
         "aucun": "No overdue file as of today",
         "aucunTexte": "All files in progress are within the catalogue time limits."
@@ -135,10 +135,10 @@
       "aTraiter": "To decide or sign",
       "aTraiterPrecision": "Documents you sign",
       "delivrees": "Documents issued",
-      "delai": "Average issuing time",
+      "delai": "Average processing time",
       "delaiValeur": "{jours} d",
       "delaiAucun": "—",
-      "delaiPrecision": "From filing to delivery, filing day included, excluding additional information",
+      "delaiPrecision": "From payment of the fees to issue, excluding pauses",
       "encaissements": "Collections",
       "encaissementsPrecision": "Fees and duties paid",
       "bloques": {
@@ -148,25 +148,35 @@
       },
       "proches": {
         "titre": "{nombre, plural, one {# file close to its deadline} other {# files close to their deadline}}",
-        "texte": "20% or less of the catalogue deadline is left: handle them first.",
+        "texte": "{pourcent}% of the catalogue time limit or less remains: handle them first.",
         "lien": "See files close to the deadline"
-      }
+      },
+      "dansLeDelai": "Issued on time",
+      "dansLeDelaiValeur": "{taux}%",
+      "dansLeDelaiPrecision": "{dans} of {total, plural, one {# document issued} other {# documents issued}}",
+      "rejetees": "Rejected applications",
+      "rejeteesPrecision": "Not included in the on-time percentage",
+      "dansLeDelaiAucun": "No document issued in the period"
     },
     "repartition": {
       "titre": "Breakdown by document",
-      "aide": "In progress and overdue: as of today. Issued, average time and collections: {periode}.",
+      "aide": "In progress and late: to date. Issued, on time, rejected, average time and receipts: {periode}.",
       "colonnes": {
         "document": "Document",
         "enCours": "In progress",
         "enRetard": "Overdue",
         "delivrees": "Issued",
         "delai": "Average time",
-        "encaissements": "Collections"
+        "encaissements": "Collections",
+        "dansLeDelai": "On time",
+        "rejetees": "Rejected"
       },
       "jours": "{jours} d",
       "sansDelai": "—",
       "vide": "No activity over the period",
-      "videAide": "Choose a longer period to see the breakdown."
+      "videAide": "Choose a longer period to see the breakdown.",
+      "delaiCatalogue": "Time limit: {jours} d",
+      "tauxDetail": "{taux}% ({dans} of {total})"
     },
     "indisponible": {
       "titre": "Dashboard temporarily unavailable",
@@ -382,7 +392,9 @@
       "nouvelleVersion": "new version of {date}",
       "remplacee": "Version replaced on {date}",
       "anciennes": "Previous versions: {piece}"
-    }
+    },
+    "delaiNonDemarre": "starts when the fees are paid",
+    "delaiPauseDroits": "paused until the fees due are paid"
   },
   "mesDemandes": {
     "titre": "My applications",
@@ -1114,7 +1126,8 @@
     "etapeDepuis": "At this step since",
     "horsDelai": "Catalogue time limit exceeded",
     "echeance": "{jours, plural, =0 {Due today} one {Due in # day} other {Due in # days}}",
-    "delaiSuspendu": "Deadline suspended (additional information)"
+    "delaiSuspendu": "Deadline suspended (additional information)",
+    "delaiSuspenduDroits": "Time limit paused (fees due)"
   },
   "suivi": {
     "titre": "Application tracking",

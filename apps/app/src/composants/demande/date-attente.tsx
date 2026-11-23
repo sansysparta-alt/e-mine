@@ -19,7 +19,13 @@ export type DateAttenteProps = {
    * Délai du catalogue (US-05.6, calculé par l'API) : proche du dépassement (jours restants) ou
    * suspendu pendant un complément. Montré aux agents seulement.
    */
-  delai?: { procheDepassement: boolean; joursRestants: number | null; suspendu: boolean };
+  delai?: {
+    procheDepassement: boolean;
+    joursRestants: number | null;
+    suspendu: boolean;
+    /** Motif de la pause du délai (US-05.6) : complément ou droits attendus. */
+    motifSuspension?: string | null;
+  };
   /** Date de référence (rendu serveur, tests). */
   maintenant?: Date;
 };
@@ -70,7 +76,7 @@ export function DateAttente({
       ) : delai?.suspendu ? (
         <span className="flex items-center gap-1 text-sm text-texte-doux">
           <PauseCircle aria-hidden="true" className="size-4 shrink-0" />
-          {t("delaiSuspendu")}
+          {delai.motifSuspension === "droits" ? t("delaiSuspenduDroits") : t("delaiSuspendu")}
         </span>
       ) : null}
     </span>

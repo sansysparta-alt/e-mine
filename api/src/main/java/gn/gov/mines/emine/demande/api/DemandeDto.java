@@ -20,8 +20,11 @@ import java.time.Instant;
  * @param enRetard dossier en cours dont le délai du catalogue est dépassé (calculé par l'API)
  * @param joursRestants dossier en cours : jours restants sur le délai du catalogue, hors suspension
  *     (négatif = jours de retard), {@code null} sinon (US-05.6)
- * @param procheDepassement il reste au plus 20 % du délai (2 jours au moins), sans retard
- * @param delaiSuspendu un complément est en cours : le délai est suspendu
+ * @param procheDepassement il reste au plus le seuil paramétré du délai (20 % et 2 jours au moins
+ *     par défaut), sans retard ni pause
+ * @param delaiSuspendu le délai est en pause (complément en cours, ou droits attendus)
+ * @param motifSuspension motif de la pause : {@code complement} ou {@code droits}
+ * @param delaiDemarre le délai a commencé (frais payés) ; sinon il attend le paiement des frais
  */
 record DemandeDto(
     long id,
@@ -45,7 +48,12 @@ record DemandeDto(
     boolean enRetard,
     @Schema(nullable = true) Integer joursRestants,
     boolean procheDepassement,
-    boolean delaiSuspendu) {
+    boolean delaiSuspendu,
+    @Schema(
+            nullable = true,
+            allowableValues = {"complement", "droits"})
+        String motifSuspension,
+    boolean delaiDemarre) {
 
   /** Auteur de la demande. */
   record Demandeur(
@@ -78,6 +86,8 @@ record DemandeDto(
         d.enRetard(),
         d.joursRestants(),
         d.procheDepassement(),
-        d.delaiSuspendu());
+        d.delaiSuspendu(),
+        d.motifSuspension(),
+        d.delaiDemarre());
   }
 }

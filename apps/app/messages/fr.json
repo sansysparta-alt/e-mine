@@ -117,17 +117,17 @@
       "traites": "Traités aujourd’hui",
       "traitesPrecision": "Dossiers dont vous avez changé le statut",
       "retard": "En retard",
-      "retardPrecision": "Délai du catalogue dépassé, hors complément",
+      "retardPrecision": "Délai du catalogue dépassé, pauses déduites",
       "aExaminer": "À examiner",
       "aExaminerPrecision": "Frais payés, recevabilité à prononcer",
       "proches": "Proches du dépassement",
-      "prochesPrecision": "20 % du délai du catalogue ou moins restant"
+      "prochesPrecision": "{pourcent} % du délai du catalogue ou moins restant ({min} jours au moins)"
     },
     "pilotage": {
       "titre": "Pilotage",
       "retard": {
         "titre": "{nombre, plural, one {# dossier en retard sur le délai du catalogue} other {# dossiers en retard sur les délais du catalogue}}",
-        "texte": "Délai compté en jours calendaires depuis le dépôt, hors jours passés en complément, à ce jour.",
+        "texte": "Délai du catalogue compté en jours calendaires depuis le paiement des frais, jour du paiement inclus, hors pauses (complément, droits attendus), à ce jour.",
         "lien": "Voir les dossiers en retard",
         "aucun": "Aucun dossier en retard à ce jour",
         "aucunTexte": "Tous les dossiers en cours respectent les délais du catalogue."
@@ -135,10 +135,10 @@
       "aTraiter": "À décider ou à signer",
       "aTraiterPrecision": "Documents dont vous êtes signataire",
       "delivrees": "Documents délivrés",
-      "delai": "Délai moyen de délivrance",
+      "delai": "Délai moyen de traitement",
       "delaiValeur": "{jours} j",
       "delaiAucun": "—",
-      "delaiPrecision": "Du dépôt à la délivrance, jour du dépôt compté, hors complément",
+      "delaiPrecision": "Du paiement des frais à la délivrance, hors pauses",
       "encaissements": "Encaissements",
       "encaissementsPrecision": "Frais et droits payés",
       "bloques": {
@@ -148,25 +148,35 @@
       },
       "proches": {
         "titre": "{nombre, plural, one {# dossier proche du dépassement de son délai} other {# dossiers proches du dépassement de leur délai}}",
-        "texte": "Il leur reste 20 % du délai du catalogue ou moins : à traiter en priorité.",
+        "texte": "Il leur reste {pourcent} % du délai du catalogue ou moins : à traiter en priorité.",
         "lien": "Voir les dossiers proches du dépassement"
-      }
+      },
+      "dansLeDelai": "Délivrés dans le délai",
+      "dansLeDelaiValeur": "{taux} %",
+      "dansLeDelaiPrecision": "{dans} sur {total, plural, one {# document délivré} other {# documents délivrés}}",
+      "rejetees": "Demandes rejetées",
+      "rejeteesPrecision": "Hors du pourcentage « dans le délai »",
+      "dansLeDelaiAucun": "Aucun document délivré sur la période"
     },
     "repartition": {
       "titre": "Répartition par document",
-      "aide": "En cours et en retard : à ce jour. Délivrés, délai moyen et encaissements : {periode}.",
+      "aide": "En cours et en retard : à ce jour. Délivrés, dans le délai, rejetées, délai moyen et encaissements : {periode}.",
       "colonnes": {
         "document": "Document",
         "enCours": "En cours",
         "enRetard": "En retard",
         "delivrees": "Délivrés",
         "delai": "Délai moyen",
-        "encaissements": "Encaissements"
+        "encaissements": "Encaissements",
+        "dansLeDelai": "Dans le délai",
+        "rejetees": "Rejetées"
       },
       "jours": "{jours} j",
       "sansDelai": "—",
       "vide": "Aucune activité sur la période",
-      "videAide": "Choisissez une période plus longue pour voir la répartition."
+      "videAide": "Choisissez une période plus longue pour voir la répartition.",
+      "delaiCatalogue": "Délai : {jours} j",
+      "tauxDetail": "{taux} % ({dans} sur {total})"
     },
     "indisponible": {
       "titre": "Tableau de bord momentanément indisponible",
@@ -377,12 +387,14 @@
     "delaiDepasse": "dépassé",
     "delaiReste": "{jours, plural, =0 {dernier jour} one {il reste # jour} other {il reste # jours}}",
     "delaiDepasseDe": "{jours, plural, one {dépassé de # jour} other {dépassé de # jours}}",
-    "delaiSuspendu": "suspendu pendant le complément",
+    "delaiSuspendu": "en pause pendant le complément",
     "piecesVersions": {
       "nouvelleVersion": "nouvelle version du {date}",
       "remplacee": "Version remplacée le {date}",
       "anciennes": "Versions précédentes : {piece}"
-    }
+    },
+    "delaiNonDemarre": "commence au paiement des frais",
+    "delaiPauseDroits": "en pause dans l'attente du paiement des droits"
   },
   "mesDemandes": {
     "titre": "Mes demandes",
@@ -1114,7 +1126,8 @@
     "etapeDepuis": "À cette étape depuis",
     "horsDelai": "Délai du catalogue dépassé",
     "echeance": "{jours, plural, =0 {Échéance aujourd’hui} one {Échéance dans # jour} other {Échéance dans # jours}}",
-    "delaiSuspendu": "Délai suspendu (complément)"
+    "delaiSuspendu": "Délai en pause (complément)",
+    "delaiSuspenduDroits": "Délai en pause (droits attendus)"
   },
   "suivi": {
     "titre": "Suivi de la demande",

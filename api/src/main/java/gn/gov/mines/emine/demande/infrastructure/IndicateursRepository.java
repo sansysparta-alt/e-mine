@@ -3,10 +3,12 @@ package gn.gov.mines.emine.demande.infrastructure;
 import static gn.gov.mines.emine.shared.jooq.Tables.DEMANDE;
 import static gn.gov.mines.emine.shared.jooq.Tables.HISTORIQUE_STATUT_DEMANDE;
 import static gn.gov.mines.emine.shared.jooq.Tables.PAIEMENT;
+import static gn.gov.mines.emine.shared.jooq.Tables.PARAMETRE_DELAI;
 import static gn.gov.mines.emine.shared.jooq.Tables.TYPE_DOCUMENT;
 
 import gn.gov.mines.emine.demande.domaine.Indicateurs;
 import gn.gov.mines.emine.demande.domaine.Periode;
+import gn.gov.mines.emine.demande.domaine.RegleDelais;
 import gn.gov.mines.emine.shared.jooq.Routines;
 import gn.gov.mines.emine.shared.jooq.enums.StatutDemande;
 import gn.gov.mines.emine.shared.jooq.enums.StatutPaiement;
@@ -55,19 +57,16 @@ public class IndicateursRepository {
 
     Condition delivreesPeriode =
         visible.and(DEMANDE.STATUT.eq(StatutDemande.delivree)).and(DELIVREE_LE.ge(debut));
-    // Délai de traitement réel : hors jours passés en complément (délai suspendu, US-05.2).
-    // Délai de délivrance compté jour du dépôt inclus (délivré le jour même = 1 jour, le lendemain
-    // = 2 jours), hors jours passés en complément ; jamais moins d'un jour.
-    Field<BigDecimal> delai =
-        DSL.avg(
-            DSL.greatest(
-                DSL.inline(1),
-                DemandeRepository.joursCalendaires(DEMANDE.DATE_DEPOT, DELIVREE_LE)
-                    .minus(Routines.fnJoursSuspendus(DEMANDE.ID, DELIVREE_LE))
-                    .plus(1)));
+    // Règle unique des délais (RegleDelais) : jours de traitement à la délivrance, jour de départ
+    // inclus, pauses déduites ; « dans le délai » = jours de traitement ≤ délai du catalogue.
+    Field<Integer> joursTraitement = Routines.fnJoursTraitement(DEMANDE.ID, DELIVREE_LE);
+    Field<BigDecimal> delai = DSL.avg(joursTraitement);
+    Field<Integer> dansLeDelai =
+        DSL.count().filterWhere(joursTraitement.le(TYPE_DOCUMENT.DELAI_JOURS.cast(Integer.class)));
     Map<String, Long> delivrees = new HashMap<>();
+    Map<String, Long> dansLesDelais = new HashMap<>();
     Map<String, Double> delais = new HashMap<>();
-    dsl.select(TYPE_DOCUMENT.CODE, DSL.count(), delai)
+    dsl.select(TYPE_DOCUMENT.CODE, DSL.count(), dansLeDelai, delai)
         .from(DEMANDE)
         .join(TYPE_DOCUMENT)
         .on(TYPE_DOCUMENT.ID.eq(DEMANDE.TYPE_DOCUMENT_ID))
@@ -77,7 +76,8 @@ public class IndicateursRepository {
         .forEach(
             r -> {
               delivrees.put(r.value1(), r.value2().longValue());
-              delais.put(r.value1(), arrondi(r.value3()));
+              dansLesDelais.put(r.value1(), r.value3().longValue());
+              delais.put(r.value1(), arrondi(r.value4()));
             });
     Double delaiMoyen =
         arrondi(
@@ -87,6 +87,12 @@ public class IndicateursRepository {
                 .on(TYPE_DOCUMENT.ID.eq(DEMANDE.TYPE_DOCUMENT_ID))
                 .where(delivreesPeriode)
                 .fetchOne(0, BigDecimal.class));
+    // Rejets de la période : affichés à part, hors du pourcentage « dans le délai ».
+    Map<String, Long> rejetees =
+        parDocument(
+            visible
+                .and(DEMANDE.STATUT.in(StatutDemande.rejetee, StatutDemande.archivee))
+                .and(dateStatut(StatutDemande.rejetee).ge(debut)));
 
     Map<String, Long> encaissements = new HashMap<>();
     dsl.select(TYPE_DOCUMENT.CODE, DSL.sum(PAIEMENT.MONTANT_RECU_GNF))
@@ -103,20 +109,29 @@ public class IndicateursRepository {
             r -> encaissements.put(r.value1(), r.value2() == null ? 0L : r.value2().longValue()));
 
     List<Indicateurs.ParDocument> lignes = new ArrayList<>();
-    for (String code :
-        dsl.select(TYPE_DOCUMENT.CODE)
+    for (var td :
+        dsl.select(TYPE_DOCUMENT.CODE, TYPE_DOCUMENT.DELAI_JOURS)
             .from(TYPE_DOCUMENT)
             .orderBy(TYPE_DOCUMENT.ID)
-            .fetch(TYPE_DOCUMENT.CODE)) {
+            .fetch()) {
+      String code = td.value1();
       Indicateurs.ParDocument ligne =
           new Indicateurs.ParDocument(
               code,
               enCours.getOrDefault(code, 0L),
               enRetard.getOrDefault(code, 0L),
+              td.value2(),
               delivrees.getOrDefault(code, 0L),
+              dansLesDelais.getOrDefault(code, 0L),
+              rejetees.getOrDefault(code, 0L),
               delais.get(code),
               encaissements.getOrDefault(code, 0L));
-      if (ligne.enCours() + ligne.enRetard() + ligne.delivrees() + ligne.encaissementsGnf() > 0) {
+      if (ligne.enCours()
+              + ligne.enRetard()
+              + ligne.delivrees()
+              + ligne.rejetees()
+              + ligne.encaissementsGnf()
+          > 0) {
         lignes.add(ligne);
       }
     }
@@ -136,9 +151,32 @@ public class IndicateursRepository {
         compter(
             visible.and(DemandeRepository.conditionTraiteParMoi(Periode.debutDuJour(maintenant)))),
         somme(delivrees),
+        somme(dansLesDelais),
+        somme(rejetees),
         delaiMoyen,
         somme(encaissements),
-        lignes);
+        lignes,
+        parametresDelai());
+  }
+
+  /** Règle des délais en vigueur (table {@code parametre_delai}, une ligne). */
+  public RegleDelais.Parametres parametresDelai() {
+    var p = dsl.selectFrom(PARAMETRE_DELAI).fetchSingle();
+    return new RegleDelais.Parametres(
+        p.getDepart(),
+        p.getPauseComplement(),
+        p.getPauseDroits(),
+        p.getSeuilProchePourcent(),
+        p.getSeuilProcheMinJours());
+  }
+
+  /** Dernier passage de la demande au statut donné (historique tenu par la base). */
+  private static Field<Instant> dateStatut(StatutDemande statut) {
+    return DSL.field(
+        DSL.select(DSL.max(HISTORIQUE_STATUT_DEMANDE.CREATED_AT))
+            .from(HISTORIQUE_STATUT_DEMANDE)
+            .where(HISTORIQUE_STATUT_DEMANDE.DEMANDE_ID.eq(DEMANDE.ID))
+            .and(HISTORIQUE_STATUT_DEMANDE.NOUVEAU_STATUT.eq(statut)));
   }
 
   private Map<String, Long> parDocument(Condition condition) {

@@ -213,6 +213,49 @@ public final class DemandesDeTest {
     }
   }
 
+  /**
+   * Frais de dossier payés il y a {@code joursAvant} jours (départ du délai, US-05.6) : recule le
+   * paiement des frais existant, ou en inscrit un payé à cette date.
+   */
+  public static void fraisPayesIlYA(long demande, int joursAvant) throws SQLException {
+    try (Connection c = BaseDeDonneesDeTest.connexionOwner();
+        PreparedStatement maj =
+            c.prepareStatement(
+                "UPDATE paiement SET date_paiement = now() - make_interval(days => ?)"
+                    + " WHERE demande_id = ? AND objet IN ('FRAIS_DOSSIER', 'ATTESTATION')"
+                    + " AND statut = 'paye'")) {
+      maj.setInt(1, joursAvant);
+      maj.setLong(2, demande);
+      if (maj.executeUpdate() > 0) {
+        return;
+      }
+      try (PreparedStatement ps =
+          c.prepareStatement(
+              "INSERT INTO paiement (demande_id, objet, moyen, montant_gnf, statut, date_paiement)"
+                  + " SELECT d.id, 'FRAIS_DOSSIER', 'TRESORPAY', 1000, 'paye',"
+                  + " now() - make_interval(days => ?) FROM demande d WHERE d.id = ?")) {
+        ps.setInt(1, joursAvant);
+        ps.setLong(2, demande);
+        ps.executeUpdate();
+      }
+    }
+  }
+
+  /** Recule au nombre de jours donné le dernier passage de la demande à ce statut (historique). */
+  public static void statutIlYA(long demande, String statut, int joursAvant) throws SQLException {
+    try (Connection c = BaseDeDonneesDeTest.connexionOwner();
+        PreparedStatement ps =
+            c.prepareStatement(
+                "UPDATE historique_statut_demande SET created_at = now() - make_interval(days => ?)"
+                    + " WHERE id = (SELECT max(id) FROM historique_statut_demande"
+                    + " WHERE demande_id = ? AND nouveau_statut = ?::statut_demande)")) {
+      ps.setInt(1, joursAvant);
+      ps.setLong(2, demande);
+      ps.setString(3, statut);
+      ps.executeUpdate();
+    }
+  }
+
   /** Date de dépôt de la demande ramenée à {@code joursAvant} jours. */
   public static void deposeeIlYA(long demande, int joursAvant) throws SQLException {
     try (Connection c = BaseDeDonneesDeTest.connexionOwner();

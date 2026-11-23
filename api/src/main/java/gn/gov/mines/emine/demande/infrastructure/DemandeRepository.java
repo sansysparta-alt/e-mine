@@ -173,18 +173,27 @@ public class DemandeRepository {
             .on(TYPE_DOCUMENT.ID.eq(DEMANDE.TYPE_DOCUMENT_ID))
             .where(condition)
             .fetchOne(0, Long.class);
+    Field<Instant> date = DSL.coalesce(DEMANDE.DATE_DEPOT, DEMANDE.CREATED_AT);
     Field<?> colonne =
         switch (critere.tri()) {
           case NUMERO -> DEMANDE.NUMERO;
           case STATUT -> DEMANDE.STATUT;
-          case DATE -> DSL.coalesce(DEMANDE.DATE_DEPOT, DEMANDE.CREATED_AT);
+          case DATE -> date;
+          case ECHEANCE -> DSL.when(enCoursDepose(), joursRestants(Instant.now()));
         };
-    SortField<?> ordre =
-        critere.croissant() ? colonne.asc().nullsFirst() : colonne.desc().nullsLast();
+    List<SortField<?>> ordre = new java.util.ArrayList<>();
+    if (critere.tri() == CritereDemandes.Tri.ECHEANCE) {
+      // Jours restants croissants (retards d'abord), délai non commencé en dernier.
+      ordre.add(critere.croissant() ? colonne.asc().nullsLast() : colonne.desc().nullsFirst());
+      ordre.add(date.asc());
+    } else {
+      ordre.add(critere.croissant() ? colonne.asc().nullsFirst() : colonne.desc().nullsLast());
+    }
+    ordre.add(critere.croissant() ? DEMANDE.ID.asc() : DEMANDE.ID.desc());
     List<DemandeDetail> elements =
         selection(moi)
             .where(condition)
-            .orderBy(ordre, critere.croissant() ? DEMANDE.ID.asc() : DEMANDE.ID.desc())
+            .orderBy(ordre)
             .limit(pagination.taille())
             .offset(pagination.decalage())
             .fetch(DemandeRepository::detail);
@@ -290,62 +299,54 @@ public class DemandeRepository {
   static final List<StatutDemande> STATUTS_EN_COURS =
       VueDemandes.STATUTS_ACTIFS.stream().map(StatutDemande::lookupLiteral).toList();
 
-  /**
-   * Nombre de jours calendaires, à l'heure de Conakry, entre deux instants (décision du porteur :
-   * délais comptés depuis le dépôt, en jours calendaires).
-   */
-  static Field<Integer> joursCalendaires(Field<Instant> depuis, Field<Instant> jusqua) {
-    return DSL.field(
-        "(({0} at time zone 'Africa/Conakry')::date - ({1} at time zone 'Africa/Conakry')::date)",
-        Integer.class, jusqua, depuis);
-  }
-
   /** Instant courant de la base (délais de réponse des compléments). */
   static final Field<java.time.Instant> MAINTENANT_BASE =
       DSL.field("now()", COMPLEMENT.DATE_LIMITE.getDataType());
 
   /**
-   * Dossier en retard : en cours, et le délai du catalogue ({@code type_document.delai_jours}) est
-   * dépassé, compté en jours calendaires depuis le dépôt, hors jours passés en complément (délai
-   * suspendu, US-05.2). Suppose la jointure sur le catalogue.
+   * Dossier en retard ({@link RegleDelais}) : en cours, et ses jours de traitement dépassent le
+   * délai du catalogue ({@code type_document.delai_jours}). Un dossier déjà en retard le reste
+   * pendant une pause. Suppose la jointure sur le catalogue.
    */
   static Condition conditionEnRetard(Instant maintenant) {
     return enCoursDepose().and(joursRestants(maintenant).lt(0));
   }
 
-  /** Dossier en cours, déposé : le délai du catalogue court (ou est suspendu). */
+  /** Dossier en cours, déposé (le délai court, est en pause, ou attend le paiement des frais). */
   static Condition enCoursDepose() {
     return DEMANDE.STATUT.in(STATUTS_EN_COURS).and(DEMANDE.DATE_DEPOT.isNotNull());
   }
 
   /**
-   * Jours restants sur le délai du catalogue (US-05.6) : délai moins les jours calendaires écoulés
-   * depuis le dépôt, hors jours passés en complément. Négatif = jours de retard.
+   * Jours restants sur le délai du catalogue ({@link RegleDelais}) : délai moins les jours de
+   * traitement calculés par la base ({@code fn_jours_traitement}). Négatif = jours de retard ;
+   * {@code null} tant que le délai n'a pas commencé.
    */
   static Field<Integer> joursRestants(Instant maintenant) {
-    Field<Instant> m = DSL.val(maintenant, DEMANDE.DATE_DEPOT);
     return TYPE_DOCUMENT
         .DELAI_JOURS
         .cast(Integer.class)
-        .minus(joursCalendaires(DEMANDE.DATE_DEPOT, m))
-        .plus(Routines.fnJoursSuspendus(DEMANDE.ID, m));
+        .minus(Routines.fnJoursTraitement(DEMANDE.ID, DSL.val(maintenant, DEMANDE.DATE_DEPOT)));
   }
 
+  /** Motif de la pause du délai à ce jour ({@code complement}, {@code droits}) ou {@code null}. */
+  static final Field<String> MOTIF_PAUSE = Routines.fnMotifPause(DEMANDE.ID);
+
+  /** Le délai a commencé (frais payés, selon le paramétrage). */
+  static final Condition DELAI_DEMARRE = Routines.fnDepartDelai(DEMANDE.ID).isNotNull();
+
   /**
-   * Proche du dépassement ({@link RegleDelais}) : en cours, ni en retard ni suspendu, et il reste
-   * au plus 20 % du délai (2 jours au moins).
+   * Proche du dépassement ({@link RegleDelais}) : en cours, ni en retard ni en pause, et il reste
+   * au plus le seuil paramétré du délai ({@code fn_seuil_proche}).
    */
   static Condition conditionProcheDepassement(Instant maintenant) {
-    Field<Integer> seuil =
-        DSL.field(
-            "greatest({0}, ceil({1} * {2} / 100.0))::integer",
-            Integer.class,
-            DSL.val(RegleDelais.SEUIL_MIN_JOURS),
-            TYPE_DOCUMENT.DELAI_JOURS,
-            DSL.val(RegleDelais.PROPORTION_POURCENT));
     return enCoursDepose()
-        .and(DEMANDE.STATUT.ne(StatutDemande.complement_requis))
-        .and(joursRestants(maintenant).between(DSL.val(0), seuil));
+        .and(MOTIF_PAUSE.isNull())
+        .and(
+            joursRestants(maintenant)
+                .between(
+                    DSL.val(0),
+                    Routines.fnSeuilProche(TYPE_DOCUMENT.DELAI_JOURS.cast(Integer.class))));
   }
 
   /** Le profil connecté a changé le statut du dossier depuis cet instant (historique en base). */
@@ -513,6 +514,10 @@ public class DemandeRepository {
 
   static final String PROCHE = "proche_depassement";
 
+  static final String MOTIF_PAUSE_COL = "motif_pause";
+
+  static final String DELAI_DEMARRE_COL = "delai_demarre";
+
   SelectOnConditionStep<? extends Record> selection(RegleATraiter.Filtre moi) {
     Field<Boolean> aTraiterParMoi =
         DSL.field(moi == null ? DSL.falseCondition() : conditionATraiter(moi))
@@ -522,6 +527,8 @@ public class DemandeRepository {
     Field<Integer> joursRestants =
         DSL.when(enCoursDepose(), joursRestants(maintenant)).as(JOURS_RESTANTS);
     Field<Boolean> proche = DSL.field(conditionProcheDepassement(maintenant)).as(PROCHE);
+    Field<String> motifPause = DSL.when(enCoursDepose(), MOTIF_PAUSE).as(MOTIF_PAUSE_COL);
+    Field<Boolean> demarre = DSL.field(DELAI_DEMARRE).as(DELAI_DEMARRE_COL);
     return dsl.select(
             DEMANDE.ID,
             DEMANDE.NUMERO,
@@ -546,7 +553,9 @@ public class DemandeRepository {
             aTraiterParMoi,
             enRetard,
             joursRestants,
-            proche)
+            proche,
+            motifPause,
+            demarre)
         .from(DEMANDE)
         .join(TYPE_DOCUMENT)
         .on(TYPE_DOCUMENT.ID.eq(DEMANDE.TYPE_DOCUMENT_ID))
@@ -589,7 +598,9 @@ public class DemandeRepository {
         Boolean.TRUE.equals(r.get(EN_RETARD, Boolean.class)),
         r.get(JOURS_RESTANTS, Integer.class),
         Boolean.TRUE.equals(r.get(PROCHE, Boolean.class)),
-        r.get(DEMANDE.STATUT) == StatutDemande.complement_requis);
+        r.get(MOTIF_PAUSE_COL, String.class) != null,
+        r.get(MOTIF_PAUSE_COL, String.class),
+        Boolean.TRUE.equals(r.get(DELAI_DEMARRE_COL, Boolean.class)));
   }
 
   private static int passages(Record r) {

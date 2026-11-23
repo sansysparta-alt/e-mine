@@ -48,6 +48,7 @@ class IndicateursTest extends TestIntegration {
   private long enRetard;
   private long dansLeDelai;
   private long aLaLimite;
+  private long sansFrais;
   private long traiteParLeGuichet;
   private long delivree;
 
@@ -58,14 +59,17 @@ class IndicateursTest extends TestIntegration {
     avantGuichet = indicateurs(jeton(GUICHET, "GUICHET"), null);
     avantInvestisseur2 = indicateurs(jeton(INVESTISSEUR_2, "INVESTISSEUR"), null);
 
-    // PEX : délai de 60 jours au catalogue. Déposé il y a 61 jours → en retard ; 59 → dans le
-    // délai.
+    // PEX : délai de 60 jours au catalogue, compté depuis le paiement des frais, jour du paiement
+    // inclus (RegleDelais). Frais payés il y a 60 jours = 61 jours → en retard ; 59 → 60 jours,
+    // dernier jour ; 58 → dans le délai. Déposé il y a 100 jours sans frais : délai non commencé.
     enRetard = DemandesDeTest.deposee(INVESTISSEUR, "PEX");
-    deposeeIlYA(enRetard, 61);
+    DemandesDeTest.fraisPayesIlYA(enRetard, 60);
     dansLeDelai = DemandesDeTest.deposee(INVESTISSEUR, "PEX");
-    deposeeIlYA(dansLeDelai, 59);
+    DemandesDeTest.fraisPayesIlYA(dansLeDelai, 58);
     aLaLimite = DemandesDeTest.deposee(INVESTISSEUR, "PEX");
-    deposeeIlYA(aLaLimite, 60);
+    DemandesDeTest.fraisPayesIlYA(aLaLimite, 59);
+    sansFrais = DemandesDeTest.deposee(INVESTISSEUR, "PEX");
+    deposeeIlYA(sansFrais, 100);
 
     traiteParLeGuichet = DemandesDeTest.deposee(INVESTISSEUR, "PEX");
     DemandesDeTest.payer(traiteParLeGuichet, "FRAIS_DOSSIER", 5_000_000);
@@ -79,16 +83,19 @@ class IndicateursTest extends TestIntegration {
   }
 
   @Test
-  void unDossierEstEnRetardAuDelaDuDelaiDuCatalogueCompteDepuisLeDepot() throws Exception {
+  void unDossierEstEnRetardAuDelaDuDelaiDuCatalogueCompteDepuisLePaiementDesFrais()
+      throws Exception {
     RequestPostProcessor ministre = jeton(MINISTRE, "MINISTRE");
     JsonNode apres = indicateurs(ministre, null);
     assertThat(apres.path("enRetard").asLong() - avantMinistre.path("enRetard").asLong())
-        .as("seul le dossier déposé il y a 61 jours est en retard")
+        .as("seul le dossier dont les frais ont été payés il y a 60 jours est en retard")
         .isEqualTo(1);
     JsonNode liste =
         lire(get("/api/v1/demandes").param("enRetard", "true").param("taille", "100"), ministre);
     assertThat(liste.path("total").asLong()).isEqualTo(apres.path("enRetard").asLong());
-    assertThat(ids(liste)).contains(enRetard).doesNotContain(dansLeDelai, aLaLimite, delivree);
+    assertThat(ids(liste))
+        .contains(enRetard)
+        .doesNotContain(dansLeDelai, aLaLimite, delivree, sansFrais);
     // Chaque dossier porte la même information (revue B) : la ligne et la fiche disent « en
     // retard » pour exactement les dossiers que compte l'indicateur.
     for (JsonNode d : liste.path("elements")) {
@@ -121,9 +128,9 @@ class IndicateursTest extends TestIntegration {
             get("/api/v1/demandes").param("traiteParMoi", "true").param("taille", "100"),
             jeton(MINISTRE, "MINISTRE"));
     assertThat(ids(ministre)).doesNotContain(traiteParLeGuichet);
-    // Frais attendus : déposées sans frais payés (les trois dossiers sans paiement).
+    // Frais attendus : déposées sans frais payés (le seul dossier sans paiement).
     assertThat(apres.path("fraisAttendus").asLong() - avantGuichet.path("fraisAttendus").asLong())
-        .isEqualTo(3);
+        .isEqualTo(1);
     JsonNode frais =
         lire(
             get("/api/v1/demandes")
@@ -245,7 +252,7 @@ class IndicateursTest extends TestIntegration {
     return ids;
   }
 
-  /** Recule la date de dépôt (le délai du catalogue court depuis le dépôt). */
+  /** Recule la date de dépôt. */
   private static void deposeeIlYA(long demande, int jours) throws SQLException {
     try (Connection c = BaseDeDonneesDeTest.connexionOwner();
         PreparedStatement ps =
