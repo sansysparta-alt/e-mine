@@ -511,7 +511,8 @@
       "journalAudit": "Journal d’audit",
       "aTraiter": "À traiter",
       "notifications": "Notifications",
-      "catalogue": "Catalogue et tarifs"
+      "catalogue": "Catalogue et tarifs",
+      "workflows": "Workflows"
     }
   },
   "etats": {
@@ -875,7 +876,10 @@
       "document_delivre": "Document délivré",
       "remboursement": "Remboursement",
       "version_document": "Version du catalogue",
-      "type_document_avis": "Avis requis"
+      "type_document_avis": "Avis requis",
+      "workflow": "Workflow",
+      "version_workflow": "Version de workflow",
+      "workflow_etape": "Étape de workflow"
     },
     "champs": {
       "statut": "Statut",
@@ -1404,6 +1408,84 @@
       "indisponible": "Le service est momentanément indisponible. Réessayez dans un instant.",
       "annuler": "Annuler",
       "envoyer": "Soumettre au Ministre"
+    }
+  },
+  "workflows": {
+    "titre": "Workflows",
+    "description": {
+      "admin": "Les 5 circuits du Ministère, un par famille de documents. Une modification s’applique tout de suite et est tracée ; les demandes en cours gardent le circuit de leur dépôt.",
+      "lecture": "Les 5 circuits du Ministère, un par famille de documents : étapes, intervenants, paiements et délais."
+    },
+    "colonnes": {
+      "famille": "Famille et documents",
+      "etapes": "Étapes",
+      "delai": "Délais",
+      "version": "Version",
+      "paiements": "Paiements"
+    },
+    "jours": "{n, plural, one {# jour} other {# jours}}",
+    "fourchette": "{min} à {max} jours",
+    "version": "v{n}",
+    "modifieeLe": "Depuis le {date}",
+    "elements": "workflows",
+    "vide": "Aucun workflow.",
+    "etape": "Étape {n} sur {total}",
+    "documents": "Documents : {liste}",
+    "modifier": "Modifier le workflow",
+    "enVigueur": "Circuit en vigueur (v{n})",
+    "delaiAide": "Déduits des délais des fiches de ces documents, approuvés par le Ministre.",
+    "affichage": "Ce circuit informe les usagers et les agents. Le traitement réel suit la fiche de chaque document : avis requis et signataire.",
+    "historique": "Historique des versions",
+    "actuelle": "en vigueur",
+    "par": "Modifiée le {date} par {nom}",
+    "initiale": "Version initiale (schéma fourni par le Ministère).",
+    "voirEtapes": "Voir les {n} étapes",
+    "enregistre": {
+      "titre": "C’est enregistré",
+      "texte": "La version v{n} est en vigueur et tracée au journal d’audit. Les demandes déjà déposées gardent leur circuit."
+    },
+    "formulaire": {
+      "titre": "Modifier le workflow",
+      "description": "{libelle} — version en vigueur v{n}",
+      "obligatoire": "obligatoire",
+      "effet": {
+        "titre": "Effet immédiat",
+        "texte": "La nouvelle version s’applique dès l’enregistrement aux demandes déposées ensuite. Les demandes en cours gardent la version de leur dépôt."
+      },
+      "sections": {
+        "famille": "Famille",
+        "etapes": "Étapes et intervenants",
+        "motif": "Motif"
+      },
+      "champs": {
+        "libelle": "Nom de la famille",
+        "reglePaiement": "Paiements (affichés)",
+        "acteur": "Intervenant",
+        "action": "Action",
+        "motif": "Motif de la modification"
+      },
+      "aide": {
+        "reglePaiement": "Texte affiché. Les montants et les objets payés viennent des fiches des documents.",
+        "motif": "Pourquoi ce changement ? 10 caractères au moins."
+      },
+      "etape": "Étape {n}",
+      "monter": "Monter l’étape {n}",
+      "descendre": "Descendre l’étape {n}",
+      "retirer": "Retirer l’étape {n}",
+      "ajouter": "Ajouter une étape",
+      "maximum": "{n} étapes au plus.",
+      "erreurs": {
+        "libelle": "De 3 à 150 caractères.",
+        "reglePaiement": "De 3 à 300 caractères.",
+        "acteur": "De 2 à 100 caractères.",
+        "action": "De 2 à 150 caractères.",
+        "motif": "Expliquez la modification en 10 à 2 000 caractères."
+      },
+      "aucunChangement": "Rien n’a changé par rapport à la version en vigueur.",
+      "echec": "La modification n’a pas pu être enregistrée",
+      "indisponible": "Le service est momentanément indisponible. Réessayez dans un instant.",
+      "annuler": "Annuler",
+      "enregistrer": "Enregistrer la nouvelle version"
     }
   }
 }

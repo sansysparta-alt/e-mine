@@ -34,7 +34,13 @@ describe("configuration unique de la navigation", () => {
 
   it("montre le journal d'audit seulement à l'administrateur interne (US-11.7)", () => {
     const admin = navigationPour({ permissions: ["PARAMETRER"], interne: true });
-    expect(cles(admin)).toEqual(["tableauDeBord", "mesDemandes", "catalogue", "journalAudit"]);
+    expect(cles(admin)).toEqual([
+      "tableauDeBord",
+      "mesDemandes",
+      "catalogue",
+      "workflows",
+      "journalAudit",
+    ]);
     const agent = navigationPour({ permissions: ["INSTRUIRE"], interne: true });
     expect(cles(agent)).not.toContain("journalAudit");
   });
