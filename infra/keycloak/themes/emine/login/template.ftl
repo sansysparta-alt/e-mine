@@ -193,7 +193,7 @@
                                 <#else>
                                     <#-- Page de connexion : le choix passe par l'application, seule maîtresse de la langue
                                          (elle la garde et rouvre la connexion dans cette langue). Ailleurs : lien Keycloak. -->
-                                    <#if pageId == "login.ftl" && client?? && client.baseUrl?has_content>
+                                    <#if (pageId!"") == "login" && client?? && client.baseUrl?has_content>
                                         <a href="${client.baseUrl?remove_ending("/")}/api/auth/login?langue=${l.languageTag}" lang="${l.languageTag}" hreflang="${l.languageTag}">${msg("emineLangue_" + l.languageTag)}</a>
                                     <#else>
                                         <a href="${l.url}" lang="${l.languageTag}" hreflang="${l.languageTag}">${msg("emineLangue_" + l.languageTag)}</a>
