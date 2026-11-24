@@ -13,7 +13,9 @@ import gn.gov.mines.emine.shared.jooq.enums.StatutDemande;
 import gn.gov.mines.emine.shared.jooq.enums.StatutDocument;
 import java.time.Instant;
 import java.util.Optional;
+import org.jooq.Condition;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.SelectOnConditionStep;
 import org.jooq.impl.DSL;
@@ -107,29 +109,93 @@ public class DelivranceRepository {
   /** Un document délivré et le numéro de sa demande (liste « Documents délivrés »). */
   public record LigneDocument(DocumentDelivre document, String numeroDemande) {}
 
+  /** Filtre de validité de la liste « Documents délivrés » ({@code null} : tous). */
+  public enum Validite {
+    VALIDES,
+    REVOQUES
+  }
+
+  /** Nombre de documents par validité, pour la recherche en cours (compteurs des filtres). */
+  public record Compteurs(long tous, long valides, long revoques) {}
+
+  /** Une page de la liste et les compteurs de ses filtres. */
+  public record PageDocuments(
+      gn.gov.mines.emine.shared.pagination.PageResultat<LigneDocument> page, Compteurs compteurs) {}
+
   /**
    * Documents délivrés visibles du profil connecté, du plus récent au plus ancien. Le registre n'a
    * pas de RLS propre : la jointure sur {@code demande} (RLS) limite un usager à ses dossiers.
+   * Recherche tolérante (accents, casse, ordre des mots) sur le numéro du document, celui de la
+   * demande et le libellé du document en français et en anglais ; les compteurs suivent la
+   * recherche, pas le filtre de validité (ils servent à choisir ce filtre).
    */
-  public gn.gov.mines.emine.shared.pagination.PageResultat<LigneDocument> listerVisibles(
-      gn.gov.mines.emine.shared.pagination.Pagination pagination) {
+  public PageDocuments listerVisibles(
+      gn.gov.mines.emine.shared.pagination.Pagination pagination,
+      String recherche,
+      Validite validite) {
     var demande = gn.gov.mines.emine.shared.jooq.Tables.DEMANDE;
-    long total =
-        dsl.selectCount()
+    Condition cherche = conditionRecherche(recherche, demande.NUMERO);
+    Condition estValide = DOCUMENT_DELIVRE.STATUT.eq(StatutDocument.valide);
+    var compte =
+        dsl.select(
+                DSL.count(),
+                DSL.count().filterWhere(estValide),
+                DSL.count().filterWhere(DSL.not(estValide)))
             .from(DOCUMENT_DELIVRE)
             .join(demande)
             .on(demande.ID.eq(DOCUMENT_DELIVRE.DEMANDE_ID))
-            .fetchOne(0, Long.class);
+            .join(TYPE_DOCUMENT)
+            .on(TYPE_DOCUMENT.ID.eq(DOCUMENT_DELIVRE.TYPE_DOCUMENT_ID))
+            .where(cherche)
+            .fetchOne();
+    var compteurs = new Compteurs(compte.value1(), compte.value2(), compte.value3());
+    Condition filtre =
+        validite == null
+            ? cherche
+            : cherche.and(validite == Validite.VALIDES ? estValide : DSL.not(estValide));
+    long total =
+        validite == null
+            ? compteurs.tous()
+            : validite == Validite.VALIDES ? compteurs.valides() : compteurs.revoques();
     var elements =
         selection(demande.NUMERO)
             .join(demande)
             .on(demande.ID.eq(DOCUMENT_DELIVRE.DEMANDE_ID))
+            .where(filtre)
             .orderBy(DOCUMENT_DELIVRE.DELIVRE_LE.desc(), DOCUMENT_DELIVRE.ID.desc())
             .limit(pagination.taille())
             .offset(pagination.decalage())
             .fetch(r -> new LigneDocument(document(r), r.get(demande.NUMERO)));
-    return new gn.gov.mines.emine.shared.pagination.PageResultat<>(
-        elements, pagination.page(), pagination.taille(), total);
+    return new PageDocuments(
+        new gn.gov.mines.emine.shared.pagination.PageResultat<>(
+            elements, pagination.page(), pagination.taille(), total),
+        compteurs);
+  }
+
+  /** Chaque mot recherché figure dans le numéro du document, de la demande ou le libellé. */
+  static Condition conditionRecherche(String recherche, Field<String> numeroDemande) {
+    if (recherche == null || recherche.isBlank()) {
+      return DSL.noCondition();
+    }
+    Field<String> texte =
+        normaliser(
+            DSL.concat(
+                DOCUMENT_DELIVRE.NUMERO,
+                DSL.inline(" "),
+                DSL.coalesce(numeroDemande, DSL.inline("")),
+                DSL.inline(" "),
+                TYPE_DOCUMENT.LIBELLE_FR,
+                DSL.inline(" "),
+                DSL.coalesce(TYPE_DOCUMENT.LIBELLE_EN, DSL.inline(""))));
+    Condition c = DSL.noCondition();
+    for (String mot : recherche.strip().split("\\s+")) {
+      c = c.and(texte.contains(normaliser(DSL.val(mot))));
+    }
+    return c;
+  }
+
+  private static Field<String> normaliser(Field<String> texte) {
+    return DSL.function("fn_normaliser", String.class, texte);
   }
 
   /** Document du registre par son code de vérification, s'il existe. */
@@ -161,6 +227,7 @@ public class DelivranceRepository {
             DOCUMENT_DELIVRE.DEMANDE_ID,
             DOCUMENT_DELIVRE.STATUT,
             DOCUMENT_DELIVRE.MOTIF_INVALIDATION,
+            DOCUMENT_DELIVRE.REVOQUE_LE,
             DOCUMENT_DELIVRE.DELIVRE_LE,
             DOCUMENT_DELIVRE.EMPREINTE_SHA256,
             DOCUMENT_DELIVRE.CODE_QR,
@@ -183,6 +250,7 @@ public class DelivranceRepository {
         r.get(DOCUMENT_DELIVRE.DEMANDE_ID),
         r.get(DOCUMENT_DELIVRE.STATUT) == StatutDocument.valide,
         r.get(DOCUMENT_DELIVRE.MOTIF_INVALIDATION),
+        r.get(DOCUMENT_DELIVRE.REVOQUE_LE),
         r.get(DOCUMENT_DELIVRE.DELIVRE_LE),
         r.get(DOCUMENT_DELIVRE.EMPREINTE_SHA256),
         r.get(DOCUMENT_DELIVRE.CODE_QR),

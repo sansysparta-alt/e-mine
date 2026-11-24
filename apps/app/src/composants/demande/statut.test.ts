@@ -43,6 +43,15 @@ describe("libellés de statut selon le profil (table unique)", () => {
     expect(presentationStatut(cas("droits_payes", true, true), true).cle).toBe("aSigner");
   });
 
+  it("un document révoqué est rouge pour tous, comme dans « Documents délivrés »", () => {
+    for (const interne of [false, true]) {
+      expect(
+        presentationStatut({ ...cas("delivree", true), documentRevoque: true }, interne),
+      ).toMatchObject({ cle: "documentRevoque", ton: "danger" });
+      expect(presentationStatut(cas("delivree", true), interne).ton).toBe("succes");
+    }
+  });
+
   it("chaque statut a un libellé pour chaque profil, en français et en anglais", () => {
     for (const statut of STATUTS) {
       for (const interne of [false, true]) {

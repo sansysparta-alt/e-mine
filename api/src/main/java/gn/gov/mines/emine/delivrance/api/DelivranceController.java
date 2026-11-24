@@ -102,12 +102,20 @@ class DelivranceController {
         .header(
             HttpHeaders.CONTENT_DISPOSITION,
             (inline ? ContentDisposition.inline() : ContentDisposition.attachment())
-                .filename(c.document().numero() + ".pdf")
+                .filename(nomFichier(c.document()))
                 .build()
                 .toString())
         .header("X-Content-Type-Options", "nosniff")
         .cacheControl(CacheControl.noStore())
         .body(new InputStreamResource(c.flux()));
+  }
+
+  /**
+   * Nom du fichier téléchargé : un document révoqué porte « REVOQUE » dans son nom (le PDF signé ne
+   * peut pas être modifié sans rompre sa signature).
+   */
+  static String nomFichier(DocumentDelivre d) {
+    return d.numero() + (d.valide() ? "" : "-REVOQUE") + ".pdf";
   }
 
   private DocumentDelivreDto dto(DocumentDelivre d) {
@@ -116,6 +124,7 @@ class DelivranceController {
         d.codeType(),
         d.valide(),
         d.motifInvalidation(),
+        d.revoqueLe(),
         d.delivreLe(),
         d.empreinteSha256(),
         proprietes.urlVerification(d.codeVerification()),
@@ -142,6 +151,7 @@ class DelivranceController {
       String codeType,
       boolean valide,
       @Schema(nullable = true) String motifInvalidation,
+      @Schema(nullable = true) Instant revoqueLe,
       Instant delivreLe,
       String empreinteSha256,
       String urlVerification,

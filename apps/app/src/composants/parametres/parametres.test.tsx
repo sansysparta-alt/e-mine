@@ -51,7 +51,7 @@ describe("règle des délais (US-02.6)", () => {
     avecTraductions(<FormulaireDelais initial={delais} modifiable enregistrer={enregistrer} />);
     fireEvent.click(screen.getByLabelText(/Au dépôt de la demande/));
     fireEvent.click(screen.getByLabelText("Pendant l’attente du paiement des droits"));
-    fireEvent.change(screen.getByLabelText("Pourcentage du délai restant"), {
+    fireEvent.change(screen.getByLabelText("Part du délai restant, en %"), {
       target: { value: "25" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Enregistrer la règle des délais" }));
@@ -70,7 +70,7 @@ describe("règle des délais (US-02.6)", () => {
   it("un seuil hors bornes est signalé et rien n'est envoyé", () => {
     const enregistrer = vi.fn();
     avecTraductions(<FormulaireDelais initial={delais} modifiable enregistrer={enregistrer} />);
-    fireEvent.change(screen.getByLabelText("Pourcentage du délai restant"), {
+    fireEvent.change(screen.getByLabelText("Part du délai restant, en %"), {
       target: { value: "0" },
     });
     expect(screen.getByText("Saisissez un nombre entier entre 1 et 100.")).toBeInTheDocument();
@@ -99,15 +99,15 @@ describe("canaux des notifications (US-02.7)", () => {
     await waitFor(() =>
       expect(enregistrer).toHaveBeenCalledWith([
         { modele: "DEMANDE_DEPOSEE", sms: false, email: true, interne: true },
-        { modele: "DEMANDE_REJETEE", sms: false, email: true, interne: false },
+        { modele: "DEMANDE_REJETEE", sms: false, email: true, interne: true },
       ]),
     );
   });
 
-  it("un événement sans aucun canal bloque l'enregistrement", () => {
+  it("l'espace en ligne est toujours coché et ne se décoche pas", () => {
     avecTraductions(<FormulaireCanaux initial={canaux} modifiable enregistrer={vi.fn()} />);
-    fireEvent.click(screen.getByLabelText("E-mail — Demande rejetée"));
-    expect(screen.getByText("Gardez au moins un canal.")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Enregistrer les canaux" })).toBeDisabled();
+    const interne = screen.getByLabelText("Espace en ligne — Demande rejetée (toujours actif)");
+    expect(interne).toBeChecked();
+    expect(interne).toBeDisabled();
   });
 });

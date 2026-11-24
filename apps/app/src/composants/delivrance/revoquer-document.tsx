@@ -17,7 +17,7 @@ export type RevoquerDocumentProps = {
 
 /**
  * Révocation d'un document délivré (US-06.6) : motif obligatoire dans une boîte de dialogue, action
- * définitive annoncée ; la fiche se met à jour (« Non valide ») et la vérification publique affiche
+ * définitive annoncée ; la fiche se met à jour (« Révoqué ») et la vérification publique affiche
  * « NON VALIDE » aussitôt.
  */
 export function RevoquerDocument({ demandeId, numero, revoquer }: RevoquerDocumentProps) {

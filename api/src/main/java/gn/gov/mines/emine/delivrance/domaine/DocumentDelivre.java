@@ -8,6 +8,7 @@ import java.time.Instant;
  * @param numero {@code <CODE>-AAAA-NNNN}
  * @param valide statut du registre ({@code valide} / {@code non_valide})
  * @param motifInvalidation motif de la révocation, ou {@code null}
+ * @param revoqueLe date de la révocation (posée par la base), ou {@code null}
  * @param empreinteSha256 empreinte du PDF signé, en hexadécimal
  * @param codeVerification code du QR (page publique {@code /verifier/{code}})
  * @param signataire prénom et nom de la personne qui a signé
@@ -20,6 +21,7 @@ public record DocumentDelivre(
     Long demandeId,
     boolean valide,
     String motifInvalidation,
+    Instant revoqueLe,
     Instant delivreLe,
     String empreinteSha256,
     String codeVerification,

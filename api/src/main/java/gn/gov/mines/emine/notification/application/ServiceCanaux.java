@@ -26,7 +26,10 @@ public class ServiceCanaux {
     return canaux.lister();
   }
 
-  /** Enregistre les choix : SYS-002 pour un événement inconnu, VAL-001 sans aucun canal. */
+  /**
+   * Enregistre les choix : SYS-002 pour un événement inconnu, VAL-001 si l'espace en ligne est
+   * coupé (il est obligatoire : l'usager y voit toujours son dossier, V24).
+   */
   @Transactional
   public List<CanauxEvenement> enregistrer(List<CanauxEvenement> choix) {
     Set<String> connus =
@@ -35,13 +38,17 @@ public class ServiceCanaux {
       if (!connus.contains(c.modele())) {
         throw new ErreurMetier(CodeErreur.SYS_002, Map.of("modele", c.modele()));
       }
-      if (!c.auMoinsUnCanal()) {
+      if (!c.interne()) {
         throw new ErreurMetier(
             CodeErreur.VAL_001,
             Map.of(
                 "champs",
                 List.of(
-                    Map.of("champ", c.modele(), "message", "Au moins un canal par événement."))));
+                    Map.of(
+                        "champ",
+                        c.modele(),
+                        "message",
+                        "L'espace en ligne reste actif pour chaque événement."))));
       }
     }
     choix.forEach(canaux::enregistrer);

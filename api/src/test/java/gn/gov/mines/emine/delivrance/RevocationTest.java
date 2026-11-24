@@ -121,6 +121,91 @@ class RevocationTest extends TestIntegration {
         .andExpect(jsonPath("$.valide").value(true));
   }
 
+  @Test
+  void laRevocationEstDateeNotifieeEtVisiblePartoutDeLaMemeFacon() throws Exception {
+    long id = documentDelivre();
+    revoquer(id, "Titre obtenu sur une fausse déclaration.", directeur())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.revoqueLe").isNotEmpty());
+    var usager = jeton(INVESTISSEUR, "INVESTISSEUR");
+    // « Mes demandes » et « Documents délivrés » disent la même chose.
+    mvc.perform(get("/api/v1/demandes/" + id).with(usager))
+        .andExpect(jsonPath("$.statut").value("delivree"))
+        .andExpect(jsonPath("$.documentRevoque").value(true));
+    String numero = numeroDemande(id);
+    mvc.perform(
+            get("/api/v1/documents-delivres")
+                .param("validite", "revoques")
+                .param("recherche", numero)
+                .with(usager))
+        .andExpect(jsonPath("$.elements.length()").value(1))
+        .andExpect(jsonPath("$.elements[0].valide").value(false))
+        .andExpect(jsonPath("$.elements[0].revoqueLe").isNotEmpty())
+        .andExpect(
+            jsonPath("$.elements[0].motifRevocation")
+                .value("Titre obtenu sur une fausse déclaration."))
+        .andExpect(jsonPath("$.compteurs.tous").value(1))
+        .andExpect(jsonPath("$.compteurs.revoques").value(1))
+        .andExpect(jsonPath("$.compteurs.valides").value(0));
+    mvc.perform(
+            get("/api/v1/documents-delivres")
+                .param("validite", "valides")
+                .param("recherche", numero)
+                .with(usager))
+        .andExpect(jsonPath("$.elements.length()").value(0))
+        .andExpect(jsonPath("$.total").value(0));
+    // Le fichier téléchargé porte la mention « REVOQUE ».
+    mvc.perform(get("/api/v1/demandes/" + id + "/document/contenu").with(usager))
+        .andExpect(
+            org.springframework.test.web.servlet.result.MockMvcResultMatchers.header()
+                .string(
+                    "Content-Disposition", org.hamcrest.Matchers.containsString("-REVOQUE.pdf")));
+    // L'usager est notifié : espace en ligne et e-mail, pas de SMS (aucune action attendue).
+    try (Connection c = BaseDeDonneesDeTest.connexionOwner();
+        PreparedStatement ps =
+            c.prepareStatement(
+                "SELECT string_agg(canal::text, ',' ORDER BY canal::text),"
+                    + " max(contenu->>'motif') FROM notification"
+                    + " WHERE demande_id = ? AND modele = 'DOCUMENT_REVOQUE'")) {
+      ps.setLong(1, id);
+      ResultSet rs = ps.executeQuery();
+      assertThat(rs.next()).isTrue();
+      assertThat(rs.getString(1)).isEqualTo("email,interne");
+      assertThat(rs.getString(2)).isEqualTo("Titre obtenu sur une fausse déclaration.");
+    }
+  }
+
+  @Test
+  void unFiltreDeValiditeInconnuEstRefuseVal001() throws Exception {
+    mvc.perform(
+            get("/api/v1/documents-delivres")
+                .param("validite", "expires")
+                .with(jeton(INVESTISSEUR, "INVESTISSEUR")))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("VAL-001"));
+  }
+
+  @Test
+  void lEspaceEnLigneNeSeDesactivePas() throws Exception {
+    try (Connection c = BaseDeDonneesDeTest.connexionOwner();
+        PreparedStatement ps =
+            c.prepareStatement(
+                "UPDATE notification_evenement SET interne = false WHERE modele = 'DOCUMENT_REVOQUE'")) {
+      org.assertj.core.api.Assertions.assertThatThrownBy(ps::executeUpdate)
+          .hasMessageContaining("notification_evenement_interne_obligatoire");
+    }
+  }
+
+  private static String numeroDemande(long id) throws Exception {
+    try (Connection c = BaseDeDonneesDeTest.connexionOwner();
+        PreparedStatement ps = c.prepareStatement("SELECT numero FROM demande WHERE id = ?")) {
+      ps.setLong(1, id);
+      ResultSet rs = ps.executeQuery();
+      rs.next();
+      return rs.getString(1);
+    }
+  }
+
   private long documentDelivre() throws Exception {
     long id = DemandesDeTest.deposee(INVESTISSEUR, "PEX");
     DemandesDeTest.pretePourLaDelivrance(id, MINISTRE, "FRAIS_DOSSIER", 5_000_000, 15_000_000L);

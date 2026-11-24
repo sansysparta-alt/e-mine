@@ -435,7 +435,6 @@
     "effacerFiltre": "Clear the status filter",
     "actions": {
       "supprimer": "Delete",
-      "telecharger": "Download",
       "echec": "The draft was not deleted",
       "confirmation": {
         "titre": "Delete this draft?",
@@ -447,7 +446,8 @@
       "continuer": "Continue",
       "payerFrais": "Pay the fee",
       "payerDroits": "Pay the duties",
-      "completer": "Complete"
+      "completer": "Complete",
+      "suivre": "Track"
     },
     "filtresTableau": {
       "titre": "Active filters",
@@ -1055,14 +1055,21 @@
       "numero": "Number",
       "validite": "Validity",
       "valide": "Valid",
-      "nonValide": "Not valid",
+      "nonValide": "Revoked",
       "motif": "Reason for revocation",
       "delivreLe": "Issued on",
       "signePar": "Signed by",
       "empreinte": "SHA-256 fingerprint",
       "voir": "View the document",
       "verifier": "Verification page",
-      "nouvelOnglet": "(opens in a new tab)"
+      "nouvelOnglet": "(opens in a new tab)",
+      "revoqueLe": "Revoked on",
+      "alerteRevoque": {
+        "titre": "This document has been revoked",
+        "texteDate": "Revoked by the Ministry on {date}. It is no longer valid: its QR code check shows “NOT VALID”.",
+        "texte": "Revoked by the Ministry. It is no longer valid: its QR code check shows “NOT VALID”.",
+        "visualiseur": "Document revoked on {date}: it is no longer valid."
+      }
     },
     "revocation": {
       "action": "Revoke…",
@@ -1187,7 +1194,8 @@
       "preparation": "Document being prepared",
       "delivre": "Document issued",
       "rejetee": "Rejected",
-      "archivee": "Archived"
+      "archivee": "Archived",
+      "documentRevoque": "Document revoked"
     },
     "agent": {
       "fraisAttendus": "Fee pending",
@@ -1204,7 +1212,8 @@
       "rejetee": "Rejected",
       "archivee": "Archived",
       "sansReponse": "No answer",
-      "avisARendre": "Opinion to give"
+      "avisARendre": "Opinion to give",
+      "documentRevoque": "Document revoked"
     }
   },
   "dates": {
@@ -1612,10 +1621,12 @@
       "seuil": {
         "titre": "“Close to the limit”",
         "aide": "A file is flagged when at most {pct}% of the time limit remains, and at least {min, plural, =0 {0 days} one {# day} other {# days}}.",
-        "pourcent": "Percentage of time remaining",
+        "pourcent": "Share of the time limit remaining, in %",
         "minimum": "Days remaining, at least",
         "erreurPourcent": "Enter a whole number between 1 and 100.",
-        "erreurMinimum": "Enter a whole number between 0 and 30."
+        "erreurMinimum": "Enter a whole number between 0 and 30.",
+        "pourcentUnite": "%",
+        "joursUnite": "days"
       },
       "enregistre": {
         "titre": "Saved",
@@ -1635,7 +1646,6 @@
         "email": "Email",
         "interne": "Online space"
       },
-      "auMoinsUn": "Keep at least one channel.",
       "enregistre": {
         "titre": "Saved",
         "texte": "Upcoming notifications are sent through the chosen channels."
@@ -1644,10 +1654,11 @@
       "indisponible": "The service is temporarily unavailable. Please try again shortly.",
       "enregistrer": "Save the channels",
       "aide": {
-        "sms": "short message to the applicant’s phone (paid)",
+        "sms": "short message to the applicant’s phone (paid), advised when they must act",
         "email": "detailed message to their email address",
-        "interne": "notification in their online space (bell)"
-      }
+        "interne": "notification in their online space (bell), always on"
+      },
+      "toujoursActif": "always on"
     }
   },
   "profil": {
@@ -1935,7 +1946,6 @@
     "elements": "documents",
     "valide": "Valid",
     "revoque": "Revoked",
-    "telecharger": "Download",
     "verifier": "Verify",
     "nouvelOnglet": "(opens in a new tab)",
     "colonnes": {
@@ -1948,6 +1958,37 @@
     "vide": {
       "titre": "No document issued yet",
       "description": "When a request is granted, the signed document is available here and on the request page."
+    },
+    "revoqueLe": "Revoked on {date}",
+    "motif": "Reason: {motif}",
+    "recherche": {
+      "libelle": "Search for a document",
+      "exemple": "Number or document (e.g. PEX-2026, permit)",
+      "bouton": "Search"
+    },
+    "filtres": {
+      "libelle": "Validity",
+      "tous": "All",
+      "valides": "Valid",
+      "revoques": "Revoked"
+    },
+    "aucunResultat": {
+      "titre": "No document matches “{texte}”",
+      "conseil": "Check the spelling, or type part of the document or request number. Accents and capital letters do not matter.",
+      "filtre": "No document in this filter",
+      "effacer": "See all documents"
+    },
+    "telechargement": {
+      "libelle": "Download",
+      "revoque": {
+        "titre": "This document is revoked",
+        "texte": "This document has been revoked by the Ministry: it is no longer valid.",
+        "texteDate": "This document was revoked by the Ministry on {date}: it is no longer valid.",
+        "motif": "Reason:",
+        "mention": "You can download it for your records. Its QR code check shows “NOT VALID”.",
+        "annuler": "Cancel",
+        "confirmer": "Download anyway"
+      }
     }
   }
 }

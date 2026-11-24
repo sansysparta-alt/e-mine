@@ -59,7 +59,7 @@ class ParametresTest extends TestIntegration {
   @AfterAll
   void restaurer() throws Exception {
     delais(admin, "paiement_frais", true, true, 20, 2);
-    canaux(admin, "DEMANDE_DEPOSEE", true, true, true);
+    canaux(admin, "DEMANDE_DEPOSEE", false, true, true);
   }
 
   @Test
@@ -84,19 +84,22 @@ class ParametresTest extends TestIntegration {
 
   @Test
   void unCanalCoupeNEnvoiePlusRienParCeCanal() throws Exception {
-    canaux(admin, "DEMANDE_DEPOSEE", false, true, true)
+    canaux(admin, "DEMANDE_DEPOSEE", false, false, true)
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$[?(@.modele == 'DEMANDE_DEPOSEE')].sms").value(false));
+        .andExpect(jsonPath("$[?(@.modele == 'DEMANDE_DEPOSEE')].email").value(false));
     long demande = DemandesDeTest.brouillon(INVESTISSEUR, "PEX");
     DemandesDeTest.changerStatut(demande, "deposee");
-    assertThat(canauxEnvoyes(demande, "DEMANDE_DEPOSEE"))
-        .containsExactlyInAnyOrder("email", "interne");
+    assertThat(canauxEnvoyes(demande, "DEMANDE_DEPOSEE")).containsExactly("interne");
     assertThat(dernierAudit("notification_evenement")).isEqualTo("ADMIN_TECH");
   }
 
   @Test
   void unEvenementGardeAuMoinsUnCanal() throws Exception {
     canaux(admin, "DEMANDE_REJETEE", false, false, false)
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("VAL-001"));
+    // L'espace en ligne est obligatoire : l'usager y voit toujours où en est son dossier.
+    canaux(admin, "DEMANDE_REJETEE", true, true, false)
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.code").value("VAL-001"));
     canaux(admin, "INCONNU", true, true, true).andExpect(status().isNotFound());

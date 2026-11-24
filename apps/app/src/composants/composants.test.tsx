@@ -43,6 +43,7 @@ function demande(partiel: Partial<DemandeDto>): DemandeDto {
     delaiSuspendu: false,
     motifSuspension: null,
     delaiDemarre: true,
+    documentRevoque: false,
     avancement: null,
     ...partiel,
   };
