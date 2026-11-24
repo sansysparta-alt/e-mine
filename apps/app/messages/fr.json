@@ -373,7 +373,8 @@
         "statut": "Statut",
         "date": "Date",
         "recu": "Reçu",
-        "demande": "Demande"
+        "demande": "Demande",
+        "actions": "Actions"
       }
     },
     "motifRejet": "Motif",

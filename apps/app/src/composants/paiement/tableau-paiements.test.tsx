@@ -2,7 +2,8 @@ import type { PaiementDto } from "@emine/api-client";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import fr from "../../../messages/fr.json";
-import { adresseRecu, LienRecu } from "./lien-recu";
+import { LienRecu } from "./lien-recu";
+import { adresseRecu } from "./recu";
 import { lienPaiement, TableauPaiements } from "./tableau-paiements";
 
 const paye: PaiementDto = {

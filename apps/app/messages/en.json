@@ -373,7 +373,8 @@
         "statut": "Status",
         "date": "Date",
         "recu": "Receipt",
-        "demande": "Request"
+        "demande": "Request",
+        "actions": "Actions"
       }
     },
     "motifRejet": "Reason",
