@@ -184,8 +184,9 @@ test("parcours V1 : dépôt, paiements, recevabilité, décision, délivrance, v
   await expect(visiteur.getByRole("heading", { name: "Document authentique" })).toBeVisible();
   await expect(visiteur.getByText("Bangoura")).toHaveCount(0);
 
-  // 8. L'investisseur a été prévenu à chaque étape, par e-mail et par SMS (envoyés par l'outbox,
-  //    toutes les 15 s), et retrouve ses notifications dans l'application.
+  // 8. L'investisseur a été prévenu à chaque étape par e-mail (envoyés par l'outbox, toutes les
+  //    15 s), par SMS seulement quand il doit agir (droits à payer, document délivré : le SMS a un
+  //    coût), et retrouve ses notifications dans l'application.
   const sujets = [
     `Demande déposée · ${numero}`,
     `Dossier complet · ${numero}`,
@@ -201,7 +202,7 @@ test("parcours V1 : dépôt, paiements, recevabilité, décision, délivrance, v
   const sms = (await messagesCitant(request, numero ?? "")).filter((m) =>
     m.To.some((d) => d.Address.endsWith("@sms.test")),
   );
-  expect(sms.length).toBeGreaterThanOrEqual(sujets.length);
+  expect(sms.length).toBe(2);
   await investisseur.goto("/notifications");
   const notification = investisseur.getByRole("link", {
     name: new RegExp(`Document délivré · ${numero}$`),
