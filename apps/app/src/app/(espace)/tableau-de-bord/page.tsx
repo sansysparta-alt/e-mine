@@ -213,7 +213,7 @@ async function TableauAdministration({
         console.error("Tableau de bord technique : données indisponibles", e);
         return null;
       }),
-    consulterJournal({ taille: 10 }, options)
+    consulterJournal({ taille: 10, connexions: false }, options)
       .then((r) => r.data.elements.slice(0, 5))
       .catch(() => []),
   ]);

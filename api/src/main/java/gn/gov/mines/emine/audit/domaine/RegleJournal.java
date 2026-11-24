@@ -21,6 +21,7 @@ public final class RegleJournal {
 
   static {
     Map<String, List<String>> c = new LinkedHashMap<>();
+    c.put("connexions", List.of("utilisateur"));
     c.put("demandes", List.of("demande"));
     c.put("paiements", List.of("paiement"));
     c.put("decisions", List.of("avis_decision"));
@@ -39,6 +40,31 @@ public final class RegleJournal {
             "parametre_delai",
             "notification_evenement"));
     CATEGORIES = java.util.Collections.unmodifiableMap(c);
+  }
+
+  /**
+   * Catégorie des connexions : une mise à jour d'un compte qui ne change que sa date de dernière
+   * connexion est une **connexion**, pas une modification du compte (retours ergonomie).
+   */
+  public static final String CONNEXIONS = "connexions";
+
+  /** Champ posé à chaque connexion. */
+  public static final String CHAMP_CONNEXION = "derniere_connexion";
+
+  /** Une ligne du journal est-elle une connexion ? */
+  public static boolean estConnexion(
+      String table, String operation, Map<String, String> avant, Map<String, String> apres) {
+    if (!"utilisateur".equals(table) || !"U".equals(operation) || avant == null || apres == null) {
+      return false;
+    }
+    List<Changement> c = changements(operation, avant, apres, false);
+    return c.size() == 1 && CHAMP_CONNEXION.equals(c.get(0).champ());
+  }
+
+  /** Catégorie d'une ligne : celle de sa table, ou « connexions ». */
+  public static String categorie(
+      String table, String operation, Map<String, String> avant, Map<String, String> apres) {
+    return estConnexion(table, operation, avant, apres) ? CONNEXIONS : categorie(table);
   }
 
   /** Champs techniques sans intérêt pour la lecture (posés à chaque mise à jour). */
@@ -61,9 +87,10 @@ public final class RegleJournal {
     return Optional.ofNullable(CATEGORIES.get(categorie));
   }
 
-  /** Catégorie d'une table, ou {@code autres}. */
+  /** Catégorie d'une table (hors connexions), ou {@code autres}. */
   public static String categorie(String table) {
     return CATEGORIES.entrySet().stream()
+        .filter(e -> !CONNEXIONS.equals(e.getKey()))
         .filter(e -> e.getValue().contains(table))
         .map(Map.Entry::getKey)
         .findFirst()

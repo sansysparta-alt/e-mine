@@ -481,7 +481,8 @@
       "conseil": "Vérifiez l’orthographe, ou saisissez une partie du numéro (par exemple 000009), le nom du document ou du demandeur. Les accents et les majuscules ne comptent pas.",
       "effacer": "Effacer la recherche",
       "partout": "Chercher dans toutes les demandes"
-    }
+    },
+    "element": "demande"
   },
   "session": {
     "avertissement": {
@@ -558,7 +559,8 @@
     "precedente": "Préc.",
     "suivante": "Suiv.",
     "page": "Page {numero}",
-    "pageSur": "Page {numero} sur {total}"
+    "pageSur": "Page {numero} sur {total}",
+    "resumeUn": "1 {element}"
   },
   "visualiseur": {
     "consulter": "Consulter",
@@ -1043,7 +1045,8 @@
       }
     },
     "renseigne": "renseigné",
-    "systemeAide": "Action automatique de la plateforme"
+    "systemeAide": "Action automatique de la plateforme",
+    "element": "entrée"
   },
   "delivrance": {
     "signer": {
@@ -1196,7 +1199,8 @@
       "ligne": "{date} · {auteur} · étape « {etape} »",
       "passeNFois": "{nombre, plural, one {Passé # fois} other {Passé # fois}}",
       "bloqueCourt": "Bloqué · passé {nombre} fois"
-    }
+    },
+    "element": "dossier"
   },
   "statutsAffiches": {
     "demandeur": {
@@ -1304,7 +1308,8 @@
     "actions": {
       "payerDroits": "Payer les droits",
       "completer": "Compléter le dossier"
-    }
+    },
+    "element": "notification"
   },
   "catalogue": {
     "titre": "Catalogue et tarifs",
@@ -1546,7 +1551,8 @@
       "unites": {
         "jours": "jours"
       }
-    }
+    },
+    "element": "document"
   },
   "workflows": {
     "titre": "Workflows",
@@ -1626,7 +1632,8 @@
     },
     "etapesNombre": "{n, plural, one {Circuit en # étape} other {Circuit en # étapes}}",
     "selonDocument": "selon le document",
-    "documentsFamille": "Documents de cette famille"
+    "documentsFamille": "Documents de cette famille",
+    "element": "workflow"
   },
   "parametres": {
     "titre": "Délais et notifications",
@@ -1902,7 +1909,7 @@
     "operations": {
       "titre": "Dernières opérations",
       "vide": "Aucune opération enregistrée pour le moment.",
-      "voirTout": "Voir le journal d’audit",
+      "voirTout": "Voir tout le journal",
       "systeme": "Système",
       "nature": {
         "I": "Création · {objet}",
@@ -1912,13 +1919,17 @@
     },
     "profils": {
       "titre": "Comptes par profil",
-      "interne": "Profil interne",
-      "externe": "Profil externe",
       "sansDroit": "Aucun droit",
       "colonnes": {
         "profil": "Profil",
         "utilisateurs": "Comptes",
         "droits": "Droits"
+      },
+      "comptes": "{nombre, plural, =0 {Aucun compte} one {# compte} other {# comptes}}",
+      "voirDroits": "{nombre, plural, one {# droit} other {# droits}}",
+      "groupes": {
+        "internes": "Profils internes du Ministère ({nombre})",
+        "externes": "Profils des usagers ({nombre})"
       }
     },
     "utilisateurs": {
@@ -1938,8 +1949,9 @@
       "colonnes": {
         "utilisateur": "Utilisateur",
         "statut": "Statut",
-        "profil": "Profil",
-        "connexion": "Dernière connexion"
+        "profil": "Profil et droits",
+        "connexion": "Dernière connexion",
+        "actions": "Actions"
       },
       "statuts": {
         "actif": "Actif",
@@ -1964,7 +1976,34 @@
         "recherche": "Aucun compte ne correspond à « {texte} »",
         "conseil": "Vérifiez l’orthographe, ou saisissez une partie du nom, de l’e-mail ou de l’organisation. Les accents et les majuscules ne comptent pas.",
         "effacer": "Voir tous les comptes"
-      }
+      },
+      "element": "compte",
+      "ouvrirKeycloak": "Ouvrir dans Keycloak",
+      "nouvelOnglet": "(s’ouvre dans un nouvel onglet)"
+    },
+    "droits": {
+      "DEPOSER": "Déposer une demande",
+      "PAYER": "Payer les frais et droits",
+      "INSTRUIRE": "Instruire un dossier",
+      "SIGNER": "Signer électroniquement",
+      "ENCAISSER": "Encaisser et rapprocher",
+      "VERIFIER": "Vérifier un document",
+      "PARAMETRER": "Paramétrer la plateforme",
+      "CADASTRE_LECTURE": "Lire le cadastre",
+      "CADASTRE_ECRITURE": "Écrire dans le cadastre",
+      "PUBLIER": "Publier des contenus",
+      "VALIDER_CATALOGUE": "Approuver le catalogue et les tarifs"
+    },
+    "alertes": {
+      "titre": "Alertes",
+      "aucune": "Aucune alerte : tous les services fonctionnent et aucun compte n’attend d’action.",
+      "service": "Service indisponible : {service}",
+      "suspendus": "{nombre, plural, one {# compte suspendu} other {# comptes suspendus}}",
+      "invites": "{nombre, plural, one {# invitation pas encore activée} other {# invitations pas encore activées}}",
+      "voirTout": "Voir la vue d’ensemble",
+      "avec": "Alertes, {nombre, plural, one {# en cours} other {# en cours}}",
+      "sans": "Alertes",
+      "erreur": "Les alertes n’ont pas pu être chargées. Réessayez dans un instant."
     }
   },
   "mesPaiements": {
@@ -2000,7 +2039,8 @@
     "actions": {
       "telechargerRecu": "Télécharger le reçu",
       "voir": "Voir le détail"
-    }
+    },
+    "element": "paiement"
   },
   "mesDocuments": {
     "titre": "Documents délivrés",
@@ -2051,7 +2091,8 @@
         "annuler": "Annuler",
         "confirmer": "Télécharger quand même"
       }
-    }
+    },
+    "element": "document"
   },
   "detailPaiement": {
     "titre": "Détail du paiement",

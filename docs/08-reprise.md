@@ -33,3 +33,15 @@ PR ouvertes, à fusionner dans l'ordre : **#87** (porte d'entrée) → **#88** (
 - À rappeler au porteur : redémarrer `pnpm dev` (API comprise, pour appliquer V22/V23) et `pnpm infra:keycloak:reset`.
 
 **État au 24/11/2026, fin du lot** : PR #87 → #88 → #89 → #90 → #91, à fusionner dans cet ordre (#91 = espace administrateur, « Paiements & reçus », « Documents délivrés », menus au moindre privilège). Reste proposé pour la suite : « Sécurité & sauvegardes » et « Console API » de l'administrateur ; rubriques métier des autres profils (cadastre, instruction DNM, ITIE, formations) ; saisie bilingue des textes de l'administrateur (pièces, étapes) ; défaut préexistant des tests de délais vers minuit UTC (`DelaisTest`, `IndicateursTest`).
+
+## Reprise au 24/11/2026 (soir) — lot « Retours ergonomie #87–#91 » (5 lots)
+
+Décisions du porteur : workflows et délais passent par la **validation du Ministre** comme le catalogue ; « Sécurité & sauvegardes » et « Console API » au lot suivant ; **cloche d'alertes** pour l'administrateur technique.
+
+- **Lot 1 — PR #92** (`fix/revocation-coherente`, base `main`) : révocation datée/notifiée/cohérente (V24), Documents délivrés (recherche, validité), canaux (espace en ligne obligatoire, SMS si action), unités, session PostgreSQL à l'heure de Conakry (cause des tests vers minuit). CI : e2e corrigé (SMS), à revérifier.
+- **Lot 2 — PR #93** (`fix/espace-usager`, base #92) : Ctrl+K, lecteur PDF, Mes demandes, Paiements & reçus (+ détail), Notifications. `verify` API vert.
+- **Lot 3 — `fix/espace-administrateur`** (base lot 2, **commit WIP, pas de PR**) :
+  - fait (API testée) : journal — action « Connexion » (catégorie `connexions`), filtre `auteur` + `GET /journal-audit/auteurs`, `connexions=false` ; administration — droits par profil, compteurs qui suivent le profil, `lienKeycloak` (`KEYCLOAK_CONSOLE_URL`), `GET /administration/alertes` ; catalogue — tarifs dans la liste, filtre `famille` et compteurs croisés.
+  - fait (front) : vue d'ensemble admin (icônes, profils groupés, comptes cliquables, droits au clic, « Voir tout le journal ») ; cloche « alertes » (`ClocheNotifications source="alertes"`) ; Utilisateurs & rôles (compteurs API, bouton « Par profil », droits, « Ouvrir dans Keycloak ») ; pagination au singulier (socle) ; colonne Tarifs du catalogue.
+  - **reste** : page catalogue (retirer les `CarteChiffre` en doublon, filtre famille via `PlusDeFiltres`, passer `famille` à l'API) ; journal front (libellé « Connexion », filtre Connexions, filtre auteur, `FiltrePeriode`, « Dernière connexion », e-mails sans coupure) ; e2e `gabarit.spec` (cloche admin) ; typecheck/lint/tests, `verify`, PR.
+- **Lot 4** (§10 gouvernance workflows/délais par le Ministre, clarification « Modifier le workflow », codes et délais par étape, historique ; saisie bilingue admin) et **lot 5** (revue des autres profils + captures 1280/375 px via Playwright + vue d'ensemble) : à faire.

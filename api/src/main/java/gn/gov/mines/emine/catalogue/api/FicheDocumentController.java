@@ -57,12 +57,16 @@ class FicheDocumentController {
   PageFichesDto lister(
       @RequestParam(required = false) @Pattern(regexp = "^(TOUS|A_VALIDER|INACTIFS)$")
           String filtre,
+      @RequestParam(required = false) @Pattern(regexp = "^[A-Z_]{2,30}$") String famille,
       @RequestParam(required = false) @Size(max = 100) String q,
       @RequestParam(required = false) Integer page,
       @RequestParam(required = false) Integer taille) {
     var l =
         service.lister(
-            filtre == null ? Filtre.TOUS : Filtre.valueOf(filtre), q, Pagination.de(page, taille));
+            filtre == null ? Filtre.TOUS : Filtre.valueOf(filtre),
+            famille,
+            q,
+            Pagination.de(page, taille));
     return new PageFichesDto(
         l.page().elements().stream()
             .map(
@@ -71,6 +75,10 @@ class FicheDocumentController {
                         e.document().code(),
                         e.document().libelleFr(),
                         e.document().famille().libelle(),
+                        e.document().famille().code(),
+                        e.document().tarifs().fraisDossierGnf(),
+                        e.document().tarifs().droitsGnf(),
+                        e.document().tarifs().attestationGnf(),
                         e.document().delaiJours(),
                         e.document().signataire(),
                         e.document().actif(),
@@ -83,7 +91,8 @@ class FicheDocumentController {
         l.page().taille(),
         l.page().total(),
         l.page().totalPages(),
-        l.compteurs());
+        l.compteurs(),
+        l.familles().stream().map(f -> new FamilleDto(f.code(), f.libelle(), f.nombre())).toList());
   }
 
   @GetMapping("/references")
@@ -184,7 +193,8 @@ class FicheDocumentController {
       int taille,
       long total,
       int totalPages,
-      Map<Filtre, Long> compteurs) {}
+      Map<Filtre, Long> compteurs,
+      List<FamilleDto> familles) {}
 
   /**
    * Ligne de la liste du catalogue.
@@ -192,10 +202,21 @@ class FicheDocumentController {
    * @param numeroProposee proposition en attente du Ministre
    * @param action {@code DECIDER} (Ministre), {@code ATTENDRE} (administrateur) ou {@code AUCUNE}
    */
+  /**
+   * Une ligne du catalogue, avec les tarifs en vigueur (GNF entiers ; absents si le document n'en a
+   * pas).
+   */
+  /** Une famille (catégorie) de documents et son nombre de documents. */
+  record FamilleDto(String code, String libelle, long nombre) {}
+
   record LigneFicheDto(
       String code,
       String libelleFr,
       String famille,
+      String familleCode,
+      @Schema(nullable = true) Long fraisDossierGnf,
+      @Schema(nullable = true) Long droitsGnf,
+      @Schema(nullable = true) Long attestationGnf,
       int delaiJours,
       String signataire,
       boolean actif,

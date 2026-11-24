@@ -14,6 +14,7 @@ const tableau: TableauDto = {
       interne: true,
       utilisateurs: 1,
       droits: 3,
+      permissions: ["PARAMETRER", "CADASTRE_LECTURE", "VERIFIER"],
     },
     {
       code: "TUTELLE",
@@ -21,6 +22,15 @@ const tableau: TableauDto = {
       interne: true,
       utilisateurs: 0,
       droits: 0,
+      permissions: [],
+    },
+    {
+      code: "INVESTISSEUR",
+      libelle: "Investisseur",
+      interne: false,
+      utilisateurs: 2,
+      droits: 1,
+      permissions: ["DEPOSER"],
     },
   ],
   services: [
@@ -51,7 +61,7 @@ describe("vue d'ensemble de l'administrateur technique", () => {
       "href",
       "/utilisateurs?recents=1",
     );
-    expect(screen.getByRole("link", { name: /Profils configurés.*1 sur 2/ })).toBeVisible();
+    expect(screen.getByRole("link", { name: /Profils configurés.*2 sur 3/ })).toBeVisible();
     expect(screen.getByRole("link", { name: /Disponibilité.*3 sur 4/ })).toBeVisible();
   });
 
@@ -63,13 +73,29 @@ describe("vue d'ensemble de l'administrateur technique", () => {
     expect(within(services).getAllByText("Disponible")).toHaveLength(3);
   });
 
-  it("signale un profil sans droit et ouvre ses comptes depuis la ligne", () => {
+  it("signale un profil sans droit ; le nombre de comptes ouvre la liste filtrée", () => {
     afficher();
     const tutelle = screen.getByRole("row", { name: /Organismes sous tutelle/ });
     expect(within(tutelle).getByText("Aucun droit")).toBeVisible();
-    expect(within(tutelle).getByRole("link")).toHaveAttribute(
+    expect(within(tutelle).getByRole("link", { name: "Aucun compte" })).toHaveAttribute(
       "href",
       "/utilisateurs?profil=TUTELLE",
+    );
+  });
+
+  it("groupe les profils internes et ceux des usagers ; les droits se consultent d'un clic", () => {
+    afficher();
+    expect(
+      screen.getByRole("heading", { name: "Profils internes du Ministère (2)" }),
+    ).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Profils des usagers (1)" })).toBeVisible();
+    const admin = screen.getByRole("row", { name: /Administrateur technique/ });
+    expect(within(admin).getByText("3 droits")).toBeVisible();
+    expect(within(admin).getByText("Paramétrer la plateforme")).toBeInTheDocument();
+    const investisseur = screen.getByRole("row", { name: /Investisseur/ });
+    expect(within(investisseur).getByRole("link", { name: "2 comptes" })).toHaveAttribute(
+      "href",
+      "/utilisateurs?profil=INVESTISSEUR",
     );
   });
 

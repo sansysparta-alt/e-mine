@@ -119,7 +119,15 @@ export function NavigationApplication({
         <RechercheGlobale compte={compte} pages={pagesRecherche} lienDemandes="/demandes" />
       }
       piedDePage={piedDePage}
-      actionsEntete={profil.interne ? null : <ClocheNotifications initial={nonLues} />}
+      actionsEntete={
+        // Cloche : notifications de dossier pour l'usager, alertes techniques pour
+        // l'administrateur ; les autres agents suivent « À traiter » (pas de doublon).
+        !profil.interne ? (
+          <ClocheNotifications initial={nonLues} />
+        ) : profil.permissions.includes("PARAMETRER") ? (
+          <ClocheNotifications source="alertes" />
+        ) : null
+      }
       menuUtilisateur={<MenuCompte utilisateur={utilisateur} Lien={LienNext} />}
       libelles={{
         navigation: t("titre"),

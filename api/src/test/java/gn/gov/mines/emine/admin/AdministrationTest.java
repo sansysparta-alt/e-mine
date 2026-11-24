@@ -57,6 +57,11 @@ class AdministrationTest extends TestIntegration {
     List<String> profils = new ArrayList<>();
     t.path("profils").forEach(p -> profils.add(p.path("code").asString()));
     assertThat(profils).hasSize(16).startsWith("ADMIN_TECH");
+    // Les droits de chaque profil sont consultables (matrice), pas seulement leur nombre.
+    JsonNode admin = t.path("profils").get(0);
+    List<String> droits = new ArrayList<>();
+    admin.path("permissions").forEach(d -> droits.add(d.asString()));
+    assertThat(droits).contains("PARAMETRER").hasSize(admin.path("droits").asInt());
     List<String> services = new ArrayList<>();
     t.path("services").forEach(s -> services.add(s.path("cle").asString()));
     assertThat(services).containsExactly("base", "authentification", "stockage", "messagerie");
@@ -64,6 +69,16 @@ class AdministrationTest extends TestIntegration {
     // (aucun service extérieur requis par le test).
     assertThat(t.path("services").get(0).path("disponible").asBoolean()).isTrue();
     assertThat(t.path("services").get(2).path("disponible").asBoolean()).isTrue();
+  }
+
+  @Test
+  void laClocheDeLAdministrateurDonneSesAlertesEtLeurNombre() throws Exception {
+    JsonNode a = lire("/api/v1/administration/alertes", jeton(ADMIN_TECH, "ADMIN_TECH"));
+    assertThat(a.path("nombre").asInt()).isEqualTo(a.path("elements").size());
+    a.path("elements")
+        .forEach(e -> assertThat(e.path("cle").asString()).isIn("service", "suspendus", "invites"));
+    mvc.perform(get("/api/v1/administration/alertes").with(jeton(MINISTRE, "MINISTRE")))
+        .andExpect(status().isForbidden());
   }
 
   @Test
@@ -83,6 +98,18 @@ class AdministrationTest extends TestIntegration {
             "/api/v1/administration/utilisateurs?profil=INVESTISSEUR&taille=100",
             jeton(ADMIN_TECH, "ADMIN_TECH"));
     assertThat(investisseurs.path("total").asLong()).isGreaterThanOrEqualTo(2);
+    // Les compteurs des filtres suivent le profil choisi.
+    JsonNode c = investisseurs.path("compteurs");
+    assertThat(c.path("tous").asLong()).isEqualTo(investisseurs.path("total").asLong());
+    assertThat(
+            c.path("actifs").asLong() + c.path("suspendus").asLong() + c.path("invites").asLong())
+        .isEqualTo(c.path("tous").asLong());
+    JsonNode tous =
+        lire("/api/v1/administration/utilisateurs?taille=10", jeton(ADMIN_TECH, "ADMIN_TECH"));
+    assertThat(tous.path("compteurs").path("tous").asLong()).isGreaterThan(c.path("tous").asLong());
+    // Chaque compte ouvre sa fiche dans la console Keycloak (D8).
+    assertThat(investisseurs.path("elements").get(0).path("lienKeycloak").asString())
+        .matches(".*/admin/master/console/#/emine/users/[0-9a-f-]{36}/settings");
     investisseurs
         .path("elements")
         .forEach(u -> assertThat(u.path("profilCode").asString()).isEqualTo("INVESTISSEUR"));

@@ -53,6 +53,8 @@ export type FiltreCatalogue = (typeof FILTRES_CATALOGUE)[number];
 
 export type ParametresCatalogue = {
   filtre: FiltreCatalogue;
+  /** Famille (catégorie) de documents, par son code. */
+  famille?: string;
   q?: string;
   page: number;
   taille: number;
@@ -64,6 +66,7 @@ export function lireParametresCatalogue(
 ): ParametresCatalogue {
   const un = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
   const filtre = un(brut["filtre"]);
+  const famille = un(brut["famille"]);
   const q = un(brut["q"])?.trim().slice(0, 100);
   const page = Number.parseInt(un(brut["page"]) ?? "", 10);
   const taille = Number.parseInt(un(brut["taille"]) ?? "", 10);
@@ -71,6 +74,7 @@ export function lireParametresCatalogue(
     filtre: (FILTRES_CATALOGUE as readonly string[]).includes(filtre ?? "")
       ? (filtre as FiltreCatalogue)
       : "TOUS",
+    famille: famille && /^[A-Z_]{2,30}$/.test(famille) ? famille : undefined,
     q: q || undefined,
     page: Number.isFinite(page) && page > 0 ? page : 1,
     taille: [10, 20, 50, 100].includes(taille) ? taille : 20,

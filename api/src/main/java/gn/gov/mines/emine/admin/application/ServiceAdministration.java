@@ -5,7 +5,6 @@ import gn.gov.mines.emine.admin.infrastructure.AdministrationRepository;
 import gn.gov.mines.emine.admin.infrastructure.SondesServices;
 import gn.gov.mines.emine.shared.erreur.CodeErreur;
 import gn.gov.mines.emine.shared.erreur.ErreurMetier;
-import gn.gov.mines.emine.shared.pagination.PageResultat;
 import gn.gov.mines.emine.shared.pagination.Pagination;
 import java.time.Clock;
 import java.time.Instant;
@@ -52,6 +51,14 @@ public class ServiceAdministration {
                 depot.comptes(maintenant), depot.profils(), services, maintenant));
   }
 
+  /** Alertes de la cloche de l'administrateur (mêmes sources que la vue d'ensemble). */
+  public List<Supervision.Alerte> alertes() {
+    Instant maintenant = horloge.instant();
+    List<Supervision.Service> services = sondes.verifier();
+    Supervision.Comptes comptes = lecture.execute(statut -> depot.comptes(maintenant));
+    return Supervision.alertes(comptes, services);
+  }
+
   /** Durée de la fenêtre « connectés récemment » (même valeur que la carte du tableau de bord). */
   public static final java.time.Duration RECENTS = AdministrationRepository.RECENTS;
 
@@ -61,7 +68,7 @@ public class ServiceAdministration {
    * @param recents seulement les comptes connectés pendant les 30 derniers jours
    */
   @Transactional(readOnly = true)
-  public PageResultat<Supervision.Utilisateur> utilisateurs(
+  public Supervision.PageUtilisateurs utilisateurs(
       String profilCode, String statut, boolean recents, String recherche, Pagination pagination) {
     if (profilCode != null
         && depot.profils().stream().noneMatch(p -> p.code().equals(profilCode))) {
@@ -69,11 +76,8 @@ public class ServiceAdministration {
           CodeErreur.VAL_001,
           Map.of("champs", List.of(Map.of("champ", "profil", "message", "Profil inconnu."))));
     }
+    Instant recentsDepuis = horloge.instant().minus(RECENTS);
     return depot.utilisateurs(
-        profilCode,
-        statut,
-        recents ? horloge.instant().minus(RECENTS) : null,
-        recherche,
-        pagination);
+        profilCode, statut, recents ? recentsDepuis : null, recentsDepuis, recherche, pagination);
   }
 }

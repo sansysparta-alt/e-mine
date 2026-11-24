@@ -54,6 +54,30 @@ export function TableauFiches({
           ),
         },
         {
+          cle: "tarifs",
+          entete: t("colonnes.tarifs"),
+          alignement: "droite",
+          rendu: (l) =>
+            l.attestationGnf != null ? (
+              <span className="flex flex-col items-end tabular-nums">
+                <span>{formaterGnf(l.attestationGnf)}</span>
+                <span className="text-sm text-texte-doux">{t("tarifs.unique")}</span>
+              </span>
+            ) : (
+              <span className="flex flex-col items-end tabular-nums">
+                <span>
+                  {l.fraisDossierGnf != null ? formaterGnf(l.fraisDossierGnf) : "—"}{" "}
+                  <span className="text-sm text-texte-doux">{t("tarifs.frais")}</span>
+                </span>
+                <span className="text-sm text-texte-doux">
+                  {l.droitsGnf != null
+                    ? t("tarifs.droits", { montant: formaterGnf(l.droitsGnf) })
+                    : t("tarifs.sansDroits")}
+                </span>
+              </span>
+            ),
+        },
+        {
           cle: "delai",
           entete: t("colonnes.delai"),
           rendu: (l) => (
