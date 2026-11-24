@@ -522,6 +522,11 @@
       "titre": "This page could not be displayed.",
       "description": "An unexpected error occurred. Your data is not lost.",
       "reessayer": "Try again"
+    },
+    "introuvable": {
+      "titre": "This page cannot be found",
+      "description": "The address does not exist, or this page is reserved for another profile. Go back to your dashboard: the menu lists the pages open to your profile.",
+      "retour": "Back to the dashboard"
     }
   },
   "pagination": {

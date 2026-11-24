@@ -522,6 +522,11 @@
       "titre": "Cette page n'a pas pu s'afficher.",
       "description": "Une erreur inattendue est survenue. Vos données ne sont pas perdues.",
       "reessayer": "Réessayer"
+    },
+    "introuvable": {
+      "titre": "Cette page est introuvable",
+      "description": "L’adresse n’existe pas, ou cette page est réservée à un autre profil. Revenez à votre tableau de bord : le menu propose les pages ouvertes à votre profil.",
+      "retour": "Revenir au tableau de bord"
     }
   },
   "pagination": {
