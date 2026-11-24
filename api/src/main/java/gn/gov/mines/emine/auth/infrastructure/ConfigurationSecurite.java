@@ -40,6 +40,8 @@ class ConfigurationSecurite {
       throws Exception {
     TransactionTemplate lecture = new TransactionTemplate(transactions);
     lecture.setReadOnly(true);
+    // Seule écriture du filtre : la date de connexion (une fois par connexion).
+    TransactionTemplate trace = new TransactionTemplate(transactions);
 
     http.csrf(csrf -> csrf.disable())
         .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -81,7 +83,7 @@ class ConfigurationSecurite {
                     .accessDeniedHandler(
                         (req, rep, ex) -> problemes.ecrire(req, rep, CodeErreur.PERM_001)))
         .addFilterAfter(
-            new RattachementUtilisateurFilter(utilisateurs, lecture, problemes),
+            new RattachementUtilisateurFilter(utilisateurs, lecture, trace, problemes),
             BearerTokenAuthenticationFilter.class);
     return http.build();
   }

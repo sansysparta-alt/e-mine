@@ -202,6 +202,13 @@ public class ServiceDelivrance {
         .orElseThrow(() -> new ErreurMetier(CodeErreur.DOC_005, Map.of("id", demandeId)));
   }
 
+  /** « Documents délivrés » : ceux des demandes visibles du profil connecté (les siennes). */
+  @Transactional(readOnly = true)
+  public gn.gov.mines.emine.shared.pagination.PageResultat<DelivranceRepository.LigneDocument>
+      listerVisibles(gn.gov.mines.emine.shared.pagination.Pagination pagination) {
+    return registre.listerVisibles(pagination);
+  }
+
   /** Document et flux du PDF signé archivé. */
   public record Contenu(DocumentDelivre document, InputStream flux) {}
 

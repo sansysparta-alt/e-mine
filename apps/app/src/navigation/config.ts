@@ -2,6 +2,8 @@ import {
   Bell,
   BookOpen,
   CircleHelp,
+  CreditCard,
+  FileCheck2,
   FileText,
   Inbox,
   LayoutDashboard,
@@ -9,6 +11,7 @@ import {
   Plus,
   ScrollText,
   SlidersHorizontal,
+  Users,
   Workflow,
 } from "@emine/ui/icones";
 
@@ -52,6 +55,26 @@ export const NAVIGATION: SectionConfig[] = [
         module: "demande",
         href: "/demandes",
         icone: FileText,
+        // Moindre privilège : seuls les profils qui déposent, traitent, encaissent ou auditent les
+        // dossiers voient cette rubrique (pas la communauté, la tutelle, l'apprenant, le webmaster).
+        auMoinsUnDroit: ["DEPOSER", "INSTRUIRE", "SIGNER", "ENCAISSER", "PARAMETRER"],
+      },
+      // Espace de l'usager (cahier, diapo 29 : « Paiements & reçus », « Documents délivrés »).
+      {
+        cle: "paiements",
+        module: "paiement",
+        href: "/paiements",
+        icone: CreditCard,
+        permission: "PAYER",
+        interne: false,
+      },
+      {
+        cle: "documents",
+        module: "delivrance",
+        href: "/documents",
+        icone: FileCheck2,
+        permission: "DEPOSER",
+        interne: false,
       },
     ],
   },
@@ -71,6 +94,16 @@ export const NAVIGATION: SectionConfig[] = [
   {
     cle: "administration",
     entrees: [
+      // Utilisateurs & rôles (espace « Administrateur technique » du cahier) : lecture seule,
+      // comptes gérés dans Keycloak (D8).
+      {
+        cle: "utilisateurs",
+        module: "admin",
+        href: "/utilisateurs",
+        icone: Users,
+        permission: "PARAMETRER",
+        interne: true,
+      },
       // Catalogue et tarifs (US-02.2) : l'administrateur propose, le Ministre approuve.
       {
         cle: "catalogue",

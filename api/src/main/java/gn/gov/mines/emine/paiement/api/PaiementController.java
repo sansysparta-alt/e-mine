@@ -81,6 +81,39 @@ class PaiementController {
    */
   record InitiationDto(PaiementDto paiement, @Schema(nullable = true) String urlPaiement) {}
 
+  @GetMapping("/api/v1/paiements")
+  @Operation(
+      operationId = "listerMesPaiements",
+      summary =
+          "Paiements du profil connecté (les siens pour un usager), du plus récent au plus ancien,"
+              + " paginés, hors paiements annulés, avec le numéro de la demande")
+  PageMesPaiementsDto listerVisibles(
+      @org.springframework.web.bind.annotation.RequestParam(required = false) Integer page,
+      @org.springframework.web.bind.annotation.RequestParam(required = false) Integer taille) {
+    var p =
+        service.listerVisibles(gn.gov.mines.emine.shared.pagination.Pagination.de(page, taille));
+    return new PageMesPaiementsDto(
+        p.elements().stream()
+            .map(
+                l ->
+                    new LignePaiementDto(
+                        PaiementDto.depuis(l.paiement()), l.numeroDemande(), l.codeDocument()))
+            .toList(),
+        p.page(),
+        p.taille(),
+        p.total(),
+        p.totalPages());
+  }
+
+  /** Un paiement, avec la demande et le document concernés. */
+  record LignePaiementDto(
+      PaiementDto paiement,
+      @io.swagger.v3.oas.annotations.media.Schema(nullable = true) String numeroDemande,
+      String codeDocument) {}
+
+  record PageMesPaiementsDto(
+      List<LignePaiementDto> elements, int page, int taille, long total, int totalPages) {}
+
   @GetMapping("/api/v1/paiements/{reference}")
   @Operation(operationId = "lirePaiement", summary = "Un paiement, par sa référence")
   PaiementDto lire(@PathVariable @Pattern(regexp = "^PAY-[0-9]{4}-[0-9]{6}$") String reference) {

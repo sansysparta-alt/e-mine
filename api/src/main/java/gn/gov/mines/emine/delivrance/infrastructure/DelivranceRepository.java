@@ -104,6 +104,34 @@ public class DelivranceRepository {
         .fetchOptional(this::document);
   }
 
+  /** Un document délivré et le numéro de sa demande (liste « Documents délivrés »). */
+  public record LigneDocument(DocumentDelivre document, String numeroDemande) {}
+
+  /**
+   * Documents délivrés visibles du profil connecté, du plus récent au plus ancien. Le registre n'a
+   * pas de RLS propre : la jointure sur {@code demande} (RLS) limite un usager à ses dossiers.
+   */
+  public gn.gov.mines.emine.shared.pagination.PageResultat<LigneDocument> listerVisibles(
+      gn.gov.mines.emine.shared.pagination.Pagination pagination) {
+    var demande = gn.gov.mines.emine.shared.jooq.Tables.DEMANDE;
+    long total =
+        dsl.selectCount()
+            .from(DOCUMENT_DELIVRE)
+            .join(demande)
+            .on(demande.ID.eq(DOCUMENT_DELIVRE.DEMANDE_ID))
+            .fetchOne(0, Long.class);
+    var elements =
+        selection(demande.NUMERO)
+            .join(demande)
+            .on(demande.ID.eq(DOCUMENT_DELIVRE.DEMANDE_ID))
+            .orderBy(DOCUMENT_DELIVRE.DELIVRE_LE.desc(), DOCUMENT_DELIVRE.ID.desc())
+            .limit(pagination.taille())
+            .offset(pagination.decalage())
+            .fetch(r -> new LigneDocument(document(r), r.get(demande.NUMERO)));
+    return new gn.gov.mines.emine.shared.pagination.PageResultat<>(
+        elements, pagination.page(), pagination.taille(), total);
+  }
+
   /** Document du registre par son code de vérification, s'il existe. */
   public Optional<DocumentDelivre> parCode(String code) {
     return selection().where(DOCUMENT_DELIVRE.CODE_QR.eq(code)).fetchOptional(this::document);
@@ -124,8 +152,10 @@ public class DelivranceRepository {
   /** Date et observations de la décision favorable. */
   public record DecisionFavorable(Instant le, String observations) {}
 
-  private SelectOnConditionStep<? extends Record> selection() {
-    return dsl.select(
+  private SelectOnConditionStep<? extends Record> selection(
+      org.jooq.SelectField<?>... supplementaires) {
+    return dsl.select(supplementaires)
+        .select(
             DOCUMENT_DELIVRE.ID,
             DOCUMENT_DELIVRE.NUMERO,
             DOCUMENT_DELIVRE.DEMANDE_ID,

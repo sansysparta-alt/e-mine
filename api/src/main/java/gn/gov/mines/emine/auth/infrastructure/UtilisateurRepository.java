@@ -64,6 +64,23 @@ class UtilisateurRepository {
                     permissions(r.get(UTILISATEUR.PROFIL_ID))));
   }
 
+  /**
+   * Note la date de connexion (moment de l'authentification Keycloak) si elle est plus récente que
+   * la dernière connue. La modification passe par le journal d'audit (trigger) : c'est le journal
+   * des connexions consultable par l'administrateur.
+   */
+  void noterConnexion(long utilisateurId, java.time.Instant authentifieLe) {
+    dsl.update(UTILISATEUR)
+        .set(UTILISATEUR.DERNIERE_CONNEXION, authentifieLe)
+        .where(UTILISATEUR.ID.eq(utilisateurId))
+        .and(
+            UTILISATEUR
+                .DERNIERE_CONNEXION
+                .isNull()
+                .or(UTILISATEUR.DERNIERE_CONNEXION.lt(authentifieLe)))
+        .execute();
+  }
+
   /** Droits du profil (matrice {@code profil_permission}) ; un code inconnu de l'API est ignoré. */
   private Set<Permission> permissions(short profilId) {
     Set<Permission> permissions = EnumSet.noneOf(Permission.class);

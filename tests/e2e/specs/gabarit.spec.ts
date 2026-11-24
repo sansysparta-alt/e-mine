@@ -71,3 +71,33 @@ test("la recherche globale ne propose que les écrans du profil", async ({ brows
   await expect(admin.getByRole("button", { name: /^Notifications/ })).toHaveCount(0);
   expect((await admin.goto("/notifications"))?.status()).toBe(404);
 });
+
+test("l'investisseur retrouve ses paiements et reçus, puis ses documents délivrés", async ({
+  browser,
+}) => {
+  const page = await connecter(browser, INVESTISSEUR);
+  const menu = page.getByRole("navigation", { name: "Navigation principale" }).first();
+  await menu.getByRole("link", { name: "Paiements & reçus" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Paiements & reçus" })).toBeVisible();
+  await menu.getByRole("link", { name: "Documents délivrés" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Documents délivrés" })).toBeVisible();
+  // Un agent n'a pas ces rubriques : l'adresse répond comme une page inconnue.
+  const admin = await connecter(browser, ADMIN);
+  expect((await admin.goto("/paiements"))?.status()).toBe(404);
+});
+
+test("l'administrateur technique : vue d'ensemble, disponibilité, utilisateurs et rôles", async ({
+  browser,
+}) => {
+  const admin = await connecter(browser, ADMIN);
+  await expect(admin.getByRole("region", { name: "Disponibilité des services" })).toBeVisible();
+  await expect(admin.getByRole("heading", { name: "Comptes par profil" })).toBeVisible();
+  await admin.getByRole("link", { name: /Utilisateurs actifs/ }).click();
+  await expect(admin).toHaveURL(/\/utilisateurs\?statut=actif$/);
+  await expect(
+    admin.getByRole("heading", { level: 1, name: "Utilisateurs & rôles" }),
+  ).toBeVisible();
+  // L'administrateur vient de se connecter : sa connexion est datée dans la liste.
+  const ligne = admin.getByRole("row", { name: /o\.bah@e-mine\.test/ });
+  await expect(ligne).not.toContainText("Jamais connecté");
+});

@@ -86,6 +86,17 @@ class StockageS3 implements StockageObjets, AutoCloseable {
     }
   }
 
+  @Override
+  public boolean disponible() {
+    try {
+      s3().listBuckets();
+      return true;
+    } catch (RuntimeException e) {
+      LOG.warn("Stockage objet injoignable : {}", e.getMessage());
+      return false;
+    }
+  }
+
   private void preparer(String compartiment) {
     if (compartimentsPrets.contains(compartiment)) {
       return;

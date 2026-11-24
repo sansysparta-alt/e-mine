@@ -23,6 +23,11 @@ public class StockageEnMemoire implements StockageObjets {
   }
 
   @Override
+  public boolean disponible() {
+    return true;
+  }
+
+  @Override
   public InputStream lire(String compartiment, String cle) {
     byte[] contenu = objets.get(compartiment + "/" + cle);
     if (contenu == null) {

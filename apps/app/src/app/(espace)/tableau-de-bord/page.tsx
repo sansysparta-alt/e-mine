@@ -1,14 +1,17 @@
 import {
   compterATraiter,
   compterVues,
+  consulterJournal,
   type DemandeDto,
   type IndicateursDto,
   lireIndicateurs,
   listerDemandes,
   listerFichesDocuments,
   listerTypesDocuments,
+  lireTableauAdministration,
 } from "@emine/api-client";
-import { tailleDePagePour } from "@emine/ui";
+import { EnTetePage, EtatErreur, tailleDePagePour } from "@emine/ui";
+import { VueAdministration } from "@/composants/administration/vue-administration";
 import type { Metadata } from "next";
 import { libelleDocument } from "@/composants/referentiels";
 import { unstable_rethrow } from "next/navigation";
@@ -165,6 +168,17 @@ export default async function TableauDeBord({ searchParams }: Props) {
   const demandee = (await searchParams).periode;
   const periode = PERIODES.find((p) => p === demandee) ?? "mois";
   const moi = await chargerMoi();
+  // Administrateur technique (paramétrer, sans instruire ni signer) : vue d'ensemble technique du
+  // cahier des charges (comptes, profils, disponibilité, journal), et non une file de dossiers.
+  if (
+    moi.interne &&
+    moi.permissions.includes("PARAMETRER") &&
+    !moi.permissions.some((d) => d === "INSTRUIRE" || d === "SIGNER")
+  ) {
+    return (
+      <TableauAdministration prenom={moi.prenom} nom={moi.nom} profil={await profilAffiche(moi)} />
+    );
+  }
   const donnees = await charger(moi, periode);
   return (
     <VueTableauDeBord
@@ -175,5 +189,45 @@ export default async function TableauDeBord({ searchParams }: Props) {
       periode={periode}
       {...donnees}
     />
+  );
+}
+
+/** Tableau de bord de l'administrateur technique ; les données indisponibles sont annoncées. */
+async function TableauAdministration({
+  prenom,
+  nom,
+  profil,
+}: {
+  prenom: string;
+  nom: string;
+  profil: string;
+}) {
+  const t = await getTranslations("tableauDeBord");
+  const tAdmin = await getTranslations("administration");
+  const options = await optionsApi();
+  const [tableau, journal] = await Promise.all([
+    lireTableauAdministration(options)
+      .then((r) => r.data)
+      .catch((e: unknown) => {
+        unstable_rethrow(e);
+        console.error("Tableau de bord technique : données indisponibles", e);
+        return null;
+      }),
+    consulterJournal({ taille: 10 }, options)
+      .then((r) => r.data.elements.slice(0, 5))
+      .catch(() => []),
+  ]);
+  return (
+    <div className="flex flex-col gap-6">
+      <EnTetePage
+        titre={t("bonjour", { prenom, nom })}
+        description={t("profil", { libelle: profil })}
+      />
+      {tableau ? (
+        <VueAdministration tableau={tableau} operations={journal} />
+      ) : (
+        <EtatErreur titre={t("indisponible.titre")} description={tAdmin("indisponible")} />
+      )}
+    </div>
   );
 }

@@ -26,19 +26,45 @@ export function lienPaiement(p: Pick<PaiementDto, "demandeId" | "reference">): s
  * Historique des paiements d'une demande (US-04.4) : référence, objet, montant, statut au code
  * couleur commun et date ; la ligne entière ouvre le détail du paiement.
  */
-export function TableauPaiements({ paiements }: { paiements: PaiementDto[] }) {
+export function TableauPaiements({
+  paiements,
+  legende,
+  demande,
+}: {
+  paiements: PaiementDto[];
+  legende?: string;
+  /** Liste de tous les paiements (« Paiements & reçus ») : demande et document de chaque ligne. */
+  demande?: (p: PaiementDto) => { numero: string; document: string } | null;
+}) {
   const t = useTranslations("detail.paiements");
   const tObjet = useTranslations("paiement.objet");
   const tStatut = useTranslations("statutsPaiement");
   return (
     <TableauDonnees
-      legende={t("legende")}
+      legende={legende ?? t("legende")}
       lignes={paiements}
       cleLigne={(p) => p.reference}
       Lien={LienNext}
       lienLigne={lienPaiement}
       colonnes={[
         { cle: "reference", entete: t("colonnes.reference"), rendu: (p) => p.reference },
+        ...(demande
+          ? [
+              {
+                cle: "demande",
+                entete: t("colonnes.demande"),
+                rendu: (p: PaiementDto) => {
+                  const d = demande(p);
+                  return d ? (
+                    <span className="flex flex-col">
+                      <span className="font-semibold tabular-nums">{d.numero}</span>
+                      <span className="text-sm text-texte-doux">{d.document}</span>
+                    </span>
+                  ) : null;
+                },
+              },
+            ]
+          : []),
         {
           cle: "objet",
           entete: t("colonnes.objet"),
