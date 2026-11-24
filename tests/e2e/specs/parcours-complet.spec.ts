@@ -168,9 +168,10 @@ test("parcours V1 : dépôt, paiements, recevabilité, décision, délivrance, v
   await investisseur.goto(`/demandes/${id}`);
   await expect(investisseur.getByText("Valide", { exact: true })).toBeVisible();
   await investisseur.getByRole("button", { name: "Voir le document" }).click();
+  // Le lecteur ajoute ses réglages d'affichage après « # » : seule l'adresse du contenu compte.
   await expect(investisseur.locator("iframe")).toHaveAttribute(
     "src",
-    `/api/demandes/${id}/document/contenu?inline=1`,
+    new RegExp(`^/api/demandes/${id}/document/contenu[?]inline=1(#|$)`),
   );
   const verification = await investisseur
     .getByRole("link", { name: /Page de vérification/ })
