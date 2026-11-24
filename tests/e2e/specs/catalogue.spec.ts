@@ -15,7 +15,7 @@ async function connecter(browser: Browser, email: string): Promise<Page> {
   expect(MOT_DE_PASSE, "DEMO_PASSWORD doit être défini dans .env").not.toBe("");
   const page = await (await browser.newContext()).newPage();
   await page.goto("/");
-  await page.getByRole("link", { name: "Se connecter" }).click();
+  // Seule porte d'entrée : « / » mène directement à la page de connexion Keycloak.
   await page.locator("#username").fill(email);
   await page.locator("#password").fill(MOT_DE_PASSE);
   await page.locator("#kc-login").click();

@@ -3,6 +3,7 @@
 import { Bouton, Dialogue } from "@emine/ui";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { adresseConnexion } from "@/serveur/connexion";
 
 /**
  * Délais (en ms). Keycloak ferme la session après 30 min sans renouvellement du jeton ; le jeton
@@ -58,12 +59,26 @@ export function SurveillanceSession({
     }
   }, [changerEtat]);
 
+  /**
+   * Inactivité : la session est fermée, mais l'utilisateur reste sur sa page devant la fenêtre de
+   * reconnexion (cahier des charges : « fenêtre de reconnexion, brouillon conservé »).
+   */
+  const expirer = useCallback(async () => {
+    changerEtat("expiree");
+    try {
+      await fetch("/api/auth/logout", { method: "POST", redirect: "manual" });
+    } catch {
+      // Réseau indisponible : la session expirera aussi côté serveur.
+    }
+  }, [changerEtat]);
+
+  /** Choix de se déconnecter dans l'avertissement : page de connexion, message de déconnexion. */
   const deconnecter = useCallback(async () => {
     changerEtat("expiree");
     try {
       await fetch("/api/auth/logout", { method: "POST", redirect: "manual" });
     } finally {
-      naviguer("/?expiree=1");
+      naviguer(adresseConnexion("deconnecte"));
     }
   }, [changerEtat, naviguer]);
 
@@ -79,7 +94,7 @@ export function SurveillanceSession({
     const minuterie = setInterval(() => {
       if (etatCourant.current === "expiree") return;
       const inactif = Date.now() - derniereActivite.current;
-      if (inactif >= delais.expiration) void deconnecter();
+      if (inactif >= delais.expiration) void expirer();
       else if (inactif >= delais.avertissement && etatCourant.current === "active") {
         changerEtat("avertissement");
       }
@@ -88,7 +103,7 @@ export function SurveillanceSession({
       for (const e of EVENEMENTS) window.removeEventListener(e, surActivite);
       clearInterval(minuterie);
     };
-  }, [changerEtat, deconnecter, delais, maintenir]);
+  }, [changerEtat, expirer, delais, maintenir]);
 
   function resterConnecte() {
     derniereActivite.current = Date.now();
@@ -98,7 +113,7 @@ export function SurveillanceSession({
 
   function seReconnecter() {
     const retour = `${window.location.pathname}${window.location.search}`;
-    naviguer(`/api/auth/login?retour=${encodeURIComponent(retour)}`);
+    naviguer(adresseConnexion("expiree", retour));
   }
 
   return (

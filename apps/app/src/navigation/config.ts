@@ -129,6 +129,14 @@ export const NAVIGATION: SectionConfig[] = [
   },
 ];
 
+/**
+ * Pages ouvertes à tout utilisateur connecté mais absentes du menu (accessibles par le menu sous
+ * l'avatar) : leur titre dans la barre du haut (`navigation.entrees.<cle>`).
+ */
+export const PAGES_HORS_MENU: { cle: string; href: string }[] = [
+  { cle: "profil", href: "/profil" },
+];
+
 export type Profil = { permissions: string[]; interne: boolean };
 
 /** Entrée visible pour ce profil ? */

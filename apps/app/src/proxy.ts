@@ -2,6 +2,7 @@ import { lireMoi } from "@emine/api-client";
 import { getIronSession } from "iron-session";
 import { type NextRequest, NextResponse } from "next/server";
 import { cheminAutorise, entreeDuChemin, estReservee } from "@/navigation/acces";
+import { adresseConnexion } from "@/serveur/connexion";
 import { renouveler } from "@/serveur/oidc";
 import { aRenouveler, optionsSession, type SessionEmine } from "@/serveur/session";
 
@@ -73,7 +74,10 @@ export async function proxy(requete: NextRequest) {
     } catch {
       const expiree = pathname.startsWith("/api/")
         ? NextResponse.json({ code: "AUTH-001" }, { status: 401 })
-        : NextResponse.redirect(new URL("/?expiree=1", requete.url));
+        : // Session expirée : message clair sur la page de connexion, puis retour à la page.
+          NextResponse.redirect(
+            new URL(adresseConnexion("expiree", `${pathname}${search}`), requete.url),
+          );
       const ancienne = await getIronSession<SessionEmine>(requete, expiree, options);
       ancienne.destroy();
       return expiree;

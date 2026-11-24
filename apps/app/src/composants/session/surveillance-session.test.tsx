@@ -58,11 +58,25 @@ describe("surveillance de la session (correctif A1)", () => {
     expect(urls(appels)).toContain("/api/session");
   });
 
-  it("déconnecte après l'inactivité prolongée", async () => {
+  it("ferme la session après l'inactivité prolongée et garde l'usager sur sa page, devant la fenêtre de reconnexion", async () => {
     const { appels, naviguer } = afficher();
     await avancer(14_600);
     expect(urls(appels)).toContain("/api/auth/logout");
-    expect(naviguer).toHaveBeenCalledWith("/?expiree=1");
+    // Cahier des charges : « fenêtre de reconnexion, brouillon conservé » ; on ne quitte pas la page.
+    expect(naviguer).not.toHaveBeenCalled();
+    expect(screen.getByRole("heading", { name: "Votre session a expiré" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Se reconnecter" }));
+    expect(naviguer).toHaveBeenCalledWith(
+      expect.stringMatching(/^\/api\/auth\/login\?motif=expiree&retour=/),
+    );
+  });
+
+  it("le choix « Se déconnecter » dans l'avertissement mène à la connexion avec le message de déconnexion", async () => {
+    const { naviguer } = afficher();
+    await avancer(13_100);
+    fireEvent.click(screen.getByRole("button", { name: "Se déconnecter" }));
+    await avancer(10);
+    expect(naviguer).toHaveBeenCalledWith("/api/auth/login?motif=deconnecte");
   });
 
   it("propose de se reconnecter en revenant sur la page si la session a déjà expiré", async () => {
@@ -71,6 +85,8 @@ describe("surveillance de la session (correctif A1)", () => {
     fireEvent.pointerDown(window);
     await avancer(10);
     fireEvent.click(screen.getByRole("button", { name: "Se reconnecter" }));
-    expect(naviguer).toHaveBeenCalledWith(expect.stringMatching(/^\/api\/auth\/login\?retour=/));
+    expect(naviguer).toHaveBeenCalledWith(
+      expect.stringMatching(/^\/api\/auth\/login\?motif=expiree&retour=/),
+    );
   });
 });

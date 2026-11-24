@@ -1,33 +1,19 @@
 {
   "application": {
-    "titre": "e-mine · Management application",
-    "description": "Management application for requests to the Ministry of Mines and Geology (demo, fictitious data)."
+    "titre": "e-mine",
+    "titreComplet": "e-mine · Ministry of Mines and Geology",
+    "description": "Platform of the Ministry of Mines and Geology of the Republic of Guinea: mining document applications, payments and tracking (demonstration, fictitious data)."
   },
   "accessibilite": {
     "allerAuContenu": "Skip to main content"
   },
   "connexion": {
-    "titre": "e-mine management application",
-    "presentation": "Submit your mining document requests, pay online and track their progress.",
-    "bouton": "Sign in",
-    "aide": "You will be redirected to the secure sign-in page, then brought back here.",
+    "reessayer": "Try again",
     "demo": "Demonstration platform: all data is fictitious.",
     "messages": {
-      "connexion": {
-        "titre": "Sign-in failed.",
-        "conseil": "Please try again. If the problem persists, contact the platform administrator."
-      },
       "indisponible": {
         "titre": "The sign-in service is temporarily unavailable.",
-        "conseil": "Please try again in a few minutes."
-      },
-      "expiree": {
-        "titre": "Your session has expired.",
-        "conseil": "Sign in again to continue."
-      },
-      "deconnecte": {
-        "titre": "You are signed out.",
-        "conseil": "See you soon on e-mine."
+        "conseil": "Please try again in a few minutes. If the problem persists, contact support."
       }
     }
   },
@@ -496,7 +482,6 @@
     "fermerMenu": "Close menu",
     "reduireMenu": "Collapse menu",
     "deplierMenu": "Expand menu",
-    "deconnexion": "Sign out",
     "sections": {
       "principal": "Main",
       "demarches": "Procedures",
@@ -513,7 +498,14 @@
       "notifications": "Notifications",
       "catalogue": "Catalogue and fees",
       "workflows": "Workflows",
-      "parametres": "Time limits and notifications"
+      "parametres": "Time limits and notifications",
+      "profil": "My profile"
+    },
+    "compte": {
+      "menu": "User menu",
+      "profil": "My profile",
+      "langue": "Language",
+      "deconnexion": "Sign out"
     }
   },
   "etats": {
@@ -1630,6 +1622,27 @@
         "email": "detailed message to their email address",
         "interne": "notification in their online space (bell)"
       }
+    }
+  },
+  "profil": {
+    "titre": "My profile",
+    "description": "Your account details, interface language and access security.",
+    "identite": {
+      "titre": "Identity",
+      "nom": "Name",
+      "email": "Email address",
+      "profil": "Profile",
+      "organisation": "Organisation",
+      "aide": "This information is managed by the platform administrator. Contact them for any correction."
+    },
+    "langue": {
+      "titre": "Language",
+      "legende": "Language of the interface and of the messages sent by e-mine."
+    },
+    "securite": {
+      "titre": "Security",
+      "texte": "You will be taken to the secure sign-in page to choose a new password, then brought back here.",
+      "motDePasse": "Change my password"
     }
   }
 }

@@ -3,7 +3,7 @@ import { NextIntlClientProvider } from "next-intl";
 import type { ReactNode } from "react";
 import fr from "../../messages/fr.json";
 import type { DemandeDto, IndicateursDto } from "@emine/api-client";
-import { MessageConnexion, motifDepuisParametres } from "./message-connexion";
+import { adresseConnexion, supplementsConnexion } from "@/serveur/connexion";
 import { actionAttendue, VueTableauDeBord } from "./vue-tableau-de-bord";
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }));
@@ -350,26 +350,25 @@ describe("droit de déposer (US-01.6)", () => {
   });
 });
 
-describe("messages de la page de connexion", () => {
-  it.each([
-    [{ erreur: "connexion" }, "connexion"],
-    [{ erreur: "indisponible" }, "indisponible"],
-    [{ expiree: "1" }, "expiree"],
-    [{ deconnecte: "1" }, "deconnecte"],
-    [{}, null],
-  ])("%o donne le motif %s", (parametres, motif) => {
-    expect(motifDepuisParametres(parametres)).toBe(motif);
+describe("porte d'entrée : paramètres transmis à Keycloak", () => {
+  it("ne laisse passer que les motifs connus, la langue et l'action de mot de passe", () => {
+    expect(supplementsConnexion({ motif: "deconnecte", langue: "en" })).toEqual({
+      motif: "deconnecte",
+      ui_locales: "en",
+    });
+    expect(supplementsConnexion({ motif: "<script>", action: "supprimer", langue: "de" })).toEqual({
+      ui_locales: "fr",
+    });
+    expect(supplementsConnexion({ action: "mot-de-passe" })).toEqual({
+      ui_locales: "fr",
+      kc_action: "UPDATE_PASSWORD",
+    });
   });
 
-  it("annonce un échec de connexion comme une erreur, avec quoi faire", () => {
-    enFrancais(<MessageConnexion motif="connexion" />);
-    const alerte = screen.getByRole("alert");
-    expect(alerte).toHaveTextContent("La connexion n'a pas abouti.");
-    expect(alerte).toHaveTextContent("Réessayez.");
-  });
-
-  it("confirme poliment la déconnexion", () => {
-    enFrancais(<MessageConnexion motif="deconnecte" />);
-    expect(screen.getByRole("status")).toHaveTextContent("Vous êtes déconnecté.");
+  it("construit l'adresse de connexion avec le motif et la page de retour", () => {
+    expect(adresseConnexion("deconnecte")).toBe("/api/auth/login?motif=deconnecte");
+    expect(adresseConnexion("expiree", "/demandes/12?vue=a")).toBe(
+      "/api/auth/login?motif=expiree&retour=%2Fdemandes%2F12%3Fvue%3Da",
+    );
   });
 });

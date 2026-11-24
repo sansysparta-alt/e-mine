@@ -11,6 +11,10 @@ export type ComposantLien = ComponentType<{
   "aria-label"?: string;
   title?: string;
   onClick?: () => void;
+  /** Lien utilisé comme élément de menu (`MenuUtilisateur`). */
+  role?: string;
+  tabIndex?: number;
+  "data-element-menu"?: string;
 }>;
 
 const LienParDefaut: ComposantLien = ({ children, ...props }) => <a {...props}>{children}</a>;

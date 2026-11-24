@@ -58,6 +58,11 @@ export {
   pagesAffichees,
   type PaginationProps,
 } from "./composants/pagination";
+export {
+  type ElementMenuUtilisateur,
+  MenuUtilisateur,
+  type MenuUtilisateurProps,
+} from "./composants/menu-utilisateur";
 export { TAILLES_PAGE, tailleAutorisee, tailleDePagePour } from "./taille-page";
 export {
   type DocumentAffiche,

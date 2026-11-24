@@ -2,6 +2,7 @@ import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { configuration } from "@/serveur/config";
+import { adresseConnexion } from "@/serveur/connexion";
 import { terminerConnexion } from "@/serveur/oidc";
 import { cheminDeRetourSur } from "@/serveur/retour";
 import {
@@ -21,7 +22,7 @@ export async function GET(requete: NextRequest) {
   flux.destroy();
 
   if (!verificateur || !etat || !nonce || requete.nextUrl.searchParams.has("error")) {
-    return NextResponse.redirect(new URL("/?erreur=connexion", c.urlApplication));
+    return NextResponse.redirect(new URL(adresseConnexion("erreur", retour), c.urlApplication));
   }
   try {
     const urlDeRetour = new URL(c.urlRetourOidc);
@@ -33,6 +34,6 @@ export async function GET(requete: NextRequest) {
     return NextResponse.redirect(new URL(retour, c.urlApplication));
   } catch (erreur) {
     console.error("Connexion : échec de l'échange du code", erreur);
-    return NextResponse.redirect(new URL("/?erreur=connexion", c.urlApplication));
+    return NextResponse.redirect(new URL(adresseConnexion("erreur", retour), c.urlApplication));
   }
 }
