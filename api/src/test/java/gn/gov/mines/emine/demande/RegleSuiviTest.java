@@ -102,6 +102,28 @@ class RegleSuiviTest {
         .isNull();
   }
 
+  @Test
+  void lAvancementSuitLaFriseEtIgnoreLesEtapesSansObjet() {
+    assertThat(avancement("deposee", false, true, null)).isEqualTo(new RegleSuivi.Avancement(2, 6));
+    assertThat(avancement("deposee", true, true, null)).isEqualTo(new RegleSuivi.Avancement(3, 6));
+    assertThat(avancement("complement_requis", true, true, "en_instruction"))
+        .isEqualTo(new RegleSuivi.Avancement(4, 6));
+    assertThat(avancement("decision", true, true, null)).isEqualTo(new RegleSuivi.Avancement(5, 6));
+    // Sans droits à payer, le document compte 5 étapes : la signature est la 5e.
+    assertThat(avancement("droits_payes", true, false, null))
+        .isEqualTo(new RegleSuivi.Avancement(5, 5));
+    for (String fini : new String[] {"brouillon", "delivree", "rejetee", "archivee"}) {
+      assertThat(avancement(fini, true, true, null)).as(fini).isNull();
+    }
+  }
+
+  private static RegleSuivi.Avancement avancement(
+      String statut, boolean frais, boolean droits, String origine) {
+    return RegleSuivi.avancement(
+        new Situation(
+            statut, frais, droits, origine, new Dates(J1, null, null, null, null, null, null)));
+  }
+
   private static List<EtapeSuivi> suivi(
       String statut, boolean frais, boolean droits, String origine, Dates dates) {
     return RegleSuivi.suivi(new Situation(statut, frais, droits, origine, dates));

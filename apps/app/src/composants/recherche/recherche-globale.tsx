@@ -5,6 +5,7 @@ import { FileText, History, type LucideIcon, Search, X } from "@emine/ui/icones"
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { lireRecentes, memoriserRecente } from "./recentes";
 
 /** Page proposée par la recherche : seulement celles que le profil peut ouvrir. */
 export type PageRecherche = { cle: string; libelle: string; href: string; icone: LucideIcon };
@@ -18,34 +19,10 @@ export type ResultatDemande = {
 };
 
 const CLE_RECENTES = "emine.recherches-recentes";
-const MAX_RECENTES = 5;
 const DELAI_MS = 250;
 
-/** Recherches récentes de ce navigateur (commodité locale : absente ou illisible, liste vide). */
-export function lireRecentes(): string[] {
-  try {
-    const brut = JSON.parse(window.localStorage.getItem(CLE_RECENTES) ?? "[]") as unknown;
-    return Array.isArray(brut) ? brut.filter((x): x is string => typeof x === "string") : [];
-  } catch {
-    return [];
-  }
-}
-
-/** Ajoute une recherche en tête des récentes (sans doublon, 5 au plus). */
-export function memoriserRecente(texte: string, recentes = lireRecentes()): string[] {
-  const t = texte.trim();
-  if (t.length < 2) return recentes;
-  const liste = [t, ...recentes.filter((r) => r.toLowerCase() !== t.toLowerCase())].slice(
-    0,
-    MAX_RECENTES,
-  );
-  try {
-    window.localStorage.setItem(CLE_RECENTES, JSON.stringify(liste));
-  } catch {
-    // Stockage indisponible (navigation privée) : rien n'est gardé.
-  }
-  return liste;
-}
+/** Recherches récentes de la recherche globale (commodité locale). */
+export const lireRecentesGlobales = () => lireRecentes(CLE_RECENTES);
 
 type Option =
   | { genre: "recente"; id: string; texte: string }
@@ -88,7 +65,7 @@ export function RechercheGlobale({
   const requete = texte.trim();
 
   const ouvrir = useCallback(() => {
-    setRecentes(lireRecentes());
+    setRecentes(lireRecentes(CLE_RECENTES));
     setOuvert(true);
   }, []);
 
@@ -195,7 +172,7 @@ export function RechercheGlobale({
       champ.current?.focus();
       return;
     }
-    if (o.genre !== "page") setRecentes(memoriserRecente(requete));
+    if (o.genre !== "page") setRecentes(memoriserRecente(CLE_RECENTES, requete));
     const href =
       o.genre === "page"
         ? o.page.href

@@ -73,10 +73,13 @@ class MesDemandesTest extends TestIntegration {
       if (d.path("id").asLong() == deposeeA) {
         assertThat(d.path("statut").asString()).isEqualTo("deposee");
         assertThat(d.path("numero").asString()).startsWith("DEM-");
+        // Déposée, frais non payés : 2e étape de la frise (paiement des frais).
+        assertThat(d.path("avancement").path("etape").asInt()).isEqualTo(2);
       }
       if (d.path("id").asLong() == brouillonA) {
         assertThat(d.path("statut").asString()).isEqualTo("brouillon");
         assertThat(d.path("numero").isNull()).isTrue();
+        assertThat(d.path("avancement").isNull()).as("pas d'étape pour un brouillon").isTrue();
       }
     }
   }
@@ -158,6 +161,21 @@ class MesDemandesTest extends TestIntegration {
         .containsExactly(deposeeA);
     assertThat(ids(liste(INVESTISSEUR, "INVESTISSEUR", "?q=exploitation&taille=100")))
         .contains(brouillonA)
+        .doesNotContain(deposeeA);
+    // Recherche tolérante : partie du numéro, accents et majuscules ignorés, mots dans le désordre,
+    // libellé anglais, faute de frappe sur un mot ; un numéro voisin n'est pas retenu.
+    String fin = numero.substring(numero.length() - 4);
+    assertThat(ids(liste(INVESTISSEUR, "INVESTISSEUR", "?q=" + fin + "&taille=100")))
+        .contains(deposeeA);
+    for (String q :
+        new String[] {"EXPLOITATION", "exploîtation permis", "Mining licence", "exploitaton"}) {
+      assertThat(ids(liste(INVESTISSEUR, "INVESTISSEUR", "?q=" + q + "&taille=100")))
+          .as(q)
+          .contains(brouillonA)
+          .doesNotContain(deposeeA);
+    }
+    String voisin = numero.substring(0, numero.length() - 1) + (numero.endsWith("9") ? "8" : "9");
+    assertThat(ids(liste(INVESTISSEUR, "INVESTISSEUR", "?q=" + voisin + "&taille=100")))
         .doesNotContain(deposeeA);
     // Les jokers LIKE (% et _) sont pris littéralement : aucun numéro ni document n'en contient.
     for (String joker : new String[] {"%", "_"}) {

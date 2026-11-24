@@ -2,7 +2,7 @@
 
 import type { DemandeDto } from "@emine/api-client";
 import { Alerte, Bouton, Dialogue } from "@emine/ui";
-import { Download, PenLine, Trash2 } from "@emine/ui/icones";
+import { CreditCard, Download, FilePlus2, PenLine, Trash2 } from "@emine/ui/icones";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -13,11 +13,31 @@ const classesAction =
   "inline-flex min-h-11 items-center gap-1 rounded-lg px-2 text-sm font-semibold hover:bg-ice";
 
 /**
- * Actions directes d'une demande dans la liste du demandeur (correctifs ergonomie) : reprendre ou
- * supprimer un brouillon (confirmation, suppression logique), télécharger le PDF signé d'une
- * demande délivrée. Rien pour les autres statuts : la ligne ouvre la fiche.
+ * Action attendue du demandeur sur une ligne, d'après le statut (même règle que le libellé du
+ * statut : `presentationStatut`) : payer les frais ou les droits, compléter le dossier. Une
+ * demande dont rien n'est attendu du demandeur n'a pas d'action : la ligne ouvre la fiche.
  */
-export function ActionsDemande({ demande }: { demande: Pick<DemandeDto, "id" | "statut"> }) {
+export function actionAttendue(
+  d: Pick<DemandeDto, "id" | "statut" | "fraisPayes">,
+): { cle: "payerFrais" | "payerDroits" | "completer"; href: string } | null {
+  if (d.statut === "deposee" && !d.fraisPayes) {
+    return { cle: "payerFrais", href: `/demandes/${d.id}/paiement` };
+  }
+  if (d.statut === "decision") return { cle: "payerDroits", href: `/demandes/${d.id}/paiement` };
+  if (d.statut === "complement_requis") return { cle: "completer", href: `/demandes/${d.id}` };
+  return null;
+}
+
+/**
+ * Actions directes d'une demande dans la liste du demandeur (correctifs ergonomie) : continuer ou
+ * supprimer un brouillon (confirmation, suppression logique), payer les frais ou les droits,
+ * compléter, télécharger le PDF signé d'une demande délivrée.
+ */
+export function ActionsDemande({
+  demande,
+}: {
+  demande: Pick<DemandeDto, "id" | "statut" | "fraisPayes">;
+}) {
   const t = useTranslations("mesDemandes.actions");
   const router = useRouter();
   const [confirmation, setConfirmation] = useState(false);
@@ -34,6 +54,16 @@ export function ActionsDemande({ demande }: { demande: Pick<DemandeDto, "id" | "
         <Download aria-hidden="true" className="size-4" />
         {t("telecharger")}
       </a>
+    );
+  }
+  const attendue = actionAttendue(demande);
+  if (attendue) {
+    const Icone = attendue.cle === "completer" ? FilePlus2 : CreditCard;
+    return (
+      <Link href={attendue.href} className={`${classesAction} text-royal`}>
+        <Icone aria-hidden="true" className="size-4" />
+        {t(attendue.cle)}
+      </Link>
     );
   }
   if (demande.statut !== "brouillon") return null;
@@ -55,7 +85,7 @@ export function ActionsDemande({ demande }: { demande: Pick<DemandeDto, "id" | "
     <span className="flex flex-wrap items-center gap-1">
       <Link href={`/demandes/${demande.id}/modifier`} className={`${classesAction} text-royal`}>
         <PenLine aria-hidden="true" className="size-4" />
-        {t("reprendre")}
+        {t("continuer")}
       </Link>
       <button
         type="button"

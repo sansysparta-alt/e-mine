@@ -53,7 +53,16 @@ record DemandeDto(
             nullable = true,
             allowableValues = {"complement", "droits"})
         String motifSuspension,
-    boolean delaiDemarre) {
+    boolean delaiDemarre,
+    @Schema(
+            nullable = true,
+            description =
+                "Étape en cours dans le circuit (« Étape 3 sur 6 »), d'après la frise de suivi ;"
+                    + " absente pour un brouillon, une demande délivrée, rejetée ou archivée")
+        Avancement avancement) {
+
+  /** Rang de l'étape en cours parmi les étapes qui s'appliquent au document. */
+  record Avancement(int etape, int total) {}
 
   /** Auteur de la demande. */
   record Demandeur(
@@ -88,6 +97,9 @@ record DemandeDto(
         d.procheDepassement(),
         d.delaiSuspendu(),
         d.motifSuspension(),
-        d.delaiDemarre());
+        d.delaiDemarre(),
+        d.avancement() == null
+            ? null
+            : new Avancement(d.avancement().etape(), d.avancement().total()));
   }
 }

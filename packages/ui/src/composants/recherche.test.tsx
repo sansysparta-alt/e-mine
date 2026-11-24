@@ -53,4 +53,48 @@ describe("recherche pendant la saisie", () => {
     expect(bouton.className).not.toMatch(/sr-only/);
     expect(bouton.closest("form")).toHaveAttribute("method", "get");
   });
+
+  it("la croix vide le champ et relance la recherche aussitôt", () => {
+    const surRecherche = vi.fn();
+    render(
+      <ChampRecherche
+        libelle="Rechercher"
+        boutonLibelle="Rechercher"
+        valeur="DEM"
+        surRecherche={surRecherche}
+      />,
+    );
+    const champ = screen.getByRole("searchbox", { name: "Rechercher" });
+    fireEvent.click(screen.getByRole("button", { name: "Effacer la recherche" }));
+    expect(champ).toHaveValue("");
+    expect(champ).toHaveFocus();
+    expect(surRecherche).toHaveBeenCalledWith("");
+    expect(screen.queryByRole("button", { name: "Effacer la recherche" })).toBeNull();
+  });
+
+  it("propose des suggestions sans doublon, et suit une recherche changée hors du champ", () => {
+    const { container, rerender } = render(
+      <ChampRecherche
+        libelle="Rechercher"
+        boutonLibelle="Rechercher"
+        valeur="permis"
+        suggestions={["Permis de recherche", "Permis de recherche", " Carte d'orpailleur "]}
+        surRecherche={vi.fn()}
+      />,
+    );
+    const options = Array.from(container.querySelectorAll("datalist option"));
+    expect(options.map((o) => o.getAttribute("value"))).toEqual([
+      "Permis de recherche",
+      "Carte d'orpailleur",
+    ]);
+    rerender(
+      <ChampRecherche
+        libelle="Rechercher"
+        boutonLibelle="Rechercher"
+        suggestions={["Permis de recherche"]}
+        surRecherche={vi.fn()}
+      />,
+    );
+    expect(screen.getByRole("combobox", { name: "Rechercher" })).toHaveValue("");
+  });
 });

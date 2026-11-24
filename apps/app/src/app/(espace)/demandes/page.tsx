@@ -1,5 +1,5 @@
 import { compterDemandes, compterVues, listerDemandes } from "@emine/api-client";
-import { Bouton, EnTetePage, EtatVide, FiltresPastilles } from "@emine/ui";
+import { Alerte, Bouton, EnTetePage, EtatVide, FiltresPastilles } from "@emine/ui";
 import type { Metadata } from "next";
 import { libelleDocument } from "@/composants/referentiels";
 import { Plus } from "@emine/ui/icones";
@@ -141,6 +141,40 @@ export default async function MesDemandes({ searchParams }: Props) {
     .filter((f) => f !== null)
     .map((f) => ({ ...f, effacer: adresse({ [f.cle]: undefined }) }));
   const filtre = p.groupe ?? p.statut ?? (filtresActifs.length > 0 ? "indicateur" : undefined);
+  // Ce que le profil doit faire maintenant (vue « À traiter » de l'API) : rappelé en tête de liste
+  // tant qu'on regarde autre chose.
+  const aTraiter = vues.vues.find((v) => v.cle === "a-traiter")?.nombre ?? 0;
+  const bandeau =
+    aTraiter > 0 && vue !== "a-traiter" && !p.q ? (
+      <Alerte nature="avertissement" titre={t("bandeau.titre", { nombre: aTraiter })}>
+        <Link
+          href={adresse({ groupe: "a-traiter", statut: undefined })}
+          className="font-semibold text-royal underline underline-offset-4"
+        >
+          {t("bandeau.lien")}
+        </Link>
+      </Alerte>
+    ) : null;
+  const sansResultat = p.q ? (
+    <EtatVide
+      titre={t("aucunResultat.titre", { texte: p.q })}
+      description={t("aucunResultat.conseil")}
+      action={
+        <span className="flex flex-wrap justify-center gap-3">
+          <Bouton asChild variante="secondaire">
+            <Link href={adresse({ q: undefined })}>{t("aucunResultat.effacer")}</Link>
+          </Bouton>
+          {filtre ? (
+            <Bouton asChild variante="secondaire">
+              <Link href={`/demandes?q=${encodeURIComponent(p.q)}`}>
+                {t("aucunResultat.partout")}
+              </Link>
+            </Bouton>
+          ) : null}
+        </span>
+      }
+    />
+  ) : null;
 
   return (
     <div className="flex flex-col gap-6">
@@ -149,10 +183,12 @@ export default async function MesDemandes({ searchParams }: Props) {
         description={moi.interne ? t("descriptionInterne") : t("description")}
         actions={nouvelle}
       />
+      {bandeau}
       <RechercheListe
         libelle={t("recherche.libelle")}
         valeur={p.q}
         placeholder={t("recherche.exemple")}
+        suggestions={documents.map((d) => libelleDocument(d, langue))}
         boutonLibelle={t("recherche.bouton")}
         conserver={{
           ...indicateurs,
@@ -209,7 +245,9 @@ export default async function MesDemandes({ searchParams }: Props) {
         libelleEffacer={tActifs("effacer")}
         filtres={filtresActifs}
       />
-      {resultat.total === 0 ? (
+      {resultat.total === 0 && sansResultat ? (
+        sansResultat
+      ) : resultat.total === 0 ? (
         <EtatVide
           titre={filtre || p.q ? t("aucuneFiltre") : moi.interne ? t("aucuneInterne") : t("aucune")}
           description={filtre || p.q ? t("aucuneFiltreAide") : undefined}
@@ -227,6 +265,7 @@ export default async function MesDemandes({ searchParams }: Props) {
         <div className="flex flex-col gap-4">
           <TableauDemandes
             interne={moi.interne}
+            recherche={p.q}
             demandes={resultat.elements}
             libelles={libelles}
             legende={titre}

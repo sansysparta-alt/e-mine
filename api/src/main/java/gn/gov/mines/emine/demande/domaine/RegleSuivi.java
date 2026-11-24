@@ -126,6 +126,27 @@ public final class RegleSuivi {
     return List.copyOf(frise);
   }
 
+  /**
+   * Avancement d'une demande en cours (« Étape 3 sur 6 ») : rang de l'étape en cours parmi les
+   * étapes qui s'appliquent (sans « Paiement des droits » pour un document sans droits).
+   */
+  public record Avancement(int etape, int total) {}
+
+  /**
+   * Avancement déduit de la frise (même règle, une seule définition) ; {@code null} pour un
+   * brouillon, une demande délivrée, rejetée ou archivée : il n'y a plus d'étape en cours.
+   */
+  public static Avancement avancement(Situation s) {
+    List<EtapeSuivi> applicables =
+        suivi(s).stream().filter(e -> e.etat() != Etat.SANS_OBJET).toList();
+    for (int i = 0; i < applicables.size(); i++) {
+      if (applicables.get(i).etat() == Etat.EN_COURS) {
+        return new Avancement(i + 1, applicables.size());
+      }
+    }
+    return null;
+  }
+
   /** Indice de l'étape en cours ; 6 (au-delà de la dernière) quand le document est délivré. */
   private static int etapeCourante(Situation s) {
     return switch (s.statut()) {

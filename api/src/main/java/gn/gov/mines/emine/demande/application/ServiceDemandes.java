@@ -111,7 +111,7 @@ public class ServiceDemandes {
 
   @Transactional(readOnly = true)
   public DemandeDetail lire(long id) {
-    DemandeDetail d = lireVisible(id);
+    DemandeDetail d = avecAvancement(lireVisible(id), new java.util.HashMap<>());
     // Règle du socle : un brouillon reste privé à son auteur, même pour un agent (DEM-002).
     if (d.estBrouillon()
         && utilisateurCourant.get().map(UtilisateurConnecte::interne).orElse(false)) {
@@ -137,8 +137,29 @@ public class ServiceDemandes {
             .toList();
     // Règle du socle appliquée par l'API : un agent ne voit jamais les brouillons des usagers.
     boolean interne = utilisateurCourant.get().map(UtilisateurConnecte::interne).orElse(false);
-    return demandes.lister(
-        filtre, interne ? critere.sansBrouillons() : critere, pagination, filtreMoi());
+    Map<String, Boolean> droits = new java.util.HashMap<>();
+    return demandes
+        .lister(filtre, interne ? critere.sansBrouillons() : critere, pagination, filtreMoi())
+        .map(d -> avecAvancement(d, droits));
+  }
+
+  /**
+   * Avancement (« Étape 3 sur 6 ») d'après la règle de la frise (US-07.3) ; le catalogue dit si le
+   * document a des droits à payer (lu une fois par document et par requête).
+   */
+  private DemandeDetail avecAvancement(DemandeDetail d, Map<String, Boolean> droits) {
+    boolean droitsRequis =
+        droits.computeIfAbsent(
+            d.typeDocumentCode(),
+            code -> catalogue.trouver(code).map(t -> t.tarifs().droitsGnf() != null).orElse(false));
+    var situation =
+        new RegleSuivi.Situation(
+            d.statut(),
+            d.fraisPayes(),
+            droitsRequis,
+            d.origineComplement(),
+            new RegleSuivi.Dates(d.deposeLe(), null, null, null, null, null, null));
+    return d.avec(RegleSuivi.avancement(situation));
   }
 
   /**

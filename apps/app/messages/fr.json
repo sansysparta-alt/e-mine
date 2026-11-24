@@ -433,7 +433,6 @@
     "brouillon": "Brouillon",
     "effacerFiltre": "Effacer le filtre par statut",
     "actions": {
-      "reprendre": "Reprendre",
       "supprimer": "Supprimer",
       "telecharger": "Télécharger",
       "echec": "Le brouillon n’a pas été supprimé",
@@ -443,7 +442,11 @@
         "annuler": "Annuler",
         "confirmer": "Supprimer le brouillon",
         "enCours": "Suppression…"
-      }
+      },
+      "continuer": "Continuer",
+      "payerFrais": "Payer les frais",
+      "payerDroits": "Payer les droits",
+      "completer": "Compléter"
     },
     "filtresTableau": {
       "titre": "Filtres actifs",
@@ -459,7 +462,18 @@
     },
     "aucuneInterne": "Aucun dossier déposé pour le moment.",
     "aucuneFiltreAide": "Modifiez la recherche ou effacez les filtres pour revoir toute la liste.",
-    "effacerTout": "Effacer les filtres"
+    "effacerTout": "Effacer les filtres",
+    "avancement": "Étape {etape} sur {total}",
+    "bandeau": {
+      "titre": "{nombre, plural, =1 {1 demande attend votre action} other {# demandes attendent votre action}}",
+      "lien": "Les afficher"
+    },
+    "aucunResultat": {
+      "titre": "Aucune demande ne correspond à « {texte} »",
+      "conseil": "Vérifiez l’orthographe, ou saisissez une partie du numéro (par exemple 000009), le nom du document ou du demandeur. Les accents et les majuscules ne comptent pas.",
+      "effacer": "Effacer la recherche",
+      "partout": "Chercher dans toutes les demandes"
+    }
   },
   "session": {
     "avertissement": {
@@ -1791,5 +1805,8 @@
       "titre": "Accessibilité",
       "texte": "e-mine vise le niveau AA des règles d’accessibilité WCAG : navigation au clavier, contrastes suffisants, compatibilité avec les lecteurs d’écran. Signalez toute difficulté à l’assistance."
     }
+  },
+  "rechercheListe": {
+    "vider": "Effacer la recherche"
   }
 }

@@ -42,6 +42,7 @@ export default async function ATraiter({ searchParams }: Props) {
   if (groupes.length === 0) notFound();
   const p = lireParametresTravail(await searchParams, groupes);
   const t = await getTranslations("travail");
+  const tListe = await getTranslations("mesDemandes");
 
   const liste = async (g: Groupe, page: number, taille: number, q?: string) =>
     listerDemandes({ ...parametresListe(g), q, page, taille }, await optionsApi());
@@ -123,7 +124,7 @@ export default async function ATraiter({ searchParams }: Props) {
         <EtatVide
           icone={Inbox}
           titre={p.q ? t("vide.recherche") : t(`vide.${p.groupe.cle}`)}
-          description={p.q ? undefined : t("vide.description")}
+          description={p.q ? tListe("aucunResultat.conseil") : t("vide.description")}
         />
       ) : (
         <div className="flex flex-col gap-4">
@@ -134,6 +135,7 @@ export default async function ATraiter({ searchParams }: Props) {
             legende={t(`groupes.${p.groupe.cle}`)}
             groupe={p.groupe.cle}
             maintenant={new Date()}
+            recherche={p.q}
           />
           <PaginationListe
             chemin="/a-traiter"
