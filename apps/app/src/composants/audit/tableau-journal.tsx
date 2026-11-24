@@ -17,13 +17,16 @@ const LienNext: ComposantLien = ({ href, children, ...props }) => (
   </Link>
 );
 
+/** Une connexion (catégorie posée par l'API) : lue « Connexion », pas « Modification du compte ». */
+const estConnexion = (e: EntreeJournalDto) => e.categorie === "connexions";
+
 /** Nombre de champs modifiés résumés dans la liste (le détail est dans la fiche). */
 const RESUME_MAX = 2;
 
 /**
- * Journal d'audit (US-11.7) : date, auteur (ou système), action, objet et résumé des champs
- * modifiés ; la ligne entière ouvre la fiche de l'entrée, le lien vers la demande reste
- * utilisable au-dessus.
+ * Journal d'audit (US-11.7) : date, auteur (ou système), action (dont « Connexion »), objet et
+ * résumé des champs modifiés ; la ligne entière ouvre la fiche de l'entrée, le lien vers la
+ * demande reste utilisable au-dessus.
  */
 export function TableauJournal({
   entrees,
@@ -107,14 +110,17 @@ export function TableauJournal({
         {
           cle: "action",
           entete: t("colonnes.action"),
-          rendu: (e) => (
-            <span className="flex flex-col">
-              <span className="font-semibold">{t(`operations.${e.operation}`)}</span>
-              <span className="text-sm text-texte-doux">
-                {t.has(`tables.${e.table}`) ? t(`tables.${e.table}`) : e.table}
+          rendu: (e) =>
+            estConnexion(e) ? (
+              <span className="font-semibold">{t("operations.connexion")}</span>
+            ) : (
+              <span className="flex flex-col">
+                <span className="font-semibold">{t(`operations.${e.operation}`)}</span>
+                <span className="text-sm text-texte-doux">
+                  {t.has(`tables.${e.table}`) ? t(`tables.${e.table}`) : e.table}
+                </span>
               </span>
-            </span>
-          ),
+            ),
         },
         {
           cle: "objet",
@@ -131,7 +137,8 @@ export function TableauJournal({
                 {libelle}
               </Link>
             ) : (
-              <span className="break-all">{libelle}</span>
+              // Un e-mail ou un numéro se lit d'un seul tenant : jamais coupé en fin de ligne.
+              <span className="whitespace-nowrap">{libelle}</span>
             );
           },
         },
@@ -140,6 +147,16 @@ export function TableauJournal({
           entete: t("colonnes.changements"),
           interactive: true,
           rendu: (e) => {
+            if (estConnexion(e)) {
+              const precedente = e.changements[0]?.avant;
+              return (
+                <span className="text-texte-doux">
+                  {precedente
+                    ? t("connexion.precedente", { date: formaterDateHeure(precedente) })
+                    : t("connexion.premiere")}
+                </span>
+              );
+            }
             if (e.changements.length === 0) {
               return <span className="text-texte-doux">{t("voirDetail")}</span>;
             }

@@ -196,19 +196,16 @@ class FicheDocumentController {
       Map<Filtre, Long> compteurs,
       List<FamilleDto> familles) {}
 
+  /** Une famille (catégorie) de documents et son nombre de documents. */
+  record FamilleDto(String code, String libelle, long nombre) {}
+
   /**
-   * Ligne de la liste du catalogue.
+   * Ligne de la liste du catalogue, avec les tarifs en vigueur (GNF entiers ; absents si le
+   * document n'en a pas).
    *
    * @param numeroProposee proposition en attente du Ministre
    * @param action {@code DECIDER} (Ministre), {@code ATTENDRE} (administrateur) ou {@code AUCUNE}
    */
-  /**
-   * Une ligne du catalogue, avec les tarifs en vigueur (GNF entiers ; absents si le document n'en a
-   * pas).
-   */
-  /** Une famille (catégorie) de documents et son nombre de documents. */
-  record FamilleDto(String code, String libelle, long nombre) {}
-
   record LigneFicheDto(
       String code,
       String libelleFr,

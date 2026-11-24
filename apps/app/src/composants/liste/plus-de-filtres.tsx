@@ -83,7 +83,8 @@ export function PlusDeFiltres({ libelle, titre, options, actif }: PlusDeFiltresP
           className="absolute left-0 z-20 mt-2 w-[min(22rem,calc(100vw-2rem))] rounded-carte border border-bordure bg-white p-3 shadow-lg"
         >
           <p className="mb-2 text-sm font-semibold text-texte-doux">{titre}</p>
-          <ul className="flex flex-col">
+          {/* Liste longue (auteurs du journal…) : le panneau défile au lieu de sortir de l'écran. */}
+          <ul className="flex max-h-[min(24rem,60vh)] flex-col overflow-y-auto">
             {options.map((o) => (
               <li key={o.valeur}>
                 <Link

@@ -1,8 +1,14 @@
 import type { LigneFicheDto } from "@emine/api-client";
-import { BadgeStatut, type ComposantLien, TableauDonnees, TexteSurligne } from "@emine/ui";
+import {
+  BadgeStatut,
+  type ComposantLien,
+  formaterGnf,
+  TableauDonnees,
+  TexteSurligne,
+} from "@emine/ui";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
-import { libelleSignataire, libelleWorkflowParNom } from "../referentiels";
+import { useLocale, useTranslations } from "next-intl";
+import { libelleSignataire, libelleWorkflow } from "../referentiels";
 import { presentationLigne } from "./presentation";
 
 const LienNext: ComposantLien = ({ href, children, ...props }) => (
@@ -12,7 +18,7 @@ const LienNext: ComposantLien = ({ href, children, ...props }) => (
 );
 
 /**
- * Liste des fiches du catalogue (US-02.2) : code, document et famille, délai, signataire, version
+ * Liste des fiches du catalogue (US-02.2) : code, document et famille, tarifs en vigueur, délai, signataire, version
  * en vigueur et un seul badge (proposition en attente, retrait du catalogue ou « En vigueur ») ; la
  * ligne entière ouvre la fiche.
  */
@@ -28,6 +34,8 @@ export function TableauFiches({
 }) {
   const t = useTranslations("catalogue");
   const tReferentiels = useTranslations("referentiels");
+  const langue = useLocale();
+  const gnf = (montant: number) => formaterGnf(montant, langue);
   return (
     <TableauDonnees
       legende={legende}
@@ -48,7 +56,7 @@ export function TableauFiches({
                 · <TexteSurligne texte={l.libelleFr} recherche={recherche} />
               </span>
               <span className="text-sm text-texte-doux">
-                {libelleWorkflowParNom(l.famille, tReferentiels)}
+                {libelleWorkflow(l.familleCode, l.famille, tReferentiels)}
               </span>
             </span>
           ),
@@ -60,18 +68,18 @@ export function TableauFiches({
           rendu: (l) =>
             l.attestationGnf != null ? (
               <span className="flex flex-col items-end tabular-nums">
-                <span>{formaterGnf(l.attestationGnf)}</span>
+                <span>{gnf(l.attestationGnf)}</span>
                 <span className="text-sm text-texte-doux">{t("tarifs.unique")}</span>
               </span>
             ) : (
               <span className="flex flex-col items-end tabular-nums">
                 <span>
-                  {l.fraisDossierGnf != null ? formaterGnf(l.fraisDossierGnf) : "—"}{" "}
+                  {l.fraisDossierGnf != null ? gnf(l.fraisDossierGnf) : "—"}{" "}
                   <span className="text-sm text-texte-doux">{t("tarifs.frais")}</span>
                 </span>
                 <span className="text-sm text-texte-doux">
                   {l.droitsGnf != null
-                    ? t("tarifs.droits", { montant: formaterGnf(l.droitsGnf) })
+                    ? t("tarifs.droits", { montant: gnf(l.droitsGnf) })
                     : t("tarifs.sansDroits")}
                 </span>
               </span>

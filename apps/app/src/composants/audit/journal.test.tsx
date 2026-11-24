@@ -37,6 +37,9 @@ describe("journal d'audit : valeurs lisibles (US-11.7)", () => {
   it("valide les paramètres et repère une période inversée sans appeler l'API", () => {
     expect(lireParametresJournal({ categorie: "demandes" }).categorie).toBe("demandes");
     expect(lireParametresJournal({ categorie: "inconnue" }).categorie).toBeUndefined();
+    expect(lireParametresJournal({ categorie: "connexions" }).categorie).toBe("connexions");
+    expect(lireParametresJournal({ auteur: "12" }).auteur).toBe("12");
+    expect(lireParametresJournal({ auteur: "12 OR 1=1" }).auteur).toBeUndefined();
     expect(lireParametresJournal({ du: "21/11/2026" }).du).toBeUndefined();
     expect(lireParametresJournal({ du: "2026-11-21", au: "2026-11-01" }).periodeInversee).toBe(
       true,
@@ -132,5 +135,33 @@ describe("tableau du journal", () => {
     afficher([entree({})]);
     const liens = screen.getAllByRole("link");
     expect(liens.map((l) => l.getAttribute("href"))).toContain("/journal-audit/7");
+  });
+
+  it("une connexion se lit « Connexion », avec la connexion précédente, e-mail sur une ligne", () => {
+    afficher([
+      entree({
+        table: "utilisateur",
+        categorie: "connexions",
+        objetLibelle: "aicha.camara@e-mine.test",
+        demandeId: null,
+        changements: [
+          {
+            champ: "derniere_connexion",
+            avant: "2026-11-20T09:15:00Z",
+            apres: "2026-11-21T10:00:00Z",
+          },
+        ],
+      }),
+      entree({ id: 9, table: "utilisateur", categorie: "connexions", changements: [] }),
+    ]);
+    const [premiere, seconde] = screen
+      .getAllByRole("row")
+      .slice(1)
+      .map((r) => within(r));
+    expect(premiere!.getByText("Connexion")).toBeVisible();
+    expect(premiere!.queryByText("Modification")).toBeNull();
+    expect(premiere!.getByText("Connexion précédente : 20/11/2026 à 09:15")).toBeVisible();
+    expect(premiere!.getByText("aicha.camara@e-mine.test")).toHaveClass("whitespace-nowrap");
+    expect(seconde!.getByText("Première connexion")).toBeVisible();
   });
 });

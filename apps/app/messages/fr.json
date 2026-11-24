@@ -872,16 +872,13 @@
       "bouton": "Rechercher"
     },
     "periode": {
-      "du": "Du",
-      "au": "Au",
-      "appliquer": "Appliquer la période",
-      "effacer": "Effacer la période",
       "inverseeTitre": "Période incorrecte",
       "inversee": "La date de fin précède la date de début : corrigez la période."
     },
     "filtre": "Type d’objet",
     "categories": {
       "toutes": "Tout",
+      "connexions": "Connexions",
       "demandes": "Demandes",
       "paiements": "Paiements",
       "decisions": "Décisions",
@@ -899,7 +896,8 @@
     "operations": {
       "I": "Création",
       "U": "Modification",
-      "D": "Suppression"
+      "D": "Suppression",
+      "connexion": "Connexion"
     },
     "tables": {
       "demande": "Demande",
@@ -1005,7 +1003,8 @@
       "modele": "Événement",
       "code": "Code",
       "renouvelable": "Renouvelable",
-      "genere_titre": "Génère un titre"
+      "genere_titre": "Génère un titre",
+      "derniere_connexion": "Dernière connexion"
     },
     "systeme": "Système",
     "systemeDetail": "Système (notification TrésorPay, tâche automatique ou migration)",
@@ -1046,7 +1045,15 @@
     },
     "renseigne": "renseigné",
     "systemeAide": "Action automatique de la plateforme",
-    "element": "entrée"
+    "element": "entrée",
+    "connexion": {
+      "precedente": "Connexion précédente : {date}",
+      "premiere": "Première connexion"
+    },
+    "auteurs": {
+      "libelle": "Auteur",
+      "tous": "Tous les auteurs"
+    }
   },
   "delivrance": {
     "signer": {
@@ -1317,15 +1324,6 @@
       "admin": "Fiches des 15 documents du Ministère : pièces, délai cible, signataire et tarifs. Chaque modification est proposée ici, puis validée par le Ministre avant d’être publiée.",
       "ministre": "Modifications du catalogue proposées par l’administrateur : validez-les ou refusez-les. Rien n’est publié sans votre validation."
     },
-    "chiffres": {
-      "periode": "À ce jour",
-      "documents": "Documents au catalogue",
-      "propositions": {
-        "admin": "Modifications en attente de validation",
-        "ministre": "Modifications à valider"
-      },
-      "inactifs": "Retirés du catalogue"
-    },
     "recherche": {
       "libelle": "Rechercher un document",
       "exemple": "Code ou nom du document",
@@ -1336,11 +1334,14 @@
       "TOUS": "Tous",
       "A_VALIDER_admin": "En attente de validation",
       "A_VALIDER_ministre": "À valider",
-      "INACTIFS": "Retirés du catalogue"
+      "INACTIFS": "Retirés du catalogue",
+      "famille": "Catégorie",
+      "toutesFamilles": "Toutes les catégories"
     },
     "colonnes": {
       "code": "Code",
       "document": "Document",
+      "tarifs": "Tarifs",
       "delai": "Délai cible",
       "signataire": "Signataire",
       "version": "Version",
@@ -1552,7 +1553,13 @@
         "jours": "jours"
       }
     },
-    "element": "document"
+    "element": "document",
+    "tarifs": {
+      "unique": "tarif unique",
+      "frais": "frais de dossier",
+      "droits": "puis {montant} de droits",
+      "sansDroits": "sans droits"
+    }
   },
   "workflows": {
     "titre": "Workflows",

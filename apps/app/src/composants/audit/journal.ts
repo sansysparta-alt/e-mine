@@ -5,6 +5,7 @@ import { formaterDate, formaterDateHeure, formaterGnf, tailleAutorisee } from "@
  * enregistrées par la base (dates, montants, booléens, statuts) pour qu'un humain les lise.
  */
 export const CATEGORIES = [
+  "connexions",
   "demandes",
   "paiements",
   "decisions",
@@ -21,6 +22,8 @@ const INSECABLE = " ";
 
 export type ParametresJournal = {
   categorie?: string;
+  /** Auteur des lignes (identifiant du compte). */
+  auteur?: string;
   q?: string;
   du?: string;
   au?: string;
@@ -31,6 +34,7 @@ export type ParametresJournal = {
 /** Paramètres validés ; `periodeInversee` si la fin précède le début (l'API n'est pas appelée). */
 export function lireParametresJournal(p: ParametresJournal) {
   const categorie = CATEGORIES.find((c) => c === p.categorie);
+  const auteur = p.auteur && /^\d{1,12}$/.test(p.auteur) ? p.auteur : undefined;
   const q = p.q?.trim().slice(0, 100) || undefined;
   const du = p.du && DATE.test(p.du) ? p.du : undefined;
   const au = p.au && DATE.test(p.au) ? p.au : undefined;
@@ -38,7 +42,7 @@ export function lireParametresJournal(p: ParametresJournal) {
   const tailleDemandee = Number.parseInt(p.taille ?? "", 10);
   const taille = tailleAutorisee(tailleDemandee);
   const periodeInversee = du !== undefined && au !== undefined && du > au;
-  return { categorie, q, du, au, page, taille, periodeInversee };
+  return { categorie, auteur, q, du, au, page, taille, periodeInversee };
 }
 
 /** Traductions utiles à la mise en forme (fonction `t` de next-intl, réduite à l'essentiel). */

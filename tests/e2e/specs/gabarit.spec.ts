@@ -67,8 +67,11 @@ test("la recherche globale ne propose que les écrans du profil", async ({ brows
   await (await ouvrirRecherche(admin)).fill("journal");
   await admin.getByRole("option", { name: /Journal d’audit/ }).click();
   await expect(admin).toHaveURL(/\/journal-audit$/);
-  // Les agents ne reçoivent pas de notification : ni cloche, ni centre de notifications.
+  // L'administrateur ne reçoit pas de notification : sa cloche est celle des alertes.
   await expect(admin.getByRole("button", { name: /^Notifications/ })).toHaveCount(0);
+  await admin.getByRole("button", { name: /^Alertes/ }).click();
+  await expect(admin.getByRole("region", { name: "Alertes" })).toBeVisible();
+  await admin.keyboard.press("Escape");
   expect((await admin.goto("/notifications"))?.status()).toBe(404);
 });
 

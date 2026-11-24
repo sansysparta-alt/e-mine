@@ -872,16 +872,13 @@
       "bouton": "Search"
     },
     "periode": {
-      "du": "From",
-      "au": "To",
-      "appliquer": "Apply period",
-      "effacer": "Clear period",
       "inverseeTitre": "Incorrect period",
       "inversee": "The end date is before the start date: correct the period."
     },
     "filtre": "Object type",
     "categories": {
       "toutes": "All",
+      "connexions": "Sign-ins",
       "demandes": "Requests",
       "paiements": "Payments",
       "decisions": "Decisions",
@@ -899,7 +896,8 @@
     "operations": {
       "I": "Creation",
       "U": "Change",
-      "D": "Deletion"
+      "D": "Deletion",
+      "connexion": "Sign-in"
     },
     "tables": {
       "demande": "Request",
@@ -1005,7 +1003,8 @@
       "modele": "Event",
       "code": "Code",
       "renouvelable": "Renewable",
-      "genere_titre": "Creates a title"
+      "genere_titre": "Creates a title",
+      "derniere_connexion": "Last sign-in"
     },
     "systeme": "System",
     "systemeDetail": "System (TrésorPay notification, automatic task or migration)",
@@ -1046,7 +1045,15 @@
     },
     "renseigne": "set",
     "systemeAide": "Automatic platform action",
-    "element": "entry"
+    "element": "entry",
+    "connexion": {
+      "precedente": "Previous sign-in: {date}",
+      "premiere": "First sign-in"
+    },
+    "auteurs": {
+      "libelle": "Author",
+      "tous": "All authors"
+    }
   },
   "delivrance": {
     "signer": {
@@ -1317,15 +1324,6 @@
       "admin": "Records of the Ministry’s 15 documents: required documents, target time, signatory and fees. Each change is proposed here, then validated by the Minister before it is published.",
       "ministre": "Catalogue changes proposed by the administrator: validate or reject them. Nothing is published without your validation."
     },
-    "chiffres": {
-      "periode": "To date",
-      "documents": "Documents in the catalogue",
-      "propositions": {
-        "admin": "Changes awaiting validation",
-        "ministre": "Changes to validate"
-      },
-      "inactifs": "Withdrawn from the catalogue"
-    },
     "recherche": {
       "libelle": "Search a document",
       "exemple": "Document code or name",
@@ -1336,11 +1334,14 @@
       "TOUS": "All",
       "A_VALIDER_admin": "Awaiting validation",
       "A_VALIDER_ministre": "To validate",
-      "INACTIFS": "Withdrawn"
+      "INACTIFS": "Withdrawn",
+      "famille": "Category",
+      "toutesFamilles": "All categories"
     },
     "colonnes": {
       "code": "Code",
       "document": "Document",
+      "tarifs": "Fees",
       "delai": "Target time",
       "signataire": "Signatory",
       "version": "Version",
@@ -1552,7 +1553,13 @@
         "jours": "days"
       }
     },
-    "element": "document"
+    "element": "document",
+    "tarifs": {
+      "unique": "single fee",
+      "frais": "filing fee",
+      "droits": "then {montant} in duties",
+      "sansDroits": "no duties"
+    }
   },
   "workflows": {
     "titre": "Workflows",
