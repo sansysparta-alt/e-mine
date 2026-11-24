@@ -156,14 +156,7 @@ public class DemandeRepository {
       condition = condition.and(conditionPilotage(critere.pilotage()));
     }
     if (critere.recherche() != null && !critere.recherche().isBlank()) {
-      String motif = "%" + echapperLike(critere.recherche().strip()) + "%";
-      condition =
-          condition.and(
-              DEMANDE
-                  .NUMERO
-                  .likeIgnoreCase(motif, '\\')
-                  .or(TYPE_DOCUMENT.CODE.likeIgnoreCase(motif, '\\'))
-                  .or(TYPE_DOCUMENT.LIBELLE_FR.likeIgnoreCase(motif, '\\')));
+      condition = condition.and(conditionRecherche(critere.recherche()));
     }
     long total =
         dsl.selectCount()
@@ -424,6 +417,65 @@ public class DemandeRepository {
   }
 
   /** Échappe les caractères spéciaux de LIKE (le texte cherché est pris littéralement). */
+  /** Seuil de ressemblance (pg_trgm) au-delà duquel un mot mal orthographié est retenu. */
+  private static final double RESSEMBLANCE_MIN = 0.5;
+
+  /** Longueur minimale d'un mot pour tolérer une faute de frappe (en deçà, trop d'à-peu-près). */
+  private static final int LONGUEUR_TOLERANCE = 5;
+
+  /**
+   * Recherche tolérante (lot « Listes et recherches ») : chaque mot saisi doit se retrouver, dans
+   * n'importe quel ordre, dans le numéro, le code ou le nom du document (français et anglais), le
+   * nom du demandeur ou de son organisation ; accents, majuscules et apostrophes ignorés ({@code
+   * fn_normaliser}, V23) ; une partie du numéro suffit ; un mot d'au moins 5 lettres mal
+   * orthographié est retenu s'il ressemble assez à un mot du dossier (pg_trgm). Les jokers LIKE
+   * saisis sont pris littéralement.
+   */
+  static Condition conditionRecherche(String recherche) {
+    var u = UTILISATEUR.as("u_recherche");
+    var o = ORGANISATION.as("o_recherche");
+    Field<String> demandeur =
+        DSL.select(DSL.concat(u.PRENOM, DSL.inline(" "), u.NOM))
+            .from(u)
+            .where(u.ID.eq(DEMANDE.DEMANDEUR_ID))
+            .asField();
+    Field<String> organisation =
+        DSL.select(o.RAISON_SOCIALE).from(o).where(o.ID.eq(DEMANDE.ORGANISATION_ID)).asField();
+    Field<String> texte =
+        normaliser(
+            DSL.field(
+                "concat_ws(' ', {0}, {1}, {2}, {3}, {4}, {5})",
+                String.class,
+                DEMANDE.NUMERO,
+                TYPE_DOCUMENT.CODE,
+                TYPE_DOCUMENT.LIBELLE_FR,
+                TYPE_DOCUMENT.LIBELLE_EN,
+                demandeur,
+                organisation));
+    Condition c = DSL.trueCondition();
+    for (String mot : recherche.strip().split("[\\s’']+")) {
+      if (mot.isBlank()) continue;
+      // La normalisation ne touche ni à « \ » ni aux jokers : l'échappement reste valable.
+      Field<String> motif = normaliser(DSL.val("%" + echapperLike(mot) + "%"));
+      Condition trouve = texte.like(motif, '\\');
+      // Un numéro se cherche exactement (000009 ne doit pas trouver 000019) : pas de tolérance.
+      if (mot.length() >= LONGUEUR_TOLERANCE && mot.chars().noneMatch(Character::isDigit)) {
+        trouve =
+            trouve.or(
+                DSL.field(
+                        "word_similarity({0}, {1})", Double.class, normaliser(DSL.val(mot)), texte)
+                    .ge(RESSEMBLANCE_MIN));
+      }
+      c = c.and(trouve);
+    }
+    return c;
+  }
+
+  /** Forme de comparaison d'un texte (minuscules, sans accents), fonction de la base (V23). */
+  private static Field<String> normaliser(Field<String> texte) {
+    return DSL.function("fn_normaliser", String.class, texte);
+  }
+
   static String echapperLike(String texte) {
     return texte.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
   }
