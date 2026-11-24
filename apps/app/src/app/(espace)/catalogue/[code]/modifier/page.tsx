@@ -1,12 +1,11 @@
 import { ErreurApi, lireFicheDocument, referencesFichesDocuments } from "@emine/api-client";
 import { dateDuJour, EnTetePage } from "@emine/ui";
-import { ArrowLeft } from "@emine/ui/icones";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { FormulaireFiche } from "@/composants/catalogue/formulaire-fiche";
 import { proposerFiche } from "@/serveur/actions-catalogue";
+import { FilArianeApp } from "@/composants/fil-ariane-app";
 import { appelPage, chargerMoi, optionsApi } from "@/serveur/donnees";
 
 type Props = { params: Promise<{ code: string }> };
@@ -46,13 +45,11 @@ export default async function ModifierFiche({ params }: Props) {
     <div className="flex flex-col gap-6">
       <EnTetePage
         retour={
-          <Link
-            href={`/catalogue/${code}`}
-            className="inline-flex min-h-11 items-center gap-2 text-royal underline-offset-4 hover:underline"
-          >
-            <ArrowLeft aria-hidden="true" className="size-4" />
-            {t("retour", { code })}
-          </Link>
+          <FilArianeApp
+            rubrique="catalogue"
+            parents={[{ libelle: code, href: `/catalogue/${code}` }]}
+            courante={t("titre")}
+          />
         }
         titre={t("titre")}
         description={`${fiche.code} · ${fiche.enVigueur.libelleFr} — ${t("versionActuelle", {

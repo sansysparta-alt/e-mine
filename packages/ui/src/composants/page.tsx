@@ -121,10 +121,32 @@ export function EtatVide({ titre, description, action, icone: Icone = Inbox }: E
 }
 
 /** Chargement : lignes fantômes, annoncé aux lecteurs d'écran. */
-export function EtatChargement({ libelle, lignes = 3 }: { libelle: string; lignes?: number }) {
+export function EtatChargement({
+  libelle,
+  lignes = 3,
+  forme = "liste",
+}: {
+  libelle: string;
+  lignes?: number;
+  /** « page » : squelette d'un écran entier (titre, cartes chiffrées, liste) ; « liste » : lignes seules. */
+  forme?: "liste" | "page";
+}) {
+  const bloc = "animate-pulse rounded-lg bg-white border border-bordure";
   return (
     <div role="status" aria-live="polite" className="flex flex-col gap-3">
       <span className="sr-only">{libelle}</span>
+      {forme === "page" ? (
+        <div aria-hidden="true" className="mb-3 flex flex-col gap-3">
+          <div className="h-4 w-40 animate-pulse rounded bg-bordure/60" />
+          <div className="h-8 w-2/3 max-w-sm animate-pulse rounded bg-bordure/60" />
+          <div className="h-4 w-full max-w-md animate-pulse rounded bg-bordure/40" />
+          <div className="mt-3 grid gap-4 sm:grid-cols-3">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className={`h-24 ${bloc}`} />
+            ))}
+          </div>
+        </div>
+      ) : null}
       {Array.from({ length: lignes }, (_, i) => (
         <div
           key={i}

@@ -1,6 +1,6 @@
 import { ErreurApi, lireDemande, lirePaiementAttendu } from "@emine/api-client";
 import { Alerte, Bouton, Carte, EnTetePage, formaterGnf } from "@emine/ui";
-import { ArrowLeft, ShieldCheck } from "@emine/ui/icones";
+import { ShieldCheck } from "@emine/ui/icones";
 import type { Metadata } from "next";
 import { libelleDocument } from "@/composants/referentiels";
 import Link from "next/link";
@@ -8,6 +8,7 @@ import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { ChoixMoyen } from "@/composants/paiement/choix-moyen";
 import { choisirMoyen } from "@/serveur/actions-paiement";
+import { FilArianeApp } from "@/composants/fil-ariane-app";
 import { appelPage, chargerReferentiels, optionsApi } from "@/serveur/donnees";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -45,13 +46,11 @@ export default async function PaiementDemande({ params }: Props) {
   const { documents } = await chargerReferentiels();
   const document = documents.find((d) => d.code === demande.typeDocumentCode);
   const retour = (
-    <Link
-      href={`/demandes/${id}`}
-      className="inline-flex min-h-11 items-center gap-2 text-royal underline-offset-4 hover:underline"
-    >
-      <ArrowLeft aria-hidden="true" className="size-4" />
-      {t("retourDemande")}
-    </Link>
+    <FilArianeApp
+      rubrique="mesDemandes"
+      parents={[{ libelle: demande.numero ?? t("retourDemande"), href: `/demandes/${id}` }]}
+      courante={t("filAriane")}
+    />
   );
   const langue = await getLocale();
   const description = [

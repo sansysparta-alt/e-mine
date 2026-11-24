@@ -1,0 +1,65 @@
+import { type Browser, expect, type Page, test } from "@playwright/test";
+
+/**
+ * Gabarit commun de l'espace connecté : action principale en tête du menu, cloche (seul accès aux
+ * notifications), recherche globale Ctrl+K limitée aux écrans du profil, fil d'Ariane, aide et
+ * pied de page.
+ */
+
+const MOT_DE_PASSE = process.env.DEMO_PASSWORD ?? "";
+const INVESTISSEUR = "f.bangoura@horizon-invest.test";
+const ADMIN = "o.bah@e-mine.test";
+
+async function connecter(browser: Browser, email: string): Promise<Page> {
+  expect(MOT_DE_PASSE, "DEMO_PASSWORD doit être défini dans .env").not.toBe("");
+  const page = await (await browser.newContext()).newPage();
+  await page.goto("/");
+  await page.locator("#username").fill(email);
+  await page.locator("#password").fill(MOT_DE_PASSE);
+  await page.locator("#kc-login").click();
+  await expect(page).toHaveURL(/\/tableau-de-bord/);
+  return page;
+}
+
+test("le demandeur : « Nouvelle demande » en tête du menu, cloche, aide et pied de page", async ({
+  browser,
+}) => {
+  const page = await connecter(browser, INVESTISSEUR);
+  const menu = page.getByRole("navigation", { name: "Navigation principale" }).first();
+  await expect(menu.getByRole("link", { name: "Notifications" })).toHaveCount(0);
+
+  await page.getByRole("link", { name: "Nouvelle demande" }).first().click();
+  await expect(page).toHaveURL(/\/demandes\/nouvelle$/);
+  const fil = page.getByRole("navigation", { name: "Fil d’Ariane" });
+  await expect(fil.getByRole("link", { name: "Mes demandes" })).toHaveAttribute(
+    "href",
+    "/demandes",
+  );
+
+  await page.getByRole("button", { name: /^Notifications/ }).click();
+  await page.getByRole("link", { name: "Voir toutes les notifications" }).click();
+  await expect(page).toHaveURL(/\/notifications$/);
+
+  await page.getByRole("contentinfo").getByRole("link", { name: "Mentions légales" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Mentions légales" })).toBeVisible();
+  await page.getByRole("link", { name: "Aide" }).first().click();
+  await expect(page.getByRole("heading", { level: 1, name: "Aide" })).toBeVisible();
+  await expect(page.getByText("Comment déposer une demande ?")).toBeVisible();
+});
+
+test("la recherche globale ne propose que les écrans du profil", async ({ browser }) => {
+  const investisseur = await connecter(browser, INVESTISSEUR);
+  await investisseur.keyboard.press("Control+k");
+  const champ = investisseur.getByRole("combobox", { name: "Rechercher dans e-mine" });
+  await champ.fill("journal");
+  await expect(investisseur.getByText("Aucun résultat pour « journal »")).toBeVisible();
+
+  const admin = await connecter(browser, ADMIN);
+  await admin.keyboard.press("Control+k");
+  await admin.getByRole("combobox", { name: "Rechercher dans e-mine" }).fill("journal");
+  await admin.getByRole("option", { name: /Journal d’audit/ }).click();
+  await expect(admin).toHaveURL(/\/journal-audit$/);
+  // Les agents ne reçoivent pas de notification : ni cloche, ni centre de notifications.
+  await expect(admin.getByRole("button", { name: /^Notifications/ })).toHaveCount(0);
+  expect((await admin.goto("/notifications"))?.status()).toBe(404);
+});

@@ -499,14 +499,18 @@
       "catalogue": "Catalogue and fees",
       "workflows": "Workflows",
       "parametres": "Time limits and notifications",
-      "profil": "My profile"
+      "profil": "My profile",
+      "aide": "Help",
+      "mentionsLegales": "Legal notice"
     },
     "compte": {
       "menu": "User menu",
       "profil": "My profile",
       "langue": "Language",
       "deconnexion": "Sign out"
-    }
+    },
+    "filAriane": "Breadcrumb",
+    "compteur": "{nombre, plural, =1 {1 to do} other {# to do}}"
   },
   "etats": {
     "chargement": "Loading…",
@@ -649,7 +653,8 @@
     "recu": {
       "voir": "view the receipt",
       "voirNumero": "View receipt {numero}"
-    }
+    },
+    "filAriane": "Payment"
   },
   "statutsPaiement": {
     "initie": "Initiated",
@@ -994,7 +999,8 @@
       "champ": "Field",
       "avant": "Before",
       "apres": "After",
-      "valeur": "Value"
+      "valeur": "Value",
+      "filAriane": "Operation #{id}"
     },
     "valeurs": {
       "jours": "{n, plural, one {# day} other {# days}}",
@@ -1234,7 +1240,9 @@
     },
     "cloche": {
       "sansNonLues": "Notifications",
-      "avecNonLues": "Notifications, {nombre, plural, =1 {1 unread} other {# unread}}"
+      "avecNonLues": "Notifications, {nombre, plural, =1 {1 unread} other {# unread}}",
+      "voirToutes": "See all notifications",
+      "erreur": "Notifications could not be loaded. Please try again in a moment."
     }
   },
   "catalogue": {
@@ -1676,6 +1684,112 @@
       "EXPORT": "Export and appraisal",
       "ATTESTATIONS": "Certificates and copies",
       "CONTENU_LOCAL": "Local content"
+    }
+  },
+  "rechercheGlobale": {
+    "ouvrir": "Search (Ctrl+K)",
+    "titre": "Search e-mine",
+    "placeholder": "Search for a file, a page…",
+    "vider": "Clear search",
+    "echap": "Esc",
+    "resultats": "Results",
+    "recentes": "Recent searches",
+    "dossiers": "Files",
+    "pages": "Pages",
+    "chargement": "Searching…",
+    "erreur": "The file search failed. Please try again in a moment.",
+    "brouillon": "Draft",
+    "voirTous": "See the {nombre} files found",
+    "aucun": {
+      "titre": "No results for “{texte}”",
+      "conseil": "Check the spelling, or type part of the number (for example 000009) or the document name."
+    },
+    "aideClavier": "↑ ↓ to choose · Enter to open · Esc to close"
+  },
+  "piedDePage": {
+    "ministere": "Ministry of Mines and Geology · Republic of Guinea",
+    "libelle": "Service information",
+    "aide": "Help",
+    "mentionsLegales": "Legal notice",
+    "version": "Version {version}"
+  },
+  "aide": {
+    "titre": "Help",
+    "description": "Answers to the most frequent questions about your space.",
+    "questions": "Frequently asked questions",
+    "rubriques": {
+      "deposer": {
+        "question": "How do I submit a request?",
+        "reponse": "Choose “New request” at the top of the menu, then the document you need. Fill in the form and attach the requested documents: your entry is saved as a draft and you can come back to it later. You submit the request after accepting the sworn statement."
+      },
+      "payer": {
+        "question": "How do I pay the fees and duties?",
+        "reponse": "After submitting, pay the filing fee from the request page, through TrésorPay or by bank transfer. If the request is granted, the duties are paid the same way. Each confirmed payment gives a receipt to download."
+      },
+      "suivre": {
+        "question": "How do I know where my request stands?",
+        "reponse": "The request page shows each step completed and what is expected from you. You are informed by notification, e-mail and SMS at each step; the bell at the top of the screen shows the latest notifications."
+      },
+      "document": {
+        "question": "Where do I find my signed document?",
+        "reponse": "Once issued, the signed document can be downloaded from the request page. Its QR code lets anyone check online that it is genuine and still valid."
+      },
+      "traiter": {
+        "question": "What do I have to handle?",
+        "reponse": "The “To do” section gathers the files awaiting an action from you, with their number next to the section. Open a group to handle the files one after another; every action is recorded."
+      },
+      "signer": {
+        "question": "How do I decide and sign?",
+        "reponse": "Documents for which you are the signatory in the catalogue arrive in “To do”. Give the decision (approval or reasoned rejection), then sign and issue the document: it is sent to the applicant at once."
+      },
+      "catalogue": {
+        "question": "How do I change the catalogue and fees?",
+        "reponse": "The administrator proposes a new version of a document sheet (documents required, time limits, fees, signatory); it only applies once approved by the Minister. Requests already submitted keep the conditions in force when they were submitted."
+      },
+      "rechercher": {
+        "question": "How do I quickly find a file or a page?",
+        "reponse": "Use the search at the top of the screen, or the Ctrl+K shortcut: type part of the number, the name of the document or of a page. Accents and capitals do not matter."
+      },
+      "compte": {
+        "question": "How do I change my language or password?",
+        "reponse": "Open the menu under your name, top right: “My profile” lets you choose the language (French or English) and change your password. Your name, e-mail and profile are managed by the administrator."
+      }
+    },
+    "contact": {
+      "titre": "Contact support",
+      "texte": "A question not answered here, a technical problem? Write to support and give your file number.",
+      "email": "E-mail:",
+      "horaires": "Hours:",
+      "horairesValeur": "Monday to Friday, 8 am to 5 pm (Conakry time)"
+    },
+    "mentions": "Legal notice and personal data"
+  },
+  "mentionsLegales": {
+    "titre": "Legal notice",
+    "description": "Service publisher, hosting, personal data and accessibility.",
+    "demonstration": {
+      "titre": "Demonstration version",
+      "texte": "This text is provisional: it will be finalised by the Ministry before going live. The data shown is fictitious."
+    },
+    "editeur": {
+      "titre": "Publisher",
+      "texte": "The e-mine service is published by the Ministry of Mines and Geology of the Republic of Guinea."
+    },
+    "hebergement": {
+      "titre": "Hosting",
+      "texte": "Data is hosted on the infrastructure designated by the Ministry. The host’s name and address will be given when the service goes live."
+    },
+    "donnees": {
+      "titre": "Personal data",
+      "texte": "The data entered is used only to process your procedures with the Ministry. It is accessible only to authorised staff; every consultation and change is recorded. You can ask support for access to your data or its correction."
+    },
+    "cookies": {
+      "titre": "Cookies",
+      "texte": "e-mine only uses cookies needed for the service: the login session and the chosen language. No audience measurement or advertising cookies."
+    },
+    "accessibilite": {
+      "titre": "Accessibility",
+      "texte": "e-mine aims for level AA of the WCAG accessibility guidelines: keyboard navigation, sufficient contrast, compatibility with screen readers. Report any difficulty to support."
     }
   }
 }

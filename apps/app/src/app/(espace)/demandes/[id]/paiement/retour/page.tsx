@@ -1,4 +1,10 @@
-import { ErreurApi, lirePaiement, lirePaiementAttendu, type PaiementDto } from "@emine/api-client";
+import {
+  ErreurApi,
+  lireDemande,
+  lirePaiement,
+  lirePaiementAttendu,
+  type PaiementDto,
+} from "@emine/api-client";
 import {
   Alerte,
   BadgeStatut,
@@ -8,7 +14,7 @@ import {
   formaterDateHeure,
   formaterGnf,
 } from "@emine/ui";
-import { ArrowLeft, RotateCcw } from "@emine/ui/icones";
+import { RotateCcw } from "@emine/ui/icones";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -20,6 +26,7 @@ import {
   peutReessayer,
   tonStatutPaiement,
 } from "@/composants/paiement/statut";
+import { FilArianeApp } from "@/composants/fil-ariane-app";
 import { appelPage, optionsApi } from "@/serveur/donnees";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -58,6 +65,9 @@ export default async function RetourPaiement({ params, searchParams }: Props) {
   const tObjet = await getTranslations("paiement.objet");
   const lienDemande = `/demandes/${id}`;
   const lienPayer = `/demandes/${id}/paiement`;
+  const numeroDemande =
+    (await appelPage(chemin, async () => lireDemande(Number(id), await optionsApi()))).data
+      .numero ?? t("retourDemande");
   const tentatives = peutReessayer(paiement.statut)
     ? (await lirePaiementAttendu(Number(id), await optionsApi())).data.tentativesRestantes
     : null;
@@ -68,13 +78,11 @@ export default async function RetourPaiement({ params, searchParams }: Props) {
         titre={t("titre")}
         description={`${tObjet.has(paiement.objet) ? tObjet(paiement.objet) : paiement.objet} · ${paiement.reference}`}
         retour={
-          <Link
-            href={lienDemande}
-            className="inline-flex min-h-11 items-center gap-2 text-royal underline-offset-4 hover:underline"
-          >
-            <ArrowLeft aria-hidden="true" className="size-4" />
-            {t("retourDemande")}
-          </Link>
+          <FilArianeApp
+            rubrique="mesDemandes"
+            parents={[{ libelle: numeroDemande, href: lienDemande }]}
+            courante={paiement.reference}
+          />
         }
       />
 

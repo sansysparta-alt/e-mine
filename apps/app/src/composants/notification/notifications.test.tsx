@@ -1,5 +1,5 @@
 import type { NotificationDto } from "@emine/api-client";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import type { ReactNode } from "react";
 import en from "../../../messages/en.json";
@@ -62,8 +62,8 @@ describe("centre de notifications (US-07.2)", () => {
       vi.fn(async () => new Response(JSON.stringify({ nombre: 12 }), { status: 200 })),
     );
     enFrancais(<ClocheNotifications initial={3} />);
-    const cloche = screen.getByRole("link");
-    expect(cloche).toHaveAttribute("href", "/notifications");
+    const cloche = screen.getByRole("button");
+    expect(cloche).toHaveAttribute("aria-expanded", "false");
     expect(cloche).toHaveAccessibleName("Notifications, 3 non lues");
     await waitFor(() => expect(cloche).toHaveAccessibleName("Notifications, 12 non lues"));
     expect(screen.getByText("9+")).toBeInTheDocument();
@@ -77,8 +77,41 @@ describe("centre de notifications (US-07.2)", () => {
     vi.stubGlobal("fetch", appel);
     enFrancais(<ClocheNotifications />);
     await waitFor(() => expect(appel).toHaveBeenCalled());
-    expect(screen.getByRole("link")).toHaveAccessibleName("Notifications");
+    expect(screen.getByRole("button")).toHaveAccessibleName("Notifications");
     expect(screen.queryByText(/^\d/)).toBeNull();
+  });
+
+  it("la cloche ouvre les dernières notifications, avec « Voir toutes » ; Échap la referme", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) =>
+        url === "/api/notifications"
+          ? new Response(
+              JSON.stringify({
+                elements: [
+                  notification({ id: 4, titre: "Frais à payer", lue: false, demandeId: 9 }),
+                  notification({ id: 3, titre: "Demande déposée", lue: true }),
+                ],
+                nonLues: 1,
+              }),
+              { status: 200 },
+            )
+          : new Response(JSON.stringify({ nombre: 1 }), { status: 200 }),
+      ),
+    );
+    enFrancais(<ClocheNotifications initial={1} />);
+    const cloche = screen.getByRole("button");
+    fireEvent.click(cloche);
+    expect(cloche).toHaveAttribute("aria-expanded", "true");
+    const panneau = await screen.findByRole("region", { name: "Notifications" });
+    const nonLue = await screen.findByRole("link", { name: /Non lue : Frais à payer/ });
+    expect(nonLue).toHaveAttribute("href", "/notifications/4/ouvrir?demande=9");
+    expect(panneau).toContainElement(
+      screen.getByRole("link", { name: "Voir toutes les notifications" }),
+    );
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(cloche).toHaveAttribute("aria-expanded", "false");
+    expect(cloche).toHaveFocus();
   });
 
   it("les libellés existent en français et en anglais", () => {

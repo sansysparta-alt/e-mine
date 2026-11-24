@@ -1,10 +1,10 @@
 import { ErreurApi, lireEntreeJournal } from "@emine/api-client";
 import { Carte, EnTetePage, formaterDateHeure } from "@emine/ui";
-import { ArrowLeft } from "@emine/ui/icones";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { FilArianeApp } from "@/composants/fil-ariane-app";
 import { formaterValeur, libelleChamp, trierChangements } from "@/composants/audit/journal";
 import { libelleProfil } from "@/composants/referentiels";
 import { appelPage, chargerMoi, optionsApi } from "@/serveur/donnees";
@@ -59,13 +59,10 @@ export default async function EntreeJournal({ params }: Props) {
         titre={t("entree.titre", { operation: t(`operations.${entree.operation}`), table })}
         description={formaterDateHeure(entree.date)}
         retour={
-          <Link
-            href="/journal-audit"
-            className="inline-flex min-h-11 items-center gap-2 text-royal underline-offset-4 hover:underline"
-          >
-            <ArrowLeft aria-hidden="true" className="size-4" />
-            {t("entree.retour")}
-          </Link>
+          <FilArianeApp
+            rubrique="journalAudit"
+            courante={t("entree.filAriane", { id: entree.id })}
+          />
         }
       />
       <Carte>

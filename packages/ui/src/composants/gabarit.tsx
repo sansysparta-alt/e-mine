@@ -12,7 +12,14 @@ export type EntreeNavigation = {
   libelle: string;
   icone: LucideIcon;
   actif: boolean;
+  /** Nombre affiché à côté de la rubrique (notifications non lues, dossiers à traiter…). */
+  compteur?: number;
+  /** Texte du compteur pour les lecteurs d'écran (« 3 à traiter »). */
+  libelleCompteur?: string;
 };
+
+/** Lien de la navigation hors rubriques (action principale, aide). */
+export type LienGabarit = { libelle: string; href: string; icone: LucideIcon };
 
 export type SectionNavigation = { cle: string; titre?: string; entrees: EntreeNavigation[] };
 
@@ -33,6 +40,14 @@ export type GabaritApplicationProps = {
   menuUtilisateur?: ReactNode;
   /** Actions de la barre du haut placées avant l'utilisateur (centre de notifications…). */
   actionsEntete?: ReactNode;
+  /** Action principale du profil, en tête du menu (« Nouvelle demande » pour un demandeur). */
+  actionPrincipale?: LienGabarit;
+  /** Lien d'aide, en bas du menu. */
+  aide?: LienGabarit;
+  /** Recherche globale, dans la barre du haut. */
+  recherche?: ReactNode;
+  /** Pied de page discret (mentions légales, version, aide). */
+  piedDePage?: ReactNode;
   libelles: {
     navigation: string;
     ouvrirMenu: string;
@@ -91,6 +106,10 @@ export function GabaritApplication({
   utilisateur,
   menuUtilisateur,
   actionsEntete,
+  actionPrincipale,
+  aide,
+  recherche,
+  piedDePage,
   libelles,
   Lien = LienParDefaut,
   children,
@@ -105,18 +124,39 @@ export function GabaritApplication({
   }
 
   // Tiroir mobile : Échap ferme, le focus va dans le tiroir puis revient au bouton.
+  // Le focus reste dans le tiroir (Tab boucle), et la page derrière ne défile plus.
   useEffect(() => {
     if (!tiroir) return;
     const premier = panneau.current?.querySelector<HTMLElement>("a, button");
     premier?.focus();
+    const defilement = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     function surTouche(e: KeyboardEvent) {
       if (e.key === "Escape") {
         setTiroir(false);
         boutonMenu.current?.focus();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const focusables = Array.from(
+        panneau.current?.querySelectorAll<HTMLElement>("a[href], button:not([disabled])") ?? [],
+      );
+      const debut = focusables[0];
+      const fin = focusables[focusables.length - 1];
+      if (!debut || !fin) return;
+      if (e.shiftKey && document.activeElement === debut) {
+        e.preventDefault();
+        fin.focus();
+      } else if (!e.shiftKey && document.activeElement === fin) {
+        e.preventDefault();
+        debut.focus();
       }
     }
     document.addEventListener("keydown", surTouche);
-    return () => document.removeEventListener("keydown", surTouche);
+    return () => {
+      document.removeEventListener("keydown", surTouche);
+      document.body.style.overflow = defilement;
+    };
   }, [tiroir]);
 
   const navigation = (mobile: boolean) => (
@@ -146,8 +186,30 @@ export function GabaritApplication({
                       compact && "justify-center px-0",
                     )}
                   >
-                    <Icone aria-hidden="true" className="size-5 shrink-0" />
-                    <span className={cn(compact && "sr-only")}>{e.libelle}</span>
+                    <span className="relative shrink-0">
+                      <Icone aria-hidden="true" className="size-5" />
+                      {compact && e.compteur ? (
+                        <span
+                          aria-hidden="true"
+                          className="absolute -top-1.5 -right-2 size-2.5 rounded-full bg-or ring-2 ring-navy"
+                        />
+                      ) : null}
+                    </span>
+                    <span className={cn("flex-1", compact && "sr-only")}>{e.libelle}</span>
+                    {e.compteur ? (
+                      <>
+                        <span
+                          aria-hidden="true"
+                          className={cn(
+                            "min-w-6 rounded-full bg-or px-1.5 text-center text-xs leading-5 font-bold text-navy",
+                            compact && "sr-only",
+                          )}
+                        >
+                          {e.compteur > 99 ? "99+" : e.compteur}
+                        </span>
+                        <span className="sr-only">{`, ${e.libelleCompteur ?? e.compteur}`}</span>
+                      </>
+                    ) : null}
                   </Lien>
                 </li>
               );
@@ -178,6 +240,40 @@ export function GabaritApplication({
     </div>
   );
 
+  const boutonAction = (mobile: boolean) =>
+    actionPrincipale ? (
+      <div className="px-3 pt-4">
+        <Lien
+          href={actionPrincipale.href}
+          title={replie && !mobile ? actionPrincipale.libelle : undefined}
+          onClick={mobile ? () => setTiroir(false) : undefined}
+          className={cn(
+            "flex min-h-11 items-center justify-center gap-2 rounded-lg bg-or px-3 font-semibold text-navy hover:bg-white",
+            replie && !mobile && "px-0",
+          )}
+        >
+          <actionPrincipale.icone aria-hidden="true" className="size-5 shrink-0" />
+          <span className={cn(replie && !mobile && "sr-only")}>{actionPrincipale.libelle}</span>
+        </Lien>
+      </div>
+    ) : null;
+
+  const lienAide = (mobile: boolean) =>
+    aide ? (
+      <Lien
+        href={aide.href}
+        title={replie && !mobile ? aide.libelle : undefined}
+        onClick={mobile ? () => setTiroir(false) : undefined}
+        className={cn(
+          "flex min-h-11 items-center gap-3 rounded-lg px-3 text-ice hover:bg-white/10 hover:text-white",
+          replie && !mobile && "justify-center px-0",
+        )}
+      >
+        <aide.icone aria-hidden="true" className="size-5 shrink-0" />
+        <span className={cn(replie && !mobile && "sr-only")}>{aide.libelle}</span>
+      </Lien>
+    ) : null;
+
   return (
     <div className="min-h-dvh bg-fond lg:flex">
       {/* Navigation latérale (grand écran) */}
@@ -188,8 +284,10 @@ export function GabaritApplication({
         )}
       >
         {enTeteNavigation}
+        {boutonAction(false)}
         {navigation(false)}
-        <div className="border-t border-white/10 p-3">
+        <div className="flex flex-col gap-1 border-t border-white/10 p-3">
+          {lienAide(false)}
           <button
             type="button"
             onClick={basculer}
@@ -224,6 +322,9 @@ export function GabaritApplication({
           <div
             ref={panneau}
             id="navigation-mobile"
+            role="dialog"
+            aria-modal="true"
+            aria-label={libelles.navigation}
             className="relative flex h-full w-[min(18rem,85vw)] flex-col bg-navy text-white shadow-xl"
           >
             <div className="flex items-center justify-between pr-2">
@@ -240,7 +341,9 @@ export function GabaritApplication({
                 <span className="sr-only">{libelles.fermerMenu}</span>
               </button>
             </div>
+            {boutonAction(true)}
             {navigation(true)}
+            {aide ? <div className="border-t border-white/10 p-3">{lienAide(true)}</div> : null}
           </div>
         </div>
       ) : null}
@@ -260,6 +363,7 @@ export function GabaritApplication({
             <span className="sr-only">{libelles.ouvrirMenu}</span>
           </button>
           <p className="min-w-0 flex-1 truncate font-titre text-lg font-bold text-navy">{titre}</p>
+          {recherche}
           <div className="flex items-center gap-3">
             {actionsEntete}
             {menuUtilisateur ?? (
@@ -285,6 +389,11 @@ export function GabaritApplication({
         >
           {children}
         </main>
+        {piedDePage ? (
+          <footer className="border-t border-bordure bg-white px-4 py-4 text-sm text-texte-doux sm:px-6">
+            <div className="mx-auto w-full max-w-6xl">{piedDePage}</div>
+          </footer>
+        ) : null}
       </div>
     </div>
   );

@@ -1,15 +1,13 @@
-import { entreeActive, NAVIGATION, navigationPour } from "./config";
+import { actionPrincipalePour, entreeActive, NAVIGATION, navigationPour } from "./config";
 
 const cles = (sections: ReturnType<typeof navigationPour>) =>
   sections.flatMap((s) => s.entrees.map((e) => e.cle));
 
 describe("configuration unique de la navigation", () => {
-  it("montre la nouvelle demande seulement aux profils qui peuvent déposer", () => {
+  it("filtre les rubriques selon le profil et retire les sections vides", () => {
     expect(cles(navigationPour({ permissions: ["DEPOSER", "PAYER"], interne: false }))).toEqual([
       "tableauDeBord",
       "mesDemandes",
-      "notifications",
-      "nouvelleDemande",
     ]);
     const fiscal = navigationPour({ permissions: ["ENCAISSER"], interne: true });
     expect(cles(fiscal)).toEqual(["tableauDeBord", "mesDemandes"]);
@@ -60,14 +58,18 @@ describe("configuration unique de la navigation", () => {
     }
   });
 
-  it("montre les notifications aux seuls usagers externes, qui seuls en reçoivent (US-07.2)", () => {
-    expect(cles(navigationPour({ permissions: ["DEPOSER"], interne: false }))).toContain(
-      "notifications",
+  it("les notifications passent par la cloche, l'action principale par le bouton : hors des rubriques", () => {
+    const usager = cles(navigationPour({ permissions: ["DEPOSER", "PAYER"], interne: false }));
+    expect(usager).not.toContain("notifications");
+    expect(usager).not.toContain("nouvelleDemande");
+  });
+
+  it("donne l'action « Nouvelle demande » aux seuls profils qui déposent", () => {
+    expect(actionPrincipalePour({ permissions: ["DEPOSER"], interne: false })?.href).toBe(
+      "/demandes/nouvelle",
     );
     for (const droit of ["INSTRUIRE", "SIGNER", "PARAMETRER"]) {
-      expect(cles(navigationPour({ permissions: [droit], interne: true }))).not.toContain(
-        "notifications",
-      );
+      expect(actionPrincipalePour({ permissions: [droit], interne: true })).toBeUndefined();
     }
   });
 
@@ -82,7 +84,7 @@ describe("configuration unique de la navigation", () => {
   it("retrouve l'entrée active par le plus long préfixe", () => {
     const tout = navigationPour({ permissions: ["DEPOSER"], interne: false });
     expect(entreeActive("/demandes/12", tout)?.cle).toBe("mesDemandes");
-    expect(entreeActive("/demandes/nouvelle", tout)?.cle).toBe("nouvelleDemande");
+    expect(entreeActive("/demandes/nouvelle", tout)?.cle).toBe("mesDemandes");
     expect(entreeActive("/tableau-de-bord", tout)?.cle).toBe("tableauDeBord");
     expect(entreeActive("/demandesxyz", tout)).toBeUndefined();
   });

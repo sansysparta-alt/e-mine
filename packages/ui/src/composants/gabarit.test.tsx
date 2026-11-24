@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { FileText, LayoutDashboard } from "lucide-react";
+import { CircleHelp, FileText, LayoutDashboard, Plus } from "lucide-react";
+import { FilAriane } from "./fil-ariane";
 import { GabaritApplication } from "./gabarit";
 import { BadgeStatut } from "./badge-statut";
 import { EtatVide } from "./page";
@@ -13,9 +14,10 @@ const libelles = {
   deplierMenu: "Déplier le menu",
 };
 
-function afficher() {
+function afficher(supplements: Partial<Parameters<typeof GabaritApplication>[0]> = {}) {
   return render(
     <GabaritApplication
+      {...supplements}
       marque="e-mine"
       titre="Mes demandes"
       utilisateur={{ nomComplet: "Fodé Bangoura", profil: "Investisseur" }}
@@ -32,7 +34,15 @@ function afficher() {
               icone: LayoutDashboard,
               actif: false,
             },
-            { cle: "b", href: "/demandes", libelle: "Mes demandes", icone: FileText, actif: true },
+            {
+              cle: "b",
+              href: "/demandes",
+              libelle: "Mes demandes",
+              icone: FileText,
+              actif: true,
+              compteur: 3,
+              libelleCompteur: "3 à traiter",
+            },
           ],
         },
       ]}
@@ -48,7 +58,7 @@ describe("gabarit de l'application", () => {
   it("affiche la navigation, l'entrée active, le titre de la page et l'utilisateur", () => {
     afficher();
     const nav = screen.getAllByRole("navigation", { name: "Navigation principale" })[0]!;
-    expect(within(nav).getByRole("link", { name: "Mes demandes" })).toHaveAttribute(
+    expect(within(nav).getByRole("link", { name: /^Mes demandes/ })).toHaveAttribute(
       "aria-current",
       "page",
     );
@@ -75,6 +85,56 @@ describe("gabarit de l'application", () => {
     expect(screen.getAllByRole("navigation", { name: "Navigation principale" })).toHaveLength(2);
     fireEvent.keyDown(document, { key: "Escape" });
     expect(screen.getAllByRole("navigation", { name: "Navigation principale" })).toHaveLength(1);
+  });
+
+  it("tiroir mobile : fenêtre modale, focus gardé à l'intérieur, page derrière immobile", () => {
+    afficher();
+    fireEvent.click(screen.getByRole("button", { name: "Ouvrir le menu" }));
+    const tiroir = screen.getByRole("dialog", { name: "Navigation principale" });
+    expect(tiroir).toHaveAttribute("aria-modal", "true");
+    expect(document.body.style.overflow).toBe("hidden");
+    const liens = within(tiroir).getAllByRole("link");
+    liens[liens.length - 1]!.focus();
+    fireEvent.keyDown(document, { key: "Tab" });
+    expect(tiroir).toContainElement(document.activeElement as HTMLElement);
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(document.body.style.overflow).toBe("");
+  });
+
+  it("action principale en tête du menu, compteur à côté de la rubrique, aide en bas, pied de page", () => {
+    afficher({
+      actionPrincipale: { libelle: "Nouvelle demande", href: "/demandes/nouvelle", icone: Plus },
+      aide: { libelle: "Aide", href: "/aide", icone: CircleHelp },
+      recherche: <button type="button">Rechercher</button>,
+      piedDePage: <p>Mentions légales</p>,
+    });
+    const nav = screen.getAllByRole("navigation", { name: "Navigation principale" })[0]!;
+    const aside = nav.closest("aside") ?? document.body;
+    const liens = within(aside as HTMLElement).getAllByRole("link");
+    expect(liens[0]).toHaveAccessibleName("Nouvelle demande");
+    expect(liens[0]).toHaveAttribute("href", "/demandes/nouvelle");
+    expect(liens[liens.length - 1]).toHaveAccessibleName("Aide");
+    // Le compteur est visible et lu en clair par les lecteurs d'écran.
+    const rubrique = within(nav).getByRole("link", { name: /Mes demandes/ });
+    expect(rubrique).toHaveTextContent("3");
+    expect(rubrique).toHaveAccessibleName("Mes demandes, 3 à traiter");
+    expect(screen.getByRole("button", { name: "Rechercher" })).toBeInTheDocument();
+    expect(screen.getByRole("contentinfo")).toHaveTextContent("Mentions légales");
+  });
+
+  it("fil d'Ariane : étapes parentes en liens, page courante annoncée", () => {
+    render(
+      <FilAriane
+        libelle="Fil d'Ariane"
+        etapes={[{ libelle: "Demandes", href: "/demandes" }, { libelle: "DEM-2026-000009" }]}
+      />,
+    );
+    const fil = screen.getByRole("navigation", { name: "Fil d'Ariane" });
+    expect(within(fil).getByRole("link", { name: "Demandes" })).toHaveAttribute(
+      "href",
+      "/demandes",
+    );
+    expect(within(fil).getByText("DEM-2026-000009")).toHaveAttribute("aria-current", "page");
   });
 });
 

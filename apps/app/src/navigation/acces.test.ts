@@ -27,6 +27,13 @@ describe("accès aux écrans selon la navigation", () => {
     expect(cheminAutorise("/journal-audit/7", ministre)).toBe(false);
   });
 
+  it("réserve la nouvelle demande aux déposants et les notifications aux usagers externes", () => {
+    expect(cheminAutorise("/demandes/nouvelle", investisseur)).toBe(true);
+    expect(cheminAutorise("/demandes/nouvelle", guichet)).toBe(false);
+    expect(cheminAutorise("/notifications", investisseur)).toBe(true);
+    expect(cheminAutorise("/notifications", guichet)).toBe(false);
+  });
+
   it("laisse à l'écran les adresses hors du menu ou sans restriction", () => {
     expect(cheminAutorise("/tableau-de-bord", investisseur)).toBe(true);
     expect(cheminAutorise("/demandes/12", guichet)).toBe(true);

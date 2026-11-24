@@ -499,14 +499,18 @@
       "catalogue": "Catalogue et tarifs",
       "workflows": "Workflows",
       "parametres": "Délais et notifications",
-      "profil": "Mon profil"
+      "profil": "Mon profil",
+      "aide": "Aide",
+      "mentionsLegales": "Mentions légales"
     },
     "compte": {
       "menu": "Menu de l’utilisateur",
       "profil": "Mon profil",
       "langue": "Langue",
       "deconnexion": "Se déconnecter"
-    }
+    },
+    "filAriane": "Fil d’Ariane",
+    "compteur": "{nombre, plural, =1 {1 à traiter} other {# à traiter}}"
   },
   "etats": {
     "chargement": "Chargement en cours…",
@@ -649,7 +653,8 @@
     "recu": {
       "voir": "voir le reçu",
       "voirNumero": "Voir le reçu {numero}"
-    }
+    },
+    "filAriane": "Paiement"
   },
   "statutsPaiement": {
     "initie": "Initié",
@@ -994,7 +999,8 @@
       "champ": "Champ",
       "avant": "Avant",
       "apres": "Après",
-      "valeur": "Valeur"
+      "valeur": "Valeur",
+      "filAriane": "Opération n° {id}"
     },
     "valeurs": {
       "jours": "{n, plural, one {# jour} other {# jours}}",
@@ -1234,7 +1240,9 @@
     },
     "cloche": {
       "sansNonLues": "Notifications",
-      "avecNonLues": "Notifications, {nombre, plural, =1 {1 non lue} other {# non lues}}"
+      "avecNonLues": "Notifications, {nombre, plural, =1 {1 non lue} other {# non lues}}",
+      "voirToutes": "Voir toutes les notifications",
+      "erreur": "Les notifications n’ont pas pu être chargées. Réessayez dans un instant."
     }
   },
   "catalogue": {
@@ -1676,6 +1684,112 @@
       "EXPORT": "Export et expertise",
       "ATTESTATIONS": "Attestations et copies",
       "CONTENU_LOCAL": "Contenu local"
+    }
+  },
+  "rechercheGlobale": {
+    "ouvrir": "Rechercher (Ctrl+K)",
+    "titre": "Rechercher dans e-mine",
+    "placeholder": "Rechercher un dossier, une page…",
+    "vider": "Effacer la recherche",
+    "echap": "Échap",
+    "resultats": "Résultats",
+    "recentes": "Recherches récentes",
+    "dossiers": "Dossiers",
+    "pages": "Pages",
+    "chargement": "Recherche en cours…",
+    "erreur": "La recherche des dossiers n’a pas abouti. Réessayez dans un instant.",
+    "brouillon": "Brouillon",
+    "voirTous": "Voir les {nombre} dossiers trouvés",
+    "aucun": {
+      "titre": "Aucun résultat pour « {texte} »",
+      "conseil": "Vérifiez l’orthographe, ou saisissez une partie du numéro (par exemple 000009) ou le nom du document."
+    },
+    "aideClavier": "↑ ↓ pour choisir · Entrée pour ouvrir · Échap pour fermer"
+  },
+  "piedDePage": {
+    "ministere": "Ministère des Mines et de la Géologie · République de Guinée",
+    "libelle": "Informations sur le service",
+    "aide": "Aide",
+    "mentionsLegales": "Mentions légales",
+    "version": "Version {version}"
+  },
+  "aide": {
+    "titre": "Aide",
+    "description": "Les réponses aux questions les plus fréquentes sur votre espace.",
+    "questions": "Questions fréquentes",
+    "rubriques": {
+      "deposer": {
+        "question": "Comment déposer une demande ?",
+        "reponse": "Choisissez « Nouvelle demande » en haut du menu, puis le document souhaité. Remplissez le formulaire et joignez les pièces demandées : votre saisie est enregistrée en brouillon, vous pouvez la reprendre plus tard. Vous déposez la demande après avoir accepté la déclaration sur l’honneur."
+      },
+      "payer": {
+        "question": "Comment payer les frais et les droits ?",
+        "reponse": "Après le dépôt, payez les frais de dossier depuis la fiche de la demande, par TrésorPay ou par virement. Si la demande est accordée, les droits sont à payer de la même façon. Chaque paiement confirmé donne un reçu à télécharger."
+      },
+      "suivre": {
+        "question": "Comment savoir où en est ma demande ?",
+        "reponse": "La fiche de la demande montre chaque étape franchie et ce qui est attendu de vous. Vous êtes prévenu par notification, e-mail et SMS à chaque étape ; la cloche en haut de l’écran affiche les dernières notifications."
+      },
+      "document": {
+        "question": "Où trouver mon document signé ?",
+        "reponse": "Une fois délivré, le document signé se télécharge depuis la fiche de la demande. Son code QR permet à quiconque de vérifier en ligne qu’il est authentique et toujours valide."
+      },
+      "traiter": {
+        "question": "Que dois-je traiter ?",
+        "reponse": "La rubrique « À traiter » réunit les dossiers qui attendent une action de votre part, avec leur nombre à côté de la rubrique. Ouvrez un groupe pour traiter les dossiers à la suite ; chaque action est tracée."
+      },
+      "signer": {
+        "question": "Comment décider et signer ?",
+        "reponse": "Les documents dont vous êtes le signataire au catalogue arrivent dans « À traiter ». Rendez la décision (favorable ou rejet motivé), puis signez et délivrez le document : il part aussitôt au demandeur."
+      },
+      "catalogue": {
+        "question": "Comment modifier le catalogue et les tarifs ?",
+        "reponse": "L’administrateur propose une nouvelle version d’une fiche (pièces, délais, tarifs, signataire) ; elle ne s’applique qu’après l’approbation du Ministre. Les demandes déjà déposées gardent les conditions de leur dépôt."
+      },
+      "rechercher": {
+        "question": "Comment retrouver rapidement un dossier ou une page ?",
+        "reponse": "Utilisez la recherche en haut de l’écran, ou le raccourci Ctrl+K : saisissez une partie du numéro, le nom du document ou d’une page. Les accents et les majuscules ne comptent pas."
+      },
+      "compte": {
+        "question": "Comment changer ma langue ou mon mot de passe ?",
+        "reponse": "Ouvrez le menu sous votre nom, en haut à droite : « Mon profil » permet de choisir la langue (français ou anglais) et de changer le mot de passe. Vos nom, e-mail et profil sont gérés par l’administrateur."
+      }
+    },
+    "contact": {
+      "titre": "Contacter l’assistance",
+      "texte": "Une question sans réponse ici, un problème technique ? Écrivez à l’assistance en indiquant le numéro de votre dossier.",
+      "email": "E-mail :",
+      "horaires": "Horaires :",
+      "horairesValeur": "du lundi au vendredi, de 8 h à 17 h (heure de Conakry)"
+    },
+    "mentions": "Mentions légales et données personnelles"
+  },
+  "mentionsLegales": {
+    "titre": "Mentions légales",
+    "description": "Éditeur du service, hébergement, données personnelles et accessibilité.",
+    "demonstration": {
+      "titre": "Version de démonstration",
+      "texte": "Ce texte est provisoire : il sera arrêté par le Ministère avant la mise en service. Les données présentées sont fictives."
+    },
+    "editeur": {
+      "titre": "Éditeur",
+      "texte": "Le service e-mine est édité par le Ministère des Mines et de la Géologie de la République de Guinée."
+    },
+    "hebergement": {
+      "titre": "Hébergement",
+      "texte": "Les données sont hébergées sur l’infrastructure désignée par le Ministère. Le nom et l’adresse de l’hébergeur seront précisés à la mise en service."
+    },
+    "donnees": {
+      "titre": "Données personnelles",
+      "texte": "Les données saisies servent uniquement au traitement de vos démarches auprès du Ministère. Elles ne sont accessibles qu’aux agents habilités ; chaque consultation et chaque modification est tracée. Vous pouvez demander l’accès à vos données ou leur rectification auprès de l’assistance."
+    },
+    "cookies": {
+      "titre": "Cookies",
+      "texte": "e-mine n’utilise que des cookies nécessaires au service : la session de connexion et la langue choisie. Aucun cookie de mesure d’audience ni de publicité."
+    },
+    "accessibilite": {
+      "titre": "Accessibilité",
+      "texte": "e-mine vise le niveau AA des règles d’accessibilité WCAG : navigation au clavier, contrastes suffisants, compatibilité avec les lecteurs d’écran. Signalez toute difficulté à l’assistance."
     }
   }
 }
