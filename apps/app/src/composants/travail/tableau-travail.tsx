@@ -3,6 +3,7 @@ import { type ComposantLien, TableauDonnees, TexteSurligne } from "@emine/ui";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { DateAttente } from "../demande/date-attente";
+import { cleAttente } from "../demande/statut";
 import { StatutDemande } from "../demande/statut-demande";
 import { MentionPassages } from "./mention-passages";
 import { adresseFiche, type CleGroupe } from "./file-travail";
@@ -86,6 +87,7 @@ export function TableauTravail({
               deposeLe={d.deposeLe}
               creeLe={d.creeLe}
               etapeDepuis={d.etapeDepuis}
+              cleAttente={cleAttente(d, true)}
               avecAttente
               enRetard={d.enRetard}
               delai={{

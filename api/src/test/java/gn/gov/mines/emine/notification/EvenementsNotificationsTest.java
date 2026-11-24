@@ -231,6 +231,49 @@ class EvenementsNotificationsTest extends TestIntegration {
         .andExpect(jsonPath("$.nombre").value(0));
   }
 
+  @Test
+  void lesDroitsAPayerAnnoncentLeMontantEtLActionTantQuElleEstAttendue() throws Exception {
+    long id = DemandesDeTest.brouillon(INVESTISSEUR, "PEX");
+    DemandesDeTest.changerStatut(id, "deposee");
+    payer(id, "FRAIS_DOSSIER", 5_000_000);
+    DemandesDeTest.changerStatut(id, "recevable");
+    DemandesDeTest.avisRendus(id);
+    DemandesDeTest.changerStatut(id, "decision");
+    String droits = "$.elements[?(@.demandeId == " + id + " && @.modele == 'DECISION_DROITS')]";
+    mvc.perform(get("/api/v1/notifications").param("taille", "50").with(investisseur()))
+        .andExpect(jsonPath(droits + ".montantGnf").value(15_000_000))
+        .andExpect(jsonPath(droits + ".action").value("payer-droits"));
+    payer(id, "DROITS", 15_000_000);
+    // Une fois payés, la notification redevient un simple historique.
+    mvc.perform(get("/api/v1/notifications").param("taille", "50").with(investisseur()))
+        .andExpect(
+            jsonPath(droits + ".action").value(org.hamcrest.Matchers.contains((Object) null)));
+  }
+
+  @Test
+  void leFiltreNonLuesNeMontreQueLesNonLuesEtLesDeuxCompteursSontDonnes() throws Exception {
+    long id = DemandesDeTest.brouillon(INVESTISSEUR, "PEX");
+    DemandesDeTest.changerStatut(id, "deposee");
+    long notification = derniere(id);
+    mvc.perform(post("/api/v1/notifications/" + notification + "/lue").with(investisseur()))
+        .andExpect(status().isNoContent());
+    String page =
+        mvc.perform(
+                get("/api/v1/notifications")
+                    .param("nonLues", "true")
+                    .param("taille", "100")
+                    .with(investisseur()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.elements[?(@.id == " + notification + ")]").isEmpty())
+            .andExpect(jsonPath("$.elements[?(@.lue == true)]").isEmpty())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+    var json = tools.jackson.databind.json.JsonMapper.builder().build().readTree(page);
+    assertThat(json.path("total").asLong()).isEqualTo(json.path("nonLues").asLong());
+    assertThat(json.path("toutes").asLong()).isGreaterThan(json.path("nonLues").asLong());
+  }
+
   // --- Outils ---------------------------------------------------------------------------------
 
   private static org.springframework.test.web.servlet.request.RequestPostProcessor investisseur() {

@@ -63,7 +63,8 @@ record DemandeDto(
             nullable = true,
             description =
                 "Étape en cours dans le circuit (« Étape 3 sur 6 »), d'après la frise de suivi ;"
-                    + " absente pour un brouillon, une demande délivrée, rejetée ou archivée")
+                    + " dernière étape pour une demande délivrée ; absente pour un brouillon, une"
+                    + " demande rejetée ou archivée")
         Avancement avancement) {
 
   /** Rang de l'étape en cours parmi les étapes qui s'appliquent au document. */

@@ -48,4 +48,10 @@ describe("jours calendaires (heure de Conakry)", () => {
     expect(joursCalendairesDepuis("2026-11-15T12:00:00Z", maintenant)).toBe(7);
     expect(joursCalendairesDepuis("2026-11-23T12:00:00Z", maintenant)).toBe(0);
   });
+
+  it("donne l'échéance dans N jours calendaires, même tard le soir", async () => {
+    const { dateDansJours } = await import("./format");
+    expect(dateDansJours(12, new Date("2026-11-24T23:30:00Z"))).toBe("2026-12-06");
+    expect(dateDansJours(0, new Date("2026-11-24T00:10:00Z"))).toBe("2026-11-24");
+  });
 });

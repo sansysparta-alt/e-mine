@@ -1528,7 +1528,7 @@
     "/api/v1/paiements" : {
       "get" : {
         "tags" : [ "Paiements" ],
-        "summary" : "Paiements du profil connecté (les siens pour un usager), du plus récent au plus ancien, paginés, hors paiements annulés, avec le numéro de la demande",
+        "summary" : "Paiements du profil connecté (les siens pour un usager), du plus récent au plus ancien, paginés, hors paiements annulés, avec le numéro de la demande ; recherche tolérante, filtres par statut, objet et période, compteurs et total payé",
         "operationId" : "listerMesPaiements",
         "parameters" : [ {
           "name" : "page",
@@ -1545,6 +1545,45 @@
           "schema" : {
             "type" : "integer",
             "format" : "int32"
+          }
+        }, {
+          "name" : "recherche",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "statut",
+          "in" : "query",
+          "description" : "payes, en-cours, echoues ou rembourses ; absent : tous",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "objet",
+          "in" : "query",
+          "description" : "FRAIS_DOSSIER, DROITS, FORMATION ou ATTESTATION ; absent : tous",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "du",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "name" : "au",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
           }
         } ],
         "responses" : {
@@ -1629,7 +1668,7 @@
     "/api/v1/notifications" : {
       "get" : {
         "tags" : [ "Notifications" ],
-        "summary" : "Mes notifications, des plus récentes aux plus anciennes, paginées",
+        "summary" : "Mes notifications, des plus récentes aux plus anciennes, paginées ; seulement les non lues si demandé",
         "operationId" : "listerNotifications",
         "parameters" : [ {
           "name" : "page",
@@ -1646,6 +1685,14 @@
           "schema" : {
             "type" : "integer",
             "format" : "int32"
+          }
+        }, {
+          "name" : "nonLues",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
           }
         } ],
         "responses" : {
@@ -3360,11 +3407,45 @@
         },
         "required" : [ "id", "nom", "region" ]
       },
+      "CompteursPaiementsDto" : {
+        "type" : "object",
+        "properties" : {
+          "tous" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "payes" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "enCours" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "echoues" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rembourses" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPayeGnf" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "echoues", "enCours", "payes", "rembourses", "totalPayeGnf", "tous" ]
+      },
       "LignePaiementDto" : {
         "type" : "object",
         "properties" : {
           "paiement" : {
             "$ref" : "#/components/schemas/PaiementDto"
+          },
+          "demandeId" : {
+            "type" : "integer",
+            "format" : "int64"
           },
           "numeroDemande" : {
             "type" : [ "string", "null" ]
@@ -3373,7 +3454,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "codeDocument", "numeroDemande", "paiement" ]
+        "required" : [ "codeDocument", "demandeId", "numeroDemande", "paiement" ]
       },
       "PageMesPaiementsDto" : {
         "type" : "object",
@@ -3399,9 +3480,12 @@
           "totalPages" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "compteurs" : {
+            "$ref" : "#/components/schemas/CompteursPaiementsDto"
           }
         },
-        "required" : [ "elements", "page", "taille", "total", "totalPages" ]
+        "required" : [ "compteurs", "elements", "page", "taille", "total", "totalPages" ]
       },
       "NotificationDto" : {
         "type" : "object",
@@ -3432,9 +3516,17 @@
           },
           "lue" : {
             "type" : "boolean"
+          },
+          "montantGnf" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "action" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "payer-droits", "completer" ]
           }
         },
-        "required" : [ "creeLe", "demandeId", "id", "lue", "modele", "numeroDemande", "texte", "titre" ]
+        "required" : [ "action", "creeLe", "demandeId", "id", "lue", "modele", "montantGnf", "numeroDemande", "texte", "titre" ]
       },
       "PageNotificationsDto" : {
         "type" : "object",
@@ -3464,9 +3556,13 @@
           "nonLues" : {
             "type" : "integer",
             "format" : "int64"
+          },
+          "toutes" : {
+            "type" : "integer",
+            "format" : "int64"
           }
         },
-        "required" : [ "elements", "nonLues", "page", "taille", "total", "totalPages" ]
+        "required" : [ "elements", "nonLues", "page", "taille", "total", "totalPages", "toutes" ]
       },
       "MoiDto" : {
         "type" : "object",

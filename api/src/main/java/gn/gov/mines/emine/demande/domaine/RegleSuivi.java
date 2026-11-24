@@ -133,12 +133,16 @@ public final class RegleSuivi {
   public record Avancement(int etape, int total) {}
 
   /**
-   * Avancement déduit de la frise (même règle, une seule définition) ; {@code null} pour un
-   * brouillon, une demande délivrée, rejetée ou archivée : il n'y a plus d'étape en cours.
+   * Avancement déduit de la frise (même règle, une seule définition). Une demande délivrée est à la
+   * dernière étape (« Étape 6 sur 6 », homogène avec les demandes en cours) ; {@code null} pour un
+   * brouillon, une demande rejetée ou archivée.
    */
   public static Avancement avancement(Situation s) {
     List<EtapeSuivi> applicables =
         suivi(s).stream().filter(e -> e.etat() != Etat.SANS_OBJET).toList();
+    if ("delivree".equals(s.statut())) {
+      return new Avancement(applicables.size(), applicables.size());
+    }
     for (int i = 0; i < applicables.size(); i++) {
       if (applicables.get(i).etat() == Etat.EN_COURS) {
         return new Avancement(i + 1, applicables.size());

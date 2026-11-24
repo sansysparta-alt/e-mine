@@ -163,7 +163,8 @@ export function GabaritApplication({
     <nav aria-label={libelles.navigation} className="flex-1 overflow-y-auto px-3 py-4">
       {sections.map((s) => (
         <div key={s.cle} className="mb-5">
-          {s.titre && (!replie || mobile) ? (
+          {/* Un titre de section n'a de sens que s'il y en a plusieurs (pas de « Principal » seul). */}
+          {s.titre && sections.length > 1 && (!replie || mobile) ? (
             <p className="mb-2 px-3 text-xs font-semibold tracking-wider text-sky uppercase">
               {s.titre}
             </p>

@@ -68,3 +68,27 @@ export function presentationStatut(d: DemandeAffichee, interne: boolean): Presen
   const [cle, ton] = interne ? agent(d) : demandeur(d);
   return { profil: interne ? "agent" : "demandeur", cle, ton };
 }
+
+/** Statuts où la main est au demandeur : payer les frais ou les droits, compléter. */
+function chezLeDemandeur({ statut, fraisPayes }: DemandeAffichee): boolean {
+  return (
+    statut === "brouillon" ||
+    (statut === "deposee" && !fraisPayes) ||
+    statut === "complement_requis" ||
+    statut === "decision"
+  );
+}
+
+/**
+ * Libellé du temps d'attente à l'étape, qui dit **qui attend** (retours ergonomie) : pour
+ * l'usager, « Au ministère depuis… » ou « À vous d'agir depuis… » ; pour un agent, « Chez le
+ * demandeur depuis… » ou « En attente depuis… ». Clés de `dates.*`.
+ */
+export function cleAttente(
+  d: DemandeAffichee,
+  interne: boolean,
+): "attenteMinistere" | "attenteVous" | "attenteDemandeur" | "attente" {
+  const usager = chezLeDemandeur(d);
+  if (!interne) return usager ? "attenteVous" : "attenteMinistere";
+  return usager ? "attenteDemandeur" : "attente";
+}

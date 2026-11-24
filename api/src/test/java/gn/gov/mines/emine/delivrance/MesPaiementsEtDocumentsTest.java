@@ -67,6 +67,40 @@ class MesPaiementsEtDocumentsTest extends TestIntegration {
   }
 
   @Test
+  void lesPaiementsSeCherchentEtSeFiltrentAvecDesCompteursEtLeTotalPaye() throws Exception {
+    var usager = jeton(INVESTISSEUR, "INVESTISSEUR");
+    String numero = null;
+    for (JsonNode l : lire("/api/v1/paiements?taille=100", usager).path("elements")) {
+      if (l.path("demandeId").asLong() == demande) {
+        numero = l.path("numeroDemande").asString();
+      }
+    }
+    assertThat(numero)
+        .as("numéro de la demande, et son identifiant pour ouvrir le dossier")
+        .startsWith("DEM-");
+    // Frais (5 000 000) et droits (15 000 000) de cette demande, retrouvés par son numéro.
+    JsonNode tous = lire("/api/v1/paiements?recherche=" + numero, usager);
+    assertThat(tous.path("total").asLong()).isEqualTo(2);
+    assertThat(tous.path("compteurs").path("payes").asLong()).isEqualTo(2);
+    assertThat(tous.path("compteurs").path("totalPayeGnf").asLong()).isEqualTo(20_000_000L);
+    JsonNode droits = lire("/api/v1/paiements?objet=DROITS&recherche=" + numero, usager);
+    assertThat(droits.path("total").asLong()).isEqualTo(1);
+    assertThat(droits.path("compteurs").path("totalPayeGnf").asLong()).isEqualTo(15_000_000L);
+    JsonNode enCours = lire("/api/v1/paiements?statut=en-cours&recherche=" + numero, usager);
+    assertThat(enCours.path("total").asLong()).isZero();
+    assertThat(enCours.path("compteurs").path("tous").asLong())
+        .as("les compteurs ne dépendent pas du filtre de statut")
+        .isEqualTo(2);
+    JsonNode futur = lire("/api/v1/paiements?du=2099-01-01&recherche=" + numero, usager);
+    assertThat(futur.path("total").asLong()).isZero();
+    assertThat(futur.path("compteurs").path("totalPayeGnf").asLong()).isZero();
+    mvc.perform(get("/api/v1/paiements?du=2026-11-20&au=2026-11-01").with(usager))
+        .andExpect(status().isBadRequest());
+    mvc.perform(get("/api/v1/paiements?statut=inconnu").with(usager))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
   void lUsagerVoitSesDocumentsDelivresEtPasCeuxDesAutres() throws Exception {
     JsonNode page =
         lire("/api/v1/documents-delivres?taille=100", jeton(INVESTISSEUR, "INVESTISSEUR"));

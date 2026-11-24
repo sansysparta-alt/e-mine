@@ -13,6 +13,8 @@ import java.util.Map;
  * @param numeroDemande numéro de la demande, ou {@code null}
  * @param creeLe date de l'événement
  * @param lueLe date de lecture, ou {@code null} si non lue
+ * @param action action encore attendue de l'usager sur le dossier ({@code payer-droits}, {@code
+ *     completer}), ou {@code null}
  */
 public record NotificationInterne(
     long id,
@@ -21,7 +23,8 @@ public record NotificationInterne(
     Long demandeId,
     String numeroDemande,
     Instant creeLe,
-    Instant lueLe) {
+    Instant lueLe,
+    String action) {
 
   public NotificationInterne {
     contenu = Map.copyOf(contenu);

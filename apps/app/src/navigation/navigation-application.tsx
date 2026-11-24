@@ -27,6 +27,8 @@ const LienNext: ComposantLien = ({ href, children, ...props }) => (
 );
 
 export type NavigationApplicationProps = {
+  /** Identifiant du compte connecté (récents de la recherche globale, propres au compte). */
+  compte: number;
   utilisateur: { nomComplet: string; profil: string };
   profil: Profil;
   /** Notifications non lues au chargement (la cloche se met ensuite à jour seule). */
@@ -44,6 +46,7 @@ export type NavigationApplicationProps = {
  * cloche, utilisateur, pied de page et surveillance de la session.
  */
 export function NavigationApplication({
+  compte,
   utilisateur,
   profil,
   nonLues = 0,
@@ -112,7 +115,9 @@ export function NavigationApplication({
           : undefined
       }
       aide={{ libelle: libelle(AIDE.cle), href: AIDE.href, icone: AIDE.icone }}
-      recherche={<RechercheGlobale pages={pagesRecherche} lienDemandes="/demandes" />}
+      recherche={
+        <RechercheGlobale compte={compte} pages={pagesRecherche} lienDemandes="/demandes" />
+      }
       piedDePage={piedDePage}
       actionsEntete={profil.interne ? null : <ClocheNotifications initial={nonLues} />}
       menuUtilisateur={<MenuCompte utilisateur={utilisateur} Lien={LienNext} />}

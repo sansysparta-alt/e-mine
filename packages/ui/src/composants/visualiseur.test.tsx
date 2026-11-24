@@ -1,9 +1,13 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { useState } from "react";
-import { type DocumentAffiche, VisualiseurDocument } from "./visualiseur";
+import { adressePdf, type DocumentAffiche, VisualiseurDocument, zoomVoisin } from "./visualiseur";
 
 const libelles = {
   telecharger: "Télécharger",
+  imprimer: "Imprimer",
+  zoomAvant: "Zoom avant",
+  zoomArriere: "Zoom arrière",
+  ajuster: "Largeur",
   pleinEcran: "Plein écran",
   quitterPleinEcran: "Quitter le plein écran",
   fermer: "Fermer le document",
@@ -40,12 +44,40 @@ describe("visualiseur de documents", () => {
     fireEvent.click(screen.getByRole("button", { name: "Consulter" }));
     const panneau = screen.getByRole("complementary", { name: "eies.pdf" });
     expect(panneau).toHaveFocus();
-    expect(document.querySelector("iframe")).toHaveAttribute("src", pdf.urlAffichage);
+    expect(document.querySelector("iframe")).toHaveAttribute(
+      "src",
+      `${pdf.urlAffichage}#toolbar=0&navpanes=0&pagemode=none&scrollbar=1&view=FitH`,
+    );
+    // Une seule barre d'outils : un seul « Télécharger ».
+    expect(screen.getAllByRole("link", { name: "Télécharger" })).toHaveLength(1);
     expect(screen.getByRole("link", { name: "Télécharger" })).toHaveAttribute(
       "href",
       pdf.urlTelechargement,
     );
+    expect(screen.getByRole("button", { name: "Imprimer" })).toBeVisible();
     expect(screen.getByText("Liste toujours visible")).toBeVisible();
+  });
+
+  it("zoome par paliers, revient à la largeur, et un nouveau document repart à la largeur", () => {
+    render(<Banc document={pdf} />);
+    fireEvent.click(screen.getByRole("button", { name: "Consulter" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zoom avant" }));
+    expect(screen.getByText("125 %")).toBeVisible();
+    expect(document.querySelector("iframe")?.getAttribute("src")).toMatch(/#toolbar=0.*zoom=125$/);
+    fireEvent.click(screen.getByRole("button", { name: "Zoom arrière" }));
+    fireEvent.click(screen.getByRole("button", { name: "Zoom arrière" }));
+    expect(screen.getByText("75 %")).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "75 %" }));
+    expect(screen.getByRole("button", { name: "Largeur" })).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("calcule les paliers de zoom sans sortir des bornes", () => {
+    expect(zoomVoisin("largeur", 1)).toBe(125);
+    expect(zoomVoisin(50, -1)).toBe(50);
+    expect(zoomVoisin(200, 1)).toBe(200);
+    expect(adressePdf("/a.pdf#page=2", 150)).toBe(
+      "/a.pdf#toolbar=0&navpanes=0&pagemode=none&scrollbar=1&zoom=150",
+    );
   });
 
   it("se ferme par Échap et rend le focus au bouton qui l'a ouvert", () => {

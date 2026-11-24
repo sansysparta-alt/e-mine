@@ -35,6 +35,10 @@ export function useVisualiseurDocument(): {
         surFermeture={fermer}
         libelles={{
           telecharger: t("telecharger"),
+          imprimer: t("imprimer"),
+          zoomAvant: t("zoomAvant"),
+          zoomArriere: t("zoomArriere"),
+          ajuster: t("ajuster"),
           pleinEcran: t("pleinEcran"),
           quitterPleinEcran: t("quitterPleinEcran"),
           fermer: t("fermer"),

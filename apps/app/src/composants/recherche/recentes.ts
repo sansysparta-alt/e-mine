@@ -73,3 +73,39 @@ export function useRecentes(cle: string): string[] {
     return [];
   }
 }
+
+/** Dossier ouvert récemment, proposé par la recherche globale quand le champ est vide. */
+export type DossierRecent = { id: number; numero: string | null; document: string };
+
+const MAX_DOSSIERS = 5;
+
+/** Clé des derniers dossiers ouverts : propre au compte (plusieurs comptes sur un navigateur). */
+export const cleDossiersRecents = (compte: number) => `emine.dossiers-recents.${compte}`;
+
+/** Derniers dossiers ouverts par ce compte dans ce navigateur (commodité locale). */
+export function lireDossiersRecents(compte: number): DossierRecent[] {
+  try {
+    const brut = JSON.parse(window.localStorage.getItem(cleDossiersRecents(compte)) ?? "[]");
+    return Array.isArray(brut)
+      ? brut.filter(
+          (x): x is DossierRecent =>
+            typeof x === "object" && x !== null && typeof x.id === "number",
+        )
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+/** Met un dossier en tête des derniers ouverts (5 au plus, sans doublon). */
+export function memoriserDossierRecent(compte: number, dossier: DossierRecent): void {
+  const liste = [dossier, ...lireDossiersRecents(compte).filter((d) => d.id !== dossier.id)].slice(
+    0,
+    MAX_DOSSIERS,
+  );
+  try {
+    window.localStorage.setItem(cleDossiersRecents(compte), JSON.stringify(liste));
+  } catch {
+    // Stockage indisponible : rien n'est gardé.
+  }
+}

@@ -11,6 +11,7 @@ import { useTranslations } from "next-intl";
 import { MentionPassages } from "../travail/mention-passages";
 import { ActionsDemande } from "./actions-demande";
 import { DateAttente } from "./date-attente";
+import { cleAttente } from "./statut";
 import { StatutDemande } from "./statut-demande";
 
 /** Statuts pour lesquels le temps d'attente à l'étape a un sens. */
@@ -129,6 +130,7 @@ export function TableauDemandes({
         deposeLe={d.deposeLe}
         creeLe={d.creeLe}
         etapeDepuis={d.etapeDepuis}
+        cleAttente={cleAttente(d, interne)}
         avecAttente={STATUTS_EN_COURS.has(d.statut)}
         enRetard={interne && d.enRetard}
         delai={

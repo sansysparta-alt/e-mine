@@ -112,7 +112,11 @@ class RegleSuiviTest {
     // Sans droits à payer, le document compte 5 étapes : la signature est la 5e.
     assertThat(avancement("droits_payes", true, false, null))
         .isEqualTo(new RegleSuivi.Avancement(5, 5));
-    for (String fini : new String[] {"brouillon", "delivree", "rejetee", "archivee"}) {
+    // Délivrée : dernière étape, homogène avec les demandes en cours (« Étape 6 sur 6 »).
+    assertThat(avancement("delivree", true, true, null)).isEqualTo(new RegleSuivi.Avancement(6, 6));
+    assertThat(avancement("delivree", true, false, null))
+        .isEqualTo(new RegleSuivi.Avancement(5, 5));
+    for (String fini : new String[] {"brouillon", "rejetee", "archivee"}) {
       assertThat(avancement(fini, true, true, null)).as(fini).isNull();
     }
   }

@@ -94,6 +94,14 @@ export function dateDuJour(maintenant: Date = new Date()): string {
 }
 
 /**
+ * Date (ISO `AAAA-MM-JJ`, heure de Conakry) dans `jours` jours calendaires : échéance d'un délai
+ * à partir des jours restants donnés par l'API (« réponse attendue d'ici le… »).
+ */
+export function dateDansJours(jours: number, maintenant: Date = new Date()): string {
+  return new Date(jourConakry(maintenant) + jours * 86_400_000).toISOString().slice(0, 10);
+}
+
+/**
  * Nombre de **jours calendaires** écoulés depuis une date, à l'heure de Conakry (0 = le jour même,
  * 1 = la veille). Base des temps d'attente : « En attente depuis 1 jour » pour une demande déposée
  * hier soir, même moins de 24 heures plus tard.

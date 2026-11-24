@@ -92,6 +92,7 @@ export default async function RetourPaiement({ params, searchParams }: Props) {
         ) : (
           <Issue
             statut={paiement.statut}
+            objet={paiement.objet}
             reference={paiement.reference}
             recuNumero={paiement.recuNumero}
             tentatives={tentatives}
@@ -135,6 +136,8 @@ export default async function RetourPaiement({ params, searchParams }: Props) {
 
 type IssueProps = {
   statut: string;
+  /** Objet payé : les droits mènent à la signature, les frais à l'examen du guichet. */
+  objet: string;
   reference: string;
   recuNumero: string | null;
   tentatives: number | null;
@@ -143,12 +146,13 @@ type IssueProps = {
 };
 
 /** Message et actions selon l'issue du paiement. */
-function Issue({ statut, reference, recuNumero, tentatives, lienPayer, t }: IssueProps) {
+function Issue({ statut, objet, reference, recuNumero, tentatives, lienPayer, t }: IssueProps) {
   if (statut === "paye") {
+    const cle = objet === "DROITS" ? "payeDroits" : "paye";
     return (
       <div className="flex flex-col gap-4">
-        <Alerte nature="succes" titre={t("issue.paye.titre")}>
-          {t("issue.paye.texte")}
+        <Alerte nature="succes" titre={t(`issue.${cle}.titre`)}>
+          {t(`issue.${cle}.texte`)}
         </Alerte>
         {recuNumero ? (
           <div className="flex flex-wrap gap-3">
