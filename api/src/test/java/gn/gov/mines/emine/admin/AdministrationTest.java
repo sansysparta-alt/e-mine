@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import gn.gov.mines.emine.support.BaseDeDonneesDeTest;
 import gn.gov.mines.emine.support.Personas;
+import gn.gov.mines.emine.support.StockageEnMemoire;
 import gn.gov.mines.emine.support.TestIntegration;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -25,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
@@ -35,6 +37,7 @@ import tools.jackson.databind.json.JsonMapper;
  * connexion, d'après le jeton, et tracée au journal d'audit.
  */
 @AutoConfigureMockMvc
+@Import(StockageEnMemoire.Config.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class AdministrationTest extends TestIntegration {
 
@@ -57,7 +60,8 @@ class AdministrationTest extends TestIntegration {
     List<String> services = new ArrayList<>();
     t.path("services").forEach(s -> services.add(s.path("cle").asString()));
     assertThat(services).containsExactly("base", "authentification", "stockage", "messagerie");
-    // La base répond forcément (la lecture vient d'elle) ; le stockage est simulé en mémoire.
+    // La base répond forcément (la lecture vient d'elle) ; le stockage est simulé en mémoire
+    // (aucun service extérieur requis par le test).
     assertThat(t.path("services").get(0).path("disponible").asBoolean()).isTrue();
     assertThat(t.path("services").get(2).path("disponible").asBoolean()).isTrue();
   }
