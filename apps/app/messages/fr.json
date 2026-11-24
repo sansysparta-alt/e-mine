@@ -365,7 +365,8 @@
         "montant": "Montant",
         "statut": "Statut",
         "date": "Date",
-        "recu": "Reçu"
+        "recu": "Reçu",
+        "demande": "Demande"
       }
     },
     "motifRejet": "Motif",
@@ -515,7 +516,10 @@
       "parametres": "Délais et notifications",
       "profil": "Mon profil",
       "aide": "Aide",
-      "mentionsLegales": "Mentions légales"
+      "mentionsLegales": "Mentions légales",
+      "utilisateurs": "Utilisateurs & rôles",
+      "paiements": "Paiements & reçus",
+      "documents": "Documents délivrés"
     },
     "compte": {
       "menu": "Menu de l’utilisateur",
@@ -1808,5 +1812,142 @@
   },
   "rechercheListe": {
     "vider": "Effacer la recherche"
+  },
+  "administration": {
+    "indisponible": "La vue d’ensemble technique n’a pas pu être chargée. Réessayez dans un instant ; si le problème persiste, vérifiez la disponibilité de l’API.",
+    "periodes": {
+      "aCeJour": "À ce jour",
+      "trenteJours": "30 derniers jours",
+      "maintenant": "À l’instant"
+    },
+    "chiffres": {
+      "actifs": "Utilisateurs actifs",
+      "actifsPrecision": "{suspendus, plural, =0 {aucun suspendu} =1 {1 suspendu} other {# suspendus}} · {invites, plural, =0 {aucun invité} =1 {1 invité} other {# invités}}",
+      "connectes": "Utilisateurs connectés",
+      "profils": "Profils configurés",
+      "profilsPrecision": "Profils dotés d’au moins un droit",
+      "disponibilite": "Disponibilité",
+      "disponibilitePrecision": "Services en fonctionnement",
+      "surTotal": "{n} sur {total}"
+    },
+    "services": {
+      "titre": "Disponibilité des services",
+      "disponible": "Disponible",
+      "indisponible": "Indisponible",
+      "verifie": "Vérifié le {date}",
+      "base": {
+        "nom": "Base de données",
+        "role": "Dossiers, paiements, journal d’audit"
+      },
+      "authentification": {
+        "nom": "Service de connexion",
+        "role": "Comptes et authentification (Keycloak)"
+      },
+      "stockage": {
+        "nom": "Stockage des documents",
+        "role": "Pièces jointes et documents signés"
+      },
+      "messagerie": {
+        "nom": "Messagerie",
+        "role": "E-mails et SMS de notification"
+      }
+    },
+    "operations": {
+      "titre": "Dernières opérations",
+      "vide": "Aucune opération enregistrée pour le moment.",
+      "voirTout": "Voir le journal d’audit",
+      "systeme": "Système",
+      "nature": {
+        "I": "Création · {objet}",
+        "U": "Modification · {objet}",
+        "D": "Suppression · {objet}"
+      }
+    },
+    "profils": {
+      "titre": "Comptes par profil",
+      "interne": "Profil interne",
+      "externe": "Profil externe",
+      "sansDroit": "Aucun droit",
+      "colonnes": {
+        "profil": "Profil",
+        "utilisateurs": "Comptes",
+        "droits": "Droits"
+      }
+    },
+    "utilisateurs": {
+      "titre": "Utilisateurs & rôles",
+      "description": "Les comptes de la plateforme, leur profil, leur statut et leur dernière connexion.",
+      "elements": "comptes",
+      "jamais": "Jamais connecté",
+      "keycloak": {
+        "titre": "Comptes gérés dans le service de connexion",
+        "texte": "Les comptes se créent, se suspendent et se réactivent dans la console d’administration des identités (Keycloak). Cet écran les présente ; chaque connexion est tracée au journal d’audit."
+      },
+      "recherche": {
+        "libelle": "Rechercher un compte",
+        "exemple": "Nom, e-mail ou organisation",
+        "bouton": "Rechercher"
+      },
+      "colonnes": {
+        "utilisateur": "Utilisateur",
+        "statut": "Statut",
+        "profil": "Profil",
+        "connexion": "Dernière connexion"
+      },
+      "statuts": {
+        "actif": "Actif",
+        "suspendu": "Suspendu",
+        "invite": "Invité"
+      },
+      "filtres": {
+        "libelle": "Statut du compte",
+        "tous": "Tous",
+        "actif": "Actifs",
+        "suspendu": "Suspendus",
+        "invite": "Invités",
+        "plus": "Par profil",
+        "parProfil": "Filtrer par profil",
+        "actifs": "Filtres appliqués",
+        "effacer": "Retirer le filtre",
+        "recents": "Connectés ces 30 derniers jours",
+        "profil": "Profil : {profil}"
+      },
+      "vide": {
+        "filtre": "Aucun compte ne correspond à ces critères.",
+        "recherche": "Aucun compte ne correspond à « {texte} »",
+        "conseil": "Vérifiez l’orthographe, ou saisissez une partie du nom, de l’e-mail ou de l’organisation. Les accents et les majuscules ne comptent pas.",
+        "effacer": "Voir tous les comptes"
+      }
+    }
+  },
+  "mesPaiements": {
+    "titre": "Paiements & reçus",
+    "description": "Tous vos paiements, avec la demande concernée. Un reçu se télécharge dès que le paiement est confirmé.",
+    "elements": "paiements",
+    "vide": {
+      "titre": "Aucun paiement pour le moment",
+      "description": "Les frais de dossier se paient après le dépôt d’une demande ; vos paiements et leurs reçus apparaîtront ici."
+    }
+  },
+  "mesDocuments": {
+    "titre": "Documents délivrés",
+    "description": "Vos documents signés, à télécharger. Chacun porte un code QR que quiconque peut vérifier en ligne.",
+    "elements": "documents",
+    "valide": "Valide",
+    "revoque": "Révoqué",
+    "telecharger": "Télécharger",
+    "verifier": "Vérifier",
+    "nouvelOnglet": "(s’ouvre dans un nouvel onglet)",
+    "colonnes": {
+      "document": "Document",
+      "validite": "Validité",
+      "demande": "Demande",
+      "date": "Délivré le",
+      "actions": "Actions"
+    },
+    "vide": {
+      "titre": "Aucun document délivré pour le moment",
+      "description": "Quand une demande aboutit, le document signé est disponible ici et sur la fiche de la demande."
+    }
   }
 }

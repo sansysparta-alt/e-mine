@@ -37,14 +37,24 @@ class RattachementUtilisateurFilter extends OncePerRequestFilter {
 
   private final UtilisateurRepository utilisateurs;
   private final TransactionTemplate lecture;
+  private final TransactionTemplate trace;
   private final FabriqueProblemes problemes;
+
+  /**
+   * Dernière connexion déjà notée par compte (moment d'authentification du jeton) : une seule
+   * écriture par connexion, pas une par requête.
+   */
+  private final java.util.Map<Long, java.time.Instant> connexionsNotees =
+      new java.util.concurrent.ConcurrentHashMap<>();
 
   RattachementUtilisateurFilter(
       UtilisateurRepository utilisateurs,
       TransactionTemplate lecture,
+      TransactionTemplate trace,
       FabriqueProblemes problemes) {
     this.utilisateurs = utilisateurs;
     this.lecture = lecture;
+    this.trace = trace;
     this.problemes = problemes;
   }
 
@@ -60,6 +70,7 @@ class RattachementUtilisateurFilter extends OncePerRequestFilter {
         return;
       }
       requete.setAttribute(ATTRIBUT, compte.get());
+      noterConnexion(compte.get().id(), jeton.getToken().getClaimAsInstant("auth_time"));
       SecurityContext contexte = SecurityContextHolder.createEmptyContext();
       contexte.setAuthentication(
           new JwtAuthenticationToken(jeton.getToken(), autorites(compte.get()), jeton.getName()));
@@ -75,6 +86,21 @@ class RattachementUtilisateurFilter extends OncePerRequestFilter {
         .sorted()
         .forEach(p -> autorites.add(new SimpleGrantedAuthority(p.autorite())));
     return autorites;
+  }
+
+  /** Date de connexion du compte (claim {@code auth_time}), notée une fois par connexion. */
+  private void noterConnexion(long id, java.time.Instant authentifieLe) {
+    if (authentifieLe == null || authentifieLe.equals(connexionsNotees.get(id))) {
+      return;
+    }
+    try {
+      trace.executeWithoutResult(statut -> utilisateurs.noterConnexion(id, authentifieLe));
+      connexionsNotees.put(id, authentifieLe);
+    } catch (RuntimeException e) {
+      // Une trace de connexion manquée ne doit jamais empêcher l'utilisateur de travailler.
+      org.slf4j.LoggerFactory.getLogger(RattachementUtilisateurFilter.class)
+          .warn("Date de connexion non notée pour le compte {}", id, e);
+    }
   }
 
   private Optional<UtilisateurConnecte> rechercher(String sub) {

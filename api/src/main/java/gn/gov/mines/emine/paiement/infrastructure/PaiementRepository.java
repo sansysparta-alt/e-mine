@@ -197,6 +197,45 @@ public class PaiementRepository {
         .fetch(PaiementRepository::versDomaine);
   }
 
+  /** Un paiement avec le numéro de sa demande et le code de son document (liste « Paiements »). */
+  public record LignePaiement(Paiement paiement, String numeroDemande, String codeDocument) {}
+
+  /**
+   * Paiements visibles du profil connecté (RLS de {@code paiement} et {@code demande} : ses propres
+   * paiements pour un usager), du plus récent au plus ancien, hors paiements annulés.
+   */
+  public gn.gov.mines.emine.shared.pagination.PageResultat<LignePaiement> listerVisibles(
+      gn.gov.mines.emine.shared.pagination.Pagination pagination) {
+    var condition = PAIEMENT.STATUT.ne(gn.gov.mines.emine.shared.jooq.enums.StatutPaiement.annule);
+    long total =
+        dsl.selectCount()
+            .from(PAIEMENT)
+            .join(gn.gov.mines.emine.shared.jooq.Tables.DEMANDE)
+            .on(gn.gov.mines.emine.shared.jooq.Tables.DEMANDE.ID.eq(PAIEMENT.DEMANDE_ID))
+            .where(condition)
+            .fetchOne(0, Long.class);
+    var demande = gn.gov.mines.emine.shared.jooq.Tables.DEMANDE;
+    var type = gn.gov.mines.emine.shared.jooq.Tables.TYPE_DOCUMENT;
+    List<LignePaiement> elements =
+        dsl.select(PAIEMENT.fields())
+            .select(demande.NUMERO, type.CODE)
+            .from(PAIEMENT)
+            .join(demande)
+            .on(demande.ID.eq(PAIEMENT.DEMANDE_ID))
+            .join(type)
+            .on(type.ID.eq(demande.TYPE_DOCUMENT_ID))
+            .where(condition)
+            .orderBy(PAIEMENT.CREATED_AT.desc(), PAIEMENT.REFERENCE.desc())
+            .limit(pagination.taille())
+            .offset(pagination.decalage())
+            .fetch(
+                r ->
+                    new LignePaiement(
+                        versDomaine(r.into(PAIEMENT)), r.get(demande.NUMERO), r.get(type.CODE)));
+    return new gn.gov.mines.emine.shared.pagination.PageResultat<>(
+        elements, pagination.page(), pagination.taille(), total);
+  }
+
   public Optional<Paiement> lireParReference(String reference) {
     return dsl.selectFrom(PAIEMENT)
         .where(PAIEMENT.REFERENCE.eq(reference))

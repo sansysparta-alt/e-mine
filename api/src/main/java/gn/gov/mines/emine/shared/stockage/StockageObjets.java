@@ -14,4 +14,7 @@ public interface StockageObjets {
 
   /** Lit un objet ; l'appelant ferme le flux. */
   InputStream lire(String compartiment, String cle);
+
+  /** Le service de stockage répond-il ? (supervision de l'administrateur technique) */
+  boolean disponible();
 }

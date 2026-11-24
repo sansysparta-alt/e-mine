@@ -84,6 +84,16 @@ public class ServicePaiements {
     return paiements.lister(demandeId);
   }
 
+  /**
+   * « Paiements & reçus » : les paiements visibles du profil connecté (les siens pour un usager).
+   */
+  @Transactional(readOnly = true)
+  public gn.gov.mines.emine.shared.pagination.PageResultat<
+          gn.gov.mines.emine.paiement.infrastructure.PaiementRepository.LignePaiement>
+      listerVisibles(gn.gov.mines.emine.shared.pagination.Pagination pagination) {
+    return paiements.listerVisibles(pagination);
+  }
+
   @Transactional(readOnly = true)
   public Paiement lireParReference(String reference) {
     return paiements

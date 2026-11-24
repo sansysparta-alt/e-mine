@@ -5,9 +5,12 @@ const cles = (sections: ReturnType<typeof navigationPour>) =>
 
 describe("configuration unique de la navigation", () => {
   it("filtre les rubriques selon le profil et retire les sections vides", () => {
+    // Espace de l'investisseur (cahier, diapo 29) : demandes, paiements et reçus, documents.
     expect(cles(navigationPour({ permissions: ["DEPOSER", "PAYER"], interne: false }))).toEqual([
       "tableauDeBord",
       "mesDemandes",
+      "paiements",
+      "documents",
     ]);
     const fiscal = navigationPour({ permissions: ["ENCAISSER"], interne: true });
     expect(cles(fiscal)).toEqual(["tableauDeBord", "mesDemandes"]);
@@ -35,6 +38,7 @@ describe("configuration unique de la navigation", () => {
     expect(cles(admin)).toEqual([
       "tableauDeBord",
       "mesDemandes",
+      "utilisateurs",
       "catalogue",
       "workflows",
       "parametres",
@@ -70,6 +74,18 @@ describe("configuration unique de la navigation", () => {
     );
     for (const droit of ["INSTRUIRE", "SIGNER", "PARAMETRER"]) {
       expect(actionPrincipalePour({ permissions: [droit], interne: true })).toBeUndefined();
+    }
+  });
+
+  it("ne montre « Demandes » qu'aux profils qui en ont l'usage (moindre privilège)", () => {
+    // Communauté locale, organismes sous tutelle, apprenant, webmaster (matrice des droits).
+    for (const profil of [
+      { permissions: ["CADASTRE_LECTURE", "VERIFIER"], interne: false },
+      { permissions: ["CADASTRE_LECTURE"], interne: true },
+      { permissions: ["PAYER"], interne: true },
+      { permissions: ["PUBLIER"], interne: true },
+    ]) {
+      expect(cles(navigationPour(profil))).toEqual(["tableauDeBord"]);
     }
   });
 

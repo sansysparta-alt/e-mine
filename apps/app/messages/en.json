@@ -365,7 +365,8 @@
         "montant": "Amount",
         "statut": "Status",
         "date": "Date",
-        "recu": "Receipt"
+        "recu": "Receipt",
+        "demande": "Request"
       }
     },
     "motifRejet": "Reason",
@@ -515,7 +516,10 @@
       "parametres": "Time limits and notifications",
       "profil": "My profile",
       "aide": "Help",
-      "mentionsLegales": "Legal notice"
+      "mentionsLegales": "Legal notice",
+      "utilisateurs": "Users & roles",
+      "paiements": "Payments & receipts",
+      "documents": "Issued documents"
     },
     "compte": {
       "menu": "User menu",
@@ -1808,5 +1812,142 @@
   },
   "rechercheListe": {
     "vider": "Clear search"
+  },
+  "administration": {
+    "indisponible": "The technical overview could not be loaded. Please try again in a moment; if the problem persists, check that the API is available.",
+    "periodes": {
+      "aCeJour": "To date",
+      "trenteJours": "Last 30 days",
+      "maintenant": "Just now"
+    },
+    "chiffres": {
+      "actifs": "Active users",
+      "actifsPrecision": "{suspendus, plural, =0 {none suspended} other {# suspended}} · {invites, plural, =0 {none invited} other {# invited}}",
+      "connectes": "Users signed in",
+      "profils": "Configured profiles",
+      "profilsPrecision": "Profiles with at least one permission",
+      "disponibilite": "Availability",
+      "disponibilitePrecision": "Services running",
+      "surTotal": "{n} of {total}"
+    },
+    "services": {
+      "titre": "Service availability",
+      "disponible": "Available",
+      "indisponible": "Unavailable",
+      "verifie": "Checked on {date}",
+      "base": {
+        "nom": "Database",
+        "role": "Files, payments, audit log"
+      },
+      "authentification": {
+        "nom": "Sign-in service",
+        "role": "Accounts and authentication (Keycloak)"
+      },
+      "stockage": {
+        "nom": "Document storage",
+        "role": "Attachments and signed documents"
+      },
+      "messagerie": {
+        "nom": "Messaging",
+        "role": "Notification e-mails and SMS"
+      }
+    },
+    "operations": {
+      "titre": "Latest operations",
+      "vide": "No operation recorded yet.",
+      "voirTout": "See the audit log",
+      "systeme": "System",
+      "nature": {
+        "I": "Creation · {objet}",
+        "U": "Change · {objet}",
+        "D": "Deletion · {objet}"
+      }
+    },
+    "profils": {
+      "titre": "Accounts by profile",
+      "interne": "Internal profile",
+      "externe": "External profile",
+      "sansDroit": "No permission",
+      "colonnes": {
+        "profil": "Profile",
+        "utilisateurs": "Accounts",
+        "droits": "Permissions"
+      }
+    },
+    "utilisateurs": {
+      "titre": "Users & roles",
+      "description": "Platform accounts, their profile, status and last sign-in.",
+      "elements": "accounts",
+      "jamais": "Never signed in",
+      "keycloak": {
+        "titre": "Accounts managed in the sign-in service",
+        "texte": "Accounts are created, suspended and reactivated in the identity administration console (Keycloak). This screen presents them; every sign-in is recorded in the audit log."
+      },
+      "recherche": {
+        "libelle": "Search for an account",
+        "exemple": "Name, e-mail or organisation",
+        "bouton": "Search"
+      },
+      "colonnes": {
+        "utilisateur": "User",
+        "statut": "Status",
+        "profil": "Profile",
+        "connexion": "Last sign-in"
+      },
+      "statuts": {
+        "actif": "Active",
+        "suspendu": "Suspended",
+        "invite": "Invited"
+      },
+      "filtres": {
+        "libelle": "Account status",
+        "tous": "All",
+        "actif": "Active",
+        "suspendu": "Suspended",
+        "invite": "Invited",
+        "plus": "By profile",
+        "parProfil": "Filter by profile",
+        "actifs": "Filters applied",
+        "effacer": "Remove filter",
+        "recents": "Signed in during the last 30 days",
+        "profil": "Profile: {profil}"
+      },
+      "vide": {
+        "filtre": "No account matches these criteria.",
+        "recherche": "No account matches “{texte}”",
+        "conseil": "Check the spelling, or type part of the name, e-mail or organisation. Accents and capitals do not matter.",
+        "effacer": "See all accounts"
+      }
+    }
+  },
+  "mesPaiements": {
+    "titre": "Payments & receipts",
+    "description": "All your payments, with the request concerned. A receipt can be downloaded as soon as the payment is confirmed.",
+    "elements": "payments",
+    "vide": {
+      "titre": "No payment yet",
+      "description": "The filing fee is paid after submitting a request; your payments and their receipts will appear here."
+    }
+  },
+  "mesDocuments": {
+    "titre": "Issued documents",
+    "description": "Your signed documents, ready to download. Each carries a QR code that anyone can check online.",
+    "elements": "documents",
+    "valide": "Valid",
+    "revoque": "Revoked",
+    "telecharger": "Download",
+    "verifier": "Verify",
+    "nouvelOnglet": "(opens in a new tab)",
+    "colonnes": {
+      "document": "Document",
+      "validite": "Validity",
+      "demande": "Request",
+      "date": "Issued on",
+      "actions": "Actions"
+    },
+    "vide": {
+      "titre": "No document issued yet",
+      "description": "When a request is granted, the signed document is available here and on the request page."
+    }
   }
 }
