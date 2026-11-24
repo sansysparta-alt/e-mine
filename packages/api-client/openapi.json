@@ -3300,6 +3300,9 @@
           "auteurProfil" : {
             "type" : [ "string", "null" ]
           },
+          "auteurProfilCode" : {
+            "type" : [ "string", "null" ]
+          },
           "table" : {
             "type" : "string"
           },
@@ -3329,7 +3332,7 @@
             "type" : [ "string", "null" ]
           }
         },
-        "required" : [ "adresseIp", "auteur", "auteurProfil", "categorie", "changements", "date", "demandeId", "id", "objetId", "objetLibelle", "operation", "table" ]
+        "required" : [ "adresseIp", "auteur", "auteurProfil", "auteurProfilCode", "categorie", "changements", "date", "demandeId", "id", "objetId", "objetLibelle", "operation", "table" ]
       },
       "PageJournalDto" : {
         "type" : "object",

@@ -3,6 +3,7 @@ import { NextIntlClientProvider } from "next-intl";
 import type { ReactNode } from "react";
 import fr from "../../messages/fr.json";
 import type { DemandeDto, IndicateursDto } from "@emine/api-client";
+import { langueDuNavigateur } from "@/i18n/langues";
 import { adresseConnexion, supplementsConnexion } from "@/serveur/connexion";
 import { actionAttendue, VueTableauDeBord } from "./vue-tableau-de-bord";
 
@@ -140,7 +141,7 @@ describe("tableau de bord du demandeur (correctifs ergonomie)", () => {
       <VueTableauDeBord
         prenom="Fodé"
         nom="Bangoura"
-        profilLibelle="Investisseur Extérieur"
+        profilLibelle="Investisseur extérieur"
         profil="demandeur"
         demandes={[deposee, brouillon]}
         libelles={libelles}
@@ -355,12 +356,22 @@ describe("porte d'entrée : paramètres transmis à Keycloak", () => {
     expect(supplementsConnexion({ motif: "deconnecte", langue: "en" })).toEqual({
       motif: "deconnecte",
       ui_locales: "en",
+      kc_locale: "en",
     });
     expect(supplementsConnexion({ motif: "<script>", action: "supprimer", langue: "de" })).toEqual({
       ui_locales: "fr",
+      kc_locale: "fr",
     });
+  });
+
+  it("reprend la langue du navigateur au premier accès", () => {
+    expect(langueDuNavigateur("en-GB,en;q=0.9,fr;q=0.8")).toBe("en");
+    expect(langueDuNavigateur("de-DE,fr;q=0.7,en;q=0.5")).toBe("fr");
+    expect(langueDuNavigateur("es-ES,de;q=0.8")).toBe("fr");
+    expect(langueDuNavigateur(null)).toBe("fr");
     expect(supplementsConnexion({ action: "mot-de-passe" })).toEqual({
       ui_locales: "fr",
+      kc_locale: "fr",
       kc_action: "UPDATE_PASSWORD",
     });
   });

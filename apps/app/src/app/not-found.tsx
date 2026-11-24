@@ -1,6 +1,7 @@
 import { PageIntrouvable } from "@/composants/page-introuvable";
 import { NavigationApplication } from "@/navigation/navigation-application";
 import { chargerMoi } from "@/serveur/donnees";
+import { profilAffiche } from "@/serveur/profil";
 
 /**
  * Adresse sans écran, ou écran réservé à un autre profil (le proxy y renvoie, statut 404) : la même
@@ -12,7 +13,7 @@ export default async function IntrouvableRacine() {
   if (moi) {
     return (
       <NavigationApplication
-        utilisateur={{ nomComplet: `${moi.prenom} ${moi.nom}`, profil: moi.profil.libelle }}
+        utilisateur={{ nomComplet: `${moi.prenom} ${moi.nom}`, profil: await profilAffiche(moi) }}
         profil={{ permissions: moi.permissions, interne: moi.interne }}
       >
         <PageIntrouvable />

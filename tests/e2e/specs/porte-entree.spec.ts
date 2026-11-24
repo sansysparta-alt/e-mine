@@ -10,10 +10,15 @@ import { expect, type Page, test } from "@playwright/test";
 const MOT_DE_PASSE = process.env.DEMO_PASSWORD ?? "";
 const ERREUR = "Identifiant ou mot de passe incorrect. Vérifiez votre saisie et réessayez.";
 
-async function seConnecter(page: Page, identifiant: string, motDePasse: string) {
+async function seConnecter(
+  page: Page,
+  identifiant: string,
+  motDePasse: string,
+  bouton = "Accéder à mon espace",
+) {
   await page.locator("#username").fill(identifiant);
   await page.locator("#password").fill(motDePasse);
-  await page.getByRole("button", { name: "Accéder à mon espace" }).click();
+  await page.getByRole("button", { name: bouton }).click();
 }
 
 test("sans session, « / » mène directement à la page de connexion officielle", async ({ page }) => {
@@ -80,4 +85,24 @@ test("sur mobile, l'identité de l'État devient un bandeau au-dessus du formula
   expect((bandeau?.y ?? 0) + (bandeau?.height ?? 0)).toBeLessThanOrEqual(formulaire?.y ?? 0);
   const largeur = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(largeur).toBeLessThanOrEqual(390);
+});
+
+test("la langue choisie sur la page de connexion est reprise par l'application", async ({
+  page,
+}) => {
+  expect(MOT_DE_PASSE, "DEMO_PASSWORD doit être défini dans .env").not.toBe("");
+  await page.goto("/");
+  // Sélecteur discret en bas : chaque langue dans sa propre langue, la langue active indiquée.
+  const langues = page.getByRole("navigation", { name: "Langue" });
+  await expect(langues.locator('[aria-current="true"]')).toHaveText("Français");
+  await langues.getByRole("link", { name: "English" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Sign in" })).toBeVisible();
+  await seConnecter(page, "f.bangoura@horizon-invest.test", MOT_DE_PASSE, "Access my account");
+  await expect(page).toHaveURL(/\/tableau-de-bord/);
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.getByText("Foreign investor").first()).toBeVisible();
+  // Retour au français depuis l'application : la page de connexion suit.
+  await page.getByRole("button", { name: /User menu/ }).click();
+  await page.getByRole("menuitemradio", { name: "Français" }).click();
+  await expect(page.locator("html")).toHaveAttribute("lang", "fr");
 });

@@ -2,9 +2,10 @@ import { ErreurApi, lireDemande, lirePaiementAttendu } from "@emine/api-client";
 import { Alerte, Bouton, Carte, EnTetePage, formaterGnf } from "@emine/ui";
 import { ArrowLeft, ShieldCheck } from "@emine/ui/icones";
 import type { Metadata } from "next";
+import { libelleDocument } from "@/composants/referentiels";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { ChoixMoyen } from "@/composants/paiement/choix-moyen";
 import { choisirMoyen } from "@/serveur/actions-paiement";
 import { appelPage, chargerReferentiels, optionsApi } from "@/serveur/donnees";
@@ -52,7 +53,11 @@ export default async function PaiementDemande({ params }: Props) {
       {t("retourDemande")}
     </Link>
   );
-  const description = [demande.numero, document ? `${document.libelleFr} (${document.code})` : null]
+  const langue = await getLocale();
+  const description = [
+    demande.numero,
+    document ? `${libelleDocument(document, langue)} (${document.code})` : null,
+  ]
     .filter(Boolean)
     .join(" · ");
 

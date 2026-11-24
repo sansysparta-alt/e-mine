@@ -207,7 +207,7 @@ class EvenementsNotificationsTest extends TestIntegration {
     mvc.perform(get("/api/v1/notifications").header("Accept-Language", "en").with(investisseur()))
         .andExpect(
             jsonPath("$.elements[0].titre")
-                .value(org.hamcrest.Matchers.startsWith("Application submitted · DEM-")));
+                .value(org.hamcrest.Matchers.startsWith("Request submitted · DEM-")));
 
     // Un autre usager ne la voit pas et ne peut pas la marquer.
     mvc.perform(get("/api/v1/notifications").with(jeton(INVESTISSEUR_2, "INVESTISSEUR")))

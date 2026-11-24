@@ -90,7 +90,7 @@ class ErreursTest extends TestIntegration {
                 .header("Accept-Language", "en-GB,en;q=0.9")
                 .with(jeton(GUICHET, "GUICHET")))
         .andExpect(jsonPath("$.code").value("DEM-002"))
-        .andExpect(jsonPath("$.message").value("Application not found."));
+        .andExpect(jsonPath("$.message").value("Request not found."));
   }
 
   @Test

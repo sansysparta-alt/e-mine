@@ -6,6 +6,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { formaterValeur, libelleChamp, trierChangements } from "@/composants/audit/journal";
+import { libelleProfil } from "@/composants/referentiels";
 import { appelPage, chargerMoi, optionsApi } from "@/serveur/donnees";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -36,6 +37,7 @@ export default async function EntreeJournal({ params }: Props) {
     throw e;
   }
   const t = await getTranslations("audit");
+  const tReferentiels = await getTranslations("referentiels");
   const tStatut = await getTranslations("statuts");
   const tStatutPaiement = await getTranslations("statutsPaiement");
   const tValeurs = await getTranslations("audit.valeurs");
@@ -71,7 +73,7 @@ export default async function EntreeJournal({ params }: Props) {
           <dt className="font-semibold">{t("colonnes.auteur")}</dt>
           <dd>
             {entree.auteur
-              ? `${entree.auteur}${entree.auteurProfil ? ` · ${entree.auteurProfil}` : ""}`
+              ? `${entree.auteur}${entree.auteurProfil ? ` · ${libelleProfil(entree.auteurProfilCode, entree.auteurProfil, tReferentiels)}` : ""}`
               : t("systemeDetail")}
           </dd>
           <dt className="font-semibold">{t("colonnes.objet")}</dt>

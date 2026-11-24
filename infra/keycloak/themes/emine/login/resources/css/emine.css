@@ -366,22 +366,35 @@ body.emine {
   display: none;
 }
 
-/* Sélecteur de langue de Keycloak, discret en haut de la carte (jamais en surimpression). */
-.emine .emine-langues,
-.emine #kc-locale {
-  position: relative !important;
-  inset: auto !important;
+/* Langues : discret, en bas de la carte, chaque langue dans sa propre langue. */
+.emine-langues {
+  margin-top: 0.75rem;
+}
+.emine-langues ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.emine-langues li {
   margin: 0;
 }
-.emine #kc-current-locale-link {
+.emine-langues a,
+.emine-langue-active {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
   min-height: 2.75rem;
-  padding: 0 0.75rem;
-  border: 1px solid var(--emine-bordure);
-  border-radius: var(--emine-rayon);
-  background: #fff;
+  font-size: 0.925rem;
+}
+.emine-langues a {
+  font-weight: 400;
+}
+.emine-langue-active {
+  font-weight: 700;
   color: var(--emine-navy);
-  font-weight: 600;
-  cursor: pointer;
 }
 
 /* Pied de la carte : connexion sécurisée et aide. */

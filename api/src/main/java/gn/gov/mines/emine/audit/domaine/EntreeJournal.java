@@ -22,6 +22,7 @@ public record EntreeJournal(
     Instant date,
     String auteur,
     String auteurProfil,
+    String auteurProfilCode,
     String table,
     String categorie,
     String operation,

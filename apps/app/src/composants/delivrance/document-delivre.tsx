@@ -4,6 +4,7 @@ import type { DocumentDelivreDto } from "@emine/api-client";
 import { BadgeStatut, Bouton, type DocumentAffiche, formaterDateHeure } from "@emine/ui";
 import { ExternalLink, Eye } from "@emine/ui/icones";
 import { useTranslations } from "next-intl";
+import { libelleSignataire } from "../referentiels";
 import type { ReactNode } from "react";
 import { useVisualiseurDocument } from "../documents/visualiseur";
 
@@ -33,6 +34,7 @@ export function DocumentDelivre({
   actions?: ReactNode;
 }) {
   const t = useTranslations("delivrance.document");
+  const tReferentiels = useTranslations("referentiels");
   const { ouvrir, visualiseur } = useVisualiseurDocument();
   return (
     <div className="flex flex-col gap-4">
@@ -54,7 +56,7 @@ export function DocumentDelivre({
         <dt className="font-semibold">{t("delivreLe")}</dt>
         <dd>{formaterDateHeure(document.delivreLe)}</dd>
         <dt className="font-semibold">{t("signePar")}</dt>
-        <dd>{document.signataire}</dd>
+        <dd>{libelleSignataire(document.signataire, tReferentiels)}</dd>
         <dt className="font-semibold">{t("empreinte")}</dt>
         <dd className="text-sm break-all text-texte-doux" title={document.empreinteSha256}>
           {document.empreinteSha256.slice(0, 16)}…

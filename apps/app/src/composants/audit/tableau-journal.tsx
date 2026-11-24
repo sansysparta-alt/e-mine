@@ -8,6 +8,7 @@ import {
 import { Cpu } from "@emine/ui/icones";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { libelleProfil } from "../referentiels";
 import { estTechnique, formaterValeur, libelleChamp, trierChangements } from "./journal";
 
 const LienNext: ComposantLien = ({ href, children, ...props }) => (
@@ -32,6 +33,7 @@ export function TableauJournal({
   legende: string;
 }) {
   const t = useTranslations("audit");
+  const tReferentiels = useTranslations("referentiels");
   const tStatut = useTranslations("statuts");
   const tStatutPaiement = useTranslations("statutsPaiement");
   const tValeurs = useTranslations("audit.valeurs");
@@ -87,7 +89,9 @@ export function TableauJournal({
               <span className="flex flex-col">
                 <span>{e.auteur}</span>
                 {e.auteurProfil ? (
-                  <span className="text-sm text-texte-doux">{e.auteurProfil}</span>
+                  <span className="text-sm text-texte-doux">
+                    {libelleProfil(e.auteurProfilCode, e.auteurProfil, tReferentiels)}
+                  </span>
                 ) : null}
               </span>
             ) : (

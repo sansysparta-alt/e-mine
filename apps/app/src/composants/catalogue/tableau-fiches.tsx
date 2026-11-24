@@ -2,6 +2,7 @@ import type { LigneFicheDto } from "@emine/api-client";
 import { BadgeStatut, type ComposantLien, TableauDonnees } from "@emine/ui";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { libelleSignataire, libelleWorkflowParNom } from "../referentiels";
 import { presentationLigne } from "./presentation";
 
 const LienNext: ComposantLien = ({ href, children, ...props }) => (
@@ -17,6 +18,7 @@ const LienNext: ComposantLien = ({ href, children, ...props }) => (
  */
 export function TableauFiches({ lignes, legende }: { lignes: LigneFicheDto[]; legende: string }) {
   const t = useTranslations("catalogue");
+  const tReferentiels = useTranslations("referentiels");
   return (
     <TableauDonnees
       legende={legende}
@@ -33,7 +35,9 @@ export function TableauFiches({ lignes, legende }: { lignes: LigneFicheDto[]; le
               <span className="font-semibold text-navy">
                 <span className="font-mono">{l.code}</span> · {l.libelleFr}
               </span>
-              <span className="text-sm text-texte-doux">{l.famille}</span>
+              <span className="text-sm text-texte-doux">
+                {libelleWorkflowParNom(l.famille, tReferentiels)}
+              </span>
             </span>
           ),
         },
@@ -44,7 +48,11 @@ export function TableauFiches({ lignes, legende }: { lignes: LigneFicheDto[]; le
             <span className="whitespace-nowrap">{t("jours", { n: l.delaiJours })}</span>
           ),
         },
-        { cle: "signataire", entete: t("colonnes.signataire"), rendu: (l) => l.signataire },
+        {
+          cle: "signataire",
+          entete: t("colonnes.signataire"),
+          rendu: (l) => libelleSignataire(l.signataire, tReferentiels),
+        },
         {
           cle: "version",
           entete: t("colonnes.version"),

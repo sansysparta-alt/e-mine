@@ -1,8 +1,9 @@
 import { compterDemandes, compterVues, listerDemandes } from "@emine/api-client";
 import { Bouton, EnTetePage, EtatVide, FiltresPastilles } from "@emine/ui";
 import type { Metadata } from "next";
+import { libelleDocument } from "@/composants/referentiels";
 import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { cleLibelleVue, statutsVisibles } from "@/composants/demande/filtres";
 import { lireParametres, type Parametres, TRIS } from "@/composants/demande/parametres-liste";
 import { TableauDemandes } from "@/composants/demande/tableau-demandes";
@@ -61,7 +62,8 @@ export default async function MesDemandes({ searchParams }: Props) {
   ]);
   const compteurs = compteursReponse.data;
   const resultat = reponse.data;
-  const libelles = Object.fromEntries(documents.map((d) => [d.code, d.libelleFr]));
+  const langue = await getLocale();
+  const libelles = Object.fromEntries(documents.map((d) => [d.code, libelleDocument(d, langue)]));
   const titre = moi.interne ? t("titreInterne") : t("titre");
   const nouvelle = moi.permissions.includes("DEPOSER") ? (
     <Bouton asChild>

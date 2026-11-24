@@ -1644,5 +1644,38 @@
       "texte": "Vous serez dirigé vers la page sécurisée de connexion pour choisir un nouveau mot de passe, puis ramené ici.",
       "motDePasse": "Modifier mon mot de passe"
     }
+  },
+  "referentiels": {
+    "profils": {
+      "ADMIN_TECH": "Administrateur technique",
+      "GUICHET": "Agent du guichet unique (CPDM)",
+      "DNM": "Agent DNM",
+      "INSPECTEUR": "Inspecteur des mines",
+      "GEOLOGUE": "Géologue (DNG)",
+      "FISCAL": "Responsable fiscal",
+      "DIRECTEUR": "Directeur général / national",
+      "MINISTRE": "Ministre / Secrétaire général",
+      "INVESTISSEUR": "Investisseur extérieur",
+      "SOCIETE_MINIERE": "Société minière",
+      "COMMUNAUTE": "Communauté locale",
+      "PME": "PME guinéenne",
+      "TUTELLE": "Organismes sous tutelle",
+      "BRIGADE": "Brigade anti-fraude",
+      "APPRENANT": "Apprenant (cadre du Ministère)",
+      "WEBMASTER": "Webmaster"
+    },
+    "signataires": {
+      "ministre": "Ministre",
+      "directeurGeneral": "Directeur général",
+      "directeurNational": "Directeur national",
+      "chefBne": "Chef du BNE"
+    },
+    "workflows": {
+      "TITRES": "Titres miniers",
+      "ARTISANAL": "Artisanal et comptoirs",
+      "EXPORT": "Export et expertise",
+      "ATTESTATIONS": "Attestations et copies",
+      "CONTENU_LOCAL": "Contenu local"
+    }
   }
 }

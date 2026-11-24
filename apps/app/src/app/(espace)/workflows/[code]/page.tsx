@@ -7,9 +7,10 @@ import {
 import { Alerte, Bouton, Carte, EnTetePage, formaterDate } from "@emine/ui";
 import { ArrowLeft, FilePen } from "@emine/ui/icones";
 import type { Metadata } from "next";
+import { libelleDocument, libelleWorkflow } from "@/composants/referentiels";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { EtapesWorkflow } from "@/composants/workflow/etapes-workflow";
 import { appelPage, chargerMoi, optionsApi } from "@/serveur/donnees";
 
@@ -40,6 +41,7 @@ export default async function DetailWorkflow({ params, searchParams }: Props) {
     notFound();
   }
   const t = await getTranslations("workflows");
+  const tReferentiels = await getTranslations("referentiels");
 
   let d: DetailWorkflowDto;
   const documents = listerTypesDocuments()
@@ -53,7 +55,10 @@ export default async function DetailWorkflow({ params, searchParams }: Props) {
     throw e;
   }
   const w = d.workflow;
-  const libelles = Object.fromEntries((await documents).map((x) => [x.code, x.libelleFr]));
+  const langue = await getLocale();
+  const libelles = Object.fromEntries(
+    (await documents).map((x) => [x.code, libelleDocument(x, langue)]),
+  );
   const v = w.enVigueur;
   const delai =
     w.delaiMinJours === w.delaiMaxJours
@@ -72,7 +77,7 @@ export default async function DetailWorkflow({ params, searchParams }: Props) {
             {t("titre")}
           </Link>
         }
-        titre={v.libelle}
+        titre={libelleWorkflow(w.code, v.libelle, tReferentiels)}
         description={t("etapesNombre", { n: v.etapes.length })}
         actions={
           d.peutModifier ? (

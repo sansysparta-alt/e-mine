@@ -21,6 +21,7 @@ import {
   TarifsAVenir,
 } from "@/composants/catalogue/fiche-version";
 import { type ActionFiche, presentationVersion } from "@/composants/catalogue/presentation";
+import { libelleWorkflowParNom } from "@/composants/referentiels";
 import { deciderFiche } from "@/serveur/actions-catalogue";
 import { appelPage, chargerMoi, optionsApi } from "@/serveur/donnees";
 
@@ -55,6 +56,7 @@ export default async function FicheDocument({ params, searchParams }: Props) {
     notFound();
   }
   const t = await getTranslations("catalogue");
+  const tReferentiels = await getTranslations("referentiels");
 
   let fiche: FicheDto;
   try {
@@ -89,7 +91,7 @@ export default async function FicheDocument({ params, searchParams }: Props) {
           </Link>
         }
         titre={`${fiche.code} · ${v.libelleFr}`}
-        description={fiche.famille}
+        description={libelleWorkflowParNom(fiche.famille, tReferentiels)}
         actions={
           fiche.peutProposer ? (
             <Bouton asChild>

@@ -133,7 +133,8 @@ public class JournalRepository {
             JOURNAL_AUDIT.ADRESSE_IP,
             UTILISATEUR.PRENOM,
             UTILISATEUR.NOM,
-            PROFIL.LIBELLE)
+            PROFIL.LIBELLE,
+            PROFIL.CODE)
         .from(JOURNAL_AUDIT)
         .leftJoin(UTILISATEUR)
         .on(UTILISATEUR.ID.eq(JOURNAL_AUDIT.UTILISATEUR_ID))
@@ -154,6 +155,7 @@ public class JournalRepository {
         r.get(JOURNAL_AUDIT.CREATED_AT),
         auteur,
         r.get(PROFIL.LIBELLE),
+        r.get(PROFIL.CODE),
         table,
         RegleJournal.categorie(table),
         operation,

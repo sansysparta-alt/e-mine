@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 import { NavigationApplication } from "@/navigation/navigation-application";
 import { chargerMoi, optionsApi } from "@/serveur/donnees";
+import { profilAffiche } from "@/serveur/profil";
 
 /**
  * Espace connecté : tous les écrans de l'application passent par ce gabarit (navigation selon le
@@ -41,7 +42,7 @@ export default async function DispositionEspace({ children }: { children: ReactN
   return (
     <NavigationApplication
       nonLues={nonLues}
-      utilisateur={{ nomComplet: `${moi.prenom} ${moi.nom}`, profil: moi.profil.libelle }}
+      utilisateur={{ nomComplet: `${moi.prenom} ${moi.nom}`, profil: await profilAffiche(moi) }}
       profil={{ permissions: moi.permissions, interne: moi.interne }}
     >
       {children}

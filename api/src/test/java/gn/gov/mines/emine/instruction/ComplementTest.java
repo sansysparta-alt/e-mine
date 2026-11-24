@@ -68,7 +68,7 @@ class ComplementTest extends TestIntegration {
         .andExpect(jsonPath("$.ouvert").value(true))
         .andExpect(jsonPath("$.statutOrigine").value("deposee"))
         .andExpect(jsonPath("$.piecesDemandees", contains("EIES")))
-        .andExpect(jsonPath("$.auteurProfil").value("Agent Guichet Unique (CPDM)"));
+        .andExpect(jsonPath("$.auteurProfil").value("Agent du guichet unique (CPDM)"));
     assertThat(DemandesDeTest.statutEtMotif(id)[0]).isEqualTo("complement_requis");
     assertThat(DemandesDeTest.auteurDernierStatut(id)).isEqualTo(GUICHET);
     assertThat(DemandesDeTest.notifications(id, "COMPLEMENT_DEMANDE")).isEqualTo(1);
