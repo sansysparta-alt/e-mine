@@ -1,6 +1,7 @@
 {
   "name": "@emine/app",
   "private": true,
+  "version": "0.9.0",
   "type": "module",
   "description": "Application de gestion e-mine (Next.js, BFF : les jetons restent côté serveur)",
   "scripts": {

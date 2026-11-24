@@ -1,12 +1,12 @@
 import { ErreurApi, lireWorkflow } from "@emine/api-client";
 import { EnTetePage } from "@emine/ui";
-import { ArrowLeft } from "@emine/ui/icones";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { libelleWorkflow } from "@/composants/referentiels";
 import { FormulaireWorkflow } from "@/composants/workflow/formulaire-workflow";
 import { enregistrerWorkflow } from "@/serveur/actions-workflow";
+import { FilArianeApp } from "@/composants/fil-ariane-app";
 import { appelPage, chargerMoi, optionsApi } from "@/serveur/donnees";
 
 type Props = { params: Promise<{ code: string }> };
@@ -37,21 +37,28 @@ export default async function ModifierWorkflow({ params }: Props) {
     throw e;
   }
   const v = detail.workflow.enVigueur;
+  const tReferentiels = await getTranslations("referentiels");
 
   return (
     <div className="flex flex-col gap-6">
       <EnTetePage
         retour={
-          <Link
-            href={`/workflows/${code}`}
-            className="inline-flex min-h-11 items-center gap-2 text-royal underline-offset-4 hover:underline"
-          >
-            <ArrowLeft aria-hidden="true" className="size-4" />
-            {v.libelle}
-          </Link>
+          <FilArianeApp
+            rubrique="workflows"
+            parents={[
+              {
+                libelle: libelleWorkflow(code, v.libelle, tReferentiels),
+                href: `/workflows/${code}`,
+              },
+            ]}
+            courante={t("titre")}
+          />
         }
         titre={t("titre")}
-        description={t("description", { libelle: v.libelle, n: v.version })}
+        description={t("description", {
+          libelle: libelleWorkflow(code, v.libelle, tReferentiels),
+          n: v.version,
+        })}
       />
       <FormulaireWorkflow code={code} enVigueur={v} enregistrer={enregistrerWorkflow} />
     </div>

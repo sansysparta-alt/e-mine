@@ -49,6 +49,7 @@ export {
   type EntreeNavigation,
   GabaritApplication,
   type GabaritApplicationProps,
+  type LienGabarit,
   type SectionNavigation,
 } from "./composants/gabarit";
 export {
@@ -58,6 +59,7 @@ export {
   pagesAffichees,
   type PaginationProps,
 } from "./composants/pagination";
+export { type EtapeFilAriane, FilAriane } from "./composants/fil-ariane";
 export {
   type ElementMenuUtilisateur,
   MenuUtilisateur,
@@ -70,3 +72,4 @@ export {
   VisualiseurDocument,
   type VisualiseurDocumentProps,
 } from "./composants/visualiseur";
+export { correspond, decouper, normaliser, TexteSurligne } from "./texte";

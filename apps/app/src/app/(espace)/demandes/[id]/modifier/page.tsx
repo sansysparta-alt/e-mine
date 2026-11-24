@@ -1,10 +1,9 @@
-import { ArrowLeft } from "@emine/ui/icones";
-import Link from "next/link";
 import { ErreurApi, lireDemande, listerPieces } from "@emine/api-client";
 import { EnTetePage } from "@emine/ui";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { FilArianeApp } from "@/composants/fil-ariane-app";
 import { FormulaireDemande } from "@/composants/demande/formulaire-demande";
 import { deposer, enregistrerBrouillon } from "@/serveur/actions-demande";
 import { appelPage, chargerReferentiels, optionsApi } from "@/serveur/donnees";
@@ -40,15 +39,7 @@ export default async function ModifierDemande({ params }: Props) {
       <EnTetePage
         titre={t("titreBrouillon")}
         description={t("descriptionNouvelle")}
-        retour={
-          <Link
-            href="/demandes"
-            className="inline-flex min-h-11 items-center gap-2 text-royal underline-offset-4 hover:underline"
-          >
-            <ArrowLeft aria-hidden="true" className="size-4" />
-            {t("retourMesDemandes")}
-          </Link>
-        }
+        retour={<FilArianeApp rubrique="mesDemandes" courante={t("titreBrouillon")} />}
       />
       <FormulaireDemande
         demande={demande}

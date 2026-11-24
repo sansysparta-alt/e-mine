@@ -8,11 +8,12 @@ import {
   formaterDate,
   joursCalendairesDepuis,
 } from "@emine/ui";
-import { ArrowLeft, FilePen } from "@emine/ui/icones";
+import { FilePen } from "@emine/ui/icones";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { FilArianeApp } from "@/composants/fil-ariane-app";
 import { DecisionVersion } from "@/composants/catalogue/decision-version";
 import {
   ContenuFiche,
@@ -81,15 +82,7 @@ export default async function FicheDocument({ params, searchParams }: Props) {
   return (
     <div className="flex flex-col gap-6">
       <EnTetePage
-        retour={
-          <Link
-            href="/catalogue"
-            className="inline-flex min-h-11 items-center gap-2 text-royal underline-offset-4 hover:underline"
-          >
-            <ArrowLeft aria-hidden="true" className="size-4" />
-            {t("fiche.retour")}
-          </Link>
-        }
+        retour={<FilArianeApp rubrique="catalogue" courante={fiche.code} />}
         titre={`${fiche.code} · ${v.libelleFr}`}
         description={libelleWorkflowParNom(fiche.famille, tReferentiels)}
         actions={

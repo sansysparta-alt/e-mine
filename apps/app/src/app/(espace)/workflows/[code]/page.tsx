@@ -5,12 +5,13 @@ import {
   lireWorkflow,
 } from "@emine/api-client";
 import { Alerte, Bouton, Carte, EnTetePage, formaterDate } from "@emine/ui";
-import { ArrowLeft, FilePen } from "@emine/ui/icones";
+import { FilePen } from "@emine/ui/icones";
 import type { Metadata } from "next";
 import { libelleDocument, libelleWorkflow } from "@/composants/referentiels";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
+import { FilArianeApp } from "@/composants/fil-ariane-app";
 import { EtapesWorkflow } from "@/composants/workflow/etapes-workflow";
 import { appelPage, chargerMoi, optionsApi } from "@/serveur/donnees";
 
@@ -69,13 +70,10 @@ export default async function DetailWorkflow({ params, searchParams }: Props) {
     <div className="flex flex-col gap-6">
       <EnTetePage
         retour={
-          <Link
-            href="/workflows"
-            className="inline-flex min-h-11 items-center gap-2 text-royal underline-offset-4 hover:underline"
-          >
-            <ArrowLeft aria-hidden="true" className="size-4" />
-            {t("titre")}
-          </Link>
+          <FilArianeApp
+            rubrique="workflows"
+            courante={libelleWorkflow(w.code, v.libelle, tReferentiels)}
+          />
         }
         titre={libelleWorkflow(w.code, v.libelle, tReferentiels)}
         description={t("etapesNombre", { n: v.etapes.length })}

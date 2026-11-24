@@ -2,6 +2,7 @@ import { compterDemandes, compterVues, listerDemandes } from "@emine/api-client"
 import { Bouton, EnTetePage, EtatVide, FiltresPastilles } from "@emine/ui";
 import type { Metadata } from "next";
 import { libelleDocument } from "@/composants/referentiels";
+import { Plus } from "@emine/ui/icones";
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 import { cleLibelleVue, statutsVisibles } from "@/composants/demande/filtres";
@@ -67,7 +68,10 @@ export default async function MesDemandes({ searchParams }: Props) {
   const titre = moi.interne ? t("titreInterne") : t("titre");
   const nouvelle = moi.permissions.includes("DEPOSER") ? (
     <Bouton asChild>
-      <Link href="/demandes/nouvelle">{t("nouvelle")}</Link>
+      <Link href="/demandes/nouvelle">
+        <Plus aria-hidden="true" className="size-5" />
+        {t("nouvelle")}
+      </Link>
     </Bouton>
   ) : null;
 

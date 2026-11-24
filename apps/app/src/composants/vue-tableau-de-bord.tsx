@@ -26,12 +26,13 @@ import {
   FileText,
   FolderOpen,
   Hourglass,
-  Inbox,
-  ListChecks,
-  Play,
-  Stamp,
   Timer,
+  Inbox,
+  Play,
+  ListChecks,
+  Plus,
   TriangleAlert,
+  Stamp,
   Wallet,
 } from "@emine/ui/icones";
 import Link from "next/link";
@@ -144,7 +145,10 @@ export function VueTableauDeBord({
   const t = useTranslations("tableauDeBord");
   const nouvelle = peutDeposer ? (
     <Bouton asChild>
-      <Link href="/demandes/nouvelle">{t("demandes.nouvelle")}</Link>
+      <Link href="/demandes/nouvelle">
+        <Plus aria-hidden="true" className="size-5" />
+        {t("demandes.nouvelle")}
+      </Link>
     </Bouton>
   ) : null;
   const nombreVue = (cle: string) => vues?.vues.find((v) => v.cle === cle)?.nombre ?? 0;

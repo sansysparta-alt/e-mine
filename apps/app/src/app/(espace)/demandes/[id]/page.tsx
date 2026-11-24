@@ -24,7 +24,7 @@ import {
   formaterGnf,
   joursCalendairesDepuis,
 } from "@emine/ui";
-import { ArrowLeft, CreditCard, Hourglass, TriangleAlert } from "@emine/ui/icones";
+import { CreditCard, Hourglass, TriangleAlert } from "@emine/ui/icones";
 import type { Metadata } from "next";
 import { libelleDocument, libelleSignataire } from "@/composants/referentiels";
 import Link from "next/link";
@@ -71,6 +71,7 @@ import {
   revoquer,
   signerEtDelivrer,
 } from "@/serveur/actions-instruction";
+import { FilArianeApp } from "@/composants/fil-ariane-app";
 import { appelPage, chargerMoi, chargerReferentiels, optionsApi } from "@/serveur/donnees";
 
 /** Statuts d'une demande en cours : le temps d'attente à l'étape s'affiche. */
@@ -253,12 +254,12 @@ export default async function DetailDemande({ params, searchParams }: Props) {
   const tComplement = await getTranslations("instruction.complement");
   const tAvis = await getTranslations("instruction.avis");
   const tSuivi = await getTranslations("suivi");
-  // Retour vers la file de travail d'où vient l'agent (correctifs J4 et J5).
-  const retour = groupeSerie
-    ? { href: `/a-traiter?groupe=${groupeSerie.cle}`, cle: "retourTravail" }
+  // Fil d'Ariane : la file de travail d'où vient l'agent (correctifs J4 et J5), sinon la liste.
+  const rubrique = groupeSerie
+    ? { cle: "aTraiter", href: `/a-traiter?groupe=${groupeSerie.cle}` }
     : depuis === "guichet" || depuis === "decisions"
-      ? { href: "/a-traiter", cle: "retourTravail" }
-      : { href: "/demandes", cle: "retourListe" };
+      ? "aTraiter"
+      : "mesDemandes";
   /** L'agent a une action à mener ici : mise en page dossier + panneau d'action. */
   const actionAgent =
     examen !== null ||
@@ -582,15 +583,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
         description={
           document ? `${libelleDocument(document, langue)} (${document.code})` : undefined
         }
-        retour={
-          <Link
-            href={retour.href}
-            className="inline-flex min-h-11 items-center gap-2 text-royal underline-offset-4 hover:underline"
-          >
-            <ArrowLeft aria-hidden="true" className="size-4" />
-            {t(retour.cle)}
-          </Link>
-        }
+        retour={<FilArianeApp rubrique={rubrique} courante={numero} />}
       />
       {blocSuivi}
       {actionAgent ? (
