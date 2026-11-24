@@ -26,9 +26,10 @@ import {
 } from "@emine/ui";
 import { ArrowLeft, CreditCard, Hourglass, TriangleAlert } from "@emine/ui/icones";
 import type { Metadata } from "next";
+import { libelleDocument, libelleSignataire } from "@/composants/referentiels";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { ATTENTE_LONGUE_JOURS } from "@/composants/demande/date-attente";
 import { FriseSuivi } from "@/composants/demande/frise-suivi";
 import { StatutDemande } from "@/composants/demande/statut-demande";
@@ -129,6 +130,8 @@ export default async function DetailDemande({ params, searchParams }: Props) {
   }
   if (demande.statut === "brouillon") redirect(`/demandes/${id}/modifier`);
   const t = await getTranslations("detail");
+  const langue = await getLocale();
+  const tReferentiels = await getTranslations("referentiels");
   const [moi, { documents }, pieces, paiements, suivi] = await Promise.all([
     chargerMoi(),
     chargerReferentiels(),
@@ -279,7 +282,11 @@ export default async function DetailDemande({ params, searchParams }: Props) {
           <StatutDemande demande={demande} interne={moi.interne} />
         </dd>
         <dt className="font-semibold">{t("document")}</dt>
-        <dd>{document ? `${document.libelleFr} (${document.code})` : demande.typeDocumentCode}</dd>
+        <dd>
+          {document
+            ? `${libelleDocument(document, langue)} (${document.code})`
+            : demande.typeDocumentCode}
+        </dd>
         <dt className="font-semibold">{t("deposeLe")}</dt>
         <dd>{demande.deposeLe ? formaterDateHeure(demande.deposeLe) : "—"}</dd>
         {STATUTS_EN_COURS.has(demande.statut) ? (
@@ -369,7 +376,10 @@ export default async function DetailDemande({ params, searchParams }: Props) {
     demande.statut === "en_instruction" && etatAvis
       ? etatAvis.requis.filter((a) => !a.rendu).map((a) => a.libelle)
       : [];
-  const signataire = etatDecision?.signataire ?? document?.signataire ?? "";
+  const signataire = libelleSignataire(
+    etatDecision?.signataire ?? document?.signataire ?? "",
+    tReferentiels,
+  );
   const precisionInstruction =
     demande.statut === "complement_requis"
       ? undefined
@@ -447,7 +457,10 @@ export default async function DetailDemande({ params, searchParams }: Props) {
         {t(`etape.${etape.cle}`, {
           montant: aPayer != null ? formaterGnf(aPayer) : "—",
           droits: document?.tarifs.droitsGnf != null ? formaterGnf(document.tarifs.droitsGnf) : "—",
-          signataire: etatDecision?.signataire ?? document?.signataire ?? "—",
+          signataire: libelleSignataire(
+            etatDecision?.signataire ?? document?.signataire ?? "—",
+            tReferentiels,
+          ),
           limite: complementOuvert ? formaterDate(complementOuvert.dateLimite) : "—",
         })}
       </p>
@@ -508,7 +521,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
           <PriseDecision
             demandeId={demande.id}
             numero={numero}
-            signataire={etatDecision.signataire}
+            signataire={libelleSignataire(etatDecision.signataire, tReferentiels)}
             droitsGnf={etatDecision.droitsGnf}
             decider={rendreDecision}
             serie={serie}
@@ -520,8 +533,8 @@ export default async function DetailDemande({ params, searchParams }: Props) {
           <SignerDelivrer
             demandeId={demande.id}
             numero={numero}
-            document={document?.libelleFr ?? demande.typeDocumentCode}
-            signataire={etatDelivrance.signataire}
+            document={libelleDocument(document, langue, demande.typeDocumentCode)}
+            signataire={libelleSignataire(etatDelivrance.signataire, tReferentiels)}
             signerEtDelivrer={signerEtDelivrer}
             serie={serie}
           />
@@ -566,7 +579,9 @@ export default async function DetailDemande({ params, searchParams }: Props) {
       ) : null}
       <EnTetePage
         titre={t("titre", { numero })}
-        description={document ? `${document.libelleFr} (${document.code})` : undefined}
+        description={
+          document ? `${libelleDocument(document, langue)} (${document.code})` : undefined
+        }
         retour={
           <Link
             href={retour.href}

@@ -65,7 +65,7 @@ class JournalAuditTest extends TestIntegration {
         // Du plus récent au plus ancien : la modification, puis la création.
         .andExpect(jsonPath("$.elements[0].operation").value("U"))
         .andExpect(jsonPath("$.elements[0].auteur").value("Fodé Bangoura"))
-        .andExpect(jsonPath("$.elements[0].auteurProfil").value("Investisseur Extérieur"))
+        .andExpect(jsonPath("$.elements[0].auteurProfil").value("Investisseur extérieur"))
         .andExpect(jsonPath("$.elements[0].categorie").value("demandes"))
         .andExpect(jsonPath("$.elements[0].demandeId").value(id))
         .andExpect(jsonPath("$.elements[0].changements.length()").value(1))

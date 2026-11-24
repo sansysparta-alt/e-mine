@@ -1,6 +1,6 @@
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { getRequestConfig } from "next-intl/server";
-import { COOKIE_LANGUE, langueValide } from "./langues";
+import { COOKIE_LANGUE, langueDuNavigateur, langueValide } from "./langues";
 
 export { LANGUE_PAR_DEFAUT } from "./langues";
 
@@ -9,7 +9,11 @@ export { LANGUE_PAR_DEFAUT } from "./langues";
  * profil »), gardée dans un cookie ; le français par défaut.
  */
 export default getRequestConfig(async () => {
-  const locale = langueValide((await cookies()).get(COOKIE_LANGUE)?.value);
+  // Langue choisie (cookie) ; au premier accès, celle du navigateur.
+  const choisie = (await cookies()).get(COOKIE_LANGUE)?.value;
+  const locale = choisie
+    ? langueValide(choisie)
+    : langueDuNavigateur((await headers()).get("accept-language"));
   return {
     locale,
     timeZone: "Africa/Conakry",

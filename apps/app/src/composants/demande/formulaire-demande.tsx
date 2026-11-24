@@ -17,7 +17,8 @@ import {
   formaterSuperficie,
 } from "@emine/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { libelleDocument } from "../referentiels";
 import { type ReactNode, useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import type { ResultatAction } from "@/serveur/erreurs-formulaire";
@@ -71,6 +72,7 @@ type Etat =
  */
 export function FormulaireDemande(props: FormulaireDemandeProps) {
   const { demandeur, documents, prefectures, substances, enregistrer } = props;
+  const langue = useLocale();
   const t = useTranslations("demande");
   const [demande, setDemande] = useState<DemandeDto | null>(props.demande);
   const [etape, setEtape] = useState<Etape>("document");
@@ -241,7 +243,7 @@ export function FormulaireDemande(props: FormulaireDemandeProps) {
                 <option value="">{t("document.choisir")}</option>
                 {documents.map((d) => (
                   <option key={d.code} value={d.code}>
-                    {d.libelleFr} ({d.code})
+                    {libelleDocument(d, langue)} ({d.code})
                   </option>
                 ))}
               </select>
@@ -270,7 +272,7 @@ export function FormulaireDemande(props: FormulaireDemandeProps) {
                 <option value="">{t("document.nonPrecise")}</option>
                 {substances.map((s) => (
                   <option key={s.code} value={s.code}>
-                    {s.libelleFr}
+                    {langue === "en" && s.libelleEn ? s.libelleEn : s.libelleFr}
                   </option>
                 ))}
               </select>
@@ -313,7 +315,7 @@ export function FormulaireDemande(props: FormulaireDemandeProps) {
               </dd>
               <dt className="font-semibold">{t("document.type")}</dt>
               <dd>
-                {document.libelleFr} ({document.code})
+                {libelleDocument(document, langue)} ({document.code})
               </dd>
               <dt className="font-semibold">{t("document.prefecture")}</dt>
               <dd>{demande.prefectureNom ?? t("document.nonPrecise")}</dd>

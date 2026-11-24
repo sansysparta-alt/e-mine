@@ -61,7 +61,7 @@ class MoiControllerTest extends TestIntegration {
         .andExpect(jsonPath("$.nom").value("Bangoura"))
         .andExpect(jsonPath("$.profil.code").value("INVESTISSEUR"))
         .andExpect(jsonPath("$.organisation").value("Horizon Invest SARL (fictive)"))
-        .andExpect(jsonPath("$.profil.libelle").value("Investisseur Extérieur"))
+        .andExpect(jsonPath("$.profil.libelle").value("Investisseur extérieur"))
         .andExpect(jsonPath("$.interne").value(false));
   }
 

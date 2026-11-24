@@ -2,8 +2,9 @@ import { listerTypesDocuments, listerWorkflows } from "@emine/api-client";
 import { EnTetePage, EtatVide } from "@emine/ui";
 import { Workflow } from "@emine/ui/icones";
 import type { Metadata } from "next";
+import { libelleDocument } from "@/composants/referentiels";
 import { notFound } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { PaginationListe } from "@/composants/liste/pagination-liste";
 import { TableauWorkflows } from "@/composants/workflow/tableau-workflows";
 import { appelPage, chargerMoi, optionsApi } from "@/serveur/donnees";
@@ -35,7 +36,8 @@ export default async function Workflows({ searchParams }: Props) {
       .then((r) => r.data)
       .catch(() => []),
   ]);
-  const libelles = Object.fromEntries(documents.map((d) => [d.code, d.libelleFr]));
+  const langue = await getLocale();
+  const libelles = Object.fromEntries(documents.map((d) => [d.code, libelleDocument(d, langue)]));
 
   return (
     <div className="flex flex-col gap-6">

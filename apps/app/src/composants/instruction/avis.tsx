@@ -5,6 +5,7 @@ import { Alerte, Bouton, cn, formaterDate } from "@emine/ui";
 import { CircleCheck, CircleX, Clock, Save } from "@emine/ui/icones";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { libelleProfil } from "../referentiels";
 import { useId, useState, useTransition } from "react";
 import type { ResultatAction } from "@/serveur/erreurs-formulaire";
 import { adresseApresAction, type ContexteSerie } from "../travail/file-travail";
@@ -17,6 +18,7 @@ import { ChampMotif, erreurMotif } from "./champ-motif";
  */
 export function ListeAvis({ avis }: { avis: EtatAvisDto }) {
   const t = useTranslations("instruction.avis");
+  const tReferentiels = useTranslations("referentiels");
   return (
     <ul className="flex flex-col divide-y divide-bordure">
       {avis.requis.map((a) => {
@@ -32,7 +34,9 @@ export function ListeAvis({ avis }: { avis: EtatAvisDto }) {
                 )}
               />
               <span>
-                <span className="font-semibold">{a.libelle}</span>
+                <span className="font-semibold">
+                  {libelleProfil(a.profil, a.libelle, tReferentiels)}
+                </span>
                 {" · "}
                 {!a.rendu ? t("attendu") : a.favorable ? t("favorable") : t("defavorable")}
               </span>

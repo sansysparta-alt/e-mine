@@ -10,8 +10,9 @@ import {
 } from "@emine/api-client";
 import { tailleDePagePour } from "@emine/ui";
 import type { Metadata } from "next";
+import { libelleDocument } from "@/composants/referentiels";
 import { unstable_rethrow } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import {
   type ActionAFaire,
   actionAttendue,
@@ -24,6 +25,7 @@ import {
 } from "@/composants/vue-tableau-de-bord";
 import { type CleGroupe, groupesDepuis, parametresListe } from "@/composants/travail/file-travail";
 import { chargerMoi, optionsApi } from "@/serveur/donnees";
+import { profilAffiche } from "@/serveur/profil";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("tableauDeBord");
@@ -81,7 +83,8 @@ async function charger(moi: Profil, periode: ClePeriode): Promise<Donnees> {
       moi.interne,
       compteur.groupes.map((g) => g.cle),
     );
-    const libelles = Object.fromEntries(documents.map((d) => [d.code, d.libelleFr]));
+    const langue = await getLocale();
+    const libelles = Object.fromEntries(documents.map((d) => [d.code, libelleDocument(d, langue)]));
     const groupeTravail = groupesDepuis(compteur, moi)[0];
     const pilote = profil === "guichet" || profil === "instruction" || profil === "decideur";
     const [recentes, aTraiter, indicateurs, file, catalogue] = await Promise.all([
@@ -167,7 +170,7 @@ export default async function TableauDeBord({ searchParams }: Props) {
     <VueTableauDeBord
       prenom={moi.prenom}
       nom={moi.nom}
-      profilLibelle={moi.profil.libelle}
+      profilLibelle={await profilAffiche(moi)}
       peutDeposer={moi.permissions.includes("DEPOSER")}
       periode={periode}
       {...donnees}

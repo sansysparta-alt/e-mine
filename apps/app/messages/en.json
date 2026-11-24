@@ -2,7 +2,7 @@
   "application": {
     "titre": "e-mine",
     "titreComplet": "e-mine · Ministry of Mines and Geology",
-    "description": "Platform of the Ministry of Mines and Geology of the Republic of Guinea: mining document applications, payments and tracking (demonstration, fictitious data)."
+    "description": "Platform of the Ministry of Mines and Geology of the Republic of Guinea: mining document requests, payments and tracking (demonstration, fictitious data)."
   },
   "accessibilite": {
     "allerAuContenu": "Skip to main content"
@@ -24,15 +24,15 @@
     "demandes": {
       "titre": "My requests",
       "vide": "You have no requests yet.",
-      "aide": "Submit an application online: choose the document, attach your files, then pay the fees.",
-      "nouvelle": "New application",
-      "toutes": "See all my applications ({nombre})"
+      "aide": "Submit a request online: choose the document, attach your files, then pay the fees.",
+      "nouvelle": "New request",
+      "toutes": "See all my requests ({nombre})"
     },
     "dossiers": {
-      "titre": "Latest applications",
+      "titre": "Latest requests",
       "vide": "No files to process at the moment.",
       "aide": "Requests submitted by applicants will appear here.",
-      "toutes": "See all applications ({nombre})"
+      "toutes": "See all requests ({nombre})"
     },
     "erreurs": {
       "compteNonActive": {
@@ -45,13 +45,13 @@
       }
     },
     "chiffres": {
-      "titreDemandeur": "My applications in figures",
-      "toutes": "All my applications",
+      "titreDemandeur": "My requests in figures",
+      "toutes": "All my requests",
       "aFaire": "To do",
       "enCours": "Being processed",
       "brouillons": "Drafts",
       "delivrees": "Documents issued",
-      "rejetees": "Rejected applications",
+      "rejetees": "Rejected requests",
       "vues": {
         "a-traiter": "To process",
         "attente-demandeur": "Awaiting the applicant",
@@ -63,12 +63,12 @@
     "aFaire": {
       "titre": "{nombre, plural, one {What I need to do (#)} other {What I need to do (#)}}",
       "explication": {
-        "FRAIS": "Application fee to pay: {montant}. The front desk will then review your file.",
+        "FRAIS": "Filing fee to pay: {montant}. The front desk will then review your file.",
         "DROITS": "Approved: duties to pay, {montant}, to obtain your document.",
         "COMPLEMENT": "Additional documents are requested."
       },
       "explicationSansMontant": {
-        "FRAIS": "Application fee to pay. The front desk will then review your file.",
+        "FRAIS": "Filing fee to pay. The front desk will then review your file.",
         "DROITS": "Approved: duties to pay to obtain your document.",
         "COMPLEMENT": "Additional documents are requested."
       },
@@ -78,7 +78,7 @@
         "COMPLEMENT": "Complete"
       },
       "vide": "Nothing for you to do at the moment",
-      "videAide": "Your applications are progressing. You will be notified by e-mail as soon as an action is expected from you."
+      "videAide": "Your requests are progressing. You will be notified by e-mail as soon as an action is expected from you."
     },
     "travail": {
       "titre": "{nombre, plural, =0 {Files to process} other {Files to process (#)}}",
@@ -99,7 +99,7 @@
       "complements": "Awaited supplements",
       "complementsPrecision": "Documents requested from the applicant",
       "frais": "Awaited fees",
-      "fraisPrecision": "Submitted applications, fees not paid",
+      "fraisPrecision": "Submitted requests, fees not paid",
       "traites": "Processed today",
       "traitesPrecision": "Files whose status you changed",
       "retard": "Overdue",
@@ -140,7 +140,7 @@
       "dansLeDelai": "Issued on time",
       "dansLeDelaiValeur": "{taux}%",
       "dansLeDelaiPrecision": "{dans} of {total, plural, one {# document issued} other {# documents issued}}",
-      "rejetees": "Rejected applications",
+      "rejetees": "Rejected requests",
       "rejeteesPrecision": "Not included in the on-time percentage",
       "dansLeDelaiAucun": "No document issued in the period"
     },
@@ -166,12 +166,12 @@
     },
     "indisponible": {
       "titre": "Dashboard temporarily unavailable",
-      "texte": "Figures and files could not be loaded. Your applications are not lost; please try again in a moment.",
+      "texte": "Figures and files could not be loaded. Your requests are not lost; please try again in a moment.",
       "reessayer": "Try again"
     },
     "instruction": {
       "avis": "Opinions to give",
-      "avisPrecision": "Applications under review awaiting your opinion",
+      "avisPrecision": "Requests under review awaiting your opinion",
       "sansReponse": "Unanswered requests",
       "sansReponsePrecision": "Requested by your service, answer deadline passed"
     },
@@ -182,11 +182,11 @@
     }
   },
   "demande": {
-    "titreNouvelle": "New application",
-    "titreBrouillon": "Draft application",
+    "titreNouvelle": "New request",
+    "titreBrouillon": "Draft request",
     "facultatif": "optional",
     "etapes": {
-      "titre": "Application steps",
+      "titre": "Request steps",
       "document": "Document",
       "pieces": "Attachments",
       "recapitulatif": "Summary",
@@ -222,11 +222,11 @@
       "fait": "Draft saved at {heure}.",
       "reessayer": "Please try again shortly. Your entries are kept on this page.",
       "erreurs": {
-        "DEM-003": "This application has already been submitted.",
+        "DEM-003": "This request has already been submitted.",
         "DEM-005": "This document is no longer offered.",
         "VAL-001": "Some information needs to be corrected.",
-        "PERM-001": "Your profile does not allow submitting an application.",
-        "DEM-002": "Application not found.",
+        "PERM-001": "Your profile does not allow submitting a request.",
+        "DEM-002": "Request not found.",
         "autre": "The draft could not be saved.",
         "AUTH-001": "Your session has expired."
       },
@@ -238,7 +238,7 @@
       "superficieInvalide": "Enter a positive number with at most two decimals."
     },
     "nonAutorise": {
-      "titre": "Your profile does not allow submitting an application.",
+      "titre": "Your profile does not allow submitting a request.",
       "retour": "Back to dashboard"
     },
     "pieces": {
@@ -259,7 +259,7 @@
         "DOC-001": "Format not accepted: PDF, JPG or PNG only.",
         "DOC-002": "File too large: 10 MB maximum.",
         "DOC-003": "This document cannot be found.",
-        "DEM-003": "The application has already been submitted: its documents can no longer change.",
+        "DEM-003": "The request has already been submitted: its documents can no longer change.",
         "AUTH-001": "Your session has expired: please sign in again.",
         "autre": "The document could not be processed. Please try again."
       },
@@ -275,13 +275,13 @@
       "manquantesTitre": "Mandatory documents to attach before submitting:",
       "manquantes": "Add them in the Attachments section. The front desk officer will then check their content.",
       "declaration": "I solemnly declare that the information provided is accurate and that the attached documents are authentic.",
-      "impossible": "The application cannot be submitted yet.",
+      "impossible": "The request cannot be submitted yet.",
       "manques": {
         "declarationHonneur": "Tick the solemn declaration.",
         "pieces": "Attach all mandatory documents (Attachments section).",
         "autre": "Submission failed. Please try again."
       },
-      "deposer": "Submit my application",
+      "deposer": "Submit my request",
       "enCours": "Submitting…"
     },
     "restauration": {
@@ -289,12 +289,12 @@
       "texte": "Your latest changes, kept on this device, have been restored. They will be saved at the next step."
     },
     "descriptionNouvelle": "Three steps: the document, the attachments, then the summary and submission. Your input is saved as you go: you can come back later.",
-    "retourMesDemandes": "My applications",
+    "retourMesDemandes": "My requests",
     "abandon": {
       "action": "Abandon this draft",
       "titre": "Abandon this draft?",
-      "texte": "The draft and its attachments will no longer be offered. You can always create a new application.",
-      "annuler": "Continue the application",
+      "texte": "The draft and its attachments will no longer be offered. You can always create a new request.",
+      "annuler": "Continue the request",
       "confirmer": "Abandon the draft",
       "enCours": "Deleting…",
       "echec": "The draft was not deleted"
@@ -314,51 +314,51 @@
     "rejetee": "Rejected"
   },
   "detail": {
-    "titreOnglet": "My application",
-    "titre": "Application {numero}",
-    "confirmation": "Your application {numero} has been submitted.",
+    "titreOnglet": "My request",
+    "titre": "Request {numero}",
+    "confirmation": "Your request {numero} has been submitted.",
     "confirmationSuite": "Keep this number: it identifies your file with the Ministry.",
     "statut": "Status",
     "document": "Document",
     "deposeLe": "Submitted on",
     "demandeur": "Applicant",
     "pieces": "Attached documents ({nombre})",
-    "retourListe": "Back to applications",
+    "retourListe": "Back to requests",
     "etape": {
       "titre": {
         "agent": "Expected action",
         "demandeur": "Next step"
       },
-      "agentVerifier": "The application fee has been paid. Check the attached documents, then declare the application admissible or inadmissible.",
-      "agentAttenteComplement": "Additional information was requested: the application awaits the applicant’s answer until {limite}. The processing time is suspended.",
-      "agentInstruire": "Review the application and give your opinion.",
+      "agentVerifier": "The filing fee has been paid. Check the attached documents, then declare the request admissible or inadmissible.",
+      "agentAttenteComplement": "Additional information was requested: the request awaits the applicant’s answer until {limite}. The processing time is suspended.",
+      "agentInstruire": "Review the request and give your opinion.",
       "agentDecision": "Opinion given: the signatory's decision is expected.",
-      "agentAttenteDroits": "Approval given: the application awaits payment of the duties by the applicant.",
-      "agentDelivrer": "The application is ready for issuance: the document can be prepared, signed and issued.",
-      "demandeurPayerFrais": "Pay the application fee ({montant}) so that the one-stop shop officer can review your application.",
+      "agentAttenteDroits": "Approval given: the request awaits payment of the duties by the applicant.",
+      "agentDelivrer": "The request is ready for issuance: the document can be prepared, signed and issued.",
+      "demandeurPayerFrais": "Pay the filing fee ({montant}) so that the one-stop shop officer can review your request.",
       "demandeurCompleter": "Additional information is requested: attach the listed documents and send your answer before {limite}.",
-      "demandeurInstruction": "Your application is being reviewed by the Ministry's services.",
+      "demandeurInstruction": "Your request is being reviewed by the Ministry's services.",
       "demandeurPayerDroits": "A favourable decision was issued: pay the duties ({droits}) to obtain your document.",
-      "demandeurDelivrance": "Your application is ready for issuance: your document is being prepared.",
+      "demandeurDelivrance": "Your request is ready for issuance: your document is being prepared.",
       "demandeurDelivree": "Your document has been issued: view it, download it or have it checked with its QR code.",
-      "demandeurRejetee": "Your application has been rejected. The reason is shown above.",
+      "demandeurRejetee": "Your request has been rejected. The reason is shown above.",
       "actionPayer": {
-        "FRAIS": "Pay the application fee",
+        "FRAIS": "Pay the filing fee",
         "DROITS": "Pay the duties"
       },
-      "agentFraisAttendus": "The application fee has not been paid yet: you can declare the application admissible once it is paid. If the file cannot succeed, declare it inadmissible and give the reason.",
-      "demandeurAttenteGuichet": "Application fee paid. The one-stop shop officer is now reviewing your file; you will be informed of the decision.",
-      "agentAttenteDecision": "Admissible application: the signatory’s decision ({signataire}) is awaited.",
-      "signataireDecider": "This application is admissible and you are its signatory. Review the file and the attached documents below, then give your decision.",
+      "agentFraisAttendus": "The filing fee has not been paid yet: you can declare the request admissible once it is paid. If the file cannot succeed, declare it inadmissible and give the reason.",
+      "demandeurAttenteGuichet": "Filing fee paid. The one-stop shop officer is now reviewing your file; you will be informed of the decision.",
+      "agentAttenteDecision": "Admissible request: the signatory’s decision ({signataire}) is awaited.",
+      "signataireDecider": "This request is admissible and you are its signatory. Review the file and the attached documents below, then give your decision.",
       "signataireDelivrer": "The duties are paid: you can sign and issue the document. Check the file one last time.",
       "agentSansReponse": "The applicant did not answer in time: send a reminder or close the file.",
-      "agentAttenteAvis": "The application is under technical review: the opinions required by the catalogue are pending.",
+      "agentAttenteAvis": "The request is under technical review: the opinions required by the catalogue are pending.",
       "agentRendreAvis": "The catalogue requires your service’s opinion: review the file and give a reasoned opinion. If information is missing, request additional information."
     },
     "fraisPayes": "Fee paid",
     "paiements": {
       "titre": "{nombre, plural, one {Payment (#)} other {Payments (#)}}",
-      "legende": "Payments for this application, most recent first",
+      "legende": "Payments for this request, most recent first",
       "colonnes": {
         "reference": "Reference",
         "objet": "Purpose",
@@ -388,17 +388,17 @@
     "delaiPauseDroits": "paused until the fees due are paid"
   },
   "mesDemandes": {
-    "titre": "My applications",
-    "nouvelle": "New application",
+    "titre": "My requests",
+    "nouvelle": "New request",
     "filtreStatut": "Status",
     "tous": "All",
     "filtrer": "Filter",
-    "aucune": "You have no application yet.",
-    "aucuneFiltre": "No application matches these criteria.",
+    "aucune": "You have no request yet.",
+    "aucuneFiltre": "No request matches these criteria.",
     "deposeeLe": "submitted on {date}",
     "creeeLe": "created on {date}",
-    "titreInterne": "Applications",
-    "description": "Track the progress of your applications. A draft resumes where you left it.",
+    "titreInterne": "Requests",
+    "description": "Track the progress of your requests. A draft resumes where you left it.",
     "colonnes": {
       "numero": "Number",
       "document": "Document",
@@ -412,9 +412,9 @@
       "croissant": "ascending",
       "decroissant": "descending"
     },
-    "elements": "applications",
+    "elements": "requests",
     "recherche": {
-      "libelle": "Search an application",
+      "libelle": "Search a request",
       "exemple": "Number or document (e.g. DEM-2026, permit)",
       "bouton": "Search"
     },
@@ -429,7 +429,7 @@
       "terminees": "Completed",
       "rejetees": "Rejected"
     },
-    "descriptionInterne": "All submitted applications, with their step and the time spent at that step. Open an application to view it.",
+    "descriptionInterne": "All submitted requests, with their step and the time spent at that step. Open a request to view it.",
     "brouillon": "Draft",
     "effacerFiltre": "Clear the status filter",
     "actions": {
@@ -439,7 +439,7 @@
       "echec": "The draft was not deleted",
       "confirmation": {
         "titre": "Delete this draft?",
-        "texte": "The draft and its attachments will no longer be offered. A submitted application, however, can never be deleted.",
+        "texte": "The draft and its attachments will no longer be offered. A submitted request, however, can never be deleted.",
         "annuler": "Cancel",
         "confirmer": "Delete the draft",
         "enCours": "Deleting…"
@@ -457,7 +457,7 @@
       "bloque": "Blocked (skipped 3 times at their step)",
       "procheDepassement": "Close to the deadline"
     },
-    "aucuneInterne": "No application has been submitted yet.",
+    "aucuneInterne": "No request has been submitted yet.",
     "aucuneFiltreAide": "Change the search or clear the filters to see the whole list.",
     "effacerTout": "Clear filters"
   },
@@ -490,9 +490,9 @@
     },
     "entrees": {
       "tableauDeBord": "Dashboard",
-      "mesDemandes": "My applications",
-      "demandes": "Applications",
-      "nouvelleDemande": "New application",
+      "mesDemandes": "My requests",
+      "demandes": "Requests",
+      "nouvelleDemande": "New request",
       "journalAudit": "Audit log",
       "aTraiter": "To do",
       "notifications": "Notifications",
@@ -541,22 +541,22 @@
   },
   "paiement": {
     "titreOnglet": "Payment",
-    "retourDemande": "Back to the application",
+    "retourDemande": "Back to the request",
     "titre": {
-      "FRAIS_DOSSIER": "Pay the application fee",
+      "FRAIS_DOSSIER": "Pay the filing fee",
       "DROITS": "Pay the duties",
       "ATTESTATION": "Pay for the certificate",
       "FORMATION": "Pay for the training"
     },
     "objet": {
-      "FRAIS_DOSSIER": "Application fee",
+      "FRAIS_DOSSIER": "Filing fee",
       "DROITS": "Duties",
       "ATTESTATION": "Certificate (single payment)",
       "FORMATION": "Training"
     },
     "titreRien": "Payment",
-    "rienTitre": "No payment is expected for this application",
-    "rienTexte": "The payment has already been made, or no payment is required at this stage. The application tracking shows the next step.",
+    "rienTitre": "No payment is expected for this request",
+    "rienTexte": "The payment has already been made, or no payment is required at this stage. The request tracking shows the next step.",
     "montantTitre": "Amount to pay",
     "montantBareme": "Amount set by the Ministry’s official scale. It cannot be changed.",
     "moyenTitre": "Payment method",
@@ -600,7 +600,7 @@
     "retour": {
       "titreOnglet": "Payment result",
       "titre": "Payment result",
-      "retourDemande": "Back to the application",
+      "retourDemande": "Back to the request",
       "details": "Payment details",
       "statut": "Status",
       "reference": "Reference",
@@ -615,14 +615,14 @@
       "attente": {
         "enCours": "TrésorPay is confirming your payment…",
         "longueTitre": "Confirmation pending",
-        "longueTexte": "TrésorPay has not confirmed your payment yet. Do not pay a second time: your application will be updated as soon as the confirmation arrives.",
+        "longueTexte": "TrésorPay has not confirmed your payment yet. Do not pay a second time: your request will be updated as soon as the confirmation arrives.",
         "actualiser": "Refresh",
-        "retourDemande": "Back to the application"
+        "retourDemande": "Back to the request"
       },
       "issue": {
         "paye": {
           "titre": "Payment confirmed",
-          "texte": "Thank you. Your payment has been received by the Public Treasury and your receipt is ready. The one-stop shop officer can now review your application."
+          "texte": "Thank you. Your payment has been received by the Public Treasury and your receipt is ready. The one-stop shop officer can now review your request."
         },
         "a_verifier": {
           "titre": "Payment received, under review",
@@ -642,7 +642,7 @@
         },
         "autre": {
           "titre": "Payment not completed",
-          "texte": "The payment was not completed. Go back to your application to see what happens next."
+          "texte": "The payment was not completed. Go back to your request to see what happens next."
         }
       }
     },
@@ -675,14 +675,14 @@
     },
     "recevabilite": {
       "controles": "Admissibility checks",
-      "fraisPayes": "Application fee paid",
-      "fraisNonPayes": "Application fee not paid",
+      "fraisPayes": "Filing fee paid",
+      "fraisNonPayes": "Filing fee not paid",
       "pieceFournie": "{piece}: provided",
       "pieceManquante": "{piece}: missing",
       "verification": "I have opened and checked each attached document: legible, complete and in the applicant’s name.",
       "verificationRequise": "Tick this box after checking the documents.",
-      "pasEncoreTitre": "The application cannot be declared admissible yet",
-      "pasEncoreFrais": "The application fee has not been paid. You can declare it admissible as soon as the payment is confirmed.",
+      "pasEncoreTitre": "The request cannot be declared admissible yet",
+      "pasEncoreFrais": "The filing fee has not been paid. You can declare it admissible as soon as the payment is confirmed.",
       "pasEncorePieces": "A mandatory document has no file. Request additional information from the applicant; if the file cannot succeed, declare it inadmissible and give the reason.",
       "declarerRecevable": "Declare admissible",
       "declarerNonRecevable": "Declare inadmissible…",
@@ -690,8 +690,8 @@
       "echec": "The declaration was not saved",
       "indisponible": "The service is temporarily unavailable. Try again in a moment.",
       "dialogue": {
-        "titre": "Declare application {numero} inadmissible",
-        "explication": "The application will be rejected and the applicant informed. This decision cannot be undone.",
+        "titre": "Declare request {numero} inadmissible",
+        "explication": "The request will be rejected and the applicant informed. This decision cannot be undone.",
         "motif": "Reason given to the applicant",
         "aide": "Say precisely what is wrong (illegible document, non-compliant document…). At least 10 characters.",
         "annuler": "Cancel",
@@ -706,16 +706,16 @@
         "favorable": "Approval",
         "favorableAide": "The document can be issued.",
         "rejet": "Rejection",
-        "rejetAide": "The application is closed; the applicant reads the reason."
+        "rejetAide": "The request is closed; the applicant reads the reason."
       },
       "consequence": {
         "titre": "What will happen",
         "droits": "The applicant will have to pay the duties ({montant}) before the document is issued.",
-        "sansDroits": "This document has no duties to pay: the application will be ready for issuance at once.",
-        "rejet": "The application will be rejected and the applicant will see the reason on it."
+        "sansDroits": "This document has no duties to pay: the request will be ready for issuance at once.",
+        "rejet": "The request will be rejected and the applicant will see the reason on it."
       },
       "motifRejet": "Reason for rejection given to the applicant",
-      "motifRejetAide": "Explain precisely why the application is rejected. At least 10 characters.",
+      "motifRejetAide": "Explain precisely why the request is rejected. At least 10 characters.",
       "observations": "Remarks",
       "observationsAide": "Conditions or remarks for the applicant.",
       "enregistrer": "Record the decision…",
@@ -723,9 +723,9 @@
       "echec": "The decision was not recorded",
       "indisponible": "The service is temporarily unavailable. Try again in a moment.",
       "confirmation": {
-        "titreFavorable": "Approval of application {numero}",
-        "titreRejet": "Rejection of application {numero}",
-        "annuler": "Back to the application",
+        "titreFavorable": "Approval of request {numero}",
+        "titreRejet": "Rejection of request {numero}",
+        "annuler": "Back to the request",
         "confirmer": "Confirm the decision",
         "definitive": "This decision is final: it cannot be changed."
       },
@@ -749,8 +749,8 @@
       "relanceLe": "reminder sent on {date}",
       "demande": {
         "bouton": "Request additional information…",
-        "titre": "Request additional information for application {numero}",
-        "explication": "The applicant will be notified and will have 5 days to answer. The processing time is suspended until the answer; the application will then come back to you.",
+        "titre": "Request additional information for request {numero}",
+        "explication": "The applicant will be notified and will have 5 days to answer. The processing time is suspended until the answer; the request will then come back to you.",
         "pieces": "Documents to provide",
         "piecesAide": "Tick the expected documents. Mandatory documents without a file are already ticked.",
         "autre": "Other expected document (optional)",
@@ -770,7 +770,7 @@
         "enCours": "Sending…",
         "echec": "Your answer was not sent",
         "envoyee": "Your answer has been sent",
-        "envoyeeSuite": "Your application is back with the Ministry’s services. The processing time resumes.",
+        "envoyeeSuite": "Your request is back with the Ministry’s services. The processing time resumes.",
         "erreurs": {
           "court": "Write your answer in at least 10 characters.",
           "long": "Your answer exceeds 2000 characters: please shorten it."
@@ -785,8 +785,8 @@
         "enCours": "Saving…",
         "echec": "The action was not saved",
         "dialogue": {
-          "titre": "Close application {numero} without an answer",
-          "explication": "The application will be rejected and the applicant notified. This decision cannot be undone.",
+          "titre": "Close request {numero} without an answer",
+          "explication": "The request will be rejected and the applicant notified. This decision cannot be undone.",
           "motif": "Reason given to the applicant",
           "aide": "Recall what was requested and the lack of answer within the deadline. At least 10 characters.",
           "annuler": "Cancel",
@@ -828,7 +828,7 @@
     "description": "Every change recorded by the database, most recent first. The log can be neither changed nor erased.",
     "recherche": {
       "libelle": "Search the log",
-      "exemple": "Number, reference, email or application no.",
+      "exemple": "Number, reference, email or request no.",
       "bouton": "Search"
     },
     "periode": {
@@ -842,7 +842,7 @@
     "filtre": "Object type",
     "categories": {
       "toutes": "All",
-      "demandes": "Applications",
+      "demandes": "Requests",
       "paiements": "Payments",
       "decisions": "Decisions",
       "pieces": "Attachments",
@@ -862,7 +862,7 @@
       "D": "Deletion"
     },
     "tables": {
-      "demande": "Application",
+      "demande": "Request",
       "paiement": "Payment",
       "avis_decision": "Decision",
       "piece_jointe": "Attachment",
@@ -898,7 +898,7 @@
       "substance_id": "Substance (no.)",
       "type_document_id": "Document (no.)",
       "demandeur_id": "Applicant (no.)",
-      "demande_id": "Application (no.)",
+      "demande_id": "Request (no.)",
       "auteur_id": "Author (no.)",
       "payeur_id": "Payer (no.)",
       "organisation_id": "Organisation (no.)",
@@ -934,9 +934,9 @@
       "pieces_cles": "Required documents",
       "instruit_par": "Processed by",
       "signe_par": "Signatory",
-      "actif": "Open to applications",
+      "actif": "Open to requests",
       "avis_profils": "Required opinions (profile no.)",
-      "frais_dossier_gnf": "Application fee",
+      "frais_dossier_gnf": "Filing fee",
       "droits_gnf": "Duties",
       "attestation_gnf": "Single payment",
       "tarifs_date_effet": "Fees take effect on",
@@ -969,7 +969,7 @@
     },
     "systeme": "System",
     "systemeDetail": "System (TrésorPay notification, automatic task or migration)",
-    "ouvrirDemande": "Open the application",
+    "ouvrirDemande": "Open the request",
     "voirDetail": "See details",
     "devient": "becomes",
     "autres": "{nombre, plural, one {Show 1 other change} other {Show the # other changes}}",
@@ -1020,7 +1020,7 @@
       "echec": "The document was not issued",
       "indisponible": "The service is temporarily unavailable. Try again in a moment.",
       "confirmation": {
-        "titre": "Sign and issue application {numero}",
+        "titre": "Sign and issue request {numero}",
         "texte": "The document “{document}” will be signed in your name and given to the applicant.",
         "definitive": "Once issued, the document cannot be changed; only a revocation is possible.",
         "annuler": "Back to the file",
@@ -1079,11 +1079,11 @@
     "aide": {
       "tout": "Everything that is yours to handle now, oldest files first.",
       "a-examiner": "Fee paid: check the documents and rule on admissibility. A wait of 5 days or more is highlighted.",
-      "frais-attendus": "For information: these applications can be reviewed once the fee is paid.",
-      "a-decider": "Admissible applications you sign: give your decision.",
+      "frais-attendus": "For information: these requests can be reviewed once the fee is paid.",
+      "a-decider": "Admissible requests you sign: give your decision.",
       "a-signer": "Duties paid: sign and issue the document.",
       "sans-reponse": "Additional information requested by your service with no answer after the 5-day deadline: remind the applicant or close the file.",
-      "avis-a-rendre": "Applications under review for which the catalogue requires your service’s opinion: give a reasoned opinion, or request additional information."
+      "avis-a-rendre": "Requests under review for which the catalogue requires your service’s opinion: give a reasoned opinion, or request additional information."
     },
     "colonnes": {
       "numero": "Number",
@@ -1095,24 +1095,24 @@
     "elements": "files",
     "vide": {
       "tout": "Nothing to do for now",
-      "a-examiner": "No application to review",
-      "frais-attendus": "No application awaiting payment",
+      "a-examiner": "No request to review",
+      "frais-attendus": "No request awaiting payment",
       "a-decider": "No decision to take",
       "a-signer": "No document to sign",
       "description": "New files will appear here as soon as they await your action.",
       "recherche": "No file matches this search"
     },
     "fait": {
-      "recevable": "Application {numero} declared admissible.",
-      "rejetee": "Application {numero} rejected.",
-      "decision": "Approval recorded for application {numero}.",
-      "droits_payes": "Approval recorded for application {numero}: it is ready for issuance.",
-      "delivree": "Document {document} signed and issued for application {numero}.",
-      "complement_requis": "Additional information requested for application {numero}.",
-      "relance": "Applicant reminded for application {numero}: new 5-day deadline.",
-      "en_instruction": "Application {numero} declared admissible: it moves on to technical review.",
-      "avis": "Opinion saved for application {numero}.",
-      "avis_rendu": "Opinion saved for application {numero}: all opinions are in, the decision now lies with the signatory."
+      "recevable": "Request {numero} declared admissible.",
+      "rejetee": "Request {numero} rejected.",
+      "decision": "Approval recorded for request {numero}.",
+      "droits_payes": "Approval recorded for request {numero}: it is ready for issuance.",
+      "delivree": "Document {document} signed and issued for request {numero}.",
+      "complement_requis": "Additional information requested for request {numero}.",
+      "relance": "Applicant reminded for request {numero}: new 5-day deadline.",
+      "en_instruction": "Request {numero} declared admissible: it moves on to technical review.",
+      "avis": "Opinion saved for request {numero}.",
+      "avis_rendu": "Opinion saved for request {numero}: all opinions are in, the decision now lies with the signatory."
     },
     "serie": {
       "libelle": "Batch processing",
@@ -1194,7 +1194,7 @@
     "delaiSuspenduDroits": "Time limit paused (fees due)"
   },
   "suivi": {
-    "titre": "Application tracking",
+    "titre": "Request tracking",
     "etapes": {
       "depot": "Filing",
       "paiement-frais": "Fee payment",
@@ -1319,9 +1319,9 @@
         "instruitPar": "Processed by",
         "signataire": "Signatory",
         "avis": "Required technical opinions",
-        "actif": "Open to applications",
+        "actif": "Open to requests",
         "motif": "Purpose of the change",
-        "fraisDossierGnf": "Application fee",
+        "fraisDossierGnf": "Filing fee",
         "droitsGnf": "Duties",
         "attestationGnf": "Single payment (certificate)",
         "tarifsDateEffet": "Fees take effect on"
@@ -1337,14 +1337,14 @@
         "attente": "Waiting for {n, plural, =0 {less than a day} one {# day} other {# days}}",
         "legende": "What the proposal changes",
         "aide": {
-          "ministre": "Check each change: it will be published as soon as you validate and apply to applications filed afterwards. Pending applications keep the record in force when they were filed.",
+          "ministre": "Check each change: it will be published as soon as you validate and apply to requests filed afterwards. Pending requests keep the record in force when they were filed.",
           "admin": "This change is awaiting the Minister’s validation. You can withdraw it until a decision is made."
         },
         "tarifsDateEffet": "New fees apply from {date} (at the earliest on the day of validation)."
       },
       "inactif": {
         "titre": "Document withdrawn from the catalogue",
-        "texte": "This document can no longer be applied for. Applications already filed will be completed."
+        "texte": "This document can no longer be requested. Requests already filed will be completed."
       },
       "enVigueur": {
         "titre": "Published record (version {numero})"
@@ -1362,7 +1362,7 @@
         "proposee": "The change (version {numero}) has been sent to the Minister for validation. Nothing changes before the decision."
       },
       "objets": {
-        "FRAIS_DOSSIER": "Application fee",
+        "FRAIS_DOSSIER": "Filing fee",
         "DROITS": "Duties",
         "ATTESTATION": "Single payment"
       },
@@ -1371,7 +1371,7 @@
         "ligne": "{objet}: {montant} from {date}"
       },
       "aide": {
-        "pieces": "Documents the applicant attaches to the application.",
+        "pieces": "Documents the applicant attaches to the request.",
         "delaiJours": "Calendar days targeted between fee payment and issuance.",
         "instruitPar": "Department that reviews the file.",
         "signataire": "Authority that decides and signs the document.",
@@ -1395,11 +1395,11 @@
       "indisponible": "The service is temporarily unavailable. Please try again shortly.",
       "signataire": {
         "titre": "The signatory changes",
-        "texte": "Documents for applications filed after your validation will be decided and signed by the new signatory. Pending applications keep the signatory in force when they were filed."
+        "texte": "Documents for requests filed after your validation will be decided and signed by the new signatory. Pending requests keep the signatory in force when they were filed."
       },
       "desactivation": {
         "titre": "The document leaves the catalogue",
-        "texte": "It can no longer be applied for. Applications already filed will be completed."
+        "texte": "It can no longer be requested. Requests already filed will be completed."
       },
       "confirmation": {
         "approuver": {
@@ -1427,7 +1427,7 @@
       "facultatif": "optional",
       "circuit": {
         "titre": "Minister’s validation",
-        "texte": "Your proposal will be submitted to the Minister. Nothing is published before validation; applications already filed keep the record in force when they were filed."
+        "texte": "Your proposal will be submitted to the Minister. Nothing is published before validation; requests already filed keep the record in force when they were filed."
       },
       "sections": {
         "document": "Document",
@@ -1437,7 +1437,7 @@
       },
       "aide": {
         "pieces": "One document per line, without commas (20 at most).",
-        "delai": "In calendar days (1 to 365), between fee payment and issuance. Applies to applications filed after validation.",
+        "delai": "In calendar days (1 to 365), between fee payment and issuance. Applies to requests filed after validation.",
         "signataire": "The person who decides and signs this document.",
         "avis": "Profiles that give a reasoned technical opinion before the decision, in this order.",
         "motif": "Explain the reason for the change to the Minister (at least 10 characters).",
@@ -1446,14 +1446,14 @@
         "tarifsDateEffet": "Today or later. Fees apply from this date, never before the Minister’s validation.",
         "instruitPar": "Department that reviews the file, as shown to applicants."
       },
-      "actif": "This document can be applied for (in the catalogue)",
+      "actif": "This document can be requested (in the catalogue)",
       "signataireChange": {
         "titre": "Change of signatory",
         "texte": "It affects the legal value of issued documents: the Minister will see it highlighted before validating."
       },
       "desactivation": {
         "titre": "Withdrawal from the catalogue",
-        "texte": "After validation, the document can no longer be applied for. Applications already filed will be completed. A reason is required."
+        "texte": "After validation, the document can no longer be requested. Requests already filed will be completed. A reason is required."
       },
       "erreurs": {
         "libelleFr": "Enter a name of 3 to 150 characters.",
@@ -1482,7 +1482,7 @@
   "workflows": {
     "titre": "Workflows",
     "description": {
-      "admin": "The Ministry’s 5 processes, one per document family. A change applies at once and is recorded; pending applications keep the process in force when they were filed.",
+      "admin": "The Ministry’s 5 processes, one per document family. A change applies at once and is recorded; pending requests keep the process in force when they were filed.",
       "lecture": "The Ministry’s 5 processes, one per document family: steps, stakeholders, payments and time limits."
     },
     "colonnes": {
@@ -1510,7 +1510,7 @@
     "voirEtapes": "Show the {n} steps",
     "enregistre": {
       "titre": "Saved",
-      "texte": "Version v{n} is in force and recorded in the audit log. Applications already filed keep their process."
+      "texte": "Version v{n} is in force and recorded in the audit log. Requests already filed keep their process."
     },
     "formulaire": {
       "titre": "Edit the workflow",
@@ -1518,7 +1518,7 @@
       "obligatoire": "required",
       "effet": {
         "titre": "Immediate effect",
-        "texte": "The new version applies on saving to applications filed afterwards. Pending applications keep the version in force when they were filed."
+        "texte": "The new version applies on saving to requests filed afterwards. Pending requests keep the version in force when they were filed."
       },
       "sections": {
         "famille": "Family",
@@ -1573,9 +1573,9 @@
       "titre": "Time limit rule",
       "depart": {
         "titre": "The time limit starts",
-        "paiement_frais": "When the application fee is paid",
+        "paiement_frais": "When the filing fee is paid",
         "paiement_fraisAide": "Before payment, the Ministry cannot process. A document without a fee starts on filing.",
-        "depot": "When the application is filed",
+        "depot": "When the request is filed",
         "depotAide": "The time limit runs even if the fee is not yet paid."
       },
       "pauses": {
@@ -1643,6 +1643,39 @@
       "titre": "Security",
       "texte": "You will be taken to the secure sign-in page to choose a new password, then brought back here.",
       "motDePasse": "Change my password"
+    }
+  },
+  "referentiels": {
+    "profils": {
+      "ADMIN_TECH": "Technical administrator",
+      "GUICHET": "One-stop shop agent (CPDM)",
+      "DNM": "DNM officer",
+      "INSPECTEUR": "Mines inspector",
+      "GEOLOGUE": "Geologist (DNG)",
+      "FISCAL": "Tax officer",
+      "DIRECTEUR": "Director General / National Director",
+      "MINISTRE": "Minister / Secretary General",
+      "INVESTISSEUR": "Foreign investor",
+      "SOCIETE_MINIERE": "Mining company",
+      "COMMUNAUTE": "Local community",
+      "PME": "Guinean SME",
+      "TUTELLE": "Supervised bodies",
+      "BRIGADE": "Anti-fraud brigade",
+      "APPRENANT": "Trainee (Ministry staff)",
+      "WEBMASTER": "Webmaster"
+    },
+    "signataires": {
+      "ministre": "Minister",
+      "directeurGeneral": "Director General",
+      "directeurNational": "National Director",
+      "chefBne": "Head of the BNE"
+    },
+    "workflows": {
+      "TITRES": "Mining titles",
+      "ARTISANAL": "Artisanal mining and trading houses",
+      "EXPORT": "Export and appraisal",
+      "ATTESTATIONS": "Certificates and copies",
+      "CONTENU_LOCAL": "Local content"
     }
   }
 }

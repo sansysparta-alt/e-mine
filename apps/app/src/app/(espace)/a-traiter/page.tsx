@@ -2,9 +2,10 @@ import { compterATraiter, listerDemandes } from "@emine/api-client";
 import { Alerte, Bouton, EnTetePage, EtatVide, FiltresPastilles } from "@emine/ui";
 import { ArrowRight, Inbox, Play } from "@emine/ui/icones";
 import type { Metadata } from "next";
+import { libelleDocument } from "@/composants/referentiels";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { PaginationListe } from "@/composants/liste/pagination-liste";
 import { RechercheListe } from "@/composants/liste/recherche-liste";
 import {
@@ -58,7 +59,8 @@ export default async function ATraiter({ searchParams }: Props) {
     totaux[g.cle] = autres[i]?.data.total ?? 0;
   });
   if (p.groupe.nombre === undefined && !p.q) totaux[p.groupe.cle] = resultat.total;
-  const libelles = Object.fromEntries(documents.map((d) => [d.code, d.libelleFr]));
+  const langue = await getLocale();
+  const libelles = Object.fromEntries(documents.map((d) => [d.code, libelleDocument(d, langue)]));
   const premier = resultat.elements[0];
   const adresse = (cle: string) =>
     cle === groupes[0]?.cle ? "/a-traiter" : `/a-traiter?groupe=${cle}`;

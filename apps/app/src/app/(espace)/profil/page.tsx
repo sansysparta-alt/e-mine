@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { ChoixLangue } from "@/composants/session/choix-langue";
 import { chargerMoi } from "@/serveur/donnees";
+import { profilAffiche } from "@/serveur/profil";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("profil");
@@ -33,7 +34,7 @@ export default async function Profil() {
         <dl>
           {ligne(t("identite.nom"), `${moi.prenom} ${moi.nom}`)}
           {ligne(t("identite.email"), moi.email)}
-          {ligne(t("identite.profil"), moi.profil.libelle)}
+          {ligne(t("identite.profil"), await profilAffiche(moi))}
           {moi.organisation ? ligne(t("identite.organisation"), moi.organisation) : null}
         </dl>
         <p className="mt-3 text-sm text-texte-doux">{t("identite.aide")}</p>

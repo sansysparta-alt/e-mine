@@ -101,27 +101,6 @@
 
     <main class="emine-formulaire">
       <div class="emine-carte">
-        <div class="emine-entete-carte">
-            <#if realm.internationalizationEnabled && locale.supported?size gt 1>
-                <div class="${properties.kcLocaleMainClass!} emine-langues" id="kc-locale">
-                    <div id="kc-locale-wrapper" class="${properties.kcLocaleWrapperClass!}">
-                        <div id="kc-locale-dropdown" class="menu-button-links ${properties.kcLocaleDropDownClass!}">
-                            <button tabindex="1" id="kc-current-locale-link" aria-label="${msg("languages")}" aria-haspopup="true" aria-expanded="false" aria-controls="language-switch1">${locale.current}</button>
-                            <ul role="menu" tabindex="-1" aria-labelledby="kc-current-locale-link" aria-activedescendant="" id="language-switch1" class="${properties.kcLocaleListClass!}">
-                                <#assign i = 1>
-                                <#list locale.supported as l>
-                                    <li class="${properties.kcLocaleListItemClass!}" role="none">
-                                        <a role="menuitem" id="language-${i}" class="${properties.kcLocaleItemClass!}" href="${l.url}">${l.label}</a>
-                                    </li>
-                                    <#assign i++>
-                                </#list>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </#if>
-        </div>
-
         <#if !(auth?has_content && auth.showUsername() && !auth.showResetCredentials())>
             <h1 id="kc-page-title"><#nested "header"></h1>
             <#if displayRequiredFields>
@@ -200,6 +179,31 @@
                 ${msg("emineConnexionSecurisee")}
             </p>
             <p class="emine-aide">${msg("emineAideQuestion")} <a href="${msg("emineAideLien")}">${msg("emineAideAction")}</a></p>
+            <#-- Langues : discret, en bas ; chaque langue dans sa propre langue ; la langue active indiquée. -->
+            <#if realm.internationalizationEnabled && locale.supported?size gt 1>
+                <nav class="emine-langues" aria-label="${msg("languages")}">
+                    <ul>
+                        <#list locale.supported as l>
+                            <li>
+                                <#if l.languageTag == locale.currentLanguageTag>
+                                    <span class="emine-langue-active" lang="${l.languageTag}" aria-current="true">
+                                        <svg aria-hidden="true" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                                        ${msg("emineLangue_" + l.languageTag)}
+                                    </span>
+                                <#else>
+                                    <#-- Page de connexion : le choix passe par l'application, seule maîtresse de la langue
+                                         (elle la garde et rouvre la connexion dans cette langue). Ailleurs : lien Keycloak. -->
+                                    <#if pageId == "login.ftl" && client?? && client.baseUrl?has_content>
+                                        <a href="${client.baseUrl?remove_ending("/")}/api/auth/login?langue=${l.languageTag}" lang="${l.languageTag}" hreflang="${l.languageTag}">${msg("emineLangue_" + l.languageTag)}</a>
+                                    <#else>
+                                        <a href="${l.url}" lang="${l.languageTag}" hreflang="${l.languageTag}">${msg("emineLangue_" + l.languageTag)}</a>
+                                    </#if>
+                                </#if>
+                            </li>
+                        </#list>
+                    </ul>
+                </nav>
+            </#if>
         </div>
       </div>
       <@loginFooter.content/>

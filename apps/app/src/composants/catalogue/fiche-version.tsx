@@ -5,6 +5,7 @@ import { formaterDate, formaterGnf } from "@emine/ui";
 /** Champs du barème (US-02.3), montants en GNF entiers. */
 const CHAMPS_MONTANT = ["fraisDossierGnf", "droitsGnf", "attestationGnf"];
 import { useTranslations } from "next-intl";
+import { libelleProfil, libelleSignataire } from "../referentiels";
 import { Fragment } from "react";
 
 /** Valeur d'un champ en texte, traduite pour l'activation et le délai. */
@@ -77,6 +78,7 @@ export function TableauChangements({
  */
 export function ContenuFiche({ version }: { version: VersionDto }) {
   const t = useTranslations("catalogue.fiche");
+  const tReferentiels = useTranslations("referentiels");
   const ligne = (cle: string, contenu: React.ReactNode, aide?: string) => (
     <div className="flex flex-col gap-1 border-b border-bordure py-3 last:border-0 sm:flex-row sm:gap-6">
       <dt className="sm:w-60 sm:shrink-0">
@@ -122,10 +124,16 @@ export function ContenuFiche({ version }: { version: VersionDto }) {
         t("sections.circuit"),
         <>
           {ligne("instruitPar", version.instruitPar, t("aide.instruitPar"))}
-          {ligne("signataire", version.signataire, t("aide.signataire"))}
+          {ligne(
+            "signataire",
+            libelleSignataire(version.signataire, tReferentiels),
+            t("aide.signataire"),
+          )}
           {ligne(
             "avis",
-            version.avis.length ? version.avis.map((a) => a.libelle).join(" · ") : t("aucunAvis"),
+            version.avis.length
+              ? version.avis.map((a) => libelleProfil(a.code, a.libelle, tReferentiels)).join(" · ")
+              : t("aucunAvis"),
             t("aide.avis"),
           )}
         </>,

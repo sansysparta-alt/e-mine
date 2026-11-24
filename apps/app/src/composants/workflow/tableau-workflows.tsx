@@ -3,6 +3,7 @@ import { type ComposantLien, formaterDate, TableauDonnees } from "@emine/ui";
 import { ChevronRight } from "@emine/ui/icones";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { libelleWorkflow } from "../referentiels";
 
 const LienNext: ComposantLien = ({ href, children, ...props }) => (
   <Link href={href} {...props}>
@@ -61,6 +62,7 @@ export function TableauWorkflows({
   libelles?: Record<string, string>;
 }) {
   const t = useTranslations("workflows");
+  const tReferentiels = useTranslations("referentiels");
   const fourchette = useFourchette();
   return (
     <TableauDonnees
@@ -75,7 +77,9 @@ export function TableauWorkflows({
           entete: t("colonnes.famille"),
           rendu: (w) => (
             <span className="flex flex-col gap-0.5">
-              <span className="font-semibold text-navy">{w.enVigueur.libelle}</span>
+              <span className="font-semibold text-navy">
+                {libelleWorkflow(w.code, w.enVigueur.libelle, tReferentiels)}
+              </span>
               <span className="text-sm text-texte-doux">
                 {w.documents.map((c, i) => (
                   <span key={c}>

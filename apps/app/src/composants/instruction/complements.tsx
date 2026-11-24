@@ -5,6 +5,7 @@ import { Alerte, Bouton, CaseACocher, classesChamp, Dialogue, formaterDate } fro
 import { MessageSquareText, Send, TriangleAlert } from "@emine/ui/icones";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { libelleProfilParNom } from "../referentiels";
 import { useId, useState, useTransition } from "react";
 import type { ResultatAction } from "@/serveur/erreurs-formulaire";
 import { SectionPieces } from "../demande/section-pieces";
@@ -190,9 +191,9 @@ export function ResumeComplement({
   interne: boolean;
 }) {
   const t = useTranslations("instruction.complement");
-  const auteur = interne
-    ? `${complement.auteur} (${complement.auteurProfil})`
-    : complement.auteurProfil;
+  const tReferentiels = useTranslations("referentiels");
+  const profil = libelleProfilParNom(complement.auteurProfil, tReferentiels);
+  const auteur = interne ? `${complement.auteur} (${profil})` : profil;
   return (
     <dl className="grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-[auto_1fr]">
       <dt className="font-semibold">{t("demandeLe")}</dt>

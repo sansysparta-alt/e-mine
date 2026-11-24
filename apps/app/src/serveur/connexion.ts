@@ -16,7 +16,10 @@ export function supplementsConnexion(parametres: {
   action?: string | null;
   langue?: string | null;
 }): Record<string, string> {
-  const s: Record<string, string> = { ui_locales: langueValide(parametres.langue) };
+  // `kc_locale` et `ui_locales` : la page Keycloak s'affiche dans la langue de l'application, qui
+  // reste seule maîtresse de la langue (le choix fait sur la page de connexion revient vers elle).
+  const langue = langueValide(parametres.langue);
+  const s: Record<string, string> = { ui_locales: langue, kc_locale: langue };
   if ((MOTIFS as readonly string[]).includes(parametres.motif ?? "")) {
     s.motif = parametres.motif as Motif;
   }
