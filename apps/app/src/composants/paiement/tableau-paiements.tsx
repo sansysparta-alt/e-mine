@@ -12,7 +12,8 @@ import {
 import { Download, Eye } from "@emine/ui/icones";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { adresseRecu, LienRecu } from "./lien-recu";
+import { LienRecu } from "./lien-recu";
+import { adresseRecu } from "./recu";
 import { tonStatutPaiement } from "./statut";
 
 const LienNext: ComposantLien = ({ href, children, ...props }) => (
