@@ -128,6 +128,8 @@ Le cahier des charges ne fixe que des « délais cibles » de 2 à 60 jours par 
 
 23. **Catalogue administrable.** Le cahier des charges fait approuver « catalogue, pièces, tarifs et délais » par le Ministère, sans dire si l'approbation électronique du Ministre dans e-mine **vaut arrêté** ou si elle suit un arrêté signé à part. Retenu : le Ministre approuve chaque version de fiche dans l'application (motif et date tracés) ; l'arrêté éventuel reste hors plateforme. Une demande garde la **fiche en vigueur à son dépôt** (délai, avis requis, signataire) ; un document **retiré du catalogue** (motif obligatoire, aucune suppression) ne se dépose plus, ses demandes en cours vont à leur terme. À valider.
 
+24. **Double authentification par SMS à la connexion.** Le cahier des charges l'affiche sur l'écran de connexion (site, diapo 38 : « Code SMS à 6 chiffres », « Double authentification par SMS ») et la demande pour les agents (diapo « Sécurité »). Elle n'est pas encore en place (SPI Keycloak prévu, D8) : la page de connexion ne l'annonce donc pas (« Connexion sécurisée · Journal des connexions »). À planifier : profils concernés (agents seulement ou tous, point 10) et opérateur SMS.
+
 ### 🔐 Sécurité du schéma fourni (à remonter au Ministère)
 
 16. **Les vues du schéma contournent la RLS.** `v_demande_suivi`, `v_paiement_a_verifier`, `v_encaissement_mensuel` et `v_demande_par_statut` appartiennent à `emine_owner` et sont créées sans `security_invoker` : PostgreSQL y applique donc les droits du propriétaire, pas ceux de l'appelant. Conséquence : le rôle applicatif `emine_app` voit par ces vues **les demandes et paiements de tous les demandeurs**, alors que la RLS les masque sur les tables. Constaté sur `v_demande_suivi` par `RlsTest.lesVuesAppliquentLaRlsDeLAppelant` (sprint J1, US-01.5) ; les trois autres vues ont la même définition de droits. → **Corrigé dans notre copie** par la migration `V4__vues_rls_appelant.sql` (`security_invoker = true`, PostgreSQL 15+). **À signaler au Ministère** : toute autre installation du schéma d'origine (`_client/`) porte la même faille ; toute nouvelle vue sur `demande` ou `paiement` doit être créée en `security_invoker`.
@@ -142,7 +144,7 @@ Le cahier des charges ne fixe que des « délais cibles » de 2 à 60 jours par 
 | D4 | Les documents signés par le Ministre sont **paramétrables dans le catalogue** | Règle le point 4 : signataire porté par le type de document / l'étape du workflow |
 | D5 | ArcGIS, TrésorPay, HSM et SMS sont **simulés** au début, derrière des interfaces remplaçables | Voir [02-stack-technique.md](02-stack-technique.md) |
 
-Restent ouverts : points 5 à 15, et 17 à 23 (choix provisoires appliqués et paramétrables). Point 16 : corrigé de notre côté (V4), à porter à la connaissance du Ministère. Décisions D6 à D10 (stack, forge, Keycloak, hébergement, méthode) : voir [02-stack-technique.md §5](02-stack-technique.md).
+Restent ouverts : points 5 à 15, et 17 à 24 (choix provisoires appliqués et paramétrables). Point 16 : corrigé de notre côté (V4), à porter à la connaissance du Ministère. Décisions D6 à D10 (stack, forge, Keycloak, hébergement, méthode) : voir [02-stack-technique.md §5](02-stack-technique.md).
 
 ## 4. Risques
 

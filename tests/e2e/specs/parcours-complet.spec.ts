@@ -49,7 +49,7 @@ async function connecter(browser: Browser, email: string): Promise<Page> {
   const contexte = await browser.newContext();
   const page = await contexte.newPage();
   await page.goto("/");
-  await page.getByRole("link", { name: "Se connecter" }).click();
+  // Seule porte d'entrée : « / » mène directement à la page de connexion Keycloak.
   await page.locator("#username").fill(email);
   await page.locator("#password").fill(MOT_DE_PASSE);
   await page.locator("#kc-login").click();

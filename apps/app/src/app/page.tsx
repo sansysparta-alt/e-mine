@@ -1,36 +1,44 @@
-import { Bouton, Carte } from "@emine/ui";
+import { Alerte, Bouton } from "@emine/ui";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { MessageConnexion, motifDepuisParametres } from "@/composants/message-connexion";
 import { lireSession } from "@/serveur/api";
+import { adresseConnexion, MOTIFS, type Motif } from "@/serveur/connexion";
 import { PAGE_APRES_CONNEXION } from "@/serveur/retour";
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
-/** Page de connexion (publique). Un utilisateur déjà connecté va directement à son tableau de bord. */
-export default async function Connexion({ searchParams }: Props) {
-  const parametres = await searchParams;
-  const motif = motifDepuisParametres(parametres);
+/**
+ * Racine de l'application : il n'y a pas de page intermédiaire. Connecté : tableau de bord ;
+ * sinon, page de connexion Keycloak (seule porte d'entrée), avec le message demandé. Seule
+ * exception : le service de connexion est injoignable, on le dit et on propose de réessayer.
+ */
+export default async function Racine({ searchParams }: Props) {
+  const p = await searchParams;
+  if (p.erreur === "indisponible") return <ConnexionIndisponible />;
   const session = await lireSession();
-  if (session.jetonAcces && motif === null) {
-    redirect(PAGE_APRES_CONNEXION);
-  }
+  if (session.jetonAcces) redirect(PAGE_APRES_CONNEXION);
+  // Anciennes adresses (« /?deconnecte=1 », « /?expiree=1 ») : même message sur la page de connexion.
+  const motif = MOTIFS.find((m) => p[m] !== undefined || p.motif === m) as Motif | undefined;
+  redirect(motif ? adresseConnexion(motif) : "/api/auth/login");
+}
+
+/** Service de connexion injoignable : le seul écran de l'application hors connexion. */
+async function ConnexionIndisponible() {
   const t = await getTranslations("connexion");
   return (
     <main
       id="contenu"
-      className="mx-auto flex min-h-dvh max-w-xl flex-col justify-center gap-6 px-4 py-10 sm:px-6"
+      className="mx-auto flex min-h-dvh max-w-xl flex-col justify-center gap-6 bg-fond px-4 py-10"
     >
       <p className="font-titre text-2xl font-bold text-royal">e-mine</p>
-      <h1 className="text-3xl sm:text-4xl">{t("titre")}</h1>
-      <MessageConnexion motif={motif} />
-      <Carte>
-        <p className="text-lg text-texte-doux">{t("presentation")}</p>
-        <Bouton asChild taille="grande" className="mt-5 w-full sm:w-auto">
-          <a href="/api/auth/login">{t("bouton")}</a>
+      <Alerte nature="erreur" titre={t("messages.indisponible.titre")}>
+        {t("messages.indisponible.conseil")}
+      </Alerte>
+      <div>
+        <Bouton asChild taille="grande">
+          <a href="/api/auth/login">{t("reessayer")}</a>
         </Bouton>
-        <p className="mt-3 text-sm text-texte-doux">{t("aide")}</p>
-      </Carte>
+      </div>
       <p className="text-sm text-texte-doux">{t("demo")}</p>
     </main>
   );

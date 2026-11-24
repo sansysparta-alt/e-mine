@@ -1,7 +1,8 @@
 /*
- * e-mine · page de connexion Keycloak, couleurs « Bleu Souverain » (packages/ui/src/styles/theme.css).
- * Style sobre et institutionnel : fond clair, carte blanche, bouton bleu royal, focus visible,
- * champs de 44 px. Aucune image ni logo officiel (données de démonstration).
+ * e-mine · pages de connexion Keycloak, couleurs « Bleu Souverain » (packages/ui/src/styles/theme.css).
+ * Écran partagé : identité de l'État à gauche (bandeau en haut sur mobile), formulaire à droite.
+ * Sobre et institutionnel : champs et boutons de 44 px au moins, focus visible, contrastes AA.
+ * L'emblème est un visuel provisoire (aucun emblème officiel en démonstration).
  */
 :root {
   --emine-navy: #0a1f44;
@@ -11,165 +12,499 @@
   --emine-or: #c9a227;
   --emine-texte-doux: #3b4a66;
   --emine-bordure: #c3d3ea;
+  --emine-bordure-champ: #5b6b8c;
   --emine-fond: #f6f9fe;
-  --emine-danger: #b42318;
-  --emine-danger-fond: #fef3f2;
+  --emine-danger: #a11a12;
+  --emine-danger-fond: #fde4e1;
+  --emine-succes: #05603a;
+  --emine-succes-fond: #dcf3e6;
+  --emine-info-fond: #e1ecfb;
+  --emine-rayon: 0.5rem;
+  --emine-police: Calibri, Carlito, "Segoe UI", system-ui, sans-serif;
+  --emine-police-titre: Cambria, Caladea, Georgia, serif;
 }
 
-html,
-body,
-.login-pf body {
+/* Le thème parent pose une image de fond : fond clair uni. */
+html.login-pf,
+.login-pf body,
+body.emine {
+  min-height: 100%;
+  margin: 0;
   background: var(--emine-fond) !important;
-  font-family: Calibri, Carlito, "Segoe UI", system-ui, sans-serif;
+  font-family: var(--emine-police);
+  font-size: 1rem;
+  line-height: 1.5;
   color: var(--emine-navy);
 }
 
-.login-pf-page {
-  padding-top: 8vh;
+.emine *:focus-visible {
+  outline: 3px solid var(--emine-azure);
+  outline-offset: 2px;
 }
 
-/* En-tête : marque e-mine (nom du realm en HTML, voir realm-emine.json « displayNameHtml ») */
-#kc-header-wrapper {
-  padding: 0 0 1.5rem;
-  color: var(--emine-navy);
-  font-family: Cambria, Caladea, Georgia, serif;
-  font-size: 1.75rem;
-  letter-spacing: 0;
-  text-transform: none;
-  white-space: normal;
+.emine-evitement {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 10;
+  padding: 0.75rem 1rem;
+  border-radius: var(--emine-rayon);
+  background: #fff;
+  color: var(--emine-royal);
+  font-weight: 700;
+}
+.emine-evitement:focus {
+  top: 1rem;
+}
+
+/* ---------------------------------------------------------------- Disposition */
+.emine-page {
+  display: grid;
+  grid-template-columns: minmax(22rem, 42%) 1fr;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* ---------------------------------------------------------- Identité de l'État */
+.emine-identite {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: 3.5rem 3rem 2rem;
+  background: linear-gradient(160deg, var(--emine-navy) 0%, #0b2c66 60%, var(--emine-royal) 100%);
+  color: #fff;
+}
+
+/* Liseré aux couleurs nationales (rouge, jaune, vert), discret. */
+.emine-tricolore {
+  position: absolute;
+  inset: 0 0 auto 0;
+  display: flex;
+  height: 6px;
+}
+.emine-tricolore span {
+  flex: 1;
+}
+.emine-tricolore span:nth-child(1) {
+  background: #ce1126;
+}
+.emine-tricolore span:nth-child(2) {
+  background: #fcd116;
+}
+.emine-tricolore span:nth-child(3) {
+  background: #009460;
+}
+
+.emine-identite-contenu {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  margin: auto 0;
+  max-width: 30rem;
+}
+
+.emine-embleme {
+  width: 72px;
+  height: 72px;
+}
+
+.emine-identite p {
+  margin: 0;
+}
+
+.emine-republique {
+  font-family: var(--emine-police-titre);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.emine-devise {
+  margin-top: 0.25rem !important;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--emine-or);
+}
+
+.emine-service {
+  padding-top: 1.75rem;
+  border-top: 1px solid rgb(255 255 255 / 25%);
+}
+
+.emine-ministere {
+  font-size: 1.05rem;
+  font-weight: 600;
 }
 
 .emine-marque {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  text-align: left;
+  margin-top: 0.5rem !important;
+  font-family: var(--emine-police-titre);
+  font-size: 2.75rem;
+  font-weight: 700;
+  line-height: 1.1;
 }
 
-.emine-logo {
-  display: inline-flex;
+.emine-presentation {
+  margin-top: 0.75rem !important;
+  font-size: 1.05rem;
+  color: #dbe6f6;
+}
+
+.emine-demo {
+  font-size: 0.875rem;
+  color: #dbe6f6;
+}
+
+/* ------------------------------------------------------------------ Formulaire */
+.emine-formulaire {
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: 0.6rem;
-  background: var(--emine-or);
-  color: var(--emine-navy);
-  font-weight: 700;
+  padding: 2.5rem 1.5rem;
 }
 
-.emine-marque small {
-  display: block;
-  font-family: Calibri, Carlito, "Segoe UI", system-ui, sans-serif;
-  font-size: 0.875rem;
-  color: var(--emine-texte-doux);
-}
-
-/* Carte du formulaire */
-.card-pf {
-  max-width: 28rem;
-  margin: 0 auto;
+.emine-carte {
+  width: 100%;
+  max-width: 27rem;
   padding: 2rem 2rem 1.5rem;
   border: 1px solid var(--emine-bordure);
-  border-top: 1px solid var(--emine-bordure);
   border-radius: 0.75rem;
   background: #fff;
   box-shadow: 0 1px 3px rgb(10 31 68 / 8%);
 }
 
+.emine-entete-carte {
+  display: flex;
+  justify-content: flex-end;
+  min-height: 0.5rem;
+}
+
 #kc-page-title {
-  font-family: Cambria, Caladea, Georgia, serif;
-  font-size: 1.5rem;
+  margin: 0.25rem 0 1.5rem;
+  font-family: var(--emine-police-titre);
+  font-size: 1.75rem;
   font-weight: 700;
   color: var(--emine-navy);
 }
 
-.login-pf-page .login-pf-header {
+#kc-content:focus {
+  outline: none;
+}
+
+.emine .form-group {
   margin-bottom: 1.25rem;
 }
 
-label,
-.control-label,
-.pf-c-form__label {
+.emine .pf-c-form__label,
+.emine label {
+  display: block;
+  margin-bottom: 0.375rem;
   font-size: 1rem;
   font-weight: 600;
   color: var(--emine-navy);
 }
 
-.form-control,
-.pf-c-form-control,
-input[type="text"],
-input[type="email"],
-input[type="password"] {
-  min-height: 2.75rem;
-  border: 2px solid var(--emine-bordure);
-  border-radius: 0.5rem;
+/* Champs : 44 px, bordure lisible (contraste 3:1 au moins), coins arrondis. */
+.emine .pf-c-form-control {
+  box-sizing: border-box;
+  width: 100%;
+  height: 2.75rem;
+  padding: 0 0.875rem;
+  border: 1px solid var(--emine-bordure-champ);
+  border-radius: var(--emine-rayon);
+  background: #fff;
+  font-family: var(--emine-police);
   font-size: 1rem;
+  color: var(--emine-navy);
   box-shadow: none;
 }
-
-.form-control:focus,
-input:focus,
-a:focus-visible,
-button:focus-visible {
-  outline: 3px solid var(--emine-azure);
-  outline-offset: 2px;
-  border-color: var(--emine-royal);
+.emine .pf-c-form-control:focus {
+  border-color: var(--emine-azure);
+  outline: 3px solid rgb(30 111 217 / 35%);
+  outline-offset: 0;
+}
+.emine .pf-c-form-control[aria-invalid="true"] {
+  border-color: var(--emine-danger);
 }
 
-.btn-primary,
-.pf-c-button.pf-m-primary,
-#kc-login {
-  min-height: 2.75rem;
+/* Mot de passe et œil : un seul bloc, même hauteur, même bordure. */
+.emine .pf-c-input-group {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+}
+.emine .pf-c-input-group > .pf-c-form-control {
+  flex: 1;
+  min-width: 0;
+  border-right: 0;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.emine .pf-c-input-group > .pf-c-button.pf-m-control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--emine-bordure-champ);
+  border-left: 1px solid var(--emine-bordure);
+  border-radius: 0 var(--emine-rayon) var(--emine-rayon) 0;
+  background: #fff;
+  color: var(--emine-texte-doux);
+}
+.emine .pf-c-input-group > .pf-c-button.pf-m-control::after {
   border: 0;
-  border-radius: 0.5rem;
-  background: var(--emine-royal);
-  font-size: 1.0625rem;
-  font-weight: 600;
 }
-
-.btn-primary:hover,
-#kc-login:hover {
-  background: var(--emine-navy);
-}
-
-a,
-.login-pf-page a {
+.emine .pf-c-input-group > .pf-c-button.pf-m-control:hover {
+  background: var(--emine-ice);
   color: var(--emine-royal);
-  text-decoration: underline;
-  text-underline-offset: 3px;
+}
+.emine .pf-c-input-group:focus-within > .pf-c-form-control,
+.emine .pf-c-input-group:focus-within > .pf-c-button.pf-m-control {
+  border-color: var(--emine-azure);
 }
 
-/* Messages : même style que le socle (fond léger, bordure fine, pas de barre épaisse) */
-.alert,
-.pf-c-alert {
-  border: 1px solid rgb(180 35 24 / 25%);
-  border-radius: 0.5rem;
-  background: var(--emine-danger-fond);
-  color: var(--emine-navy);
-  box-shadow: none;
-}
-
-.alert-error .pficon,
-.alert-error .pf-c-alert__icon {
+.emine .pf-c-form__helper-text.pf-m-error,
+.emine #input-error {
+  display: block;
+  margin-top: 0.375rem;
+  font-size: 0.95rem;
+  font-weight: 600;
   color: var(--emine-danger);
 }
 
-/* Sélecteur de langue */
-#kc-locale-dropdown a,
-#kc-locale-dropdown button {
+/* « Mot de passe oublié ? » aligné à droite, sous le mot de passe. */
+.emine .login-pf-settings {
+  display: flex;
+  justify-content: flex-end;
+  margin: -0.5rem 0 1.25rem;
+}
+.emine a {
   color: var(--emine-royal);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.emine a:hover {
+  color: var(--emine-navy);
+}
+.emine .login-pf-settings a,
+.emine #kc-info a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
 }
 
-/* Mobile : carte pleine largeur, marges réduites */
-@media (max-width: 640px) {
-  .login-pf-page {
-    padding-top: 1.5rem;
+/* Bouton principal */
+.emine .pf-c-button.pf-m-primary,
+.emine input[type="submit"].pf-c-button {
+  width: 100%;
+  min-height: 3rem;
+  border: 0;
+  border-radius: var(--emine-rayon);
+  background: var(--emine-royal);
+  font-family: var(--emine-police);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+}
+.emine .pf-c-button.pf-m-primary:hover,
+.emine input[type="submit"].pf-c-button:hover {
+  background: var(--emine-navy);
+}
+.emine .pf-c-button.pf-m-primary::after {
+  border: 0;
+}
+
+/* Messages : fond teinté et bordure fine, icône et texte (jamais la couleur seule). */
+.emine .pf-c-alert,
+.emine-motif {
+  display: flex;
+  gap: 0.625rem;
+  align-items: flex-start;
+  margin: 0 0 1.25rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--emine-bordure);
+  border-radius: var(--emine-rayon);
+  background: var(--emine-info-fond);
+  color: var(--emine-navy);
+  box-shadow: none;
+}
+.emine .pf-c-alert::before {
+  display: none;
+}
+.emine .pf-c-alert.pf-m-danger,
+.emine-motif-erreur {
+  border-color: #f3a59c;
+  background: var(--emine-danger-fond);
+  color: var(--emine-danger);
+}
+.emine .pf-c-alert.pf-m-success,
+.emine-motif-succes {
+  border-color: #8fd3ad;
+  background: var(--emine-succes-fond);
+  color: var(--emine-succes);
+}
+.emine .pf-c-alert__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: inherit;
+}
+.emine-motif {
+  display: block;
+}
+.emine-motif[hidden] {
+  display: none;
+}
+
+/* Sélecteur de langue de Keycloak, discret en haut de la carte (jamais en surimpression). */
+.emine .emine-langues,
+.emine #kc-locale {
+  position: relative !important;
+  inset: auto !important;
+  margin: 0;
+}
+.emine #kc-current-locale-link {
+  min-height: 2.75rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--emine-bordure);
+  border-radius: var(--emine-rayon);
+  background: #fff;
+  color: var(--emine-navy);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Pied de la carte : connexion sécurisée et aide. */
+.emine-pied-carte {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--emine-bordure);
+  font-size: 0.925rem;
+  color: var(--emine-texte-doux);
+}
+.emine-pied-carte p {
+  margin: 0;
+}
+.emine-securite {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+.emine-aide {
+  margin-top: 0.25rem !important;
+}
+
+/* Consignes de la page (mot de passe oublié…) : au-dessus du formulaire, sans fond gris. */
+.emine #kc-content-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+.emine #kc-info,
+.emine .login-pf-signup,
+.emine #kc-info-wrapper {
+  order: -1;
+  margin: 0 0 1.25rem !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: none !important;
+  font-size: 1rem;
+  text-align: left;
+  color: var(--emine-texte-doux);
+}
+
+/* Colonnes héritées (grille Bootstrap du thème parent) : pleine largeur, sans flottement. */
+.emine [class*="col-xs-"],
+.emine [class*="col-md-"] {
+  float: none;
+  width: 100%;
+  padding-right: 0;
+  padding-left: 0;
+}
+
+/* Formulaires à lien de retour et bouton (mot de passe oublié…) : lien, puis bouton pleine largeur. */
+.emine form:not(#kc-form-login) .login-pf-settings {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0;
+}
+.emine form:not(#kc-form-login) .login-pf-settings #kc-form-buttons {
+  width: 100%;
+}
+
+/* ------------------------------------------------------------- Petits écrans */
+@media (max-width: 56rem) {
+  .emine-page {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
   }
-  .card-pf {
-    padding: 1.5rem 1rem;
-    border-radius: 0;
-    border-left: 0;
-    border-right: 0;
+
+  /* Bandeau compact en haut : emblème, République, ministère et e-mine. */
+  .emine-identite {
+    gap: 0.75rem;
+    padding: 1.5rem 1.25rem 1.25rem;
   }
+  .emine-identite-contenu {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 0.25rem 1rem;
+    margin: 0;
+  }
+  .emine-embleme {
+    grid-row: span 2;
+    width: 52px;
+    height: 52px;
+  }
+  .emine-republique {
+    font-size: 1.15rem;
+  }
+  .emine-devise {
+    font-size: 0.85rem;
+  }
+  .emine-service {
+    grid-column: 1 / -1;
+    padding-top: 0.75rem;
+    margin-top: 0.5rem;
+  }
+  .emine-marque {
+    font-size: 1.75rem;
+  }
+  .emine-presentation {
+    display: none;
+  }
+  .emine-demo {
+    font-size: 0.8rem;
+  }
+  .emine-formulaire {
+    justify-content: flex-start;
+    padding: 1.5rem 1rem 2rem;
+  }
+  .emine-carte {
+    padding: 1.5rem 1.25rem 1.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .emine * {
+    transition: none !important;
+  }
+}
+
+/* Formulaires « horizontaux » du thème parent : pas de marges négatives dans la carte. */
+.emine .form-horizontal .form-group,
+.emine .form-group {
+  margin-right: 0;
+  margin-left: 0;
 }

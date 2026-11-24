@@ -8,7 +8,8 @@ import "./globals.css";
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("application");
   return {
-    title: { default: t("titre"), template: `%s · ${t("titre")}` },
+    // Titre d'onglet officiel : « Catalogue et tarifs · e-mine » ; page sans titre : nom complet.
+    title: { default: t("titreComplet"), template: `%s · ${t("titre")}` },
     description: t("description"),
   };
 }

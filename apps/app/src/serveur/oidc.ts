@@ -28,7 +28,12 @@ export function configurationOidc(): Promise<client.Configuration> {
 }
 
 /** Prépare la redirection vers Keycloak : Authorization Code + PKCE (S256), état et nonce. */
-export async function preparerConnexion() {
+/**
+ * Prépare la connexion. `supplements` : paramètres ajoutés à l'URL de Keycloak (langue de la page
+ * `ui_locales`, action `kc_action`, `motif` d'un message affiché par le thème e-mine ; Keycloak
+ * ignore les paramètres qu'il ne connaît pas).
+ */
+export async function preparerConnexion(supplements: Record<string, string> = {}) {
   const oidc = await configurationOidc();
   const verificateur = client.randomPKCECodeVerifier();
   const etat = client.randomState();
@@ -40,6 +45,7 @@ export async function preparerConnexion() {
     code_challenge_method: "S256",
     state: etat,
     nonce,
+    ...supplements,
   });
   return { url, verificateur, etat, nonce };
 }

@@ -3,6 +3,7 @@
 import { ChevronsLeft, ChevronsRight, type LucideIcon, Menu, X } from "lucide-react";
 import { type ReactNode, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { cn } from "../cn";
+import { initiales } from "./menu-utilisateur";
 import type { ComposantLien } from "./liste";
 
 export type EntreeNavigation = {
@@ -25,8 +26,11 @@ export type GabaritApplicationProps = {
   /** Titre de la page courante, dans la barre du haut. */
   titre: string;
   utilisateur: UtilisateurGabarit;
-  /** Action de l'utilisateur (déconnexion), dans la barre du haut. */
-  actionUtilisateur?: ReactNode;
+  /**
+   * Menu sous l'avatar, à droite de la barre du haut (`MenuUtilisateur` : profil, langue,
+   * déconnexion). Sans menu, l'avatar et le nom de l'utilisateur s'affichent seuls.
+   */
+  menuUtilisateur?: ReactNode;
   /** Actions de la barre du haut placées avant l'utilisateur (centre de notifications…). */
   actionsEntete?: ReactNode;
   libelles: {
@@ -43,15 +47,6 @@ export type GabaritApplicationProps = {
 const CLE_REPLIE = "emine:interface:menu-replie";
 
 const LienParDefaut: ComposantLien = ({ children, ...props }) => <a {...props}>{children}</a>;
-
-function initiales(nom: string): string {
-  return nom
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((m) => m[0]?.toUpperCase())
-    .join("");
-}
 
 // Préférence « menu réduit » gardée dans le navigateur (simple confort, sans donnée personnelle).
 const EVENEMENT_REPLIE = "emine:menu-replie";
@@ -94,7 +89,7 @@ export function GabaritApplication({
   sections,
   titre,
   utilisateur,
-  actionUtilisateur,
+  menuUtilisateur,
   actionsEntete,
   libelles,
   Lien = LienParDefaut,
@@ -267,19 +262,20 @@ export function GabaritApplication({
           <p className="min-w-0 flex-1 truncate font-titre text-lg font-bold text-navy">{titre}</p>
           <div className="flex items-center gap-3">
             {actionsEntete}
-            <div className="hidden items-center gap-3 sm:flex">
-              <span
-                aria-hidden="true"
-                className="flex size-9 items-center justify-center rounded-full bg-ice text-sm font-bold text-royal"
-              >
-                {initiales(utilisateur.nomComplet)}
-              </span>
-              <span className="flex flex-col text-right leading-tight">
-                <span className="font-semibold text-navy">{utilisateur.nomComplet}</span>
-                <span className="text-sm text-texte-doux">{utilisateur.profil}</span>
-              </span>
-            </div>
-            {actionUtilisateur}
+            {menuUtilisateur ?? (
+              <div className="hidden items-center gap-3 sm:flex">
+                <span
+                  aria-hidden="true"
+                  className="flex size-9 items-center justify-center rounded-full bg-ice text-sm font-bold text-royal"
+                >
+                  {initiales(utilisateur.nomComplet)}
+                </span>
+                <span className="flex flex-col text-right leading-tight">
+                  <span className="font-semibold text-navy">{utilisateur.nomComplet}</span>
+                  <span className="text-sm text-texte-doux">{utilisateur.profil}</span>
+                </span>
+              </div>
+            )}
           </div>
         </header>
         <main

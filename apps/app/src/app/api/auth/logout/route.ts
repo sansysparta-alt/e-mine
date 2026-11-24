@@ -2,6 +2,7 @@ import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { configuration } from "@/serveur/config";
+import { adresseConnexion } from "@/serveur/connexion";
 import { fermerSessionKeycloak } from "@/serveur/oidc";
 import { optionsSession, type SessionEmine } from "@/serveur/session";
 
@@ -20,5 +21,9 @@ export async function POST() {
       console.error("Déconnexion : session Keycloak non fermée", erreur);
     }
   }
-  return NextResponse.redirect(new URL("/?deconnecte=1", configuration().urlApplication), 303);
+  // Retour direct à la page de connexion, avec le message « Vous avez été déconnecté ».
+  return NextResponse.redirect(
+    new URL(adresseConnexion("deconnecte"), configuration().urlApplication),
+    303,
+  );
 }

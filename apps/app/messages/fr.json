@@ -1,33 +1,19 @@
 {
   "application": {
-    "titre": "e-mine · Application de gestion",
-    "description": "Application de gestion des demandes du Ministère des Mines et de la Géologie (démonstration, données fictives)."
+    "titre": "e-mine",
+    "titreComplet": "e-mine · Ministère des Mines et de la Géologie",
+    "description": "Plateforme du Ministère des Mines et de la Géologie de la République de Guinée : demandes de documents miniers, paiements et suivi (démonstration, données fictives)."
   },
   "accessibilite": {
     "allerAuContenu": "Aller au contenu principal"
   },
   "connexion": {
-    "titre": "Application de gestion e-mine",
-    "presentation": "Déposez vos demandes de documents miniers, payez en ligne et suivez leur avancement.",
-    "bouton": "Se connecter",
-    "aide": "Vous serez redirigé vers la page de connexion sécurisée, puis ramené ici.",
+    "reessayer": "Réessayer",
     "demo": "Plateforme de démonstration : toutes les données sont fictives.",
     "messages": {
-      "connexion": {
-        "titre": "La connexion n'a pas abouti.",
-        "conseil": "Réessayez. Si le problème persiste, contactez l'administrateur de la plateforme."
-      },
       "indisponible": {
         "titre": "Le service de connexion est momentanément indisponible.",
-        "conseil": "Réessayez dans quelques minutes."
-      },
-      "expiree": {
-        "titre": "Votre session a expiré.",
-        "conseil": "Reconnectez-vous pour continuer."
-      },
-      "deconnecte": {
-        "titre": "Vous êtes déconnecté.",
-        "conseil": "À bientôt sur e-mine."
+        "conseil": "Réessayez dans quelques minutes. Si le problème persiste, contactez l’assistance."
       }
     }
   },
@@ -496,7 +482,6 @@
     "fermerMenu": "Fermer le menu",
     "reduireMenu": "Réduire le menu",
     "deplierMenu": "Déplier le menu",
-    "deconnexion": "Se déconnecter",
     "sections": {
       "principal": "Principal",
       "demarches": "Démarches",
@@ -513,7 +498,14 @@
       "notifications": "Notifications",
       "catalogue": "Catalogue et tarifs",
       "workflows": "Workflows",
-      "parametres": "Délais et notifications"
+      "parametres": "Délais et notifications",
+      "profil": "Mon profil"
+    },
+    "compte": {
+      "menu": "Menu de l’utilisateur",
+      "profil": "Mon profil",
+      "langue": "Langue",
+      "deconnexion": "Se déconnecter"
     }
   },
   "etats": {
@@ -1630,6 +1622,27 @@
         "email": "message détaillé à son adresse e-mail",
         "interne": "notification dans son espace (cloche)"
       }
+    }
+  },
+  "profil": {
+    "titre": "Mon profil",
+    "description": "Vos informations de compte, la langue de l’interface et la sécurité de votre accès.",
+    "identite": {
+      "titre": "Identité",
+      "nom": "Nom",
+      "email": "Adresse e-mail",
+      "profil": "Profil",
+      "organisation": "Organisation",
+      "aide": "Ces informations sont gérées par l’administrateur de la plateforme. Pour une correction, contactez-le."
+    },
+    "langue": {
+      "titre": "Langue",
+      "legende": "Langue de l’interface et des messages envoyés par e-mine."
+    },
+    "securite": {
+      "titre": "Sécurité",
+      "texte": "Vous serez dirigé vers la page sécurisée de connexion pour choisir un nouveau mot de passe, puis ramené ici.",
+      "motDePasse": "Modifier mon mot de passe"
     }
   }
 }

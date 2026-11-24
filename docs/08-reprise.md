@@ -1,33 +1,23 @@
-# Reprise — sprint « Catalogue administrable » (23/11/2026)
+# Reprise — lot « Porte d'entrée de l'application » (24/11/2026)
 
-## Où on en est
+Lot terminé côté code, sur la branche `fix/porte-entree` (une PR vers `main`). Le porteur décide de la suite après le compte rendu.
 
-Sprint terminé côté code : 5 PR, dont 4 empilées, à fusionner dans l'ordre. Prochain sprint décidé par le porteur : **Paiement complet**.
+## Après la fusion, sur le poste
 
-| PR | Branche | Story | Base |
-|---|---|---|---|
-| #80 | `docs/migrations-v11-v14` | docs/01 §7 : V11 à V14 | `main` |
-| #81 | `us-02.2-fiche-document` | US-02.2 / 02.4 : fiches versionnées approuvées par le Ministre (V18), écrans « Catalogue et tarifs » | `main` |
-| #82 | `us-02.3-tarifs-versionnes` | US-02.3 / 02.4 : tarifs versionnés (V19) | #81 |
-| #83 | `us-02.5-workflows` | US-02.5 : workflows versionnés, affichage (V20) | #82 |
-| #84 | `us-02.6-parametres-delais-notifications` | US-02.6 / 02.7 : règle des délais et canaux des notifications (V21) ; E2E du catalogue | #83 |
+- `pnpm infra:keycloak:reset` : réimporte le realm (mot de passe oublié activé, thème des e-mails, serveur d'envoi Mailpit, nom affiché). Les sessions en cours sont fermées.
+- Redémarrer `pnpm dev` si des pages récentes répondent 404 (cache Turbopack après des changements de branche).
 
-## Décisions du porteur (23/11/2026) et écart au cahier des charges
+## Ce qui a été livré
 
-- Le cahier des charges fait foi. **Écart à la réponse 2** : le cahier (diapo 14) fait approuver « catalogue, pièces, tarifs et délais » par le Ministère ; **toute la fiche** passe donc par l'approbation du Ministre, pas seulement tarifs et signataire (docs/01 §3 point 23).
-- Délai **figé au dépôt** ; par cohérence, avis requis et signataire aussi (fiche du dépôt, `demande.version_document_id`).
-- Workflows : **affichage seulement**, modification immédiate et tracée ; fourchette de délais déduite des fiches approuvées.
-- Désactivation d'un document : motif obligatoire, aucune suppression ; les demandes en cours vont à leur terme.
-- Règle des délais et canaux : modification immédiate et tracée par l'administrateur ; au moins un canal par événement.
+- Page de connexion Keycloak à l'identité de l'État (écran partagé, bandeau sur mobile), libellés du cahier des charges, erreurs neutres, « Mot de passe oublié ? », mention de connexion sécurisée, lien d'aide, mention « données fictives », titre et icône d'onglet.
+- Plus de page intermédiaire : « / » mène à la connexion (ou au tableau de bord).
+- Menu sous l'avatar (Mon profil, Langue, Se déconnecter), page « Mon profil » (identité, langue, changement de mot de passe).
+- Bilingue FR / EN (cookie `NEXT_LOCALE`, transmis à Keycloak).
+- Messages « Vous avez été déconnecté », « Votre session a expiré » sur la page de connexion ; fenêtre de reconnexion dans l'application.
+- E-mails Keycloak à la même identité.
 
-## Pistes proposées (hors sprint)
+## Écarts et points ouverts
 
-- Afficher sur la fiche d'une demande le **circuit de sa version de workflow** (la version est déjà figée au dépôt).
-- Notifier le Ministre (application) quand une modification du catalogue l'attend : aujourd'hui, seul son tableau de bord l'annonce (les agents ne reçoivent pas de notification, US-07.2).
-
-## Rappels techniques
-
-- Changer de branche : `./mvnw -pl api clean …` (sinon des migrations d'une autre branche restent dans `target/classes`).
-- `pnpm db:codegen` avec l'infra arrêtée ; l'infra a été arrêtée pendant le sprint : `pnpm infra:up` avant `pnpm dev`.
-- Tests : documents KIM, CCC, AEX et workflow EXPORT réservés aux tests du catalogue (restaurés en fin de classe) ; l'E2E modifie puis remet CCC.
-- Personas : administrateur `o.bah@e-mine.test`, Ministre `i.soumah@e-mine.test` (mot de passe `DEMO_PASSWORD` du `.env`).
+- Double authentification SMS affichée par le cahier : pas encore en place, non annoncée (docs/01 §3 point 24).
+- Emblème : visuel provisoire, à remplacer par le fichier officiel (`infra/keycloak/themes/emine/login/resources/img/embleme-provisoire.svg`).
+- Lien d'aide : adresse fictive `assistance@e-mine.test` (à remplacer par le vrai canal d'assistance).

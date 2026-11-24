@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72">
+  <!-- Visuel provisoire : emplacement réservé à l'emblème officiel de la République de Guinée.
+       Volontairement neutre (aucune reproduction d'armoiries) : à remplacer par le fichier fourni par l'État. -->
+  <circle cx="36" cy="36" r="34" fill="none" stroke="#c9a227" stroke-width="2"/>
+  <circle cx="36" cy="36" r="27" fill="none" stroke="#ffffff" stroke-opacity="0.35" stroke-width="1.5" stroke-dasharray="3 4"/>
+  <path d="M36 18 L50 24 V36 C50 45 44 51 36 54 C28 51 22 45 22 36 V24 Z" fill="none" stroke="#ffffff" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M29 37 L34 42 L44 31" fill="none" stroke="#c9a227" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

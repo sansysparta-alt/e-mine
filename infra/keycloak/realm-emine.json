@@ -1,14 +1,15 @@
 {
   "realm": "emine",
-  "displayName": "e-mine",
-  "displayNameHtml": "<div class=\"emine-marque\"><span class=\"emine-logo\" aria-hidden=\"true\">e</span><span>e-mine<small>Ministère des Mines et de la Géologie · démonstration</small></span></div>",
+  "displayName": "e-mine · Ministère des Mines et de la Géologie",
+  "displayNameHtml": "e-mine",
   "loginTheme": "emine",
+  "emailTheme": "emine",
   "enabled": true,
   "sslRequired": "external",
   "registrationAllowed": false,
   "loginWithEmailAllowed": true,
   "duplicateEmailsAllowed": false,
-  "resetPasswordAllowed": false,
+  "resetPasswordAllowed": true,
   "editUsernameAllowed": false,
   "rememberMe": false,
   "internationalizationEnabled": true,
@@ -380,5 +381,15 @@
         "ADMIN_TECH"
       ]
     }
-  ]
+  ],
+  "smtpServer": {
+    "host": "mailpit",
+    "port": "1025",
+    "from": "ne-pas-repondre@e-mine.test",
+    "fromDisplayName": "e-mine · Ministère des Mines et de la Géologie",
+    "replyTo": "",
+    "ssl": "false",
+    "starttls": "false",
+    "auth": "false"
+  }
 }

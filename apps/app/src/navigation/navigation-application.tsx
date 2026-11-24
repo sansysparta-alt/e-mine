@@ -6,9 +6,9 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { ClocheNotifications } from "@/composants/notification/cloche-notifications";
-import { FormulaireDeconnexion } from "@/composants/session/formulaire-deconnexion";
+import { MenuCompte } from "@/composants/session/menu-compte";
 import { SurveillanceSession } from "@/composants/session/surveillance-session";
-import { entreeActive, navigationPour, type Profil } from "./config";
+import { entreeActive, navigationPour, PAGES_HORS_MENU, type Profil } from "./config";
 
 const LienNext: ComposantLien = ({ href, children, ...props }) => (
   <Link href={href} {...props}>
@@ -38,6 +38,10 @@ export function NavigationApplication({
   const chemin = usePathname();
   const sections = navigationPour(profil);
   const active = entreeActive(chemin, sections);
+  // Pages hors du menu (« Mon profil ») : leur titre dans la barre du haut.
+  const horsMenu = PAGES_HORS_MENU.find(
+    (p) => chemin === p.href || chemin.startsWith(`${p.href}/`),
+  );
   const libelle = (cle: string, cleInterne?: string) =>
     t(`entrees.${profil.interne && cleInterne ? cleInterne : cle}`);
 
@@ -45,10 +49,16 @@ export function NavigationApplication({
     <GabaritApplication
       marque={t("marque")}
       sousTitre={t("sousTitre")}
-      titre={active ? libelle(active.cle, active.cleInterne) : t("marque")}
+      titre={
+        active
+          ? libelle(active.cle, active.cleInterne)
+          : horsMenu
+            ? t(`entrees.${horsMenu.cle}`)
+            : t("marque")
+      }
       utilisateur={utilisateur}
       actionsEntete={profil.interne ? null : <ClocheNotifications initial={nonLues} />}
-      actionUtilisateur={<FormulaireDeconnexion libelle={t("deconnexion")} />}
+      menuUtilisateur={<MenuCompte utilisateur={utilisateur} Lien={LienNext} />}
       libelles={{
         navigation: t("titre"),
         ouvrirMenu: t("ouvrirMenu"),
