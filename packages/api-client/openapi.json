@@ -2762,9 +2762,19 @@
             "type" : "string",
             "maxLength" : 150,
             "minLength" : 2
+          },
+          "acteurEn" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "libelleEn" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 150,
+            "minLength" : 0
           }
         },
-        "required" : [ "acteur", "libelle" ]
+        "required" : [ "acteur", "acteurEn", "libelle", "libelleEn" ]
       },
       "ModificationDto" : {
         "type" : "object",
@@ -2795,9 +2805,19 @@
           "dateEffet" : {
             "type" : "string",
             "format" : "date"
+          },
+          "libelleEn" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 150,
+            "minLength" : 0
+          },
+          "reglePaiementEn" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 300,
+            "minLength" : 0
           }
         },
-        "required" : [ "dateEffet", "etapes", "libelle", "motif", "reglePaiement" ]
+        "required" : [ "dateEffet", "etapes", "libelle", "libelleEn", "motif", "reglePaiement", "reglePaiementEn" ]
       },
       "VersionCreeeDto" : {
         "type" : "object",
@@ -2975,9 +2995,24 @@
             "type" : "string",
             "maxLength" : 2000,
             "minLength" : 10
+          },
+          "piecesEn" : {
+            "type" : [ "array", "null" ],
+            "items" : {
+              "type" : "string",
+              "maxLength" : 200,
+              "minLength" : 0
+            },
+            "maxItems" : 20,
+            "minItems" : 0
+          },
+          "instruitParEn" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 150,
+            "minLength" : 0
           }
         },
-        "required" : [ "actif", "attestationGnf", "avis", "delaiJours", "droitsGnf", "fraisDossierGnf", "instruitPar", "libelleEn", "libelleFr", "motif", "pieces", "signataire", "tarifsDateEffet" ]
+        "required" : [ "actif", "attestationGnf", "avis", "delaiJours", "droitsGnf", "fraisDossierGnf", "instruitPar", "instruitParEn", "libelleEn", "libelleFr", "motif", "pieces", "piecesEn", "signataire", "tarifsDateEffet" ]
       },
       "PropositionCreeeDto" : {
         "type" : "object",
@@ -3483,9 +3518,15 @@
             "items" : {
               "$ref" : "#/components/schemas/EtapeDto"
             }
+          },
+          "libelleEn" : {
+            "type" : [ "string", "null" ]
+          },
+          "reglePaiementEn" : {
+            "type" : [ "string", "null" ]
           }
         },
-        "required" : [ "dateEffet", "decideeLe", "decideePar", "etapes", "etat", "libelle", "modifieeLe", "modifieePar", "motif", "motifRefus", "reglePaiement", "version" ]
+        "required" : [ "dateEffet", "decideeLe", "decideePar", "etapes", "etat", "libelle", "libelleEn", "modifieeLe", "modifieePar", "motif", "motifRefus", "reglePaiement", "reglePaiementEn", "version" ]
       },
       "WorkflowDto" : {
         "type" : "object",
@@ -3664,9 +3705,18 @@
             "items" : {
               "$ref" : "#/components/schemas/AvisRequis"
             }
+          },
+          "piecesRequisesEn" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "instruitParEn" : {
+            "type" : [ "string", "null" ]
           }
         },
-        "required" : [ "avisRequis", "code", "delaiJours", "famille", "instruitPar", "libelleEn", "libelleFr", "piecesRequises", "renouvelable", "signataire", "tarifs" ]
+        "required" : [ "avisRequis", "code", "delaiJours", "famille", "instruitPar", "instruitParEn", "libelleEn", "libelleFr", "piecesRequises", "piecesRequisesEn", "renouvelable", "signataire", "tarifs" ]
       },
       "SubstanceDto" : {
         "type" : "object",
@@ -4327,9 +4377,18 @@
             "items" : {
               "$ref" : "#/components/schemas/ChangementFicheDto"
             }
+          },
+          "piecesEn" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "instruitParEn" : {
+            "type" : [ "string", "null" ]
           }
         },
-        "required" : [ "actif", "attestationGnf", "avis", "changements", "decideeLe", "decideePar", "delaiJours", "droitsGnf", "fraisDossierGnf", "instruitPar", "libelleEn", "libelleFr", "motif", "motifRefus", "numero", "pieces", "proposeeLe", "proposeePar", "signataire", "statut", "tarifsDateEffet" ]
+        "required" : [ "actif", "attestationGnf", "avis", "changements", "decideeLe", "decideePar", "delaiJours", "droitsGnf", "fraisDossierGnf", "instruitPar", "instruitParEn", "libelleEn", "libelleFr", "motif", "motifRefus", "numero", "pieces", "piecesEn", "proposeeLe", "proposeePar", "signataire", "statut", "tarifsDateEffet" ]
       },
       "ReferencesDto" : {
         "type" : "object",

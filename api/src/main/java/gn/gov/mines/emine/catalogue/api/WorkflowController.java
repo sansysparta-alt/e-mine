@@ -86,9 +86,13 @@ class WorkflowController {
             code,
             m.libelle(),
             m.reglePaiement(),
-            m.etapes().stream().map(e -> new Etape(e.acteur(), e.libelle())).toList(),
+            m.etapes().stream()
+                .map(e -> new Etape(e.acteur(), e.libelle(), e.acteurEn(), e.libelleEn()))
+                .toList(),
             m.motif(),
-            m.dateEffet()));
+            m.dateEffet(),
+            m.libelleEn(),
+            m.reglePaiementEn()));
   }
 
   @PostMapping("/{code}/versions/{version}/approbation")
@@ -194,7 +198,9 @@ class WorkflowController {
       @Schema(nullable = true) String decideePar,
       @Schema(nullable = true) Instant decideeLe,
       @Schema(nullable = true) String motifRefus,
-      List<EtapeDto> etapes) {
+      List<EtapeDto> etapes,
+      @Schema(nullable = true) String libelleEn,
+      @Schema(nullable = true) String reglePaiementEn) {
 
     static VersionWorkflowDto depuis(VersionWorkflow v) {
       return new VersionWorkflowDto(
@@ -209,7 +215,11 @@ class WorkflowController {
           v.decideePar(),
           v.decideeLe(),
           v.motifRefus(),
-          v.etapes().stream().map(e -> new EtapeDto(e.acteur(), e.libelle())).toList());
+          v.etapes().stream()
+              .map(e -> new EtapeDto(e.acteur(), e.libelle(), e.acteurEn(), e.libelleEn()))
+              .toList(),
+          v.libelleEn(),
+          v.reglePaiementEn());
     }
   }
 
@@ -226,10 +236,16 @@ class WorkflowController {
       boolean peutProposer,
       boolean peutDecider) {}
 
-  /** Étape : intervenant et action. */
+  /**
+   * Étape : intervenant et action, en français et (facultatif) en anglais.
+   *
+   * @param acteurEn intervenant en anglais ; absent : repli sur le français
+   */
   record EtapeDto(
       @NotBlank @Size(min = 2, max = 100) String acteur,
-      @NotBlank @Size(min = 2, max = 150) String libelle) {}
+      @NotBlank @Size(min = 2, max = 150) String libelle,
+      @Schema(nullable = true) @Size(max = 100) String acteurEn,
+      @Schema(nullable = true) @Size(max = 150) String libelleEn) {}
 
   /**
    * Modification d'un workflow : version complète.
@@ -241,7 +257,9 @@ class WorkflowController {
       @NotBlank @Size(min = 3, max = 300) String reglePaiement,
       @NotNull @Size(min = 1, max = Workflow.ETAPES_MAX) List<@Valid EtapeDto> etapes,
       @NotBlank @Size(min = 10, max = 2000) String motif,
-      @NotNull LocalDate dateEffet) {}
+      @NotNull LocalDate dateEffet,
+      @Schema(nullable = true) @Size(max = 150) String libelleEn,
+      @Schema(nullable = true) @Size(max = 300) String reglePaiementEn) {}
 
   /** Numéro de la version proposée. */
   record VersionCreeeDto(int version) {}

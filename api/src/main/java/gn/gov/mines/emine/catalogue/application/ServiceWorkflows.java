@@ -92,7 +92,9 @@ public class ServiceWorkflows {
       String reglePaiement,
       List<Etape> etapes,
       String motif,
-      LocalDate dateEffet) {
+      LocalDate dateEffet,
+      String libelleEn,
+      String reglePaiementEn) {
     if (!gestionnaire().peut(Permission.PARAMETRER)) {
       throw new ErreurMetier(CodeErreur.PERM_001);
     }
@@ -103,9 +105,24 @@ public class ServiceWorkflows {
         code,
         libelle.strip(),
         reglePaiement.strip(),
-        etapes.stream().map(e -> new Etape(e.acteur().strip(), e.libelle().strip())).toList(),
+        etapes.stream()
+            .map(
+                e ->
+                    new Etape(
+                        e.acteur().strip(),
+                        e.libelle().strip(),
+                        facultatif(e.acteurEn()),
+                        facultatif(e.libelleEn())))
+            .toList(),
         motif.strip(),
-        dateEffet);
+        dateEffet,
+        facultatif(libelleEn),
+        facultatif(reglePaiementEn));
+  }
+
+  /** Texte facultatif (traduction) : {@code null} s'il est vide. */
+  private static String facultatif(String s) {
+    return s == null || s.isBlank() ? null : s.strip();
   }
 
   /**

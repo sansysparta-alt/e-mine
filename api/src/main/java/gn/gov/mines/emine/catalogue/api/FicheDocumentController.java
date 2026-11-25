@@ -141,7 +141,9 @@ class FicheDocumentController {
                 p.droitsGnf(),
                 p.attestationGnf(),
                 p.tarifsDateEffet(),
-                p.motif())));
+                p.motif(),
+                p.piecesEn(),
+                p.instruitParEn())));
   }
 
   @PostMapping("/{code}/versions/{numero}/approbation")
@@ -248,7 +250,9 @@ class FicheDocumentController {
       @Schema(nullable = true) String decideePar,
       @Schema(nullable = true) Instant decideeLe,
       @Schema(nullable = true) String motifRefus,
-      List<ChangementFicheDto> changements) {
+      List<ChangementFicheDto> changements,
+      List<String> piecesEn,
+      @Schema(nullable = true) String instruitParEn) {
 
     /**
      * Montants réellement appliqués aujourd'hui (un barème approuvé dont la date d'effet n'est pas
@@ -276,7 +280,9 @@ class FicheDocumentController {
           decideePar,
           decideeLe,
           motifRefus,
-          changements);
+          changements,
+          piecesEn,
+          instruitParEn);
     }
 
     static VersionDto depuis(VersionFiche v, List<RegleFiche.Changement> changements) {
@@ -304,7 +310,9 @@ class FicheDocumentController {
           v.motifRefus(),
           changements.stream()
               .map(x -> new ChangementFicheDto(x.champ(), x.avant(), x.apres()))
-              .toList());
+              .toList(),
+          c.piecesEn(),
+          c.instruitParEn());
     }
   }
 
@@ -312,6 +320,9 @@ class FicheDocumentController {
    * Proposition de l'administrateur.
    *
    * @param pieces pièces requises (1 à 20, sans virgule)
+   * @param piecesEn traduction anglaise de chaque pièce, dans le même ordre ; vide ou absente :
+   *     repli sur le français (US-02.9)
+   * @param instruitParEn service instructeur en anglais, facultatif
    * @param avis codes des profils qui rendent un avis technique, dans l'ordre
    * @param motif objet de la modification ; motif de la désactivation si {@code actif = false}
    */
@@ -329,7 +340,10 @@ class FicheDocumentController {
       @Schema(nullable = true) @Positive @Max(MONTANT_MAX) Long droitsGnf,
       @Schema(nullable = true) @Positive @Max(MONTANT_MAX) Long attestationGnf,
       @Schema(nullable = true) LocalDate tarifsDateEffet,
-      @NotBlank @Size(min = 10, max = 2000) String motif) {}
+      @NotBlank @Size(min = 10, max = 2000) String motif,
+      @Schema(nullable = true) @Size(max = RegleFiche.PIECES_MAX)
+          List<@Size(max = RegleFiche.PIECE_MAX) String> piecesEn,
+      @Schema(nullable = true) @Size(max = 150) String instruitParEn) {}
 
   /** Montant le plus élevé accepté au barème : mille milliards de GNF (garde-fou de saisie). */
   static final long MONTANT_MAX = 1_000_000_000_000L;
@@ -337,8 +351,9 @@ class FicheDocumentController {
   /**
    * Champ modifié par une version, avec l'ancienne et la nouvelle valeur en texte.
    *
-   * @param champ {@code libelleFr}, {@code libelleEn}, {@code pieces}, {@code delaiJours}, {@code
-   *     instruitPar}, {@code signataire}, {@code avis} ou {@code actif}
+   * @param champ {@code libelleFr}, {@code libelleEn}, {@code pieces}, {@code piecesEn}, {@code
+   *     delaiJours}, {@code instruitPar}, {@code instruitParEn}, {@code signataire}, {@code avis}
+   *     ou {@code actif}
    */
   record ChangementFicheDto(
       String champ, @Schema(nullable = true) String avant, @Schema(nullable = true) String apres) {}

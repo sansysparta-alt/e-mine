@@ -4,7 +4,13 @@ import { NextIntlClientProvider } from "next-intl";
 import en from "../../../messages/en.json";
 import fr from "../../../messages/fr.json";
 import { DecisionVersion } from "./decision-version";
-import { baremeApprouve, FormulaireFiche, lignesPieces, schemaFiche } from "./formulaire-fiche";
+import {
+  baremeApprouve,
+  FormulaireFiche,
+  lignesPieces,
+  lignesPiecesEn,
+  schemaFiche,
+} from "./formulaire-fiche";
 import { lireParametresCatalogue, presentationLigne, presentationVersion } from "./presentation";
 import { TableauFiches } from "./tableau-fiches";
 
@@ -166,8 +172,10 @@ const enVigueur: VersionDto = {
   libelleFr: "Permis d'exploitation",
   libelleEn: null,
   pieces: ["Étude de faisabilité", "EIES"],
+  piecesEn: [],
   delaiJours: 60,
   instruitPar: "DNM + Inspection",
+  instruitParEn: null,
   signataire: "Ministre",
   avis: [{ code: "DNM", libelle: "Agent DNM" }],
   actif: true,
@@ -203,8 +211,17 @@ describe("proposition d'une modification (US-02.2)", () => {
       droitsGnf: "",
       attestationGnf: "",
       tarifsDateEffet: "",
+      piecesEn: "",
+      instruitParEn: "",
     };
     expect(schemaFiche.safeParse({ ...base, pieces: "EIES" }).success).toBe(true);
+    // Anglais (US-02.9) : une traduction par pièce, dans le même ordre, ou aucune.
+    const deux = "EIES\nPlan";
+    expect(schemaFiche.safeParse({ ...base, pieces: deux, piecesEn: "ESIA\nPlan" }).success).toBe(
+      true,
+    );
+    expect(schemaFiche.safeParse({ ...base, pieces: deux, piecesEn: "ESIA" }).success).toBe(false);
+    expect(lignesPiecesEn("ESIA\n\nPlan\n")).toEqual(["ESIA", "", "Plan"]);
     expect(schemaFiche.safeParse({ ...base, pieces: "EIES, statuts" }).success).toBe(false);
     expect(schemaFiche.safeParse({ ...base, pieces: "\n \n" }).success).toBe(false);
     expect(schemaFiche.safeParse({ ...base, pieces: "EIES", delaiJours: "0" }).success).toBe(false);

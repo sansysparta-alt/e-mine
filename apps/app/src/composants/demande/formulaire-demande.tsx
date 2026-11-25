@@ -18,7 +18,7 @@ import {
 } from "@emine/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocale, useTranslations } from "next-intl";
-import { libelleDocument } from "../referentiels";
+import { libelleDocument, libellesPieces } from "../referentiels";
 import { type ReactNode, useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import type { ResultatAction } from "@/serveur/erreurs-formulaire";
@@ -301,6 +301,7 @@ export function FormulaireDemande(props: FormulaireDemandeProps) {
           <SectionPieces
             demandeId={demande.id}
             piecesRequises={document.piecesRequises}
+            libelles={libellesPieces(document, langue)}
             surChangement={setPieces}
           />
         ) : null}
@@ -454,6 +455,7 @@ function Champ(props: {
 
 function ResumeDocument({ document }: { document: TypeDocumentDto }) {
   const t = useTranslations("demande.document");
+  const langue = useLocale();
   return (
     <div className="rounded-lg bg-ice p-4 text-navy">
       <p>
@@ -465,7 +467,7 @@ function ResumeDocument({ document }: { document: TypeDocumentDto }) {
       <p className="mt-2 font-semibold">{t("piecesRequises")}</p>
       <ul className="list-disc pl-6">
         {document.piecesRequises.map((p) => (
-          <li key={p}>{p}</li>
+          <li key={p}>{libellesPieces(document, langue)[p]}</li>
         ))}
       </ul>
     </div>

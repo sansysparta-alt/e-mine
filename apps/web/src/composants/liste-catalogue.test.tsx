@@ -1,6 +1,7 @@
 import type { TypeDocumentDto } from "@emine/api-client";
 import { render, screen, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
+import en from "../../messages/en.json";
 import fr from "../../messages/fr.json";
 import { ListeCatalogue, parFamille } from "./liste-catalogue";
 
@@ -14,6 +15,8 @@ function document(partiel: Partial<TypeDocumentDto>): TypeDocumentDto {
     renouvelable: true,
     piecesRequises: ["Étude de faisabilité", "EIES"],
     instruitPar: "DNM + Inspection",
+    piecesRequisesEn: [],
+    instruitParEn: null,
     signataire: "Ministre",
     avisRequis: [],
     tarifs: {
@@ -67,5 +70,23 @@ describe("catalogue public", () => {
       .parentElement as HTMLElement;
     expect(within(attestation).getByText("Paiement unique")).toBeInTheDocument();
     expect(within(attestation).queryByText("Frais de dossier")).not.toBeInTheDocument();
+  });
+});
+
+describe("catalogue en anglais (US-02.9)", () => {
+  it("affiche les pièces traduites par l'administrateur, sinon le français", () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={en} timeZone="Africa/Conakry">
+        <ListeCatalogue
+          documents={[
+            document({ piecesRequisesEn: ["Feasibility study", "ESIA"] }),
+            document({ code: "CAR", piecesRequises: ["Plan de carrière"] }),
+          ]}
+        />
+      </NextIntlClientProvider>,
+    );
+    expect(screen.getByText("Feasibility study")).toBeInTheDocument();
+    expect(screen.queryByText("Étude de faisabilité")).toBeNull();
+    expect(screen.getByText("Plan de carrière")).toBeInTheDocument();
   });
 });

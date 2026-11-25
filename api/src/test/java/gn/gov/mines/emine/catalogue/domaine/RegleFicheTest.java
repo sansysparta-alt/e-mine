@@ -25,7 +25,40 @@ class RegleFicheTest {
           true,
           5_000_000L,
           15_000_000L,
+          null,
+          List.of(),
           null);
+
+  @Test
+  void lesPiecesEnAnglaisSontToutesTraduitesOuAucune() {
+    // US-02.9 : une traduction par pièce, dans le même ordre ; aucune = repli sur le français.
+    assertThat(RegleFiche.piecesEn(List.of("Feasibility study", " EIA "), 2))
+        .contains(List.of("Feasibility study", "EIA"));
+    assertThat(RegleFiche.piecesEn(List.of("", " "), 2)).contains(List.of());
+    assertThat(RegleFiche.piecesEn(null, 2)).contains(List.of());
+    assertThat(RegleFiche.piecesEn(List.of("Feasibility study"), 2)).isEmpty();
+    assertThat(RegleFiche.piecesEn(List.of("Study, plan", "EIA"), 2)).isEmpty();
+    assertThat(
+            RegleFiche.changements(
+                    PEX,
+                    new ContenuFiche(
+                        PEX.libelleFr(),
+                        null,
+                        PEX.pieces(),
+                        60,
+                        PEX.instruitPar(),
+                        PEX.signataire(),
+                        PEX.avis(),
+                        true,
+                        5_000_000L,
+                        15_000_000L,
+                        null,
+                        List.of("Feasibility study", "ESIA"),
+                        "DNM + Inspection"))
+                .stream()
+                .map(RegleFiche.Changement::champ))
+        .containsExactly("piecesEn", "instruitParEn");
+  }
 
   @Test
   void lesPiecesSontNettoyeesSansDoublonNiVirgule() {
@@ -54,6 +87,8 @@ class RegleFicheTest {
             false,
             5_000_000L,
             16_000_000L,
+            null,
+            List.of(),
             null);
     assertThat(RegleFiche.changements(PEX, apres))
         .containsExactly(
@@ -83,7 +118,9 @@ class RegleFicheTest {
             true,
             5_000_000L,
             15_000_000L,
-            100_000L);
+            100_000L,
+            List.of(),
+            null);
     assertThat(RegleFiche.memesObjets(PEX, avecAttestation)).isFalse();
   }
 

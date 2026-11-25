@@ -117,6 +117,16 @@ export function ContenuFiche({ version }: { version: VersionDto }) {
             </ul>,
             t("aide.pieces"),
           )}
+          {version.piecesEn?.length
+            ? ligne(
+                "piecesEn",
+                <ul lang="en" className="list-disc pl-5">
+                  {version.piecesEn.map((p) => (
+                    <li key={p}>{p}</li>
+                  ))}
+                </ul>,
+              )
+            : null}
           {ligne("actif", version.actif ? t("actif.oui") : t("actif.non"))}
         </>,
       )}
@@ -124,6 +134,9 @@ export function ContenuFiche({ version }: { version: VersionDto }) {
         t("sections.circuit"),
         <>
           {ligne("instruitPar", version.instruitPar, t("aide.instruitPar"))}
+          {version.instruitParEn
+            ? ligne("instruitParEn", <span lang="en">{version.instruitParEn}</span>)
+            : null}
           {ligne(
             "signataire",
             libelleSignataire(version.signataire, tReferentiels),

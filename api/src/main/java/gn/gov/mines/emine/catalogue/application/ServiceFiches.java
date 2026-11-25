@@ -191,7 +191,9 @@ public class ServiceFiches {
       Long droitsGnf,
       Long attestationGnf,
       LocalDate tarifsDateEffet,
-      String motif) {}
+      String motif,
+      List<String> piecesEn,
+      String instruitParEn) {}
 
   /**
    * Propose une nouvelle version de la fiche (administrateur) : DOC-008 si une proposition attend
@@ -217,6 +219,13 @@ public class ServiceFiches {
                     champInvalide(
                         "pieces",
                         "De 1 à 20 pièces, sans virgule, de 2 à 200 caractères chacune."));
+    List<String> piecesEn =
+        RegleFiche.piecesEn(p.piecesEn(), pieces.size())
+            .orElseThrow(
+                () ->
+                    champInvalide(
+                        "piecesEn",
+                        "Traduisez chaque pièce (sans virgule, 2 à 200 caractères), ou aucune."));
     if (!versions.titresSignataires().contains(p.signataire())) {
       throw champInvalide("signataire", "Signataire inconnu du catalogue.");
     }
@@ -241,7 +250,11 @@ public class ServiceFiches {
             p.actif(),
             p.fraisDossierGnf(),
             p.droitsGnf(),
-            p.attestationGnf());
+            p.attestationGnf(),
+            piecesEn,
+            p.instruitParEn() == null || p.instruitParEn().isBlank()
+                ? null
+                : p.instruitParEn().strip());
     ContenuFiche actuel = fiche.enVigueur().contenu();
     if (!RegleFiche.memesObjets(actuel, contenu)) {
       throw champInvalide(
