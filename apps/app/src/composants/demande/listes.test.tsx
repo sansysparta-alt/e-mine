@@ -54,6 +54,7 @@ function demande(id: number, statut: string, numero: string | null): DemandeDto 
     delaiSuspendu: false,
     motifSuspension: null,
     delaiDemarre: true,
+    documentRevoque: false,
     avancement: null,
   };
 }

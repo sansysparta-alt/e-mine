@@ -52,6 +52,7 @@ public record DemandeDetail(
     String motifSuspension,
     boolean delaiDemarre,
     String origineComplement,
+    boolean documentRevoque,
     RegleSuivi.Avancement avancement) {
 
   /** La même demande, avec son avancement dans le circuit (calculé avec le catalogue). */
@@ -82,6 +83,7 @@ public record DemandeDetail(
         motifSuspension,
         delaiDemarre,
         origineComplement,
+        documentRevoque,
         a);
   }
 

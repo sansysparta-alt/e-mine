@@ -22,6 +22,10 @@ spring:
     password: ${EMINE_APP_PASSWORD:}
     hikari:
       maximum-pool-size: 5
+      # Les jours calendaires (délais, « aujourd'hui », tarif en vigueur) se comptent à l'heure de
+      # Conakry, quel que soit le fuseau du serveur : le pilote transmet sinon celui de la JVM, et
+      # current_date ou ::date basculent au lendemain avant minuit à Conakry (poste à Paris).
+      connection-init-sql: SET TIME ZONE 'Africa/Conakry'
   # Jetons OIDC émis par Keycloak (realm emine) ; l'audience emine-api est exigée
   security:
     oauth2:

@@ -55,6 +55,11 @@ record DemandeDto(
         String motifSuspension,
     boolean delaiDemarre,
     @Schema(
+            description =
+                "Le document délivré a été révoqué : la demande reste délivrée dans le circuit,"
+                    + " mais s'affiche « Document révoqué » partout")
+        boolean documentRevoque,
+    @Schema(
             nullable = true,
             description =
                 "Étape en cours dans le circuit (« Étape 3 sur 6 »), d'après la frise de suivi ;"
@@ -98,6 +103,7 @@ record DemandeDto(
         d.delaiSuspendu(),
         d.motifSuspension(),
         d.delaiDemarre(),
+        d.documentRevoque(),
         d.avancement() == null
             ? null
             : new Avancement(d.avancement().etape(), d.avancement().total()));

@@ -3,6 +3,7 @@ package gn.gov.mines.emine.demande.infrastructure;
 import static gn.gov.mines.emine.shared.jooq.Tables.AVIS_DECISION;
 import static gn.gov.mines.emine.shared.jooq.Tables.COMPLEMENT;
 import static gn.gov.mines.emine.shared.jooq.Tables.DEMANDE;
+import static gn.gov.mines.emine.shared.jooq.Tables.DOCUMENT_DELIVRE;
 import static gn.gov.mines.emine.shared.jooq.Tables.HISTORIQUE_STATUT_DEMANDE;
 import static gn.gov.mines.emine.shared.jooq.Tables.ORGANISATION;
 import static gn.gov.mines.emine.shared.jooq.Tables.PAIEMENT;
@@ -24,6 +25,7 @@ import gn.gov.mines.emine.shared.jooq.Routines;
 import gn.gov.mines.emine.shared.jooq.enums.NatureAvis;
 import gn.gov.mines.emine.shared.jooq.enums.ObjetPaiement;
 import gn.gov.mines.emine.shared.jooq.enums.StatutDemande;
+import gn.gov.mines.emine.shared.jooq.enums.StatutDocument;
 import gn.gov.mines.emine.shared.jooq.enums.StatutPaiement;
 import gn.gov.mines.emine.shared.pagination.PageResultat;
 import gn.gov.mines.emine.shared.pagination.Pagination;
@@ -533,6 +535,20 @@ public class DemandeRepository {
 
   static final Field<Boolean> FRAIS_PAYES = DSL.field(FRAIS_PAYES_COND).as("frais_payes");
 
+  /**
+   * Document délivré révoqué depuis (US-06.6) : la demande reste « délivrée » dans le circuit, mais
+   * tous les écrans affichent « Document révoqué », comme la liste des documents délivrés.
+   */
+  static final Condition DOCUMENT_REVOQUE_COND =
+      DSL.exists(
+          DSL.selectOne()
+              .from(DOCUMENT_DELIVRE)
+              .where(DOCUMENT_DELIVRE.DEMANDE_ID.eq(DEMANDE.ID))
+              .and(DOCUMENT_DELIVRE.STATUT.eq(StatutDocument.non_valide)));
+
+  static final Field<Boolean> DOCUMENT_REVOQUE =
+      DSL.field(DOCUMENT_REVOQUE_COND).as("document_revoque");
+
   /** Entrée dans le statut actuel : dernier changement de statut (historique tenu par la base). */
   static final Field<java.time.Instant> ETAPE_DEPUIS_BRUT =
       DSL.field(
@@ -613,6 +629,7 @@ public class DemandeRepository {
             SUBSTANCE.CODE,
             SUBSTANCE.LIBELLE_FR,
             FRAIS_PAYES,
+            DOCUMENT_REVOQUE,
             ETAPE_DEPUIS,
             PASSAGES,
             aTraiterParMoi,
@@ -668,6 +685,7 @@ public class DemandeRepository {
         r.get(MOTIF_PAUSE_COL, String.class),
         Boolean.TRUE.equals(r.get(DELAI_DEMARRE_COL, Boolean.class)),
         r.get(ORIGINE_COMPLEMENT_COL, String.class),
+        Boolean.TRUE.equals(r.get(DOCUMENT_REVOQUE)),
         null);
   }
 

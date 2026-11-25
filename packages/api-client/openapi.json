@@ -1900,7 +1900,7 @@
     "/api/v1/documents-delivres" : {
       "get" : {
         "tags" : [ "Délivrance" ],
-        "summary" : "Documents délivrés des demandes visibles du profil connecté (les siennes pour un usager), du plus récent au plus ancien, paginés",
+        "summary" : "Documents délivrés des demandes visibles du profil connecté (les siens pour un usager), du plus récent au plus ancien, paginés ; recherche tolérante (numéros, libellé) et filtre de validité, avec le nombre de documents de chaque filtre",
         "operationId" : "listerMesDocuments",
         "parameters" : [ {
           "name" : "page",
@@ -1917,6 +1917,21 @@
           "schema" : {
             "type" : "integer",
             "format" : "int32"
+          }
+        }, {
+          "name" : "recherche",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "validite",
+          "in" : "query",
+          "description" : "valides ou revoques ; absent : tous",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
           }
         } ],
         "responses" : {
@@ -2498,6 +2513,10 @@
           "delaiDemarre" : {
             "type" : "boolean"
           },
+          "documentRevoque" : {
+            "type" : "boolean",
+            "description" : "Le document délivré a été révoqué : la demande reste délivrée dans le circuit, mais s'affiche « Document révoqué » partout"
+          },
           "avancement" : {
             "oneOf" : [ {
               "$ref" : "#/components/schemas/Avancement"
@@ -2506,7 +2525,7 @@
             } ]
           }
         },
-        "required" : [ "aTraiterParMoi", "avancement", "bloque", "creeLe", "delaiDemarre", "delaiSuspendu", "demandeur", "deposeLe", "enRetard", "etapeDepuis", "fraisPayes", "id", "joursRestants", "motifRejet", "motifSuspension", "numero", "passages", "prefectureId", "prefectureNom", "procheDepassement", "statut", "substanceCode", "substanceLibelle", "superficieHa", "typeDocumentCode" ]
+        "required" : [ "aTraiterParMoi", "avancement", "bloque", "creeLe", "delaiDemarre", "delaiSuspendu", "demandeur", "deposeLe", "documentRevoque", "enRetard", "etapeDepuis", "fraisPayes", "id", "joursRestants", "motifRejet", "motifSuspension", "numero", "passages", "prefectureId", "prefectureNom", "procheDepassement", "statut", "substanceCode", "substanceLibelle", "superficieHa", "typeDocumentCode" ]
       },
       "Demandeur" : {
         "type" : "object",
@@ -2869,6 +2888,10 @@
           "motifInvalidation" : {
             "type" : [ "string", "null" ]
           },
+          "revoqueLe" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
           "delivreLe" : {
             "type" : "string",
             "format" : "date-time"
@@ -2883,7 +2906,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "codeType", "delivreLe", "empreinteSha256", "motifInvalidation", "numero", "signataire", "urlVerification", "valide" ]
+        "required" : [ "codeType", "delivreLe", "empreinteSha256", "motifInvalidation", "numero", "revoqueLe", "signataire", "urlVerification", "valide" ]
       },
       "DepotDto" : {
         "type" : "object",
@@ -3846,6 +3869,24 @@
         },
         "required" : [ "profilsAvis", "signataires" ]
       },
+      "CompteursDto" : {
+        "type" : "object",
+        "properties" : {
+          "tous" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "valides" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "revoques" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "revoques", "tous", "valides" ]
+      },
       "LigneDocumentDto" : {
         "type" : "object",
         "properties" : {
@@ -3862,6 +3903,13 @@
             "type" : "string",
             "format" : "date-time"
           },
+          "revoqueLe" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "motifRevocation" : {
+            "type" : [ "string", "null" ]
+          },
           "demandeId" : {
             "type" : "integer",
             "format" : "int64"
@@ -3873,7 +3921,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "codeType", "delivreLe", "demandeId", "numero", "numeroDemande", "urlVerification", "valide" ]
+        "required" : [ "codeType", "delivreLe", "demandeId", "motifRevocation", "numero", "numeroDemande", "revoqueLe", "urlVerification", "valide" ]
       },
       "PageDocumentsDto" : {
         "type" : "object",
@@ -3899,9 +3947,12 @@
           "totalPages" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "compteurs" : {
+            "$ref" : "#/components/schemas/CompteursDto"
           }
         },
-        "required" : [ "elements", "page", "taille", "total", "totalPages" ]
+        "required" : [ "compteurs", "elements", "page", "taille", "total", "totalPages" ]
       },
       "PageDemandesDto" : {
         "type" : "object",

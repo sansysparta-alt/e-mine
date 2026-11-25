@@ -44,6 +44,7 @@ class RedacteurNotificationsTest {
           Map.entry("sens", "favorable"),
           Map.entry("numeroDocument", "PEX-2026-0001"),
           Map.entry("motif", "Motif"),
+          Map.entry("document_numero", "PEX-2026-0001"),
           Map.entry("objet", "FRAIS_DOSSIER"));
 
   static Set<String> modeles() {

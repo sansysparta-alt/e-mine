@@ -8,15 +8,21 @@ import type { TonBadge } from "@emine/ui";
  *
  * Code couleur commun : gris = rien à faire pour vous (ou en attente de l'autre partie), bleu = en
  * cours, orange = **action attendue de vous** (donnée par l'API : `aTraiterParMoi`), vert = abouti,
- * rouge = rejeté. Un seul badge par ligne.
+ * rouge = rejeté ou document révoqué. Un seul badge par ligne.
  */
 export type PresentationStatut = { profil: "demandeur" | "agent"; cle: string; ton: TonBadge };
 
-export type DemandeAffichee = { statut: string; fraisPayes: boolean; aTraiterParMoi: boolean };
+export type DemandeAffichee = {
+  statut: string;
+  fraisPayes: boolean;
+  aTraiterParMoi: boolean;
+  /** Document délivré puis révoqué : rouge partout, comme dans « Documents délivrés ». */
+  documentRevoque?: boolean;
+};
 
 const INSTRUCTION = new Set(["recevable", "en_instruction", "avis_rendu"]);
 
-function demandeur({ statut, fraisPayes }: DemandeAffichee): [string, TonBadge] {
+function demandeur({ statut, fraisPayes, documentRevoque }: DemandeAffichee): [string, TonBadge] {
   if (statut === "brouillon") return ["aCompleter", "neutre"];
   if (statut === "deposee")
     return fraisPayes ? ["verification", "info"] : ["fraisAPayer", "avertissement"];
@@ -24,12 +30,18 @@ function demandeur({ statut, fraisPayes }: DemandeAffichee): [string, TonBadge] 
   if (INSTRUCTION.has(statut)) return ["instruction", "info"];
   if (statut === "decision") return ["droitsAPayer", "avertissement"];
   if (statut === "droits_payes") return ["preparation", "info"];
-  if (statut === "delivree") return ["delivre", "succes"];
+  if (statut === "delivree")
+    return documentRevoque ? ["documentRevoque", "danger"] : ["delivre", "succes"];
   if (statut === "rejetee") return ["rejetee", "danger"];
   return ["archivee", "neutre"];
 }
 
-function agent({ statut, fraisPayes, aTraiterParMoi: moi }: DemandeAffichee): [string, TonBadge] {
+function agent({
+  statut,
+  fraisPayes,
+  aTraiterParMoi: moi,
+  documentRevoque,
+}: DemandeAffichee): [string, TonBadge] {
   if (statut === "deposee") {
     if (!fraisPayes) return ["fraisAttendus", "neutre"];
     return moi ? ["aExaminer", "avertissement"] : ["auGuichet", "info"];
@@ -45,7 +57,8 @@ function agent({ statut, fraisPayes, aTraiterParMoi: moi }: DemandeAffichee): [s
   if (statut === "decision") return ["droitsAttendus", "neutre"];
   if (statut === "droits_payes")
     return moi ? ["aSigner", "avertissement"] : ["attenteSignature", "info"];
-  if (statut === "delivree") return ["delivree", "succes"];
+  if (statut === "delivree")
+    return documentRevoque ? ["documentRevoque", "danger"] : ["delivree", "succes"];
   if (statut === "rejetee") return ["rejetee", "danger"];
   return ["archivee", "neutre"];
 }

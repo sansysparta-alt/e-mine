@@ -18,8 +18,9 @@ export type FormulaireCanauxProps = {
 
 /**
  * Canaux des notifications (US-02.7) : pour chaque événement, SMS, e-mail et notification dans
- * l'application. Chaque SMS a un coût ; un événement garde au moins un canal pour que l'usager
- * sache toujours où en est son dossier.
+ * l'application. L'espace en ligne est toujours actif (coché, non modifiable) : l'usager y voit
+ * toujours où en est son dossier. Chaque SMS a un coût : il est réservé par défaut aux événements
+ * où l'usager doit agir.
  */
 export function FormulaireCanaux({ initial, modifiable, enregistrer }: FormulaireCanauxProps) {
   const t = useTranslations("parametres.canaux");
@@ -29,7 +30,6 @@ export function FormulaireCanaux({ initial, modifiable, enregistrer }: Formulair
   const [erreur, setErreur] = useState<string | null>(null);
   const [succes, setSucces] = useState(false);
   const [enCours, demarrer] = useTransition();
-  const sansCanal = lignes.filter((l) => !l.sms && !l.email && !l.interne);
   const smsActifs = lignes.filter((l) => l.sms).length;
 
   function basculer(modele: string, canal: Canal) {
@@ -41,10 +41,9 @@ export function FormulaireCanaux({ initial, modifiable, enregistrer }: Formulair
     e.preventDefault();
     setErreur(null);
     setSucces(false);
-    if (sansCanal.length) return;
     demarrer(async () => {
       const r = await enregistrer(
-        lignes.map((l) => ({ modele: l.modele, sms: l.sms, email: l.email, interne: l.interne })),
+        lignes.map((l) => ({ modele: l.modele, sms: l.sms, email: l.email, interne: true })),
       );
       if (r.ok) {
         setLignes(r.valeur);
@@ -88,33 +87,27 @@ export function FormulaireCanaux({ initial, modifiable, enregistrer }: Formulair
             </tr>
           </thead>
           <tbody>
-            {lignes.map((l) => {
-              const vide = !l.sms && !l.email && !l.interne;
-              return (
-                <tr key={l.modele} className="border-b border-bordure last:border-0">
-                  <th scope="row" className="py-2 pr-4 font-normal">
-                    <span className="font-semibold text-navy">{libelle(l)}</span>
-                    {vide ? (
-                      <span className="block text-sm font-semibold text-danger">
-                        {t("auMoinsUn")}
-                      </span>
-                    ) : null}
-                  </th>
-                  {CANAUX.map((c) => (
-                    <td key={c} className="px-2 py-1 text-center">
-                      <CaseACocher
-                        checked={l[c]}
-                        disabled={!modifiable}
-                        onChange={() => basculer(l.modele, c)}
-                        variante="cellule"
-                      >
-                        {`${t(`canal.${c}`)} — ${libelle(l)}`}
-                      </CaseACocher>
-                    </td>
-                  ))}
-                </tr>
-              );
-            })}
+            {lignes.map((l) => (
+              <tr key={l.modele} className="border-b border-bordure last:border-0">
+                <th scope="row" className="py-2 pr-4 font-normal">
+                  <span className="font-semibold text-navy">{libelle(l)}</span>
+                </th>
+                {CANAUX.map((c) => (
+                  <td key={c} className="px-2 py-1 text-center">
+                    <CaseACocher
+                      checked={c === "interne" ? true : l[c]}
+                      disabled={!modifiable || c === "interne"}
+                      onChange={() => basculer(l.modele, c)}
+                      variante="cellule"
+                    >
+                      {c === "interne"
+                        ? `${t(`canal.${c}`)} — ${libelle(l)} (${t("toujoursActif")})`
+                        : `${t(`canal.${c}`)} — ${libelle(l)}`}
+                    </CaseACocher>
+                  </td>
+                ))}
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
@@ -130,7 +123,7 @@ export function FormulaireCanaux({ initial, modifiable, enregistrer }: Formulair
       ) : null}
       {modifiable ? (
         <div>
-          <Bouton type="submit" disabled={enCours || sansCanal.length > 0}>
+          <Bouton type="submit" disabled={enCours}>
             {t("enregistrer")}
           </Bouton>
         </div>

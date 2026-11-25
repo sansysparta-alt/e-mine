@@ -204,9 +204,11 @@ public class ServiceDelivrance {
 
   /** « Documents délivrés » : ceux des demandes visibles du profil connecté (les siennes). */
   @Transactional(readOnly = true)
-  public gn.gov.mines.emine.shared.pagination.PageResultat<DelivranceRepository.LigneDocument>
-      listerVisibles(gn.gov.mines.emine.shared.pagination.Pagination pagination) {
-    return registre.listerVisibles(pagination);
+  public DelivranceRepository.PageDocuments listerVisibles(
+      gn.gov.mines.emine.shared.pagination.Pagination pagination,
+      String recherche,
+      DelivranceRepository.Validite validite) {
+    return registre.listerVisibles(pagination, recherche, validite);
   }
 
   /** Document et flux du PDF signé archivé. */

@@ -2,12 +2,13 @@
 
 import type { DemandeDto } from "@emine/api-client";
 import { Alerte, Bouton, Dialogue } from "@emine/ui";
-import { CreditCard, Download, FilePlus2, PenLine, Trash2 } from "@emine/ui/icones";
+import { CreditCard, FilePlus2, PenLine, Route, Trash2 } from "@emine/ui/icones";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { supprimerBrouillon } from "@/serveur/actions-demande";
+import { TelechargerDocument } from "../delivrance/telecharger-document";
 
 const classesAction =
   "inline-flex min-h-11 items-center gap-1 rounded-lg px-2 text-sm font-semibold hover:bg-ice";
@@ -31,12 +32,13 @@ export function actionAttendue(
 /**
  * Actions directes d'une demande dans la liste du demandeur (correctifs ergonomie) : continuer ou
  * supprimer un brouillon (confirmation, suppression logique), payer les frais ou les droits,
- * compléter, télécharger le PDF signé d'une demande délivrée.
+ * compléter, télécharger le PDF signé d'une demande délivrée (avec avertissement s'il est
+ * révoqué), sinon « Suivre » : la colonne Actions n'est jamais vide.
  */
 export function ActionsDemande({
   demande,
 }: {
-  demande: Pick<DemandeDto, "id" | "statut" | "fraisPayes">;
+  demande: Pick<DemandeDto, "id" | "statut" | "fraisPayes" | "documentRevoque">;
 }) {
   const t = useTranslations("mesDemandes.actions");
   const router = useRouter();
@@ -46,14 +48,10 @@ export function ActionsDemande({
 
   if (demande.statut === "delivree") {
     return (
-      <a
-        href={`/api/demandes/${demande.id}/document/contenu`}
-        download
-        className={`${classesAction} text-royal`}
-      >
-        <Download aria-hidden="true" className="size-4" />
-        {t("telecharger")}
-      </a>
+      <TelechargerDocument
+        demandeId={demande.id}
+        revocation={demande.documentRevoque ? {} : null}
+      />
     );
   }
   const attendue = actionAttendue(demande);
@@ -66,7 +64,14 @@ export function ActionsDemande({
       </Link>
     );
   }
-  if (demande.statut !== "brouillon") return null;
+  if (demande.statut !== "brouillon") {
+    return (
+      <Link href={`/demandes/${demande.id}`} className={`${classesAction} text-royal`}>
+        <Route aria-hidden="true" className="size-4" />
+        {t("suivre")}
+      </Link>
+    );
+  }
 
   function supprimer() {
     setErreur(null);

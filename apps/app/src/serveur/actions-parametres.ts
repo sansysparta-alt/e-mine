@@ -22,7 +22,7 @@ export async function enregistrerDelais(
   }
 }
 
-/** Canaux des notifications (US-02.7) : au moins un canal par événement. */
+/** Canaux des notifications (US-02.7) : l’espace en ligne reste toujours actif. */
 export async function enregistrerCanaux(choix: ChoixDto[]): Promise<ResultatAction<CanauxDto[]>> {
   try {
     const r = await modifierCanauxNotification(choix, {

@@ -22,6 +22,7 @@ const document: DocumentDelivreDto = {
   codeType: "PEX",
   valide: true,
   motifInvalidation: null,
+  revoqueLe: null,
   delivreLe: "2026-11-22T09:30:00Z",
   empreinteSha256: "ab".repeat(32),
   urlVerification: "http://localhost:3000/verifier/0123456789abcdef0123456789abcdef",
@@ -102,15 +103,26 @@ describe("document délivré (US-06.4)", () => {
     expect(verification).toHaveAttribute("rel", "noopener noreferrer");
   });
 
-  it("montre « Non valide » et le motif d'un document révoqué", () => {
+  it("montre « Révoqué », la date et le motif d'un document révoqué, et avertit à l'ouverture", () => {
     afficher(
       <DocumentDelivre
         demandeId={41}
-        document={{ ...document, valide: false, motifInvalidation: "Fraude constatée." }}
+        document={{
+          ...document,
+          valide: false,
+          motifInvalidation: "Fraude constatée.",
+          revoqueLe: "2026-11-20T10:00:00Z",
+        }}
       />,
     );
-    expect(screen.getByText("Non valide")).toBeVisible();
+    expect(screen.getByRole("alert")).toHaveTextContent("Ce document a été révoqué");
+    expect(screen.getByRole("alert")).toHaveTextContent("le 20/11/2026");
+    expect(screen.getByText("Révoqué")).toBeVisible();
     expect(screen.getByText("Fraude constatée.")).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: /Voir le document/ }));
+    expect(
+      screen.getByText("Document révoqué le 20/11/2026 : il n’est plus valide."),
+    ).toBeVisible();
   });
 });
 

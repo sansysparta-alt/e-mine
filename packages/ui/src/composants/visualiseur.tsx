@@ -4,6 +4,7 @@ import { Download, FileQuestion, Maximize2, Minimize2, X } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "../cn";
+import { Alerte } from "./alerte";
 
 export type DocumentAffiche = {
   nomFichier: string;
@@ -12,6 +13,8 @@ export type DocumentAffiche = {
   urlAffichage: string;
   /** Adresse de téléchargement (pièce jointe). */
   urlTelechargement: string;
+  /** Avertissement affiché au-dessus du document (ex. document révoqué). */
+  avertissement?: string;
 };
 
 export type LibellesVisualiseur = {
@@ -130,6 +133,11 @@ export function VisualiseurDocument({
             <span className="sr-only sm:not-sr-only">{libelles.fermer}</span>
           </button>
         </div>
+        {document.avertissement ? (
+          <div className="border-b border-bordure px-3 py-2 sm:px-4">
+            <Alerte nature="erreur" titre={document.avertissement} />
+          </div>
+        ) : null}
         <div className="min-h-0 flex-1 bg-fond">
           {pdf ? (
             <iframe

@@ -435,7 +435,6 @@
     "effacerFiltre": "Effacer le filtre par statut",
     "actions": {
       "supprimer": "Supprimer",
-      "telecharger": "Télécharger",
       "echec": "Le brouillon n’a pas été supprimé",
       "confirmation": {
         "titre": "Supprimer ce brouillon ?",
@@ -447,7 +446,8 @@
       "continuer": "Continuer",
       "payerFrais": "Payer les frais",
       "payerDroits": "Payer les droits",
-      "completer": "Compléter"
+      "completer": "Compléter",
+      "suivre": "Suivre"
     },
     "filtresTableau": {
       "titre": "Filtres actifs",
@@ -1055,14 +1055,21 @@
       "numero": "Numéro",
       "validite": "Validité",
       "valide": "Valide",
-      "nonValide": "Non valide",
+      "nonValide": "Révoqué",
       "motif": "Motif de la révocation",
       "delivreLe": "Délivré le",
       "signePar": "Signé par",
       "empreinte": "Empreinte SHA-256",
       "voir": "Voir le document",
       "verifier": "Page de vérification",
-      "nouvelOnglet": "(s’ouvre dans un nouvel onglet)"
+      "nouvelOnglet": "(s’ouvre dans un nouvel onglet)",
+      "revoqueLe": "Révoqué le",
+      "alerteRevoque": {
+        "titre": "Ce document a été révoqué",
+        "texteDate": "Révoqué par le Ministère le {date}. Il n’est plus valide : sa vérification par code QR indique « NON VALIDE ».",
+        "texte": "Révoqué par le Ministère. Il n’est plus valide : sa vérification par code QR indique « NON VALIDE ».",
+        "visualiseur": "Document révoqué le {date} : il n’est plus valide."
+      }
     },
     "revocation": {
       "action": "Révoquer…",
@@ -1187,7 +1194,8 @@
       "preparation": "Document en préparation",
       "delivre": "Document délivré",
       "rejetee": "Rejetée",
-      "archivee": "Archivée"
+      "archivee": "Archivée",
+      "documentRevoque": "Document révoqué"
     },
     "agent": {
       "fraisAttendus": "Frais attendus",
@@ -1204,7 +1212,8 @@
       "rejetee": "Rejetée",
       "archivee": "Archivée",
       "sansReponse": "Sans réponse",
-      "avisARendre": "Avis à rendre"
+      "avisARendre": "Avis à rendre",
+      "documentRevoque": "Document révoqué"
     }
   },
   "dates": {
@@ -1612,10 +1621,12 @@
       "seuil": {
         "titre": "« Proche du dépassement »",
         "aide": "Un dossier est signalé quand il reste au plus {pct} % du délai, et au moins {min, plural, =0 {0 jour} one {# jour} other {# jours}}.",
-        "pourcent": "Pourcentage du délai restant",
+        "pourcent": "Part du délai restant, en %",
         "minimum": "Jours restants, au moins",
         "erreurPourcent": "Saisissez un nombre entier entre 1 et 100.",
-        "erreurMinimum": "Saisissez un nombre entier entre 0 et 30."
+        "erreurMinimum": "Saisissez un nombre entier entre 0 et 30.",
+        "pourcentUnite": "%",
+        "joursUnite": "jours"
       },
       "enregistre": {
         "titre": "C’est enregistré",
@@ -1635,7 +1646,6 @@
         "email": "E-mail",
         "interne": "Espace en ligne"
       },
-      "auMoinsUn": "Gardez au moins un canal.",
       "enregistre": {
         "titre": "C’est enregistré",
         "texte": "Les prochaines notifications partent par les canaux choisis."
@@ -1644,10 +1654,11 @@
       "indisponible": "Le service est momentanément indisponible. Réessayez dans un instant.",
       "enregistrer": "Enregistrer les canaux",
       "aide": {
-        "sms": "message court sur le téléphone de l’usager (payant)",
+        "sms": "message court sur le téléphone de l’usager (payant), conseillé quand il doit agir",
         "email": "message détaillé à son adresse e-mail",
-        "interne": "notification dans son espace (cloche)"
-      }
+        "interne": "notification dans son espace (cloche), toujours active"
+      },
+      "toujoursActif": "toujours actif"
     }
   },
   "profil": {
@@ -1935,7 +1946,6 @@
     "elements": "documents",
     "valide": "Valide",
     "revoque": "Révoqué",
-    "telecharger": "Télécharger",
     "verifier": "Vérifier",
     "nouvelOnglet": "(s’ouvre dans un nouvel onglet)",
     "colonnes": {
@@ -1948,6 +1958,37 @@
     "vide": {
       "titre": "Aucun document délivré pour le moment",
       "description": "Quand une demande aboutit, le document signé est disponible ici et sur la fiche de la demande."
+    },
+    "revoqueLe": "Révoqué le {date}",
+    "motif": "Motif : {motif}",
+    "recherche": {
+      "libelle": "Rechercher un document",
+      "exemple": "Numéro ou document (ex. PEX-2026, permis)",
+      "bouton": "Rechercher"
+    },
+    "filtres": {
+      "libelle": "Validité",
+      "tous": "Tous",
+      "valides": "Valides",
+      "revoques": "Révoqués"
+    },
+    "aucunResultat": {
+      "titre": "Aucun document ne correspond à « {texte} »",
+      "conseil": "Vérifiez l’orthographe, ou saisissez une partie du numéro du document ou de la demande. Les accents et les majuscules ne comptent pas.",
+      "filtre": "Aucun document dans ce filtre",
+      "effacer": "Voir tous les documents"
+    },
+    "telechargement": {
+      "libelle": "Télécharger",
+      "revoque": {
+        "titre": "Ce document est révoqué",
+        "texte": "Ce document a été révoqué par le Ministère : il n’est plus valide.",
+        "texteDate": "Ce document a été révoqué par le Ministère le {date} : il n’est plus valide.",
+        "motif": "Motif :",
+        "mention": "Vous pouvez le télécharger pour vos archives. Sa vérification par code QR indique « NON VALIDE ».",
+        "annuler": "Annuler",
+        "confirmer": "Télécharger quand même"
+      }
     }
   }
 }

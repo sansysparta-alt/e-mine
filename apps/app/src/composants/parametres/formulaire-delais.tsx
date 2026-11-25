@@ -111,18 +111,21 @@ export function FormulaireDelais({ initial, modifiable, enregistrer }: Formulair
             <label htmlFor="seuil-pct" className="font-semibold">
               {t("seuil.pourcent")}
             </label>
-            <input
-              id="seuil-pct"
-              type="number"
-              inputMode="numeric"
-              min={1}
-              max={100}
-              value={Number.isNaN(v.seuilProchePourcent) ? "" : v.seuilProchePourcent}
-              onChange={(e) => changer({ seuilProchePourcent: e.target.valueAsNumber })}
-              aria-invalid={pctValide ? undefined : true}
-              aria-describedby={pctValide ? "seuil-aide" : "seuil-aide seuil-pct-erreur"}
-              className={`${classesChamp} sm:max-w-40`}
-            />
+            <div className="flex items-center gap-2">
+              <input
+                id="seuil-pct"
+                type="number"
+                inputMode="numeric"
+                min={1}
+                max={100}
+                value={Number.isNaN(v.seuilProchePourcent) ? "" : v.seuilProchePourcent}
+                onChange={(e) => changer({ seuilProchePourcent: e.target.valueAsNumber })}
+                aria-invalid={pctValide ? undefined : true}
+                aria-describedby={pctValide ? "seuil-aide" : "seuil-aide seuil-pct-erreur"}
+                className={`${classesChamp} w-28`}
+              />
+              <span className="text-texte-doux">{t("seuil.pourcentUnite")}</span>
+            </div>
             {pctValide ? null : (
               <p id="seuil-pct-erreur" className="text-sm font-semibold text-danger">
                 {t("seuil.erreurPourcent")}
@@ -133,18 +136,21 @@ export function FormulaireDelais({ initial, modifiable, enregistrer }: Formulair
             <label htmlFor="seuil-min" className="font-semibold">
               {t("seuil.minimum")}
             </label>
-            <input
-              id="seuil-min"
-              type="number"
-              inputMode="numeric"
-              min={0}
-              max={30}
-              value={Number.isNaN(v.seuilProcheMinJours) ? "" : v.seuilProcheMinJours}
-              onChange={(e) => changer({ seuilProcheMinJours: e.target.valueAsNumber })}
-              aria-invalid={minValide ? undefined : true}
-              aria-describedby={minValide ? "seuil-aide" : "seuil-aide seuil-min-erreur"}
-              className={`${classesChamp} sm:max-w-40`}
-            />
+            <div className="flex items-center gap-2">
+              <input
+                id="seuil-min"
+                type="number"
+                inputMode="numeric"
+                min={0}
+                max={30}
+                value={Number.isNaN(v.seuilProcheMinJours) ? "" : v.seuilProcheMinJours}
+                onChange={(e) => changer({ seuilProcheMinJours: e.target.valueAsNumber })}
+                aria-invalid={minValide ? undefined : true}
+                aria-describedby={minValide ? "seuil-aide" : "seuil-aide seuil-min-erreur"}
+                className={`${classesChamp} w-28`}
+              />
+              <span className="text-texte-doux">{t("seuil.joursUnite")}</span>
+            </div>
             {minValide ? null : (
               <p id="seuil-min-erreur" className="text-sm font-semibold text-danger">
                 {t("seuil.erreurMinimum")}
