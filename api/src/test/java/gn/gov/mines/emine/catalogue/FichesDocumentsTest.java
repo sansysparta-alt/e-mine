@@ -44,8 +44,9 @@ import tools.jackson.databind.json.JsonMapper;
  * US-02.2 et US-02.4 (V18) : la fiche d'un document (pièces, délai, signataire, avis requis,
  * activation) est modifiée par une version que propose l'administrateur et qu'approuve le Ministre
  * (cahier des charges : « paramétrés par l'Administrateur et approuvés par le Ministère ») ; chaque
- * modification est tracée ; une demande garde la fiche de son dépôt. Documents KIM et CCC, que les
- * autres tests n'utilisent pas ; le catalogue est restauré à la fin.
+ * modification est tracée ; une demande garde la fiche de son dépôt. Documents EXC et CCC (le
+ * premier est aussi déposé par d'autres tests, qui ne dépendent pas de sa fiche) ; le catalogue est
+ * restauré à la fin.
  */
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -62,18 +63,18 @@ class FichesDocumentsTest extends TestIntegration {
   final RequestPostProcessor admin = jeton(ADMIN_TECH, "ADMIN_TECH");
   final RequestPostProcessor ministre = jeton(MINISTRE, "MINISTRE");
 
-  long kimAvant;
+  long excAvant;
 
   @BeforeAll
   void donnees() throws Exception {
     Personas.charger();
-    kimAvant = DemandesDeTest.deposee(INVESTISSEUR, "KIM");
+    excAvant = DemandesDeTest.deposee(INVESTISSEUR, "EXC");
   }
 
   @AfterAll
   void restaurer() throws Exception {
-    // Remet KIM et CCC comme au catalogue initial, par le même circuit.
-    for (String code : List.of("KIM", "CCC")) {
+    // Remet EXC et CCC comme au catalogue initial, par le même circuit.
+    for (String code : List.of("EXC", "CCC")) {
       var v1 =
           json.readTree(
                   mvc.perform(get(FICHES + "/" + code).with(admin))
@@ -129,11 +130,11 @@ class FichesDocumentsTest extends TestIntegration {
   @Test
   @Order(2)
   void lAdministrateurProposeEtRienNeChangeAvantLApprobation() throws Exception {
-    proposer(admin, "KIM", kim(4, "Directeur général", List.of(), true, "Délai porté à 4 jours"))
+    proposer(admin, "EXC", exc(4, "Directeur général", List.of(), true, "Délai porté à 4 jours"))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.numero").value(2));
 
-    mvc.perform(get(FICHES + "/KIM").with(admin))
+    mvc.perform(get(FICHES + "/EXC").with(admin))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.proposition.numero").value(2))
         .andExpect(jsonPath("$.proposition.statut").value("a_valider"))
@@ -149,17 +150,17 @@ class FichesDocumentsTest extends TestIntegration {
         .andExpect(jsonPath("$.peutProposer").value(false));
     // Le Ministre voit la proposition comme une action à faire.
     mvc.perform(get(FICHES).param("filtre", "A_VALIDER").with(ministre))
-        .andExpect(jsonPath("$.elements[0].code").value("KIM"))
+        .andExpect(jsonPath("$.elements[0].code").value("EXC"))
         .andExpect(jsonPath("$.elements[0].action").value("DECIDER"))
         .andExpect(jsonPath("$.compteurs.A_VALIDER").value(1));
     // Le catalogue public n'a pas changé.
-    mvc.perform(get("/api/v1/types-documents/KIM")).andExpect(jsonPath("$.delaiJours").value(2));
+    mvc.perform(get("/api/v1/types-documents/EXC")).andExpect(jsonPath("$.delaiJours").value(2));
   }
 
   @Test
   @Order(3)
   void uneSeuleProposition_ouverteParDocument_etLeMinistreNePropose_pas() throws Exception {
-    proposer(admin, "KIM", kim(5, "Directeur national", List.of(), true, "Autre proposition"))
+    proposer(admin, "EXC", exc(5, "Directeur national", List.of(), true, "Autre proposition"))
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.code").value("DOC-008"));
     proposer(ministre, "CCC", ccc(5, List.of(), "Proposition du Ministre"))
@@ -169,20 +170,20 @@ class FichesDocumentsTest extends TestIntegration {
   @Test
   @Order(4)
   void seulLeMinistreApprouve() throws Exception {
-    mvc.perform(post(FICHES + "/KIM/versions/2/approbation").with(admin))
+    mvc.perform(post(FICHES + "/EXC/versions/2/approbation").with(admin))
         .andExpect(status().isForbidden());
   }
 
   @Test
   @Order(5)
   void lApprobationAppliqueLaFicheEtTraceAncienneEtNouvelleValeur() throws Exception {
-    mvc.perform(post(FICHES + "/KIM/versions/2/approbation").with(ministre))
+    mvc.perform(post(FICHES + "/EXC/versions/2/approbation").with(ministre))
         .andExpect(status().isNoContent());
 
-    mvc.perform(get("/api/v1/types-documents/KIM"))
+    mvc.perform(get("/api/v1/types-documents/EXC"))
         .andExpect(jsonPath("$.delaiJours").value(4))
         .andExpect(jsonPath("$.signataire").value("Directeur général"));
-    mvc.perform(get(FICHES + "/KIM").with(admin))
+    mvc.perform(get(FICHES + "/EXC").with(admin))
         .andExpect(jsonPath("$.enVigueur.numero").value(2))
         .andExpect(jsonPath("$.enVigueur.decideePar").isNotEmpty())
         .andExpect(jsonPath("$.proposition").doesNotExist())
@@ -196,14 +197,14 @@ class FichesDocumentsTest extends TestIntegration {
                 "SELECT j.anciennes_valeurs->>'delai_jours', j.nouvelles_valeurs->>'delai_jours',"
                     + " p.code FROM journal_audit j JOIN utilisateur u ON u.id = j.utilisateur_id"
                     + " JOIN profil p ON p.id = u.profil_id WHERE j.table_nom = 'type_document'"
-                    + " AND j.nouvelles_valeurs->>'code' = 'KIM' ORDER BY j.id DESC LIMIT 1")) {
+                    + " AND j.nouvelles_valeurs->>'code' = 'EXC' ORDER BY j.id DESC LIMIT 1")) {
       ResultSet rs = ps.executeQuery();
       assertThat(rs.next()).isTrue();
       assertThat(rs.getString(1)).isEqualTo("2");
       assertThat(rs.getString(2)).isEqualTo("4");
       assertThat(rs.getString(3)).isEqualTo("MINISTRE");
     }
-    mvc.perform(post(FICHES + "/KIM/versions/2/approbation").with(ministre))
+    mvc.perform(post(FICHES + "/EXC/versions/2/approbation").with(ministre))
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.code").value("DOC-009"));
   }
@@ -211,10 +212,10 @@ class FichesDocumentsTest extends TestIntegration {
   @Test
   @Order(6)
   void uneDemandeGardeLeDelaiEtLeSignataireDeSonDepot() throws Exception {
-    long kimApres = DemandesDeTest.deposee(INVESTISSEUR, "KIM");
-    assertThat(fiche(kimAvant)).containsExactly(2, "DIRECTEUR");
-    assertThat(fiche(kimApres)).containsExactly(4, "DIRECTEUR");
-    assertThat(catalogue.pourDemande("KIM", version(kimAvant)))
+    long excApres = DemandesDeTest.deposee(INVESTISSEUR, "EXC");
+    assertThat(fiche(excAvant)).containsExactly(2, "DIRECTEUR");
+    assertThat(fiche(excApres)).containsExactly(4, "DIRECTEUR");
+    assertThat(catalogue.pourDemande("EXC", version(excAvant)))
         .get()
         .extracting(TypeDocument::delaiJours, TypeDocument::signataire)
         .containsExactly(2, "Directeur national");
@@ -289,38 +290,38 @@ class FichesDocumentsTest extends TestIntegration {
   @Test
   @Order(10)
   void unDocumentDesactiveQuitteLeCatalogue_etSesDemandesEnCoursVontASonTerme() throws Exception {
-    long brouillon = DemandesDeTest.brouillon(INVESTISSEUR, "KIM");
+    long brouillon = DemandesDeTest.brouillon(INVESTISSEUR, "EXC");
     int n =
         numero(
             proposer(
                 admin,
-                "KIM",
-                kim(
+                "EXC",
+                exc(
                     4,
                     "Directeur général",
                     List.of(),
                     false,
                     "Retiré du catalogue pour les tests")));
-    mvc.perform(post(FICHES + "/KIM/versions/" + n + "/approbation").with(ministre))
+    mvc.perform(post(FICHES + "/EXC/versions/" + n + "/approbation").with(ministre))
         .andExpect(status().isNoContent());
 
     mvc.perform(get("/api/v1/types-documents"))
-        .andExpect(jsonPath("$[*].code", not(hasItem("KIM"))));
+        .andExpect(jsonPath("$[*].code", not(hasItem("EXC"))));
     mvc.perform(get(FICHES).param("filtre", "INACTIFS").with(admin))
-        .andExpect(jsonPath("$.elements[0].code").value("KIM"));
+        .andExpect(jsonPath("$.elements[*].code", hasItem("EXC")));
     // Un brouillon ne se dépose plus ; une demande déposée garde sa fiche.
     assertThatThrownBy(() -> DemandesDeTest.changerStatut(brouillon, "deposee"))
         .isInstanceOf(SQLException.class)
         .hasMessageContaining("retiré du catalogue");
-    assertThat(catalogue.pourDemande("KIM", version(kimAvant))).isPresent();
-    assertThat(catalogue.trouver("KIM")).get().extracting(TypeDocument::actif).isEqualTo(false);
+    assertThat(catalogue.pourDemande("EXC", version(excAvant))).isPresent();
+    assertThat(catalogue.trouver("EXC")).get().extracting(TypeDocument::actif).isEqualTo(false);
   }
 
   @Test
   @Order(11)
   void lApplicationNeModifiePlusLaFicheDirectement() {
     assertThatThrownBy(
-            () -> jdbc.update("UPDATE type_document SET delai_jours = 9 WHERE code = 'KIM'"))
+            () -> jdbc.update("UPDATE type_document SET delai_jours = 9 WHERE code = 'EXC'"))
         .rootCause()
         .hasMessageContaining("permission denied");
     // Même en propriétaire du schéma, une version proposée ne se modifie pas : on en propose une
@@ -332,7 +333,7 @@ class FichesDocumentsTest extends TestIntegration {
                     .executeUpdate(
                         "UPDATE version_document SET delai_jours = 9 WHERE numero = 1"
                             + " AND type_document_id = (SELECT id FROM type_document"
-                            + " WHERE code = 'KIM')");
+                            + " WHERE code = 'EXC')");
               }
             })
         .hasMessageContaining("ne se modifie pas");
@@ -363,17 +364,17 @@ class FichesDocumentsTest extends TestIntegration {
         .asInt();
   }
 
-  private static Map<String, Object> kim(
+  private static Map<String, Object> exc(
       int delai, String signataire, List<String> avis, boolean actif, String motif) {
     return Map.of(
-        "libelleFr", "Certificat de conformité export (diamant)",
-        "pieces", List.of("Certificat d'expertise", "Preuve d'origine licite"),
+        "libelleFr", "Extrait de cadastre / non-chevauchement",
+        "pieces", List.of("Référence de la zone ou du titre"),
         "delaiJours", delai,
-        "instruitPar", "BNE + Brigade",
+        "instruitPar", "Agent DNM",
         "signataire", signataire,
         "avis", avis,
         "actif", actif,
-        "fraisDossierGnf", 300_000,
+        "attestationGnf", 200_000,
         "motif", motif);
   }
 

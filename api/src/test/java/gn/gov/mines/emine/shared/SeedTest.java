@@ -71,7 +71,9 @@ class SeedTest extends TestIntegration {
 
   @Test
   void leCatalogueEtLesTarifsSontDisponibles() throws SQLException {
-    assertThat(compter("SELECT count(*) FROM type_document WHERE actif")).isEqualTo(15);
+    // 15 documents au catalogue, dont CEX et KIM désactivés pour la V1 (V26).
+    assertThat(compter("SELECT count(*) FROM type_document")).isEqualTo(15);
+    assertThat(compter("SELECT count(*) FROM type_document WHERE actif")).isEqualTo(13);
     assertThat(
             compter(
                 "SELECT count(*) FROM type_document td WHERE NOT EXISTS (SELECT 1 FROM tarif t"

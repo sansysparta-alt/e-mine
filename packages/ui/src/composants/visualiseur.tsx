@@ -1,19 +1,11 @@
 "use client";
 
-import {
-  Download,
-  FileQuestion,
-  Maximize2,
-  Minimize2,
-  Printer,
-  X,
-  ZoomIn,
-  ZoomOut,
-} from "lucide-react";
-import { useEffect, useId, useRef, useState } from "react";
+import { Download, FileQuestion, Printer, X, ZoomIn, ZoomOut } from "lucide-react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "../cn";
 import { Alerte } from "./alerte";
+import { LecteurPdf } from "./lecteur-pdf";
 
 export type DocumentAffiche = {
   nomFichier: string;
@@ -24,6 +16,8 @@ export type DocumentAffiche = {
   urlTelechargement: string;
   /** Avertissement affiché au-dessus du document (ex. document révoqué). */
   avertissement?: string;
+  /** Précisions sous l'avertissement (autorité, motif…), une par ligne. */
+  avertissementDetail?: string;
 };
 
 export type LibellesVisualiseur = {
@@ -33,10 +27,14 @@ export type LibellesVisualiseur = {
   zoomArriere: string;
   /** Zoom « à la largeur du panneau » (valeur par défaut). */
   ajuster: string;
-  pleinEcran: string;
-  quitterPleinEcran: string;
   fermer: string;
   formatNonAffichable: string;
+  /** PDF en cours de chargement. */
+  chargement: string;
+  /** PDF illisible ou indisponible (le téléchargement reste proposé). */
+  erreurPdf: string;
+  /** « Page 2 sur 5 ». */
+  page: (numero: number, total: number) => string;
 };
 
 export type VisualiseurDocumentProps = {
@@ -50,17 +48,6 @@ export type VisualiseurDocumentProps = {
 export const ZOOMS = [50, 75, 100, 125, 150, 200] as const;
 type Zoom = "largeur" | (typeof ZOOMS)[number];
 
-/**
- * Adresse d'affichage d'un PDF dans le lecteur du navigateur, **sans sa barre d'outils ni ses
- * miniatures** (la nôtre suffit : un seul « Télécharger ») : pages empilées, à la largeur du panneau
- * ou au zoom choisi. Paramètres d'ouverture PDF (Adobe), compris par Chrome, Edge et Firefox.
- */
-export function adressePdf(url: string, zoom: Zoom): string {
-  const base = url.split("#")[0];
-  const vue = zoom === "largeur" ? "view=FitH" : `zoom=${zoom}`;
-  return `${base}#toolbar=0&navpanes=0&pagemode=none&scrollbar=1&${vue}`;
-}
-
 /** Zoom suivant (+1) ou précédent (-1) ; « à la largeur » se comporte comme 100 %. */
 export function zoomVoisin(zoom: Zoom, sens: 1 | -1): Zoom {
   const actuel = zoom === "largeur" ? 100 : zoom;
@@ -69,29 +56,36 @@ export function zoomVoisin(zoom: Zoom, sens: 1 | -1): Zoom {
 }
 
 /**
- * Visualiseur de documents du socle : panneau large qui glisse depuis la droite (plein écran
- * d'office sur mobile). **Une seule barre d'outils**, la nôtre : nom du fichier, zoom arrière,
- * niveau (« Largeur » ou %), zoom avant, Imprimer, Télécharger, Plein écran, Fermer ; celle du
- * lecteur PDF du navigateur est masquée. PDF à la largeur du panneau, pages empilées
- * verticalement, sans miniatures ; images ajustées puis zoomables. Échap ferme ; le focus va au
- * panneau à l'ouverture et revient à l'élément déclencheur à la fermeture.
+ * Visualiseur de documents du socle : panneau **pleine largeur** qui glisse depuis la droite.
+ * **Une seule barre d'outils** : nom du fichier, compteur « Page X sur Y », zoom arrière, niveau
+ * (« Largeur » ou %), zoom avant, Imprimer, Télécharger, Fermer. PDF affiché par le lecteur du
+ * socle (pdf.js) : pages empilées verticalement, à la largeur de l'écran ; images ajustées puis
+ * zoomables. Échap ferme ; le focus va au panneau à l'ouverture et revient à l'élément
+ * déclencheur à la fermeture.
  */
 export function VisualiseurDocument({
   document,
   surFermeture,
   libelles,
 }: VisualiseurDocumentProps) {
-  const [pleinEcran, setPleinEcran] = useState(false);
   // Zoom propre au document affiché : un nouveau document s'ouvre à la largeur du panneau.
   const [choixZoom, setChoixZoom] = useState<{ url?: string; zoom: Zoom }>({ zoom: "largeur" });
   const panneau = useRef<HTMLElement>(null);
-  const cadre = useRef<HTMLIFrameElement>(null);
   const declencheur = useRef<Element | null>(null);
   const idTitre = useId();
   const ouvert = document !== null;
   const url = document?.urlAffichage;
   const zoom: Zoom = choixZoom.url === url ? choixZoom.zoom : "largeur";
   const setZoom = (suivant: Zoom) => setChoixZoom({ url, zoom: suivant });
+  // Compteur de pages du document affiché (rien tant que le PDF n'est pas chargé).
+  const [pages, setPages] = useState<{ url?: string; courante: number; total: number } | null>(
+    null,
+  );
+  const surPage = useCallback(
+    (courante: number, total: number) => setPages({ url, courante, total }),
+    [url],
+  );
+  const compteur = pages && pages.url === url ? pages : null;
 
   useEffect(() => {
     if (!ouvert) return;
@@ -116,14 +110,8 @@ export function VisualiseurDocument({
   const maximum = zoom !== "largeur" && zoom === ZOOMS[ZOOMS.length - 1];
 
   function imprimer() {
-    // Le PDF est servi par le relais de l'application (même origine) : le cadre s'imprime seul ;
-    // sinon (navigateur qui refuse), il s'ouvre dans un onglet où l'impression reste possible.
-    try {
-      cadre.current?.contentWindow?.focus();
-      cadre.current?.contentWindow?.print();
-    } catch {
-      globalThis.open(document?.urlAffichage, "_blank", "noopener");
-    }
+    // Impression fidèle au PDF signé : il s'ouvre dans un onglet, avec le lecteur du navigateur.
+    globalThis.open(document?.urlAffichage, "_blank", "noopener");
   }
 
   // Portail vers <body> : le panneau échappe au contexte d'empilement de l'endroit où il est ouvert
@@ -142,9 +130,8 @@ export function VisualiseurDocument({
         tabIndex={-1}
         aria-labelledby={idTitre}
         className={cn(
-          "fixed inset-y-0 right-0 z-50 flex w-full flex-col border-l border-bordure bg-white shadow-2xl outline-none",
+          "fixed inset-y-0 right-0 z-50 flex w-full flex-col bg-white shadow-2xl outline-none",
           "motion-safe:animate-[glisser_200ms_ease-out]",
-          pleinEcran ? "sm:w-full" : "sm:w-[min(72rem,80vw)]",
         )}
       >
         <style>
@@ -160,6 +147,11 @@ export function VisualiseurDocument({
           >
             {document.nomFichier}
           </p>
+          {pdf && compteur ? (
+            <p className="order-last w-full text-center text-sm font-semibold text-navy tabular-nums sm:order-none sm:w-auto">
+              {libelles.page(compteur.courante, compteur.total)}
+            </p>
+          ) : null}
           {pdf || image ? (
             <div role="group" aria-label={libelles.ajuster} className="flex items-center">
               <button
@@ -202,21 +194,6 @@ export function VisualiseurDocument({
             <Download aria-hidden="true" className="size-5" />
             <span className="sr-only">{libelles.telecharger}</span>
           </a>
-          <button
-            type="button"
-            onClick={() => setPleinEcran((p) => !p)}
-            aria-pressed={pleinEcran}
-            className={cn(bouton, "hidden sm:inline-flex")}
-          >
-            {pleinEcran ? (
-              <Minimize2 aria-hidden="true" className="size-5" />
-            ) : (
-              <Maximize2 aria-hidden="true" className="size-5" />
-            )}
-            <span className="sr-only">
-              {pleinEcran ? libelles.quitterPleinEcran : libelles.pleinEcran}
-            </span>
-          </button>
           {/* Fermer : toujours visible, avec son libellé (pas une simple croix). */}
           <button
             type="button"
@@ -229,18 +206,24 @@ export function VisualiseurDocument({
         </div>
         {document.avertissement ? (
           <div className="border-b border-bordure px-3 py-2 sm:px-4">
-            <Alerte nature="erreur" titre={document.avertissement} />
+            <Alerte nature="erreur" titre={document.avertissement}>
+              {document.avertissementDetail ? (
+                <span className="whitespace-pre-line">{document.avertissementDetail}</span>
+              ) : null}
+            </Alerte>
           </div>
         ) : null}
         <div className="min-h-0 flex-1 bg-fond">
           {pdf ? (
-            <iframe
-              // Une nouvelle adresse (zoom) recharge le cadre : le lecteur relit ses paramètres.
-              key={zoom}
-              ref={cadre}
-              title={document.nomFichier}
-              src={adressePdf(document.urlAffichage, zoom)}
-              className="size-full border-0"
+            <LecteurPdf
+              url={document.urlAffichage}
+              zoom={zoom}
+              surPage={surPage}
+              libelles={{
+                chargement: libelles.chargement,
+                erreur: libelles.erreurPdf,
+                page: libelles.page,
+              }}
             />
           ) : image ? (
             <div

@@ -11,7 +11,8 @@ import {
 } from "@emine/ui";
 import { Activity, ScrollText, ShieldCheck, Users } from "@emine/ui/icones";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { libelleObjet } from "../audit/journal";
 import { libelleProfil } from "../referentiels";
 
 const LienNext: ComposantLien = ({ href, children, ...props }) => (
@@ -37,6 +38,15 @@ export function VueAdministration({
 }) {
   const t = useTranslations("administration");
   const tReferentiels = useTranslations("referentiels");
+  const tAudit = useTranslations("audit");
+  const anglais = useLocale() === "en";
+  /** « Demande déposée », « DEM-2026-000012 », ou « Tarif #3 » (le type d'objet en contexte). */
+  const objetOperation = (o: EntreeJournalDto) => {
+    const l = libelleObjet(o, anglais, tAudit);
+    return l.startsWith("#") && tAudit.has(`tables.${o.table}`)
+      ? `${tAudit(`tables.${o.table}`)} ${l}`
+      : l;
+  };
   const aCeJour = t("periodes.aCeJour");
   const configures = tableau.profils.filter((p) => p.droits > 0).length;
   const disponibles = tableau.services.filter((s) => s.disponible).length;
@@ -149,7 +159,7 @@ export function VueAdministration({
                   >
                     <span className="font-semibold text-navy">
                       {t(`operations.nature.${o.operation}`, {
-                        objet: o.objetLibelle ?? o.table,
+                        objet: objetOperation(o),
                       })}
                     </span>
                     <span className="text-sm text-texte-doux">

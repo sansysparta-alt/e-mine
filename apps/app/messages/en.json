@@ -424,7 +424,7 @@
     "elements": "requests",
     "recherche": {
       "libelle": "Search a request",
-      "exemple": "Number or document (e.g. DEM-2026, permit)",
+      "exemple": "No. or document (e.g. permit)",
       "bouton": "Search"
     },
     "plusDeFiltres": "More filters",
@@ -455,7 +455,8 @@
       "payerFrais": "Pay the fee",
       "payerDroits": "Pay the duties",
       "completer": "Complete",
-      "suivre": "Track"
+      "suivre": "Track",
+      "voir": "View"
     },
     "filtresTableau": {
       "titre": "Active filters",
@@ -564,14 +565,15 @@
   "visualiseur": {
     "consulter": "View",
     "telecharger": "Download",
-    "pleinEcran": "Full screen",
-    "quitterPleinEcran": "Exit full screen",
     "fermer": "Close document",
     "formatNonAffichable": "This format cannot be displayed here. Use the Download button.",
     "imprimer": "Print",
     "zoomAvant": "Zoom in",
     "zoomArriere": "Zoom out",
-    "ajuster": "Fit width"
+    "ajuster": "Fit width",
+    "chargement": "Loading the document…",
+    "erreurPdf": "The document cannot be displayed here. Download it to open it.",
+    "page": "Page {numero} of {total}"
   },
   "paiement": {
     "titreOnglet": "Payment",
@@ -867,7 +869,7 @@
     "description": "Every change recorded by the database, most recent first. The log can be neither changed nor erased.",
     "recherche": {
       "libelle": "Search the log",
-      "exemple": "Number, reference, email or request no.",
+      "exemple": "Number, reference or email",
       "bouton": "Search"
     },
     "periode": {
@@ -1044,7 +1046,11 @@
       }
     },
     "renseigne": "set",
-    "systemeAide": "Automatic platform action"
+    "systemeAide": "Automatic platform action",
+    "objets": {
+      "parametre_delai": "Deadline calculation rules",
+      "tarif": "Fee schedule"
+    }
   },
   "delivrance": {
     "signer": {
@@ -1082,10 +1088,12 @@
       "revoqueLe": "Revoked on",
       "alerteRevoque": {
         "titre": "This document has been revoked",
-        "texteDate": "Revoked by the Ministry on {date}. It is no longer valid: its QR code check shows “NOT VALID”.",
-        "texte": "Revoked by the Ministry. It is no longer valid: its QR code check shows “NOT VALID”.",
-        "visualiseur": "Document revoked on {date}: it is no longer valid."
-      }
+        "texte": "It is no longer valid: its QR code check shows “NOT VALID”. The date, authority and reason for the revocation are shown below.",
+        "visualiseur": "Document revoked on {date}: no longer valid."
+      },
+      "revoquePar": "Revoked by",
+      "detailAutorite": "Revoked by: {autorite}",
+      "detailMotif": "Reason: {motif}"
     },
     "revocation": {
       "action": "Revoke…",
@@ -1120,7 +1128,7 @@
     "suivantOuvert": "Here is the next file: {numero}.",
     "recherche": {
       "libelle": "Search for a file",
-      "exemple": "Number (DEM-2026-…) or document",
+      "exemple": "Number or document",
       "bouton": "Search"
     },
     "aide": {
@@ -1627,7 +1635,8 @@
     },
     "etapesNombre": "{n, plural, one {Process in # step} other {Process in # steps}}",
     "selonDocument": "depending on the document",
-    "documentsFamille": "Documents in this family"
+    "documentsFamille": "Documents in this family",
+    "desactive": "disabled"
   },
   "parametres": {
     "titre": "Time limits and notifications",
@@ -1753,7 +1762,7 @@
   "rechercheGlobale": {
     "ouvrir": "Search (Ctrl+K)",
     "titre": "Search e-mine",
-    "placeholder": "Search for a file, a page…",
+    "placeholder": "File, document, page…",
     "vider": "Clear search",
     "echap": "Esc",
     "resultats": "Results",
@@ -1978,7 +1987,7 @@
     },
     "recherche": {
       "libelle": "Search for a payment",
-      "exemple": "Reference, receipt, request or document (e.g. PAY-2026)",
+      "exemple": "Reference, receipt or request",
       "bouton": "Search"
     },
     "filtres": {
@@ -2026,7 +2035,7 @@
     "motif": "Reason: {motif}",
     "recherche": {
       "libelle": "Search for a document",
-      "exemple": "Number or document (e.g. PEX-2026, permit)",
+      "exemple": "No. or document (e.g. permit)",
       "bouton": "Search"
     },
     "filtres": {
@@ -2043,16 +2052,16 @@
     },
     "telechargement": {
       "libelle": "Download",
+      "voir": "View",
       "revoque": {
-        "titre": "This document is revoked",
-        "texte": "This document has been revoked by the Ministry: it is no longer valid.",
-        "texteDate": "This document was revoked by the Ministry on {date}: it is no longer valid.",
-        "motif": "Reason:",
-        "mention": "You can download it for your records. Its QR code check shows “NOT VALID”.",
-        "annuler": "Cancel",
-        "confirmer": "Download anyway"
+        "titre": "Revoked document: no longer valid",
+        "titreDate": "Document revoked on {date}: no longer valid",
+        "autorite": "Revoked by: {autorite}",
+        "motif": "Reason: {motif}",
+        "mention": "Its QR code check shows “NOT VALID”. You may download it for your records: the file name says “REVOQUE”."
       }
-    }
+    },
+    "revoquePar": "By: {autorite}"
   },
   "detailPaiement": {
     "titre": "Payment details",

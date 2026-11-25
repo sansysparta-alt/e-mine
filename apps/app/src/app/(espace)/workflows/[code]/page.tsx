@@ -1,9 +1,4 @@
-import {
-  type DetailWorkflowDto,
-  ErreurApi,
-  listerTypesDocuments,
-  lireWorkflow,
-} from "@emine/api-client";
+import { type DetailWorkflowDto, ErreurApi, lireWorkflow } from "@emine/api-client";
 import { Alerte, Bouton, Carte, EnTetePage, formaterDate } from "@emine/ui";
 import { FilePen } from "@emine/ui/icones";
 import type { Metadata } from "next";
@@ -45,9 +40,6 @@ export default async function DetailWorkflow({ params, searchParams }: Props) {
   const tReferentiels = await getTranslations("referentiels");
 
   let d: DetailWorkflowDto;
-  const documents = listerTypesDocuments()
-    .then((r) => r.data)
-    .catch(() => []);
   try {
     d = (await appelPage(`/workflows/${code}`, async () => lireWorkflow(code, await optionsApi())))
       .data;
@@ -57,9 +49,6 @@ export default async function DetailWorkflow({ params, searchParams }: Props) {
   }
   const w = d.workflow;
   const langue = await getLocale();
-  const libelles = Object.fromEntries(
-    (await documents).map((x) => [x.code, libelleDocument(x, langue)]),
-  );
   const v = w.enVigueur;
   const delai =
     w.delaiMinJours === w.delaiMaxJours
@@ -104,14 +93,17 @@ export default async function DetailWorkflow({ params, searchParams }: Props) {
               <dd>
                 <ul className="mt-1 flex flex-col gap-1">
                   {w.documents.map((c) => (
-                    <li key={c}>
+                    <li key={c.code}>
                       <Link
-                        href={`/catalogue/${c}`}
+                        href={`/catalogue/${c.code}`}
                         className="inline-flex min-h-11 items-center text-royal underline-offset-4 hover:underline"
                       >
-                        <span className="font-mono font-semibold">{c}</span>
-                        {libelles[c] ? <>&nbsp;· {libelles[c]}</> : null}
+                        <span className="font-mono font-semibold">{c.code}</span>
+                        &nbsp;· {libelleDocument(c, langue)}
                       </Link>
+                      {c.actif ? null : (
+                        <span className="text-texte-doux"> ({t("desactive")})</span>
+                      )}
                     </li>
                   ))}
                 </ul>

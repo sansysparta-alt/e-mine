@@ -96,6 +96,7 @@ class JournalAuditController {
       String operation,
       @Schema(nullable = true) String objetId,
       @Schema(nullable = true) String objetLibelle,
+      @Schema(nullable = true) String objetLibelleEn,
       @Schema(nullable = true) Long demandeId,
       List<ChangementDto> changements,
       @Schema(nullable = true) String adresseIp) {
@@ -112,6 +113,7 @@ class JournalAuditController {
           e.operation(),
           e.objetId(),
           e.objetLibelle(),
+          e.objetLibelleEn(),
           e.demandeId(),
           e.changements().stream()
               .map(c -> new ChangementDto(c.champ(), c.avant(), c.apres()))

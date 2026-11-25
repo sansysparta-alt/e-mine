@@ -93,14 +93,14 @@ class WorkflowController {
   /**
    * Workflow et sa version en vigueur.
    *
-   * @param documents codes des documents de la famille
+   * @param documents documents de la famille (code, nom, disponible ou non)
    * @param delaiMinJours délai le plus court des documents de la famille (fiches approuvées)
    */
   record WorkflowDto(
       String code,
       int delaiMinJours,
       int delaiMaxJours,
-      List<String> documents,
+      List<DocumentFamilleDto> documents,
       VersionWorkflowDto enVigueur) {
 
     static WorkflowDto depuis(Workflow w) {
@@ -108,10 +108,19 @@ class WorkflowController {
           w.code(),
           w.delaiMinJours(),
           w.delaiMaxJours(),
-          w.documents(),
+          w.documents().stream()
+              .map(d -> new DocumentFamilleDto(d.code(), d.libelleFr(), d.libelleEn(), d.actif()))
+              .toList(),
           VersionWorkflowDto.depuis(w.enVigueur()));
     }
   }
+
+  /**
+   * Document d'une famille.
+   *
+   * @param actif disponible à la demande ({@code false} : désactivé au catalogue)
+   */
+  record DocumentFamilleDto(String code, String libelleFr, String libelleEn, boolean actif) {}
 
   /** Une version d'un workflow. */
   record VersionWorkflowDto(

@@ -1,7 +1,9 @@
 package gn.gov.mines.emine.catalogue;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -24,10 +26,13 @@ class CatalogueTest extends TestIntegration {
   @Autowired Catalogue catalogue;
 
   @Test
-  void leCatalogueEstPublicEtListeLesQuinzeDocuments() throws Exception {
+  void leCatalogueEstPublicEtListeLesDocumentsDisponiblesEnV1() throws Exception {
+    // 15 documents au catalogue ; CEX et KIM (BNE) désactivés pour la V1 (V26, docs/01).
     mvc.perform(get("/api/v1/types-documents"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$", hasSize(15)))
+        .andExpect(jsonPath("$", hasSize(13)))
+        .andExpect(jsonPath("$[*].code", not(hasItem("CEX"))))
+        .andExpect(jsonPath("$[*].code", not(hasItem("KIM"))))
         .andExpect(jsonPath("$[0].code").value("CAR"))
         .andExpect(jsonPath("$[0].famille.libelle").value("Titres miniers"));
   }

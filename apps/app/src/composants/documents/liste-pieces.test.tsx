@@ -3,6 +3,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import fr from "../../../messages/fr.json";
 import { ListePieces } from "./liste-pieces";
+import { attendrePdf } from "@/test/pdf";
 
 const piece: PieceDto = {
   id: 7,
@@ -17,16 +18,14 @@ const piece: PieceDto = {
 };
 
 describe("pièces consultables (fiche de la demande)", () => {
-  it("ouvre la pièce dans le visualiseur par le relais BFF", () => {
+  it("ouvre la pièce dans le visualiseur par le relais BFF", async () => {
     render(
       <NextIntlClientProvider locale="fr" messages={fr} timeZone="Africa/Conakry">
         <ListePieces demandeId={41} pieces={[piece]} />
       </NextIntlClientProvider>,
     );
     fireEvent.click(screen.getByRole("button", { name: /Consulter/ }));
-    expect(document.querySelector("iframe")?.getAttribute("src")).toMatch(
-      new RegExp(`^${echapper("/api/demandes/41/pieces/7/contenu?inline=1")}#toolbar=0`),
-    );
+    await attendrePdf("/api/demandes/41/pieces/7/contenu?inline=1");
     expect(screen.getByRole("link", { name: "Télécharger" })).toHaveAttribute(
       "href",
       "/api/demandes/41/pieces/7/contenu",
@@ -62,8 +61,3 @@ describe("pièces consultables (fiche de la demande)", () => {
     expect(screen.getAllByRole("button", { name: /Consulter/ })).toHaveLength(3);
   });
 });
-
-/** Texte pris littéralement dans une expression régulière. */
-function echapper(texte: string): string {
-  return texte.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}

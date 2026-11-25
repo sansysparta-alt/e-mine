@@ -1,17 +1,22 @@
 "use client";
 
-import { Bouton, Dialogue, formaterDate } from "@emine/ui";
-import { Download } from "@emine/ui/icones";
+import { formaterDate } from "@emine/ui";
+import { Download, Eye } from "@emine/ui/icones";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useVisualiseurDocument } from "../documents/visualiseur";
+import { documentDelivreAffiche } from "./document-delivre";
 
 const classesAction =
   "inline-flex min-h-11 items-center gap-1 rounded-lg px-2 text-sm font-semibold text-royal hover:bg-ice";
 
+/** Révocation d'un document : date, autorité (dans la langue de l'écran) et motif. */
+export type Revocation = { le?: string | null; autorite?: string | null; motif?: string | null };
+
 /**
- * Téléchargement du PDF signé d'un document délivré. Un document révoqué n'est pas modifiable (sa
- * signature serait rompue) : on avertit avant le téléchargement (date et motif) et le fichier
- * porte « REVOQUE » dans son nom.
+ * Action d'un document délivré dans une liste. Valide : « Télécharger » le PDF signé. Révoqué :
+ * « Voir » (correction 6 du lot 4) — il s'ouvre dans le visualiseur sous un avertissement (date,
+ * autorité, motif) ; on ne propose pas d'emblée le téléchargement d'un document qui n'est plus
+ * valide (le fichier, qui ne peut être modifié sans rompre sa signature, porte « REVOQUE »).
  */
 export function TelechargerDocument({
   demandeId,
@@ -21,61 +26,47 @@ export function TelechargerDocument({
   demandeId: number;
   /** Numéro du document (nom du fichier) ; absent : le nom donné par l'API. */
   numero?: string;
-  revocation?: { le?: string | null; motif?: string | null } | null;
+  revocation?: Revocation | null;
 }) {
   const t = useTranslations("mesDocuments.telechargement");
-  const [ouvert, setOuvert] = useState(false);
+  const { ouvrir, visualiseur } = useVisualiseurDocument();
   const url = `/api/demandes/${demandeId}/document/contenu`;
-  const nom = numero ? `${numero}${revocation ? "-REVOQUE" : ""}.pdf` : true;
   if (!revocation) {
     return (
-      <a href={url} download={nom} className={classesAction}>
+      <a href={url} download={numero ? `${numero}.pdf` : true} className={classesAction}>
         <Download aria-hidden="true" className="size-4" />
         {t("libelle")}
         {numero ? <span className="sr-only"> {numero}</span> : null}
       </a>
     );
   }
+  const avertissement = revocation.le
+    ? t("revoque.titreDate", { date: formaterDate(revocation.le) })
+    : t("revoque.titre");
+  const detail = [
+    revocation.autorite ? t("revoque.autorite", { autorite: revocation.autorite }) : null,
+    revocation.motif ? t("revoque.motif", { motif: revocation.motif }) : null,
+    t("revoque.mention"),
+  ]
+    .filter(Boolean)
+    .join("\n");
   return (
     <>
-      <button type="button" onClick={() => setOuvert(true)} className={classesAction}>
-        <Download aria-hidden="true" className="size-4" />
-        {t("libelle")}
+      <button
+        type="button"
+        onClick={() =>
+          ouvrir({
+            ...documentDelivreAffiche(demandeId, numero ?? "document", avertissement),
+            avertissementDetail: detail,
+          })
+        }
+        className={classesAction}
+      >
+        <Eye aria-hidden="true" className="size-4" />
+        {t("voir")}
         {numero ? <span className="sr-only"> {numero}</span> : null}
       </button>
-      <Dialogue
-        ouvert={ouvert}
-        titre={t("revoque.titre")}
-        surFermeture={() => setOuvert(false)}
-        actions={
-          <>
-            <Bouton type="button" variante="secondaire" onClick={() => setOuvert(false)}>
-              {t("revoque.annuler")}
-            </Bouton>
-            <Bouton asChild>
-              <a href={url} download={nom} onClick={() => setOuvert(false)}>
-                <Download aria-hidden="true" className="size-4" />
-                {t("revoque.confirmer")}
-              </a>
-            </Bouton>
-          </>
-        }
-      >
-        <div className="flex flex-col gap-3">
-          <p>
-            {revocation.le
-              ? t("revoque.texteDate", { date: formaterDate(revocation.le) })
-              : t("revoque.texte")}
-          </p>
-          {revocation.motif ? (
-            <p>
-              <span className="font-semibold">{t("revoque.motif")}</span>{" "}
-              <span className="whitespace-pre-line">{revocation.motif}</span>
-            </p>
-          ) : null}
-          <p className="text-sm text-texte-doux">{t("revoque.mention")}</p>
-        </div>
-      </Dialogue>
+      {visualiseur}
     </>
   );
 }

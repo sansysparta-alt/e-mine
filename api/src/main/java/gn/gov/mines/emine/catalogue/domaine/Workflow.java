@@ -7,14 +7,14 @@ import java.util.List;
  * Workflow d'une famille de documents (US-02.5, V20) : étapes et intervenants affichés, règle de
  * paiement affichée, fourchette de délais déduite des fiches de ses documents.
  *
- * @param documents codes des documents de la famille (actifs ou non)
+ * @param documents documents de la famille (actifs ou non), par code
  * @param enVigueur version en vigueur
  */
 public record Workflow(
     String code,
     int delaiMinJours,
     int delaiMaxJours,
-    List<String> documents,
+    List<DocumentFamille> documents,
     VersionWorkflow enVigueur) {
 
   public Workflow {
@@ -40,6 +40,12 @@ public record Workflow(
       etapes = List.copyOf(etapes);
     }
   }
+
+  /**
+   * Document d'une famille : code, nom dans les deux langues et disponibilité à la demande (un
+   * document désactivé reste dans sa famille, signalé comme tel).
+   */
+  public record DocumentFamille(String code, String libelleFr, String libelleEn, boolean actif) {}
 
   /**
    * Étape d'un workflow.

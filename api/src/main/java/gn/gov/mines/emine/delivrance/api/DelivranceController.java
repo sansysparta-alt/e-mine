@@ -125,6 +125,8 @@ class DelivranceController {
         d.valide(),
         d.motifInvalidation(),
         d.revoqueLe(),
+        d.revoqueAutorite(),
+        d.revoqueAutoriteEn(),
         d.delivreLe(),
         d.empreinteSha256(),
         proprietes.urlVerification(d.codeVerification()),
@@ -143,6 +145,7 @@ class DelivranceController {
    *
    * @param valide {@code false} après révocation
    * @param motifInvalidation motif de la révocation, {@code null} sinon
+   * @param revoqueAutorite autorité qui a révoqué (« Directeur national »…), {@code null} sinon
    * @param urlVerification page publique de vérification (QR)
    * @param signataire prénom et nom de la personne qui a signé
    */
@@ -152,6 +155,8 @@ class DelivranceController {
       boolean valide,
       @Schema(nullable = true) String motifInvalidation,
       @Schema(nullable = true) Instant revoqueLe,
+      @Schema(nullable = true) String revoqueAutorite,
+      @Schema(nullable = true) String revoqueAutoriteEn,
       Instant delivreLe,
       String empreinteSha256,
       String urlVerification,

@@ -49,6 +49,28 @@ class RegleJournalTest {
   void lObjetEtSaDemandeSontRetrouvesPourLiensEtLibelles() {
     assertThat(RegleJournal.libelleObjet(null, Map.of("reference", "PAY-2026-000004")))
         .isEqualTo("PAY-2026-000004");
+    // Canaux d'une notification : le nom de l'événement, jamais « true » (colonne email).
+    var canal =
+        Map.of(
+            "modele", "demande_deposee",
+            "libelle_fr", "Demande déposée",
+            "libelle_en", "Application submitted",
+            "email", "true",
+            "sms", "false");
+    assertThat(RegleJournal.libelleObjet("notification_evenement", canal, canal))
+        .isEqualTo(new RegleJournal.Libelle("Demande déposée", "Application submitted"));
+    assertThat(RegleJournal.libelleObjet("x", null, Map.of("email", "true"))).isNull();
+    assertThat(
+            RegleJournal.libelleObjet(
+                "version_document",
+                null,
+                Map.of("libelle_fr", "Permis de recherche", "numero", "3")))
+        .isEqualTo(
+            new RegleJournal.Libelle("Permis de recherche · v3", "Permis de recherche · v3"));
+    assertThat(
+            RegleJournal.libelleObjet(
+                "version_workflow", null, Map.of("libelle", "Titres miniers", "version", "2")))
+        .isEqualTo(new RegleJournal.Libelle("Titres miniers · v2", "Titres miniers · v2"));
     assertThat(RegleJournal.demandeId("demande", "12", null, Map.of())).isEqualTo(12L);
     assertThat(RegleJournal.demandeId("paiement", "uuid", null, Map.of("demande_id", "12")))
         .isEqualTo(12L);

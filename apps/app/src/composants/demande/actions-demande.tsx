@@ -2,7 +2,7 @@
 
 import type { DemandeDto } from "@emine/api-client";
 import { Alerte, Bouton, Dialogue } from "@emine/ui";
-import { CreditCard, FilePlus2, PenLine, Route, Trash2 } from "@emine/ui/icones";
+import { CreditCard, Eye, FilePlus2, PenLine, Route, Trash2 } from "@emine/ui/icones";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -47,12 +47,17 @@ export function ActionsDemande({
   const [enCours, demarrer] = useTransition();
 
   if (demande.statut === "delivree") {
-    return (
-      <TelechargerDocument
-        demandeId={demande.id}
-        revocation={demande.documentRevoque ? {} : null}
-      />
-    );
+    // Document révoqué : on ne propose pas de le télécharger ; « Voir » ouvre la fiche, qui
+    // explique la révocation (date, autorité, motif) avant toute consultation.
+    if (demande.documentRevoque) {
+      return (
+        <Link href={`/demandes/${demande.id}`} className={`${classesAction} text-royal`}>
+          <Eye aria-hidden="true" className="size-4" />
+          {t("voir")}
+        </Link>
+      );
+    }
+    return <TelechargerDocument demandeId={demande.id} />;
   }
   const attendue = actionAttendue(demande);
   if (attendue) {

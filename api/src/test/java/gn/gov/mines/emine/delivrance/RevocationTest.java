@@ -45,6 +45,11 @@ class RevocationTest extends TestIntegration {
 
   private String brigade;
 
+  /** Titre officiel du directeur des personas (seed) : l'autorité affichée à l'usager. */
+  private static final String TITRE_ATTENDU = "Directeur national";
+
+  private static final String TITRE_ATTENDU_EN = "National Director";
+
   @BeforeAll
   void personas() throws Exception {
     Personas.charger();
@@ -126,7 +131,10 @@ class RevocationTest extends TestIntegration {
     long id = documentDelivre();
     revoquer(id, "Titre obtenu sur une fausse déclaration.", directeur())
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.revoqueLe").isNotEmpty());
+        .andExpect(jsonPath("$.revoqueLe").isNotEmpty())
+        // L'autorité exacte (titre du signataire de la fiche), jamais « le Ministère ».
+        .andExpect(jsonPath("$.revoqueAutorite").value(TITRE_ATTENDU))
+        .andExpect(jsonPath("$.revoqueAutoriteEn").value(TITRE_ATTENDU_EN));
     var usager = jeton(INVESTISSEUR, "INVESTISSEUR");
     // « Mes demandes » et « Documents délivrés » disent la même chose.
     mvc.perform(get("/api/v1/demandes/" + id).with(usager))
@@ -141,6 +149,7 @@ class RevocationTest extends TestIntegration {
         .andExpect(jsonPath("$.elements.length()").value(1))
         .andExpect(jsonPath("$.elements[0].valide").value(false))
         .andExpect(jsonPath("$.elements[0].revoqueLe").isNotEmpty())
+        .andExpect(jsonPath("$.elements[0].revoqueAutorite").value(TITRE_ATTENDU))
         .andExpect(
             jsonPath("$.elements[0].motifRevocation")
                 .value("Titre obtenu sur une fausse déclaration."))

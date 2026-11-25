@@ -2939,6 +2939,12 @@
             "type" : [ "string", "null" ],
             "format" : "date-time"
           },
+          "revoqueAutorite" : {
+            "type" : [ "string", "null" ]
+          },
+          "revoqueAutoriteEn" : {
+            "type" : [ "string", "null" ]
+          },
           "delivreLe" : {
             "type" : "string",
             "format" : "date-time"
@@ -2953,7 +2959,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "codeType", "delivreLe", "empreinteSha256", "motifInvalidation", "numero", "revoqueLe", "signataire", "urlVerification", "valide" ]
+        "required" : [ "codeType", "delivreLe", "empreinteSha256", "motifInvalidation", "numero", "revoqueAutorite", "revoqueAutoriteEn", "revoqueLe", "signataire", "urlVerification", "valide" ]
       },
       "DepotDto" : {
         "type" : "object",
@@ -3152,6 +3158,24 @@
         },
         "required" : [ "deposeLe", "empreinteSha256", "id", "nomFichier", "remplaceeLe", "remplaceeParId", "tailleOctets", "typeMime", "typePiece" ]
       },
+      "DocumentFamilleDto" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "libelleFr" : {
+            "type" : "string"
+          },
+          "libelleEn" : {
+            "type" : "string"
+          },
+          "actif" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "actif", "code", "libelleEn", "libelleFr" ]
+      },
       "PageWorkflowsDto" : {
         "type" : "object",
         "properties" : {
@@ -3229,7 +3253,7 @@
           "documents" : {
             "type" : "array",
             "items" : {
-              "type" : "string"
+              "$ref" : "#/components/schemas/DocumentFamilleDto"
             }
           },
           "enVigueur" : {
@@ -3660,6 +3684,9 @@
           "objetLibelle" : {
             "type" : [ "string", "null" ]
           },
+          "objetLibelleEn" : {
+            "type" : [ "string", "null" ]
+          },
           "demandeId" : {
             "type" : [ "integer", "null" ],
             "format" : "int64"
@@ -3674,7 +3701,7 @@
             "type" : [ "string", "null" ]
           }
         },
-        "required" : [ "adresseIp", "auteur", "auteurProfil", "auteurProfilCode", "categorie", "changements", "date", "demandeId", "id", "objetId", "objetLibelle", "operation", "table" ]
+        "required" : [ "adresseIp", "auteur", "auteurProfil", "auteurProfilCode", "categorie", "changements", "date", "demandeId", "id", "objetId", "objetLibelle", "objetLibelleEn", "operation", "table" ]
       },
       "PageJournalDto" : {
         "type" : "object",
@@ -4006,6 +4033,12 @@
           "motifRevocation" : {
             "type" : [ "string", "null" ]
           },
+          "revoqueAutorite" : {
+            "type" : [ "string", "null" ]
+          },
+          "revoqueAutoriteEn" : {
+            "type" : [ "string", "null" ]
+          },
           "demandeId" : {
             "type" : "integer",
             "format" : "int64"
@@ -4017,7 +4050,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "codeType", "delivreLe", "demandeId", "motifRevocation", "numero", "numeroDemande", "revoqueLe", "urlVerification", "valide" ]
+        "required" : [ "codeType", "delivreLe", "demandeId", "motifRevocation", "numero", "numeroDemande", "revoqueAutorite", "revoqueAutoriteEn", "revoqueLe", "urlVerification", "valide" ]
       },
       "PageDocumentsDto" : {
         "type" : "object",

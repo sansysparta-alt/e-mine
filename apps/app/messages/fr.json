@@ -424,7 +424,7 @@
     "elements": "demandes",
     "recherche": {
       "libelle": "Rechercher une demande",
-      "exemple": "Numéro ou document (ex. DEM-2026, permis)",
+      "exemple": "N° ou document (ex. permis)",
       "bouton": "Rechercher"
     },
     "plusDeFiltres": "Plus de filtres",
@@ -455,7 +455,8 @@
       "payerFrais": "Payer les frais",
       "payerDroits": "Payer les droits",
       "completer": "Compléter",
-      "suivre": "Suivre"
+      "suivre": "Suivre",
+      "voir": "Voir"
     },
     "filtresTableau": {
       "titre": "Filtres actifs",
@@ -564,14 +565,15 @@
   "visualiseur": {
     "consulter": "Consulter",
     "telecharger": "Télécharger",
-    "pleinEcran": "Plein écran",
-    "quitterPleinEcran": "Quitter le plein écran",
     "fermer": "Fermer le document",
     "formatNonAffichable": "Ce format ne peut pas être affiché ici. Utilisez le bouton Télécharger.",
     "imprimer": "Imprimer",
     "zoomAvant": "Zoom avant",
     "zoomArriere": "Zoom arrière",
-    "ajuster": "Largeur"
+    "ajuster": "Largeur",
+    "chargement": "Chargement du document…",
+    "erreurPdf": "Le document ne peut pas être affiché ici. Téléchargez-le pour l’ouvrir.",
+    "page": "Page {numero} sur {total}"
   },
   "paiement": {
     "titreOnglet": "Paiement",
@@ -867,7 +869,7 @@
     "description": "Toutes les modifications enregistrées par la base, de la plus récente à la plus ancienne. Le journal ne peut être ni modifié ni effacé.",
     "recherche": {
       "libelle": "Rechercher dans le journal",
-      "exemple": "Numéro, référence, e-mail ou n° de demande",
+      "exemple": "Numéro, référence ou e-mail",
       "bouton": "Rechercher"
     },
     "periode": {
@@ -1044,7 +1046,11 @@
       }
     },
     "renseigne": "renseigné",
-    "systemeAide": "Action automatique de la plateforme"
+    "systemeAide": "Action automatique de la plateforme",
+    "objets": {
+      "parametre_delai": "Règles de calcul des délais",
+      "tarif": "Barème des tarifs"
+    }
   },
   "delivrance": {
     "signer": {
@@ -1082,10 +1088,12 @@
       "revoqueLe": "Révoqué le",
       "alerteRevoque": {
         "titre": "Ce document a été révoqué",
-        "texteDate": "Révoqué par le Ministère le {date}. Il n’est plus valide : sa vérification par code QR indique « NON VALIDE ».",
-        "texte": "Révoqué par le Ministère. Il n’est plus valide : sa vérification par code QR indique « NON VALIDE ».",
+        "texte": "Il n’est plus valide : sa vérification par code QR indique « NON VALIDE ». La date, l’autorité et le motif de la révocation figurent ci-dessous.",
         "visualiseur": "Document révoqué le {date} : il n’est plus valide."
-      }
+      },
+      "revoquePar": "Révoqué par",
+      "detailAutorite": "Révoqué par : {autorite}",
+      "detailMotif": "Motif : {motif}"
     },
     "revocation": {
       "action": "Révoquer…",
@@ -1120,7 +1128,7 @@
     "suivantOuvert": "Voici le dossier suivant : {numero}.",
     "recherche": {
       "libelle": "Rechercher un dossier",
-      "exemple": "Numéro (DEM-2026-…) ou document",
+      "exemple": "Numéro ou document",
       "bouton": "Rechercher"
     },
     "aide": {
@@ -1627,7 +1635,8 @@
     },
     "etapesNombre": "{n, plural, one {Circuit en # étape} other {Circuit en # étapes}}",
     "selonDocument": "selon le document",
-    "documentsFamille": "Documents de cette famille"
+    "documentsFamille": "Documents de cette famille",
+    "desactive": "désactivé"
   },
   "parametres": {
     "titre": "Délais et notifications",
@@ -1753,7 +1762,7 @@
   "rechercheGlobale": {
     "ouvrir": "Rechercher (Ctrl+K)",
     "titre": "Rechercher dans e-mine",
-    "placeholder": "Rechercher un dossier, une page…",
+    "placeholder": "Dossier, document, page…",
     "vider": "Effacer la recherche",
     "echap": "Échap",
     "resultats": "Résultats",
@@ -1978,7 +1987,7 @@
     },
     "recherche": {
       "libelle": "Rechercher un paiement",
-      "exemple": "Référence, reçu, demande ou document (ex. PAY-2026)",
+      "exemple": "Référence, reçu ou demande",
       "bouton": "Rechercher"
     },
     "filtres": {
@@ -2026,7 +2035,7 @@
     "motif": "Motif : {motif}",
     "recherche": {
       "libelle": "Rechercher un document",
-      "exemple": "Numéro ou document (ex. PEX-2026, permis)",
+      "exemple": "N° ou document (ex. permis)",
       "bouton": "Rechercher"
     },
     "filtres": {
@@ -2043,16 +2052,16 @@
     },
     "telechargement": {
       "libelle": "Télécharger",
+      "voir": "Voir",
       "revoque": {
-        "titre": "Ce document est révoqué",
-        "texte": "Ce document a été révoqué par le Ministère : il n’est plus valide.",
-        "texteDate": "Ce document a été révoqué par le Ministère le {date} : il n’est plus valide.",
-        "motif": "Motif :",
-        "mention": "Vous pouvez le télécharger pour vos archives. Sa vérification par code QR indique « NON VALIDE ».",
-        "annuler": "Annuler",
-        "confirmer": "Télécharger quand même"
+        "titre": "Document révoqué : il n’est plus valide",
+        "titreDate": "Document révoqué le {date} : il n’est plus valide",
+        "autorite": "Révoqué par : {autorite}",
+        "motif": "Motif : {motif}",
+        "mention": "Sa vérification par code QR indique « NON VALIDE ». Vous pouvez le télécharger pour vos archives : le fichier porte la mention « REVOQUE »."
       }
-    }
+    },
+    "revoquePar": "Par : {autorite}"
   },
   "detailPaiement": {
     "titre": "Détail du paiement",

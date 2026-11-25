@@ -20,6 +20,7 @@
     "next": "16.4.5",
     "next-intl": "4.14.9",
     "openid-client": "6.8.9",
+    "pdfjs-dist": "6.5.438",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "react-hook-form": "7.91.0",

@@ -3,9 +3,14 @@ import { Carte, EnTetePage, formaterDateHeure } from "@emine/ui";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { FilArianeApp } from "@/composants/fil-ariane-app";
-import { formaterValeur, libelleChamp, trierChangements } from "@/composants/audit/journal";
+import {
+  formaterValeur,
+  libelleChamp,
+  libelleObjet,
+  trierChangements,
+} from "@/composants/audit/journal";
 import { libelleProfil } from "@/composants/referentiels";
 import { appelPage, chargerMoi, optionsApi } from "@/serveur/donnees";
 
@@ -75,7 +80,7 @@ export default async function EntreeJournal({ params }: Props) {
           </dd>
           <dt className="font-semibold">{t("colonnes.objet")}</dt>
           <dd className="break-all">
-            {entree.objetLibelle ?? "—"}
+            {libelleObjet(entree, (await getLocale()) === "en", t)}
             {entree.objetId ? (
               <span className="text-texte-doux">
                 {" "}

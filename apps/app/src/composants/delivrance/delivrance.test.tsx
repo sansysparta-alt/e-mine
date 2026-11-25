@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import fr from "../../../messages/fr.json";
 import { DocumentDelivre } from "./document-delivre";
 import { SignerDelivrer } from "./signer-delivrer";
+import { attendrePdf } from "@/test/pdf";
 
 const push = vi.fn();
 const refresh = vi.fn();
@@ -22,6 +23,8 @@ const document: DocumentDelivreDto = {
   codeType: "PEX",
   valide: true,
   motifInvalidation: null,
+  revoqueAutorite: null,
+  revoqueAutoriteEn: null,
   revoqueLe: null,
   delivreLe: "2026-11-22T09:30:00Z",
   empreinteSha256: "ab".repeat(32),
@@ -84,15 +87,13 @@ describe("signer et délivrer (US-06.3)", () => {
 });
 
 describe("document délivré (US-06.4)", () => {
-  it("s'ouvre dans le visualiseur, se télécharge depuis le panneau, se vérifie publiquement", () => {
+  it("s'ouvre dans le visualiseur, se télécharge depuis le panneau, se vérifie publiquement", async () => {
     afficher(<DocumentDelivre demandeId={41} document={document} />);
     expect(screen.getByText("Valide")).toBeVisible();
     expect(screen.getByText("Ibrahima Soumah")).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: "Voir le document" }));
     // Le lecteur du navigateur s'ouvre sans sa propre barre d'outils (une seule barre : la nôtre).
-    expect(globalThis.document.querySelector("iframe")?.getAttribute("src")).toMatch(
-      /^\/api\/demandes\/41\/document\/contenu\?inline=1#toolbar=0/,
-    );
+    await attendrePdf("/api/demandes/41/document/contenu?inline=1");
     expect(screen.getByRole("link", { name: /Télécharger/ })).toHaveAttribute(
       "href",
       "/api/demandes/41/document/contenu",
@@ -112,17 +113,23 @@ describe("document délivré (US-06.4)", () => {
           valide: false,
           motifInvalidation: "Fraude constatée.",
           revoqueLe: "2026-11-20T10:00:00Z",
+          revoqueAutorite: "Directeur national",
+          revoqueAutoriteEn: "National Director",
         }}
       />,
     );
     expect(screen.getByRole("alert")).toHaveTextContent("Ce document a été révoqué");
-    expect(screen.getByRole("alert")).toHaveTextContent("le 20/11/2026");
+    // L'autorité exacte, jamais « le Ministère ».
+    expect(screen.getByRole("alert")).not.toHaveTextContent("Ministère");
+    expect(screen.getByText("Révoqué par")).toBeVisible();
+    expect(screen.getByText("Directeur national")).toBeVisible();
     expect(screen.getByText("Révoqué")).toBeVisible();
     expect(screen.getByText("Fraude constatée.")).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: /Voir le document/ }));
     expect(
       screen.getByText("Document révoqué le 20/11/2026 : il n’est plus valide."),
     ).toBeVisible();
+    expect(screen.getByText(/Révoqué par : Directeur national/)).toBeVisible();
   });
 });
 
