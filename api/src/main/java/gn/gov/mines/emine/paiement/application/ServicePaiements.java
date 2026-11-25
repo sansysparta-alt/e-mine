@@ -88,10 +88,19 @@ public class ServicePaiements {
    * « Paiements & reçus » : les paiements visibles du profil connecté (les siens pour un usager).
    */
   @Transactional(readOnly = true)
-  public gn.gov.mines.emine.shared.pagination.PageResultat<
-          gn.gov.mines.emine.paiement.infrastructure.PaiementRepository.LignePaiement>
-      listerVisibles(gn.gov.mines.emine.shared.pagination.Pagination pagination) {
-    return paiements.listerVisibles(pagination);
+  public PaiementRepository.PagePaiements listerVisibles(
+      gn.gov.mines.emine.shared.pagination.Pagination pagination,
+      PaiementRepository.Critere critere) {
+    if (critere.du() != null && critere.au() != null && critere.au().isBefore(critere.du())) {
+      throw new ErreurMetier(
+          CodeErreur.VAL_001,
+          java.util.Map.of(
+              "champs",
+              java.util.List.of(
+                  java.util.Map.of(
+                      "champ", "au", "message", "La fin de la période précède son début."))));
+    }
+    return paiements.listerVisibles(pagination, critere);
   }
 
   @Transactional(readOnly = true)

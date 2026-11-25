@@ -42,8 +42,14 @@ public class ServiceNotificationsInternes {
   public record NotificationRedigee(NotificationInterne notification, String titre, String texte) {}
 
   @Transactional(readOnly = true)
-  public PageResultat<NotificationRedigee> lister(Pagination pagination, String langue) {
-    return notifications.lister(pagination).map(n -> rediger(n, langue));
+  public PageResultat<NotificationRedigee> lister(
+      Pagination pagination, boolean seulementNonLues, String langue) {
+    return notifications.lister(pagination, seulementNonLues).map(n -> rediger(n, langue));
+  }
+
+  @Transactional(readOnly = true)
+  public long toutes() {
+    return notifications.toutes();
   }
 
   @Transactional(readOnly = true)

@@ -3,6 +3,7 @@ package gn.gov.mines.emine.paiement.api;
 import gn.gov.mines.emine.paiement.application.ServicePaiementEnLigne;
 import gn.gov.mines.emine.paiement.application.ServicePaiements;
 import gn.gov.mines.emine.paiement.domaine.Paiement;
+import gn.gov.mines.emine.paiement.infrastructure.PaiementRepository;
 import gn.gov.mines.emine.shared.jooq.enums.MoyenPaiement;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -86,33 +87,107 @@ class PaiementController {
       operationId = "listerMesPaiements",
       summary =
           "Paiements du profil connecté (les siens pour un usager), du plus récent au plus ancien,"
-              + " paginés, hors paiements annulés, avec le numéro de la demande")
+              + " paginés, hors paiements annulés, avec le numéro de la demande ; recherche"
+              + " tolérante, filtres par statut, objet et période, compteurs et total payé")
   PageMesPaiementsDto listerVisibles(
       @org.springframework.web.bind.annotation.RequestParam(required = false) Integer page,
-      @org.springframework.web.bind.annotation.RequestParam(required = false) Integer taille) {
-    var p =
-        service.listerVisibles(gn.gov.mines.emine.shared.pagination.Pagination.de(page, taille));
+      @org.springframework.web.bind.annotation.RequestParam(required = false) Integer taille,
+      @org.springframework.web.bind.annotation.RequestParam(required = false) String recherche,
+      @io.swagger.v3.oas.annotations.Parameter(
+              description = "payes, en-cours, echoues ou rembourses ; absent : tous")
+          @org.springframework.web.bind.annotation.RequestParam(required = false)
+          String statut,
+      @io.swagger.v3.oas.annotations.Parameter(
+              description = "FRAIS_DOSSIER, DROITS, FORMATION ou ATTESTATION ; absent : tous")
+          @org.springframework.web.bind.annotation.RequestParam(required = false)
+          String objet,
+      @org.springframework.web.bind.annotation.RequestParam(required = false)
+          @org.springframework.format.annotation.DateTimeFormat(
+              iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE)
+          java.time.LocalDate du,
+      @org.springframework.web.bind.annotation.RequestParam(required = false)
+          @org.springframework.format.annotation.DateTimeFormat(
+              iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE)
+          java.time.LocalDate au) {
+    var resultat =
+        service.listerVisibles(
+            gn.gov.mines.emine.shared.pagination.Pagination.de(page, taille),
+            new PaiementRepository.Critere(recherche, groupe(statut), objet(objet), du, au));
+    var p = resultat.page();
+    var c = resultat.compteurs();
     return new PageMesPaiementsDto(
         p.elements().stream()
             .map(
                 l ->
                     new LignePaiementDto(
-                        PaiementDto.depuis(l.paiement()), l.numeroDemande(), l.codeDocument()))
+                        PaiementDto.depuis(l.paiement()),
+                        l.paiement().demandeId(),
+                        l.numeroDemande(),
+                        l.codeDocument()))
             .toList(),
         p.page(),
         p.taille(),
         p.total(),
-        p.totalPages());
+        p.totalPages(),
+        new CompteursPaiementsDto(
+            c.tous(), c.payes(), c.enCours(), c.echoues(), c.rembourses(), c.totalPayeGnf()));
   }
 
-  /** Un paiement, avec la demande et le document concernés. */
+  private static PaiementRepository.GroupeStatut groupe(String valeur) {
+    if (valeur == null || valeur.isBlank()) {
+      return null;
+    }
+    return switch (valeur) {
+      case "payes" -> PaiementRepository.GroupeStatut.PAYES;
+      case "en-cours" -> PaiementRepository.GroupeStatut.EN_COURS;
+      case "echoues" -> PaiementRepository.GroupeStatut.ECHOUES;
+      case "rembourses" -> PaiementRepository.GroupeStatut.REMBOURSES;
+      default -> throw valeurInconnue("statut", "payes, en-cours, echoues ou rembourses");
+    };
+  }
+
+  private static gn.gov.mines.emine.shared.jooq.enums.ObjetPaiement objet(String valeur) {
+    if (valeur == null || valeur.isBlank()) {
+      return null;
+    }
+    for (var o : gn.gov.mines.emine.shared.jooq.enums.ObjetPaiement.values()) {
+      if (o.getLiteral().equals(valeur)) {
+        return o;
+      }
+    }
+    throw valeurInconnue("objet", "FRAIS_DOSSIER, DROITS, FORMATION ou ATTESTATION");
+  }
+
+  private static gn.gov.mines.emine.shared.erreur.ErreurMetier valeurInconnue(
+      String champ, String attendu) {
+    return new gn.gov.mines.emine.shared.erreur.ErreurMetier(
+        gn.gov.mines.emine.shared.erreur.CodeErreur.VAL_001,
+        java.util.Map.of(
+            "champs",
+            List.of(java.util.Map.of("champ", champ, "message", "Valeur attendue : " + attendu))));
+  }
+
+  /** Un paiement, avec la demande (identifiant et numéro) et le document concernés. */
   record LignePaiementDto(
       PaiementDto paiement,
+      long demandeId,
       @io.swagger.v3.oas.annotations.media.Schema(nullable = true) String numeroDemande,
       String codeDocument) {}
 
+  /**
+   * Compteurs des filtres de statut (ils suivent la recherche, l'objet et la période) et total payé
+   * (GNF entiers) pour ces mêmes critères.
+   */
+  record CompteursPaiementsDto(
+      long tous, long payes, long enCours, long echoues, long rembourses, long totalPayeGnf) {}
+
   record PageMesPaiementsDto(
-      List<LignePaiementDto> elements, int page, int taille, long total, int totalPages) {}
+      List<LignePaiementDto> elements,
+      int page,
+      int taille,
+      long total,
+      int totalPages,
+      CompteursPaiementsDto compteurs) {}
 
   @GetMapping("/api/v1/paiements/{reference}")
   @Operation(operationId = "lirePaiement", summary = "Un paiement, par sa référence")

@@ -158,9 +158,8 @@ describe("écran des pièces (correctifs J2 C5–C7)", () => {
     const surChangement = afficher();
     await waitFor(() => expect(surChangement).toHaveBeenCalledWith([eies]));
     fireEvent.click(within(bloc("EIES")).getByRole("button", { name: /Voir/ }));
-    expect(document.querySelector("iframe")).toHaveAttribute(
-      "src",
-      "/api/demandes/41/pieces/7/contenu?inline=1",
+    expect(document.querySelector("iframe")?.getAttribute("src")).toMatch(
+      new RegExp(`^${echapper("/api/demandes/41/pieces/7/contenu?inline=1")}#toolbar=0`),
     );
     fireEvent.click(within(bloc("EIES")).getByRole("button", { name: /Retirer/ }));
     await waitFor(() => expect(surChangement).toHaveBeenLastCalledWith([]));
@@ -247,3 +246,8 @@ describe("intégration dans le formulaire (correctif de rendu)", () => {
     erreurs.mockRestore();
   });
 });
+
+/** Texte pris littéralement dans une expression régulière. */
+function echapper(texte: string): string {
+  return texte.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}

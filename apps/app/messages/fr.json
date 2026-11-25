@@ -353,7 +353,14 @@
       "signataireDelivrer": "Les droits sont payés : vous pouvez signer et délivrer le document. Vérifiez une dernière fois le dossier ci-contre.",
       "agentSansReponse": "Le demandeur n’a pas répondu dans le délai : relancez-le ou clôturez le dossier.",
       "agentAttenteAvis": "La demande est à l’instruction technique : les avis requis par le catalogue sont attendus.",
-      "agentRendreAvis": "Le catalogue requiert l’avis de votre service : examinez le dossier et rendez un avis motivé. S’il manque une information, demandez un complément."
+      "agentRendreAvis": "Le catalogue requiert l’avis de votre service : examinez le dossier et rendez un avis motivé. S’il manque une information, demandez un complément.",
+      "delai": {
+        "echeance": "Délai prévu : {delai, plural, one {# jour} other {# jours}}, soit une réponse attendue d’ici le {date}.",
+        "nonDemarre": "Délai prévu : {delai, plural, one {# jour} other {# jours}}, à compter du paiement des frais de dossier.",
+        "pauseComplement": "Délai prévu : {delai, plural, one {# jour} other {# jours}}. Il est en pause jusqu’à votre réponse au complément.",
+        "pauseDroits": "Délai prévu : {delai, plural, one {# jour} other {# jours}}. Il est en pause jusqu’au paiement des droits.",
+        "depasse": "Le délai prévu ({delai, plural, one {# jour} other {# jours}}) est dépassé de {jours, plural, one {# jour} other {# jours}}. Le service concerné en est informé."
+      }
     },
     "fraisPayes": "Frais payés",
     "paiements": {
@@ -366,7 +373,8 @@
         "statut": "Statut",
         "date": "Date",
         "recu": "Reçu",
-        "demande": "Demande"
+        "demande": "Demande",
+        "actions": "Actions"
       }
     },
     "motifRejet": "Motif",
@@ -559,7 +567,11 @@
     "pleinEcran": "Plein écran",
     "quitterPleinEcran": "Quitter le plein écran",
     "fermer": "Fermer le document",
-    "formatNonAffichable": "Ce format ne peut pas être affiché ici. Utilisez le bouton Télécharger."
+    "formatNonAffichable": "Ce format ne peut pas être affiché ici. Utilisez le bouton Télécharger.",
+    "imprimer": "Imprimer",
+    "zoomAvant": "Zoom avant",
+    "zoomArriere": "Zoom arrière",
+    "ajuster": "Largeur"
   },
   "paiement": {
     "titreOnglet": "Paiement",
@@ -665,6 +677,10 @@
         "autre": {
           "titre": "Paiement non abouti",
           "texte": "Le paiement n’a pas abouti. Revenez à votre demande pour connaître la suite."
+        },
+        "payeDroits": {
+          "titre": "Paiement confirmé",
+          "texte": "Merci. Vos droits ont été reçus par le Trésor public et votre reçu est prêt. Votre document va maintenant être signé ; vous serez prévenu dès qu’il sera disponible."
         }
       }
     },
@@ -1224,7 +1240,10 @@
     "horsDelai": "Délai du catalogue dépassé",
     "echeance": "{jours, plural, =0 {Échéance aujourd’hui} one {Échéance dans # jour} other {Échéance dans # jours}}",
     "delaiSuspendu": "Délai en pause (complément)",
-    "delaiSuspenduDroits": "Délai en pause (droits attendus)"
+    "delaiSuspenduDroits": "Délai en pause (droits attendus)",
+    "attenteMinistere": "{jours, plural, =0 {Au ministère depuis aujourd’hui} one {Au ministère depuis # jour} other {Au ministère depuis # jours}}",
+    "attenteVous": "{jours, plural, =0 {À vous d’agir depuis aujourd’hui} one {À vous d’agir depuis # jour} other {À vous d’agir depuis # jours}}",
+    "attenteDemandeur": "{jours, plural, =0 {Chez le demandeur depuis aujourd’hui} one {Chez le demandeur depuis # jour} other {Chez le demandeur depuis # jours}}"
   },
   "suivi": {
     "titre": "Suivi de la demande",
@@ -1256,20 +1275,36 @@
   },
   "notifications": {
     "titre": "Notifications",
-    "description": "Les messages envoyés à chaque étape de vos dossiers, aussi reçus par SMS et e-mail.",
-    "descriptionNonLues": "{nombre, plural, =1 {1 notification non lue.} other {# notifications non lues.}} Ouvrez une notification pour voir le dossier concerné.",
+    "description": "Les messages envoyés à chaque étape de vos dossiers. Les plus importants vous parviennent aussi par e-mail ou par SMS.",
+    "descriptionNonLues": "{nombre, plural, =1 {1 notification non lue : c’est le nombre affiché sur la cloche.} other {# notifications non lues : c’est le nombre affiché sur la cloche.}} Ouvrez une notification pour voir le dossier concerné.",
     "toutMarquerLu": "Tout marquer comme lu",
     "nonLue": "Non lue",
     "elements": "notifications",
     "vide": {
       "titre": "Aucune notification",
-      "description": "Chaque étape de vos dossiers vous sera signalée ici, ainsi que par SMS et par e-mail."
+      "description": "Chaque étape de vos dossiers vous sera signalée ici ; les plus importantes aussi par e-mail ou par SMS.",
+      "toutLu": "Vous avez tout lu",
+      "toutLuDescription": "Aucune notification non lue. Les nouvelles apparaîtront ici et sur la cloche."
     },
     "cloche": {
       "sansNonLues": "Notifications",
       "avecNonLues": "Notifications, {nombre, plural, =1 {1 non lue} other {# non lues}}",
       "voirToutes": "Voir toutes les notifications",
       "erreur": "Les notifications n’ont pas pu être chargées. Réessayez dans un instant."
+    },
+    "filtres": {
+      "libelle": "Afficher",
+      "toutes": "Toutes",
+      "nonLues": "Non lues"
+    },
+    "jours": {
+      "aujourdhui": "Aujourd’hui",
+      "hier": "Hier"
+    },
+    "montantDroits": "Droits à payer : {montant}",
+    "actions": {
+      "payerDroits": "Payer les droits",
+      "completer": "Compléter le dossier"
     }
   },
   "catalogue": {
@@ -1733,7 +1768,9 @@
       "titre": "Aucun résultat pour « {texte} »",
       "conseil": "Vérifiez l’orthographe, ou saisissez une partie du numéro (par exemple 000009) ou le nom du document."
     },
-    "aideClavier": "↑ ↓ pour choisir · Entrée pour ouvrir · Échap pour fermer"
+    "aideClavier": "↑ ↓ pour choisir · Entrée pour ouvrir · Échap pour fermer",
+    "ouverts": "Derniers dossiers ouverts",
+    "invitation": "Saisissez un numéro de dossier, le nom d’un document, d’un demandeur ou d’une page."
   },
   "piedDePage": {
     "ministere": "Ministère des Mines et de la Géologie · République de Guinée",
@@ -1938,6 +1975,32 @@
     "vide": {
       "titre": "Aucun paiement pour le moment",
       "description": "Les frais de dossier se paient après le dépôt d’une demande ; vos paiements et leurs reçus apparaîtront ici."
+    },
+    "recherche": {
+      "libelle": "Rechercher un paiement",
+      "exemple": "Référence, reçu, demande ou document (ex. PAY-2026)",
+      "bouton": "Rechercher"
+    },
+    "filtres": {
+      "statut": "Statut",
+      "tous": "Tous",
+      "payes": "Payés",
+      "enCours": "En cours",
+      "echoues": "Non aboutis",
+      "rembourses": "Remboursés",
+      "objet": "Objet",
+      "tousObjets": "Tous les objets"
+    },
+    "total": "Total payé : {montant}",
+    "totalDetail": "{nombre, plural, =0 {aucun paiement confirmé} one {# paiement confirmé} other {# paiements confirmés}} pour les critères choisis",
+    "aucunResultat": {
+      "titre": "Aucun paiement ne correspond à ces critères",
+      "conseil": "Modifiez la recherche, l’objet ou la période, ou affichez tous vos paiements.",
+      "effacer": "Voir tous les paiements"
+    },
+    "actions": {
+      "telechargerRecu": "Télécharger le reçu",
+      "voir": "Voir le détail"
     }
   },
   "mesDocuments": {
@@ -1990,5 +2053,44 @@
         "confirmer": "Télécharger quand même"
       }
     }
+  },
+  "detailPaiement": {
+    "titre": "Détail du paiement",
+    "details": "Paiement",
+    "statut": "Statut",
+    "objet": "Objet",
+    "montant": "Montant",
+    "moyen": "Moyen de paiement",
+    "virement": "Virement bancaire",
+    "reference": "Référence",
+    "initieLe": "Initié le",
+    "payeLe": "Payé le",
+    "recu": "Reçu",
+    "demande": {
+      "titre": "Demande liée",
+      "brouillon": "Brouillon",
+      "ouvrir": "Ouvrir la demande"
+    },
+    "attente": {
+      "titre": "Confirmation en attente",
+      "texte": "TrésorPay n’a pas encore confirmé ce paiement. Ne payez pas une seconde fois : la demande sera mise à jour dès réception de la confirmation."
+    },
+    "aVerifier": {
+      "titre": "Vérification en cours",
+      "texte": "Le montant reçu ne correspond pas au montant attendu. Le service fiscal le vérifie ; vous n’avez rien à faire pour l’instant."
+    },
+    "nonAbouti": {
+      "titre": "Ce paiement n’a pas abouti",
+      "texte": "Aucun montant n’a été prélevé. La somme est toujours attendue pour la demande liée.",
+      "payer": "Payer à nouveau"
+    }
+  },
+  "periode": {
+    "libelle": "Période",
+    "du": "Du",
+    "au": "Au",
+    "vider": "Effacer la période",
+    "inverseeTitre": "Période incorrecte",
+    "inversee": "La date de fin précède la date de début."
   }
 }

@@ -24,9 +24,8 @@ describe("pièces consultables (fiche de la demande)", () => {
       </NextIntlClientProvider>,
     );
     fireEvent.click(screen.getByRole("button", { name: /Consulter/ }));
-    expect(document.querySelector("iframe")).toHaveAttribute(
-      "src",
-      "/api/demandes/41/pieces/7/contenu?inline=1",
+    expect(document.querySelector("iframe")?.getAttribute("src")).toMatch(
+      new RegExp(`^${echapper("/api/demandes/41/pieces/7/contenu?inline=1")}#toolbar=0`),
     );
     expect(screen.getByRole("link", { name: "Télécharger" })).toHaveAttribute(
       "href",
@@ -63,3 +62,8 @@ describe("pièces consultables (fiche de la demande)", () => {
     expect(screen.getAllByRole("button", { name: /Consulter/ })).toHaveLength(3);
   });
 });
+
+/** Texte pris littéralement dans une expression régulière. */
+function echapper(texte: string): string {
+  return texte.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}

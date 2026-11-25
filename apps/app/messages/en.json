@@ -353,7 +353,14 @@
       "signataireDelivrer": "The duties are paid: you can sign and issue the document. Check the file one last time.",
       "agentSansReponse": "The applicant did not answer in time: send a reminder or close the file.",
       "agentAttenteAvis": "The request is under technical review: the opinions required by the catalogue are pending.",
-      "agentRendreAvis": "The catalogue requires your service’s opinion: review the file and give a reasoned opinion. If information is missing, request additional information."
+      "agentRendreAvis": "The catalogue requires your service’s opinion: review the file and give a reasoned opinion. If information is missing, request additional information.",
+      "delai": {
+        "echeance": "Expected time limit: {delai, plural, one {# day} other {# days}}, so a response is expected by {date}.",
+        "nonDemarre": "Expected time limit: {delai, plural, one {# day} other {# days}}, starting from payment of the filing fee.",
+        "pauseComplement": "Expected time limit: {delai, plural, one {# day} other {# days}}. It is paused until you answer the request for additional information.",
+        "pauseDroits": "Expected time limit: {delai, plural, one {# day} other {# days}}. It is paused until the fees are paid.",
+        "depasse": "The expected time limit ({delai, plural, one {# day} other {# days}}) has been exceeded by {jours, plural, one {# day} other {# days}}. The department concerned has been informed."
+      }
     },
     "fraisPayes": "Fee paid",
     "paiements": {
@@ -366,7 +373,8 @@
         "statut": "Status",
         "date": "Date",
         "recu": "Receipt",
-        "demande": "Request"
+        "demande": "Request",
+        "actions": "Actions"
       }
     },
     "motifRejet": "Reason",
@@ -559,7 +567,11 @@
     "pleinEcran": "Full screen",
     "quitterPleinEcran": "Exit full screen",
     "fermer": "Close document",
-    "formatNonAffichable": "This format cannot be displayed here. Use the Download button."
+    "formatNonAffichable": "This format cannot be displayed here. Use the Download button.",
+    "imprimer": "Print",
+    "zoomAvant": "Zoom in",
+    "zoomArriere": "Zoom out",
+    "ajuster": "Fit width"
   },
   "paiement": {
     "titreOnglet": "Payment",
@@ -665,6 +677,10 @@
         "autre": {
           "titre": "Payment not completed",
           "texte": "The payment was not completed. Go back to your request to see what happens next."
+        },
+        "payeDroits": {
+          "titre": "Payment confirmed",
+          "texte": "Thank you. Your fees have been received by the Public Treasury and your receipt is ready. Your document will now be signed; you will be notified as soon as it is available."
         }
       }
     },
@@ -1224,7 +1240,10 @@
     "horsDelai": "Catalogue time limit exceeded",
     "echeance": "{jours, plural, =0 {Due today} one {Due in # day} other {Due in # days}}",
     "delaiSuspendu": "Deadline suspended (additional information)",
-    "delaiSuspenduDroits": "Time limit paused (fees due)"
+    "delaiSuspenduDroits": "Time limit paused (fees due)",
+    "attenteMinistere": "{jours, plural, =0 {With the Ministry since today} one {With the Ministry for # day} other {With the Ministry for # days}}",
+    "attenteVous": "{jours, plural, =0 {Awaiting your action since today} one {Awaiting your action for # day} other {Awaiting your action for # days}}",
+    "attenteDemandeur": "{jours, plural, =0 {With the applicant since today} one {With the applicant for # day} other {With the applicant for # days}}"
   },
   "suivi": {
     "titre": "Request tracking",
@@ -1256,20 +1275,36 @@
   },
   "notifications": {
     "titre": "Notifications",
-    "description": "Messages sent at each step of your files, also received by text message and e-mail.",
-    "descriptionNonLues": "{nombre, plural, =1 {1 unread notification.} other {# unread notifications.}} Open a notification to see the related file.",
+    "description": "The messages sent at each step of your files. The most important ones also reach you by email or text message.",
+    "descriptionNonLues": "{nombre, plural, =1 {1 unread notification: this is the number shown on the bell.} other {# unread notifications: this is the number shown on the bell.}} Open a notification to see the file concerned.",
     "toutMarquerLu": "Mark all as read",
     "nonLue": "Unread",
     "elements": "notifications",
     "vide": {
       "titre": "No notifications",
-      "description": "You will be notified here, by text message and by e-mail at each step of your files."
+      "description": "Each step of your files will be shown here; the most important ones also by email or text message.",
+      "toutLu": "You are all caught up",
+      "toutLuDescription": "No unread notification. New ones will appear here and on the bell."
     },
     "cloche": {
       "sansNonLues": "Notifications",
       "avecNonLues": "Notifications, {nombre, plural, =1 {1 unread} other {# unread}}",
       "voirToutes": "See all notifications",
       "erreur": "Notifications could not be loaded. Please try again in a moment."
+    },
+    "filtres": {
+      "libelle": "Show",
+      "toutes": "All",
+      "nonLues": "Unread"
+    },
+    "jours": {
+      "aujourdhui": "Today",
+      "hier": "Yesterday"
+    },
+    "montantDroits": "Fees to pay: {montant}",
+    "actions": {
+      "payerDroits": "Pay the fees",
+      "completer": "Complete the file"
     }
   },
   "catalogue": {
@@ -1733,7 +1768,9 @@
       "titre": "No results for “{texte}”",
       "conseil": "Check the spelling, or type part of the number (for example 000009) or the document name."
     },
-    "aideClavier": "↑ ↓ to choose · Enter to open · Esc to close"
+    "aideClavier": "↑ ↓ to choose · Enter to open · Esc to close",
+    "ouverts": "Recently opened files",
+    "invitation": "Type a file number, or the name of a document, applicant or page."
   },
   "piedDePage": {
     "ministere": "Ministry of Mines and Geology · Republic of Guinea",
@@ -1938,6 +1975,32 @@
     "vide": {
       "titre": "No payment yet",
       "description": "The filing fee is paid after submitting a request; your payments and their receipts will appear here."
+    },
+    "recherche": {
+      "libelle": "Search for a payment",
+      "exemple": "Reference, receipt, request or document (e.g. PAY-2026)",
+      "bouton": "Search"
+    },
+    "filtres": {
+      "statut": "Status",
+      "tous": "All",
+      "payes": "Paid",
+      "enCours": "In progress",
+      "echoues": "Not completed",
+      "rembourses": "Refunded",
+      "objet": "Purpose",
+      "tousObjets": "All purposes"
+    },
+    "total": "Total paid: {montant}",
+    "totalDetail": "{nombre, plural, =0 {no confirmed payment} one {# confirmed payment} other {# confirmed payments}} for the selected criteria",
+    "aucunResultat": {
+      "titre": "No payment matches these criteria",
+      "conseil": "Change the search, purpose or period, or show all your payments.",
+      "effacer": "See all payments"
+    },
+    "actions": {
+      "telechargerRecu": "Download the receipt",
+      "voir": "View details"
     }
   },
   "mesDocuments": {
@@ -1990,5 +2053,44 @@
         "confirmer": "Download anyway"
       }
     }
+  },
+  "detailPaiement": {
+    "titre": "Payment details",
+    "details": "Payment",
+    "statut": "Status",
+    "objet": "Purpose",
+    "montant": "Amount",
+    "moyen": "Payment method",
+    "virement": "Bank transfer",
+    "reference": "Reference",
+    "initieLe": "Started on",
+    "payeLe": "Paid on",
+    "recu": "Receipt",
+    "demande": {
+      "titre": "Related request",
+      "brouillon": "Draft",
+      "ouvrir": "Open the request"
+    },
+    "attente": {
+      "titre": "Confirmation pending",
+      "texte": "TrésorPay has not yet confirmed this payment. Do not pay twice: the request will be updated as soon as the confirmation arrives."
+    },
+    "aVerifier": {
+      "titre": "Under review",
+      "texte": "The amount received does not match the expected amount. The tax department is checking it; you have nothing to do for now."
+    },
+    "nonAbouti": {
+      "titre": "This payment did not go through",
+      "texte": "No amount was charged. The sum is still due for the related request.",
+      "payer": "Pay again"
+    }
+  },
+  "periode": {
+    "libelle": "Period",
+    "du": "From",
+    "au": "To",
+    "vider": "Clear the period",
+    "inverseeTitre": "Incorrect period",
+    "inversee": "The end date is before the start date."
   }
 }

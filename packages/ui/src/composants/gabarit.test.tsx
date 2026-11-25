@@ -69,6 +69,11 @@ describe("gabarit de l'application", () => {
     expect(screen.getByRole("main")).toHaveTextContent("Contenu");
   });
 
+  it("n'affiche pas le titre de section quand le menu n'a qu'une section", () => {
+    afficher();
+    expect(screen.queryByText("Principal")).toBeNull();
+  });
+
   it("réduit le menu et mémorise ce choix", () => {
     afficher();
     fireEvent.click(screen.getByRole("button", { name: "Réduire le menu" }));

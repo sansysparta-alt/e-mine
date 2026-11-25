@@ -13,6 +13,7 @@ export default async function IntrouvableRacine() {
   if (moi) {
     return (
       <NavigationApplication
+        compte={moi.id}
         utilisateur={{ nomComplet: `${moi.prenom} ${moi.nom}`, profil: await profilAffiche(moi) }}
         profil={{ permissions: moi.permissions, interne: moi.interne }}
       >

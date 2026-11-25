@@ -6,13 +6,16 @@ import static gn.gov.mines.emine.shared.jooq.Tables.NOTIFICATION;
 import gn.gov.mines.emine.notification.domaine.NotificationAEnvoyer;
 import gn.gov.mines.emine.notification.domaine.NotificationInterne;
 import gn.gov.mines.emine.shared.jooq.enums.CanalNotification;
+import gn.gov.mines.emine.shared.jooq.enums.StatutDemande;
 import gn.gov.mines.emine.shared.pagination.PageResultat;
 import gn.gov.mines.emine.shared.pagination.Pagination;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.jooq.Condition;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.JSONB;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
@@ -56,11 +59,35 @@ public class NotificationRepository {
   }
 
   /**
-   * Notifications de l'application du destinataire connecté (la RLS ne montre que les siennes), des
-   * plus récentes aux plus anciennes.
+   * Action encore attendue de l'usager sur le dossier, quand la notification la demandait : payer
+   * les droits (« Décision favorable, droits à payer ») ou compléter le dossier. Une fois l'action
+   * faite, la notification redevient un simple historique.
    */
-  public PageResultat<NotificationInterne> lister(Pagination pagination) {
-    long total = dsl.fetchCount(NOTIFICATION, NOTIFICATION.CANAL.eq(CanalNotification.interne));
+  static final Field<String> ACTION =
+      DSL.when(
+              NOTIFICATION
+                  .MODELE
+                  .eq("DECISION_DROITS")
+                  .and(DEMANDE.STATUT.eq(StatutDemande.decision)),
+              DSL.inline("payer-droits"))
+          .when(
+              NOTIFICATION
+                  .MODELE
+                  .in("COMPLEMENT_DEMANDE", "COMPLEMENT_RELANCE")
+                  .and(DEMANDE.STATUT.eq(StatutDemande.complement_requis)),
+              DSL.inline("completer"))
+          .as("action");
+
+  /**
+   * Notifications de l'application du destinataire connecté (la RLS ne montre que les siennes), des
+   * plus récentes aux plus anciennes ; seulement les non lues si demandé.
+   */
+  public PageResultat<NotificationInterne> lister(Pagination pagination, boolean seulementNonLues) {
+    Condition condition = NOTIFICATION.CANAL.eq(CanalNotification.interne);
+    if (seulementNonLues) {
+      condition = condition.and(NOTIFICATION.LUE_LE.isNull());
+    }
+    long total = dsl.fetchCount(NOTIFICATION, condition);
     List<NotificationInterne> elements =
         dsl.select(
                 NOTIFICATION.ID,
@@ -69,11 +96,12 @@ public class NotificationRepository {
                 NOTIFICATION.DEMANDE_ID,
                 DEMANDE.NUMERO,
                 NOTIFICATION.CREATED_AT,
-                NOTIFICATION.LUE_LE)
+                NOTIFICATION.LUE_LE,
+                ACTION)
             .from(NOTIFICATION)
             .leftJoin(DEMANDE)
             .on(DEMANDE.ID.eq(NOTIFICATION.DEMANDE_ID))
-            .where(NOTIFICATION.CANAL.eq(CanalNotification.interne))
+            .where(condition)
             .orderBy(NOTIFICATION.CREATED_AT.desc(), NOTIFICATION.ID.desc())
             .limit(pagination.taille())
             .offset(pagination.decalage())
@@ -86,8 +114,14 @@ public class NotificationRepository {
                         r.get(NOTIFICATION.DEMANDE_ID),
                         r.get(DEMANDE.NUMERO),
                         r.get(NOTIFICATION.CREATED_AT),
-                        r.get(NOTIFICATION.LUE_LE)));
+                        r.get(NOTIFICATION.LUE_LE),
+                        r.get(ACTION)));
     return new PageResultat<>(elements, pagination.page(), pagination.taille(), total);
+  }
+
+  /** Nombre de notifications du destinataire connecté (toutes, lues ou non). */
+  public long toutes() {
+    return dsl.fetchCount(NOTIFICATION, NOTIFICATION.CANAL.eq(CanalNotification.interne));
   }
 
   /** Nombre de notifications non lues du destinataire connecté. */

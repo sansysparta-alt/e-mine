@@ -27,8 +27,12 @@ const notification = (n: Partial<NotificationDto>): NotificationDto => ({
   numeroDemande: "DEM-2026-000123",
   creeLe: "2026-11-22T10:30:00Z",
   lue: false,
+  montantGnf: null,
+  action: null,
   ...n,
 });
+
+const MAINTENANT = new Date("2026-11-24T09:00:00Z");
 
 describe("centre de notifications (US-07.2)", () => {
   afterEach(() => vi.unstubAllGlobals());
@@ -37,6 +41,7 @@ describe("centre de notifications (US-07.2)", () => {
     enFrancais(
       <ListeNotifications
         notifications={[notification({}), notification({ id: 2, lue: true, demandeId: null })]}
+        maintenant={MAINTENANT}
       />,
     );
     const liens = screen.getAllByRole("link");
@@ -46,9 +51,49 @@ describe("centre de notifications (US-07.2)", () => {
     expect(liens[0]).toHaveAccessibleName("Non lue : Demande déposée · DEM-2026-000123");
     expect(liens[0]).toHaveClass("font-semibold");
     expect(liens[1]).toHaveAccessibleName("Demande déposée · DEM-2026-000123");
-    // Date au format de l'application, heure de Conakry ; résumé = premier paragraphe.
-    expect(screen.getAllByText(/22\/11\/2026/)).toHaveLength(2);
+    // Groupées sous leur jour (date au format de l'application), heure de Conakry sur la ligne ;
+    // résumé = premier paragraphe.
+    expect(screen.getByRole("heading", { name: "22/11/2026" })).toBeVisible();
+    expect(screen.getAllByText("10:30")).toHaveLength(2);
     expect(screen.queryByText(/Prochaine étape/)).toBeNull();
+  });
+
+  it("groupe les notifications par jour : Aujourd'hui, Hier, puis la date", () => {
+    enFrancais(
+      <ListeNotifications
+        maintenant={MAINTENANT}
+        notifications={[
+          notification({ id: 3, creeLe: "2026-11-24T08:00:00Z" }),
+          notification({ id: 4, creeLe: "2026-11-23T18:00:00Z" }),
+          notification({ id: 5, creeLe: "2026-11-20T18:00:00Z" }),
+        ]}
+      />,
+    );
+    expect(screen.getAllByRole("heading").map((h) => h.textContent)).toEqual([
+      "Aujourd’hui",
+      "Hier",
+      "20/11/2026",
+    ]);
+  });
+
+  it("des droits encore à payer : le montant et le bouton « Payer les droits »", () => {
+    enFrancais(
+      <ListeNotifications
+        maintenant={MAINTENANT}
+        notifications={[
+          notification({
+            modele: "DECISION_DROITS",
+            montantGnf: 15_000_000,
+            action: "payer-droits",
+          }),
+          notification({ id: 6, modele: "DECISION_DROITS", montantGnf: 15_000_000 }),
+        ]}
+      />,
+    );
+    expect(screen.getByText(/Droits à payer : 15\s000\s000 GNF/)).toBeVisible();
+    const payer = screen.getAllByRole("link", { name: /Payer les droits/ });
+    expect(payer).toHaveLength(1);
+    expect(payer[0]).toHaveAttribute("href", "/demandes/42/paiement");
   });
 
   it("résume un message à son premier paragraphe", () => {

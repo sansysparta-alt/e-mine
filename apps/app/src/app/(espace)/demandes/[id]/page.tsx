@@ -21,10 +21,11 @@ import {
   EnTetePage,
   formaterDate,
   formaterDateHeure,
+  dateDansJours,
   formaterGnf,
   joursCalendairesDepuis,
 } from "@emine/ui";
-import { CreditCard, Hourglass, TriangleAlert } from "@emine/ui/icones";
+import { CalendarClock, CreditCard, Hourglass, TriangleAlert } from "@emine/ui/icones";
 import type { Metadata } from "next";
 import { libelleDocument, libelleSignataire } from "@/composants/referentiels";
 import Link from "next/link";
@@ -32,6 +33,7 @@ import { notFound, redirect } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { ATTENTE_LONGUE_JOURS } from "@/composants/demande/date-attente";
 import { FriseSuivi } from "@/composants/demande/frise-suivi";
+import { cleAttente } from "@/composants/demande/statut";
 import { StatutDemande } from "@/composants/demande/statut-demande";
 import { ListePieces } from "@/composants/documents/liste-pieces";
 import { prochaineEtape } from "@/composants/demande/prochaine-etape";
@@ -72,6 +74,7 @@ import {
   signerEtDelivrer,
 } from "@/serveur/actions-instruction";
 import { FilArianeApp } from "@/composants/fil-ariane-app";
+import { MemoriserDossier } from "@/composants/recherche/memoriser-dossier";
 import { appelPage, chargerMoi, chargerReferentiels, optionsApi } from "@/serveur/donnees";
 
 /** Statuts d'une demande en cours : le temps d'attente à l'étape s'affiche. */
@@ -303,12 +306,12 @@ export default async function DetailDemande({ params, searchParams }: Props) {
                     : "text-texte-doux"
                 }
               >
-                {tDates("attente", { jours: attenteEtape })}
+                {tDates(cleAttente(demande, moi.interne), { jours: attenteEtape })}
               </span>
             </dd>
           </>
         ) : null}
-        {document && STATUTS_EN_COURS.has(demande.statut) ? (
+        {document && moi.interne && STATUTS_EN_COURS.has(demande.statut) ? (
           <>
             <dt className="font-semibold">{t("delai")}</dt>
             <dd>
@@ -452,8 +455,39 @@ export default async function DetailDemande({ params, searchParams }: Props) {
         <TableauPaiements paiements={paiements.data} />
       </Carte>
     ) : null;
+  // Délai prévu, dit à l'usager dans « Prochaine étape » (retours ergonomie) : durée du catalogue
+  // et date de réponse attendue, ou pourquoi elle n'est pas encore connue (frais, pause).
+  const delaiPrevu =
+    etape?.pour === "demandeur" && document && STATUTS_EN_COURS.has(demande.statut)
+      ? demande.enRetard && demande.joursRestants !== null
+        ? t("etape.delai.depasse", {
+            delai: document.delaiJours,
+            jours: -demande.joursRestants,
+          })
+        : demande.delaiSuspendu
+          ? t(
+              demande.motifSuspension === "droits"
+                ? "etape.delai.pauseDroits"
+                : "etape.delai.pauseComplement",
+              { delai: document.delaiJours },
+            )
+          : !demande.delaiDemarre
+            ? t("etape.delai.nonDemarre", { delai: document.delaiJours })
+            : demande.joursRestants !== null
+              ? t("etape.delai.echeance", {
+                  delai: document.delaiJours,
+                  date: formaterDate(dateDansJours(demande.joursRestants), langue),
+                })
+              : null
+      : null;
   const blocEtape = etape ? (
     <Carte titre={t(`etape.titre.${etape.pour}`)}>
+      {delaiPrevu ? (
+        <p className="mb-3 flex items-start gap-2 font-semibold text-navy">
+          <CalendarClock aria-hidden="true" className="mt-0.5 size-5 shrink-0" />
+          <span>{delaiPrevu}</span>
+        </p>
+      ) : null}
       <p>
         {t(`etape.${etape.cle}`, {
           montant: aPayer != null ? formaterGnf(aPayer) : "—",
@@ -584,6 +618,12 @@ export default async function DetailDemande({ params, searchParams }: Props) {
           document ? `${libelleDocument(document, langue)} (${document.code})` : undefined
         }
         retour={<FilArianeApp rubrique={rubrique} courante={numero} />}
+      />
+      <MemoriserDossier
+        compte={moi.id}
+        id={demande.id}
+        numero={demande.numero}
+        document={document ? libelleDocument(document, langue) : demande.typeDocumentCode}
       />
       {blocSuivi}
       {actionAgent ? (

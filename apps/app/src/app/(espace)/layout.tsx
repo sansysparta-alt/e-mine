@@ -46,6 +46,7 @@ export default async function DispositionEspace({ children }: { children: ReactN
   ]);
   return (
     <NavigationApplication
+      compte={moi.id}
       nonLues={nonLues}
       compteurs={compteurs}
       piedDePage={<PiedDePage />}

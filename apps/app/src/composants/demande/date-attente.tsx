@@ -13,6 +13,8 @@ export type DateAttenteProps = {
   etapeDepuis: string;
   /** Afficher le temps d'attente (dossiers en cours seulement). */
   avecAttente: boolean;
+  /** Qui attend (`cleAttente`) : « Au ministère depuis… », « À vous d'agir depuis… »… */
+  cleAttente?: "attenteMinistere" | "attenteVous" | "attenteDemandeur" | "attente";
   /** Délai du catalogue dépassé (calculé par l'API, même règle que l'indicateur « En retard »). */
   enRetard?: boolean;
   /**
@@ -32,14 +34,15 @@ export type DateAttenteProps = {
 
 /**
  * Date de la demande et, séparément, le temps d'attente à l'étape (correctifs ergonomie) :
- * « Déposée le 21/11/2026 » puis « En attente depuis 1 jour » (jours calendaires, heure de
- * Conakry), signalé à partir de 5 jours. Plus de « aujourd'hui » ambigu sous une date.
+ * « Déposée le 21/11/2026 » puis « Au ministère depuis 1 jour » (qui attend ; jours calendaires,
+ * heure de Conakry), signalé à partir de 5 jours. Plus de « aujourd'hui » ambigu sous une date.
  */
 export function DateAttente({
   deposeLe,
   creeLe,
   etapeDepuis,
   avecAttente,
+  cleAttente = "attente",
   enRetard = false,
   delai,
   maintenant = new Date(),
@@ -60,7 +63,7 @@ export function DateAttente({
             jours >= ATTENTE_LONGUE_JOURS ? "font-semibold text-avertissement" : "text-texte-doux",
           )}
         >
-          {t("attente", { jours })}
+          {t(cleAttente, { jours })}
         </span>
       ) : null}
       {enRetard ? (

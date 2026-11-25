@@ -5,7 +5,12 @@ import { FileText, History, type LucideIcon, Search, X } from "@emine/ui/icones"
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
-import { lireRecentes, memoriserRecente } from "./recentes";
+import {
+  type DossierRecent,
+  lireDossiersRecents,
+  lireRecentes,
+  memoriserRecente,
+} from "./recentes";
 
 /** Page proposée par la recherche : seulement celles que le profil peut ouvrir. */
 export type PageRecherche = { cle: string; libelle: string; href: string; icone: LucideIcon };
@@ -18,14 +23,16 @@ export type ResultatDemande = {
   demandeur: string | null;
 };
 
-const CLE_RECENTES = "emine.recherches-recentes";
+/** Recherches récentes : propres au compte (plusieurs comptes peuvent partager un navigateur). */
+const cleRecentes = (compte: number) => `emine.recherches-recentes.${compte}`;
 const DELAI_MS = 250;
 
-/** Recherches récentes de la recherche globale (commodité locale). */
-export const lireRecentesGlobales = () => lireRecentes(CLE_RECENTES);
+/** Recherches récentes de la recherche globale pour un compte (commodité locale). */
+export const lireRecentesGlobales = (compte: number) => lireRecentes(cleRecentes(compte));
 
 type Option =
   | { genre: "recente"; id: string; texte: string }
+  | { genre: "ouvert"; id: string; dossier: DossierRecent }
   | { genre: "page"; id: string; page: PageRecherche }
   | { genre: "demande"; id: string; demande: ResultatDemande }
   | { genre: "toutes"; id: string; href: string };
@@ -37,15 +44,20 @@ type EtatDemandes =
   | { etat: "pret"; elements: ResultatDemande[]; total: number };
 
 /**
- * Recherche globale de la barre du haut (raccourci Ctrl+K) : pages que le profil peut ouvrir et
- * dossiers qu'il a le droit de voir (filtrés par l'API). Recherche tolérante (accents, majuscules,
- * partie du numéro), parties trouvées surlignées, recherches récentes, croix pour vider, et un
- * écran « aucun résultat » qui dit quoi essayer. Combobox accessible : flèches, Entrée, Échap.
+ * Recherche globale de la barre du haut (raccourci Ctrl+K). Champ vide : recherches récentes et
+ * derniers dossiers ouverts (pas la liste des pages, qui doublerait le menu). Pendant la saisie :
+ * les dossiers que le profil a le droit de voir (filtrés par l'API) d'abord, puis les pages qui
+ * correspondent. Recherche tolérante (accents, majuscules, partie du numéro), parties trouvées
+ * surlignées, croix pour vider, écran « aucun résultat » qui dit quoi essayer. Combobox
+ * accessible : flèches, Entrée, Échap.
  */
 export function RechercheGlobale({
+  compte,
   pages,
   lienDemandes,
 }: {
+  /** Identifiant du compte connecté : récents propres à chaque compte. */
+  compte: number;
   pages: PageRecherche[];
   /** Liste complète des dossiers, pour « Voir tous les résultats » (absente : pas de lien). */
   lienDemandes?: string;
@@ -56,6 +68,7 @@ export function RechercheGlobale({
   const [texte, setTexte] = useState("");
   const [actif, setActif] = useState(0);
   const [recentes, setRecentes] = useState<string[]>([]);
+  const [ouverts, setOuverts] = useState<DossierRecent[]>([]);
   const [demandes, setDemandes] = useState<EtatDemandes>({ etat: "inactif" });
   const dialogue = useRef<HTMLDialogElement>(null);
   const champ = useRef<HTMLInputElement>(null);
@@ -65,9 +78,10 @@ export function RechercheGlobale({
   const requete = texte.trim();
 
   const ouvrir = useCallback(() => {
-    setRecentes(lireRecentes(CLE_RECENTES));
+    setRecentes(lireRecentes(cleRecentes(compte)));
+    setOuverts(lireDossiersRecents(compte));
     setOuvert(true);
-  }, []);
+  }, [compte]);
 
   const fermer = useCallback(() => {
     setOuvert(false);
@@ -135,7 +149,7 @@ export function RechercheGlobale({
     if (requete.length === 0) {
       return [
         ...recentes.map((r, i) => ({ genre: "recente" as const, id: `recente-${i}`, texte: r })),
-        ...pages.map((p) => ({ genre: "page" as const, id: `page-${p.cle}`, page: p })),
+        ...ouverts.map((d) => ({ genre: "ouvert" as const, id: `ouvert-${d.id}`, dossier: d })),
       ];
     }
     const trouvees = pages
@@ -160,7 +174,7 @@ export function RechercheGlobale({
           ]
         : [];
     return [...dossiers, ...toutes, ...trouvees];
-  }, [requete, recentes, pages, demandes, lienDemandes]);
+  }, [requete, recentes, ouverts, pages, demandes, lienDemandes]);
 
   const selection = options[Math.min(actif, options.length - 1)];
 
@@ -172,13 +186,17 @@ export function RechercheGlobale({
       champ.current?.focus();
       return;
     }
-    if (o.genre !== "page") setRecentes(memoriserRecente(CLE_RECENTES, requete));
+    if (o.genre === "demande" || o.genre === "toutes") {
+      setRecentes(memoriserRecente(cleRecentes(compte), requete));
+    }
     const href =
       o.genre === "page"
         ? o.page.href
         : o.genre === "demande"
           ? `/demandes/${o.demande.id}`
-          : o.href;
+          : o.genre === "ouvert"
+            ? `/demandes/${o.dossier.id}`
+            : o.href;
     fermer();
     router.push(href);
   };
@@ -238,6 +256,16 @@ export function RechercheGlobale({
                   <>
                     <History aria-hidden="true" className="size-4 shrink-0 text-texte-doux" />
                     <span className="truncate">{o.texte}</span>
+                  </>
+                ) : o.genre === "ouvert" ? (
+                  <>
+                    <FileText aria-hidden="true" className="size-4 shrink-0 text-texte-doux" />
+                    <span className="flex min-w-0 flex-col">
+                      <span className="font-semibold text-navy tabular-nums">
+                        {o.dossier.numero ?? t("brouillon")}
+                      </span>
+                      <span className="truncate text-sm text-texte-doux">{o.dossier.document}</span>
+                    </span>
                   </>
                 ) : o.genre === "page" ? (
                   <>
@@ -362,11 +390,14 @@ export function RechercheGlobale({
         <div className="max-h-[60vh] overflow-y-auto pb-2">
           <ul id={idListe} role="listbox" aria-label={t("resultats")}>
             {groupe(["recente"], t("recentes"))}
+            {groupe(["ouvert"], t("ouverts"))}
             {groupe(["demande", "toutes"], t("dossiers"))}
             {groupe(["page"], t("pages"))}
           </ul>
           <div aria-live="polite" className="px-4">
-            {chargement ? (
+            {requete.length === 0 && options.length === 0 ? (
+              <p className="py-6 text-center text-sm text-texte-doux">{t("invitation")}</p>
+            ) : chargement ? (
               <p className="py-3 text-sm text-texte-doux">{t("chargement")}</p>
             ) : demandes.etat === "erreur" ? (
               <p className="py-3 text-sm text-texte-doux">{t("erreur")}</p>

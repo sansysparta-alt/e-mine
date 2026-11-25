@@ -4,16 +4,24 @@ import static gn.gov.mines.emine.shared.jooq.Tables.PAIEMENT;
 import static gn.gov.mines.emine.shared.jooq.Tables.PAIEMENT_EVENEMENT;
 
 import gn.gov.mines.emine.paiement.domaine.Paiement;
+import gn.gov.mines.emine.shared.jooq.Tables;
 import gn.gov.mines.emine.shared.jooq.enums.MoyenPaiement;
 import gn.gov.mines.emine.shared.jooq.enums.ObjetPaiement;
 import gn.gov.mines.emine.shared.jooq.enums.StatutPaiement;
 import gn.gov.mines.emine.shared.jooq.tables.records.PaiementRecord;
+import gn.gov.mines.emine.shared.pagination.PageResultat;
+import gn.gov.mines.emine.shared.pagination.Pagination;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.jooq.Condition;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.JSONB;
+import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -200,22 +208,82 @@ public class PaiementRepository {
   /** Un paiement avec le numéro de sa demande et le code de son document (liste « Paiements »). */
   public record LignePaiement(Paiement paiement, String numeroDemande, String codeDocument) {}
 
+  /** Groupes de statuts de la liste « Paiements & reçus » (filtres de l'usager). */
+  public enum GroupeStatut {
+    PAYES(StatutPaiement.paye),
+    EN_COURS(StatutPaiement.initie, StatutPaiement.en_attente, StatutPaiement.a_verifier),
+    ECHOUES(StatutPaiement.echoue, StatutPaiement.rejete, StatutPaiement.expire),
+    REMBOURSES(StatutPaiement.remboursement_demande, StatutPaiement.rembourse);
+
+    final List<StatutPaiement> statuts;
+
+    GroupeStatut(StatutPaiement... statuts) {
+      this.statuts = List.of(statuts);
+    }
+
+    Condition condition() {
+      return PAIEMENT.STATUT.in(statuts);
+    }
+  }
+
+  /**
+   * Critères de la liste : recherche (référence, reçu, numéro de demande, document), groupe de
+   * statuts, objet et période (date du paiement, à défaut de l'opération, à l'heure de Conakry).
+   */
+  public record Critere(
+      String recherche, GroupeStatut groupe, ObjetPaiement objet, LocalDate du, LocalDate au) {}
+
+  /**
+   * Nombre de paiements par groupe de statuts et total payé (GNF), pour les autres critères : les
+   * compteurs servent à choisir le filtre de statut ; le total payé suit tous les autres filtres.
+   */
+  public record Compteurs(
+      long tous, long payes, long enCours, long echoues, long rembourses, long totalPayeGnf) {}
+
+  /** Une page de la liste et les compteurs de ses filtres. */
+  public record PagePaiements(PageResultat<LignePaiement> page, Compteurs compteurs) {}
+
   /**
    * Paiements visibles du profil connecté (RLS de {@code paiement} et {@code demande} : ses propres
    * paiements pour un usager), du plus récent au plus ancien, hors paiements annulés.
    */
-  public gn.gov.mines.emine.shared.pagination.PageResultat<LignePaiement> listerVisibles(
-      gn.gov.mines.emine.shared.pagination.Pagination pagination) {
-    var condition = PAIEMENT.STATUT.ne(gn.gov.mines.emine.shared.jooq.enums.StatutPaiement.annule);
-    long total =
-        dsl.selectCount()
+  public PagePaiements listerVisibles(Pagination pagination, Critere critere) {
+    var demande = Tables.DEMANDE;
+    var type = Tables.TYPE_DOCUMENT;
+    Condition base = PAIEMENT.STATUT.ne(StatutPaiement.annule).and(autres(critere));
+    var c =
+        dsl.select(
+                DSL.count(),
+                DSL.count().filterWhere(GroupeStatut.PAYES.condition()),
+                DSL.count().filterWhere(GroupeStatut.EN_COURS.condition()),
+                DSL.count().filterWhere(GroupeStatut.ECHOUES.condition()),
+                DSL.count().filterWhere(GroupeStatut.REMBOURSES.condition()),
+                DSL.sum(PAIEMENT.MONTANT_GNF).filterWhere(GroupeStatut.PAYES.condition()))
             .from(PAIEMENT)
-            .join(gn.gov.mines.emine.shared.jooq.Tables.DEMANDE)
-            .on(gn.gov.mines.emine.shared.jooq.Tables.DEMANDE.ID.eq(PAIEMENT.DEMANDE_ID))
-            .where(condition)
-            .fetchOne(0, Long.class);
-    var demande = gn.gov.mines.emine.shared.jooq.Tables.DEMANDE;
-    var type = gn.gov.mines.emine.shared.jooq.Tables.TYPE_DOCUMENT;
+            .join(demande)
+            .on(demande.ID.eq(PAIEMENT.DEMANDE_ID))
+            .join(type)
+            .on(type.ID.eq(demande.TYPE_DOCUMENT_ID))
+            .where(base)
+            .fetchOne();
+    var compteurs =
+        new Compteurs(
+            c.value1(),
+            c.value2(),
+            c.value3(),
+            c.value4(),
+            c.value5(),
+            c.value6() == null ? 0 : c.value6().longValueExact());
+    Condition filtre = critere.groupe() == null ? base : base.and(critere.groupe().condition());
+    long total =
+        critere.groupe() == null
+            ? compteurs.tous()
+            : switch (critere.groupe()) {
+              case PAYES -> compteurs.payes();
+              case EN_COURS -> compteurs.enCours();
+              case ECHOUES -> compteurs.echoues();
+              case REMBOURSES -> compteurs.rembourses();
+            };
     List<LignePaiement> elements =
         dsl.select(PAIEMENT.fields())
             .select(demande.NUMERO, type.CODE)
@@ -224,7 +292,7 @@ public class PaiementRepository {
             .on(demande.ID.eq(PAIEMENT.DEMANDE_ID))
             .join(type)
             .on(type.ID.eq(demande.TYPE_DOCUMENT_ID))
-            .where(condition)
+            .where(filtre)
             .orderBy(PAIEMENT.CREATED_AT.desc(), PAIEMENT.REFERENCE.desc())
             .limit(pagination.taille())
             .offset(pagination.decalage())
@@ -232,8 +300,47 @@ public class PaiementRepository {
                 r ->
                     new LignePaiement(
                         versDomaine(r.into(PAIEMENT)), r.get(demande.NUMERO), r.get(type.CODE)));
-    return new gn.gov.mines.emine.shared.pagination.PageResultat<>(
-        elements, pagination.page(), pagination.taille(), total);
+    return new PagePaiements(
+        new PageResultat<>(elements, pagination.page(), pagination.taille(), total), compteurs);
+  }
+
+  private static final ZoneId CONAKRY = ZoneId.of("Africa/Conakry");
+
+  /** Critères autres que le statut : recherche tolérante, objet, période. */
+  private static Condition autres(Critere critere) {
+    Condition c = DSL.noCondition();
+    if (critere.objet() != null) {
+      c = c.and(PAIEMENT.OBJET.eq(critere.objet()));
+    }
+    Field<Instant> date = DSL.coalesce(PAIEMENT.DATE_PAIEMENT, PAIEMENT.CREATED_AT);
+    if (critere.du() != null) {
+      c = c.and(date.ge(critere.du().atStartOfDay(CONAKRY).toInstant()));
+    }
+    if (critere.au() != null) {
+      c = c.and(date.lt(critere.au().plusDays(1).atStartOfDay(CONAKRY).toInstant()));
+    }
+    if (critere.recherche() != null && !critere.recherche().isBlank()) {
+      Field<String> texte =
+          normaliser(
+              DSL.concat(
+                  PAIEMENT.REFERENCE,
+                  DSL.inline(" "),
+                  DSL.coalesce(PAIEMENT.RECU_NUMERO, DSL.inline("")),
+                  DSL.inline(" "),
+                  DSL.coalesce(Tables.DEMANDE.NUMERO, DSL.inline("")),
+                  DSL.inline(" "),
+                  Tables.TYPE_DOCUMENT.LIBELLE_FR,
+                  DSL.inline(" "),
+                  DSL.coalesce(Tables.TYPE_DOCUMENT.LIBELLE_EN, DSL.inline(""))));
+      for (String mot : critere.recherche().strip().split("\\s+")) {
+        c = c.and(texte.contains(normaliser(DSL.val(mot))));
+      }
+    }
+    return c;
+  }
+
+  private static Field<String> normaliser(Field<String> texte) {
+    return DSL.function("fn_normaliser", String.class, texte);
   }
 
   public Optional<Paiement> lireParReference(String reference) {

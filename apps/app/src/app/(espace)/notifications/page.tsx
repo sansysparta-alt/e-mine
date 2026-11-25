@@ -1,10 +1,9 @@
 import { listerNotifications } from "@emine/api-client";
-import { EnTetePage, EtatVide } from "@emine/ui";
-import { BellOff } from "@emine/ui/icones";
+import { EnTetePage, EtatVide, FiltresPastilles, tailleAutorisee } from "@emine/ui";
+import { BellOff, CheckCheck } from "@emine/ui/icones";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { lireParametres, type Parametres } from "@/composants/demande/parametres-liste";
 import { PaginationListe } from "@/composants/liste/pagination-liste";
 import { ListeNotifications } from "@/composants/notification/liste-notifications";
 import { ToutMarquerLu } from "@/composants/notification/tout-marquer-lu";
@@ -15,21 +14,26 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("titre") };
 }
 
-type Props = { searchParams: Promise<Parametres> };
+type Props = { searchParams: Promise<{ page?: string; taille?: string; filtre?: string }> };
 
 /**
- * Centre de notifications (US-07.2) : les messages envoyés à l'utilisateur à chaque étape de ses
- * dossiers (les mêmes que par SMS et e-mail), des plus récents aux plus anciens, paginés. Chaque
- * ligne ouvre le dossier concerné et marque la notification comme lue.
+ * Centre de notifications (US-07.2) : les messages envoyés à chaque étape de ses dossiers, des plus
+ * récents aux plus anciens, **groupés par jour**, paginés ; filtres « Toutes » et « Non lues »
+ * (le nombre de non lues est celui de la pastille de la cloche, et l'en-tête le dit) ; « Tout
+ * marquer comme lu ». Chaque ligne ouvre le dossier et marque la notification comme lue ; une
+ * action encore attendue (payer les droits, compléter) a son bouton.
  */
 export default async function Notifications({ searchParams }: Props) {
-  const p = lireParametres(await searchParams);
+  const p = await searchParams;
   const t = await getTranslations("notifications");
-  // Les agents ne reçoivent pas de notification : comme « À traiter » pour un usager.
+  // Les agents ne reçoivent pas de notification de dossier.
   if ((await chargerMoi()).interne) notFound();
+  const page = Math.max(1, Number.parseInt(p.page ?? "1", 10) || 1);
+  const taille = tailleAutorisee(Number.parseInt(p.taille ?? "", 10));
+  const nonLues = p.filtre === "non-lues";
   const resultat = (
     await appelPage("/notifications", async () =>
-      listerNotifications({ page: p.page, taille: p.taille }, await optionsApi()),
+      listerNotifications({ page, taille, nonLues }, await optionsApi()),
     )
   ).data;
 
@@ -44,18 +48,48 @@ export default async function Notifications({ searchParams }: Props) {
         }
         actions={resultat.nonLues > 0 ? <ToutMarquerLu /> : null}
       />
-      {resultat.total === 0 ? (
+      {resultat.toutes === 0 ? (
         <EtatVide icone={BellOff} titre={t("vide.titre")} description={t("vide.description")} />
       ) : (
         <>
-          <ListeNotifications notifications={resultat.elements} />
-          <PaginationListe
-            chemin="/notifications"
-            page={resultat.page}
-            taille={resultat.taille}
-            total={resultat.total}
-            elements={t("elements")}
+          <FiltresPastilles
+            libelle={t("filtres.libelle")}
+            options={[
+              {
+                valeur: "",
+                libelle: t("filtres.toutes"),
+                href: "/notifications",
+                actif: !nonLues,
+                nombre: resultat.toutes,
+              },
+              {
+                valeur: "non-lues",
+                libelle: t("filtres.nonLues"),
+                href: "/notifications?filtre=non-lues",
+                actif: nonLues,
+                nombre: resultat.nonLues,
+              },
+            ]}
           />
+          {resultat.total === 0 ? (
+            <EtatVide
+              icone={CheckCheck}
+              titre={t("vide.toutLu")}
+              description={t("vide.toutLuDescription")}
+            />
+          ) : (
+            <>
+              <ListeNotifications notifications={resultat.elements} />
+              <PaginationListe
+                chemin="/notifications"
+                parametres={{ filtre: nonLues ? "non-lues" : undefined }}
+                page={resultat.page}
+                taille={resultat.taille}
+                total={resultat.total}
+                elements={t("elements")}
+              />
+            </>
+          )}
         </>
       )}
     </div>

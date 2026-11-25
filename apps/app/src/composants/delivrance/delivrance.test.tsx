@@ -89,9 +89,9 @@ describe("document délivré (US-06.4)", () => {
     expect(screen.getByText("Valide")).toBeVisible();
     expect(screen.getByText("Ibrahima Soumah")).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: "Voir le document" }));
-    expect(globalThis.document.querySelector("iframe")).toHaveAttribute(
-      "src",
-      "/api/demandes/41/document/contenu?inline=1",
+    // Le lecteur du navigateur s'ouvre sans sa propre barre d'outils (une seule barre : la nôtre).
+    expect(globalThis.document.querySelector("iframe")?.getAttribute("src")).toMatch(
+      /^\/api\/demandes\/41\/document\/contenu\?inline=1#toolbar=0/,
     );
     expect(screen.getByRole("link", { name: /Télécharger/ })).toHaveAttribute(
       "href",
