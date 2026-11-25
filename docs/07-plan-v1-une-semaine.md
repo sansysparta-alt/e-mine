@@ -1,6 +1,6 @@
 # e-mine · Plan V1 de démonstration en une semaine
 
-> Date : 20/11/2026 · **Priorité actuelle du projet.** Le plan complet ([03](03-product-backlog.md), [04](04-plan-des-sprints.md)) reste valable pour la suite : la V1 en réalise une partie, en version allégée.
+> Date : 20/11/2026, mis à jour le 25/11/2026 (lot 4, voir §9) · **Priorité actuelle du projet.** Le plan complet ([03](03-product-backlog.md), [04](04-plan-des-sprints.md)) reste valable pour la suite : la V1 en réalise une partie, en version allégée.
 > Développement avec Claude dans VS Code, une conversation par sprint, lancée avec `/sprint J1` … `/sprint J5` (méthode : `CLAUDE.md`).
 
 ## 1. Objectif
@@ -25,7 +25,7 @@ Montrer **de bout en bout**, sur un poste de démonstration, le parcours E-DEMAN
 
 **Personas de démo** (données fictives) : Investisseur (09), Agent guichet unique (02), Directeur (07), Responsable fiscal (06, consultation des paiements), Administrateur technique (01, journal d'audit).
 
-**Simplifications assumées en V1** : interface en **français seulement** (clés de traduction prêtes pour l'anglais) ; un seul gabarit PDF générique ; pas de 2FA SMS ; pas de complément de pièces ; avis technique non obligatoire avant la décision ; design system réduit aux composants utilisés.
+**Simplifications assumées en V1** (à l'origine ; plusieurs ont été levées depuis, voir §9) : interface en **français seulement** (clés de traduction prêtes pour l'anglais) ; un seul gabarit PDF générique ; pas de 2FA SMS ; pas de complément de pièces ; avis technique non obligatoire avant la décision ; design system réduit aux composants utilisés.
 
 ## 3. Hors V1 (repris dans le plan complet)
 
@@ -151,3 +151,19 @@ Chaque jour : **planning de 15 min le matin** (stories du jour, worktrees), **d�
 ## 8. Après la V1
 
 Reprendre le plan des sprints ([04](04-plan-des-sprints.md)) en marquant les stories déjà livrées en version allégée, puis compléter ce qui a été simplifié (§2) avant d'avancer sur les lots suivants.
+
+## 9. Avancement et périmètre V1 au 25/11/2026 (lot 4)
+
+La V1 a dépassé la version allégée de la semaine initiale. Ce tableau fait foi pour la démonstration ; les décisions de périmètre sont dans [01 §3](01-analyse-cahier-des-charges.md) (« Décisions du porteur du projet pour la V1 »).
+
+| Domaine | Livré en V1 | Reporté en V2 |
+|---|---|---|
+| Langues | Interface FR / EN complète ; référentiels et **textes saisis par l'administrateur** en FR / EN (US-02.9) | — |
+| Catalogue | Fiches versionnées, tarifs à date d'effet, **validation par le Ministre** ; CEX et KIM désactivés (profil BNE en V2) | CEX, KIM, profil BNE |
+| Workflows et délais | Versions **proposées par l'administrateur, validées par le Ministre, appliquées à leur date d'effet** ; une demande garde la version de son dépôt (US-02.8) | — |
+| Notifications | Canaux par événement (réglage immédiat), e-mails et SMS simulés reçus dans Mailpit | Passerelle SMS réelle |
+| Paiement | TrésorPay simulé et **virement** ; frais non remboursés sur rejet, sauf double paiement ou erreur | Réglage administrable du remboursement |
+| Instruction | Recevabilité, compléments, **avis du Géologue et de l'Inspecteur** (avis seulement), décision, délais | Rubriques métier cadastre et inspection |
+| Délivrance | PDF signé, QR, vérification publique, révocation avec **autorité et motif** ; lecteur PDF paginé (pdf.js) | — |
+| Comptes | Gérés dans Keycloak (D8) ; titre officiel de l'agent (`utilisateur.titre`) | Écran d'administration des comptes |
+| Espaces | Tableaux de bord par profil, « À traiter », journal d'audit | **Renouvellement**, **Messagerie**, **Annonces**, **Rapports** hiérarchiques |
