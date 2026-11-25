@@ -38,8 +38,9 @@ async function proposerDelai(admin: Page, jours: number, motif: string) {
 /** Le Ministre valide depuis son tableau de bord. */
 async function approuver(ministre: Page) {
   await ministre.goto("/tableau-de-bord");
-  await expect(ministre.getByText("1 modification du catalogue à valider")).toBeVisible();
-  await ministre.getByRole("link", { name: "Voir les modifications" }).click();
+  // Alerte commune aux propositions à valider (catalogue, workflows, délais : US-02.8).
+  await expect(ministre.getByText(/^\d+ modifications? à valider$/)).toBeVisible();
+  await ministre.getByRole("link", { name: "1 fiche du catalogue" }).click();
   await ministre.getByRole("link", { name: /CCC · Copie certifiée conforme/ }).click();
   await expect(ministre.getByText("À valider").first()).toBeVisible();
   await ministre.getByRole("button", { name: "Valider" }).click();
