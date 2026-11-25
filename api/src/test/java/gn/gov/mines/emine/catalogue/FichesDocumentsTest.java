@@ -117,7 +117,25 @@ class FichesDocumentsTest extends TestIntegration {
     mvc.perform(get(FICHES).with(admin))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.total").value(15))
-        .andExpect(jsonPath("$.compteurs.TOUS").value(15));
+        .andExpect(jsonPath("$.compteurs.TOUS").value(15))
+        // Tarifs dans le tableau (PEX : frais de dossier et droits) ; familles et leur nombre.
+        .andExpect(jsonPath("$.elements[?(@.code == 'PEX')].fraisDossierGnf").isNotEmpty())
+        .andExpect(jsonPath("$.elements[?(@.code == 'PEX')].droitsGnf").isNotEmpty())
+        .andExpect(jsonPath("$.familles.length()").value(5));
+    // Filtre par famille : seuls ses documents, et les compteurs d'état suivent la famille.
+    String famille =
+        tools.jackson.databind.json.JsonMapper.builder()
+            .build()
+            .readTree(
+                mvc.perform(get(FICHES).with(admin)).andReturn().getResponse().getContentAsString())
+            .path("familles")
+            .get(0)
+            .path("code")
+            .asString();
+    mvc.perform(get(FICHES).param("famille", famille).with(admin))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.elements[?(@.familleCode != '" + famille + "')]").isEmpty())
+        .andExpect(jsonPath("$.compteurs.TOUS").value(org.hamcrest.Matchers.lessThan(15)));
     mvc.perform(get(FICHES).with(ministre)).andExpect(status().isOk());
     mvc.perform(get(FICHES).with(jeton(GUICHET, "GUICHET")))
         .andExpect(status().isForbidden())

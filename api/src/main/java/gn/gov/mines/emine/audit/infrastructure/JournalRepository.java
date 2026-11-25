@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.JSONB;
 import org.jooq.Record;
 import org.jooq.SelectOnConditionStep;
@@ -55,21 +56,77 @@ public class JournalRepository {
     return new PageResultat<>(elements, pagination.page(), pagination.taille(), total);
   }
 
-  /** Nombre de lignes par catégorie, pour la recherche et la période (toutes catégories). */
+  /**
+   * Nombre de lignes par catégorie, pour la recherche, la période et l'auteur (toutes catégories) :
+   * les connexions sont comptées à part, pas dans « Comptes ».
+   */
   public Map<String, Long> compteursParCategorie(CritereJournal critere) {
     Map<String, Long> compteurs = new LinkedHashMap<>();
     RegleJournal.CATEGORIES.keySet().forEach(c -> compteurs.put(c, 0L));
-    dsl.select(JOURNAL_AUDIT.TABLE_NOM, DSL.count())
+    Field<String> groupe =
+        DSL.when(CONNEXION, DSL.inline(RegleJournal.CONNEXIONS)).otherwise(JOURNAL_AUDIT.TABLE_NOM);
+    dsl.select(groupe, DSL.count())
         .from(JOURNAL_AUDIT)
         .where(condition(critere, false))
-        .groupBy(JOURNAL_AUDIT.TABLE_NOM)
+        .groupBy(groupe)
         .fetch()
         .forEach(
             r ->
                 compteurs.merge(
-                    RegleJournal.categorie(r.value1()), r.value2().longValue(), Long::sum));
+                    RegleJournal.CONNEXIONS.equals(r.value1())
+                        ? RegleJournal.CONNEXIONS
+                        : RegleJournal.categorie(r.value1()),
+                    r.value2().longValue(),
+                    Long::sum));
     return compteurs;
   }
+
+  /** Auteur d'au moins une ligne du journal (filtre « Auteur »). */
+  public record Auteur(long id, String nom, String profilCode, String profil) {}
+
+  /** Auteurs présents dans le journal, par nom. */
+  public List<Auteur> auteurs() {
+    return dsl.select(
+            UTILISATEUR.ID, UTILISATEUR.PRENOM, UTILISATEUR.NOM, PROFIL.CODE, PROFIL.LIBELLE)
+        .from(UTILISATEUR)
+        .join(PROFIL)
+        .on(PROFIL.ID.eq(UTILISATEUR.PROFIL_ID))
+        .whereExists(
+            DSL.selectOne()
+                .from(JOURNAL_AUDIT)
+                .where(JOURNAL_AUDIT.UTILISATEUR_ID.eq(UTILISATEUR.ID)))
+        .orderBy(UTILISATEUR.NOM, UTILISATEUR.PRENOM, UTILISATEUR.ID)
+        .fetch(
+            r ->
+                new Auteur(
+                    r.get(UTILISATEUR.ID),
+                    (r.get(UTILISATEUR.PRENOM) + " " + r.get(UTILISATEUR.NOM)).strip(),
+                    r.get(PROFIL.CODE),
+                    r.get(PROFIL.LIBELLE)));
+  }
+
+  /**
+   * Une connexion : mise à jour d'un compte dont seule la date de dernière connexion change (les
+   * champs techniques posés à chaque mise à jour mis à part). Même règle que {@link
+   * RegleJournal#estConnexion}, en SQL.
+   */
+  static final Condition CONNEXION_BRUTE =
+      JOURNAL_AUDIT
+          .TABLE_NOM
+          .eq(DSL.inline("utilisateur"))
+          .and(DSL.trim(JOURNAL_AUDIT.OPERATION).eq(DSL.inline("U")))
+          .and(
+              DSL.condition(
+                  "({0} - 'derniere_connexion' - 'updated_at' - 'version')"
+                      + " = ({1} - 'derniere_connexion' - 'updated_at' - 'version')",
+                  JOURNAL_AUDIT.NOUVELLES_VALEURS, JOURNAL_AUDIT.ANCIENNES_VALEURS))
+          .and(
+              DSL.condition(
+                  "({0} ->> 'derniere_connexion') IS DISTINCT FROM ({1} ->> 'derniere_connexion')",
+                  JOURNAL_AUDIT.NOUVELLES_VALEURS, JOURNAL_AUDIT.ANCIENNES_VALEURS));
+
+  /** Toujours vraie ou fausse (une création n'a pas d'anciennes valeurs : jamais une connexion). */
+  static final Condition CONNEXION = DSL.condition("({0}) IS TRUE", CONNEXION_BRUTE);
 
   /** Une ligne du journal, avec toutes les valeurs d'une création. */
   public Optional<EntreeJournal> lire(long id) {
@@ -80,6 +137,12 @@ public class JournalRepository {
     Condition c = DSL.trueCondition();
     if (avecTables && !critere.tables().isEmpty()) {
       c = c.and(JOURNAL_AUDIT.TABLE_NOM.in(critere.tables()));
+    }
+    if (avecTables && critere.connexions() != null) {
+      c = c.and(critere.connexions() ? CONNEXION : DSL.not(CONNEXION));
+    }
+    if (critere.auteurId() != null) {
+      c = c.and(JOURNAL_AUDIT.UTILISATEUR_ID.eq(critere.auteurId()));
     }
     if (critere.debut() != null) {
       c = c.and(JOURNAL_AUDIT.CREATED_AT.ge(critere.debut()));
@@ -157,7 +220,7 @@ public class JournalRepository {
         r.get(PROFIL.LIBELLE),
         r.get(PROFIL.CODE),
         table,
-        RegleJournal.categorie(table),
+        RegleJournal.categorie(table, operation, avant, apres),
         operation,
         objetId,
         RegleJournal.libelleObjet(avant, apres),

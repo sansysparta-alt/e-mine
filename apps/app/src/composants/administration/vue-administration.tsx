@@ -3,13 +3,15 @@ import {
   BadgeStatut,
   Carte,
   CarteChiffre,
+  classesAuDessusDuLien,
+  cn,
   type ColonneTableau,
   type ComposantLien,
   formaterDateHeure,
   GrilleChiffres,
   TableauDonnees,
 } from "@emine/ui";
-import { Activity, ScrollText, ShieldCheck, Users } from "@emine/ui/icones";
+import { ScrollText, ServerCog, ShieldCheck, UserCheck, Users } from "@emine/ui/icones";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { libelleProfil } from "../referentiels";
@@ -25,7 +27,10 @@ type ProfilLigne = TableauDto["profils"][number];
 /**
  * Vue d'ensemble de l'administrateur technique (cahier des charges : « Utilisateurs actifs,
  * Profils configurés, Disponibilité », « Utilisateurs & rôles », journal d'audit). Chaque carte
- * ouvre la liste qui donne le même nombre ; chiffres et états calculés par l'API.
+ * ouvre la liste qui donne le même nombre ; chiffres et états calculés par l'API. Les comptes par
+ * profil sont groupés (profils internes du Ministère, puis profils des usagers) : le nombre de
+ * comptes ouvre la liste filtrée, les droits se consultent d'un clic. Les dernières opérations
+ * sont les vraies modifications (les connexions ont leur filtre dans le journal).
  */
 export function VueAdministration({
   tableau,
@@ -37,6 +42,7 @@ export function VueAdministration({
 }) {
   const t = useTranslations("administration");
   const tReferentiels = useTranslations("referentiels");
+  const tDroits = useTranslations("administration.droits");
   const aCeJour = t("periodes.aCeJour");
   const configures = tableau.profils.filter((p) => p.droits > 0).length;
   const disponibles = tableau.services.filter((s) => s.disponible).length;
@@ -49,28 +55,50 @@ export function VueAdministration({
           <span className="font-semibold text-navy">
             {libelleProfil(p.code, p.libelle, tReferentiels)}
           </span>
-          <span className="text-sm text-texte-doux">
-            {p.interne ? t("profils.interne") : t("profils.externe")}
-          </span>
         </span>
       ),
     },
     {
       cle: "utilisateurs",
       entete: t("profils.colonnes.utilisateurs"),
-      rendu: (p) => <span className="tabular-nums">{p.utilisateurs}</span>,
+      interactive: true,
+      rendu: (p) => (
+        <Link
+          href={`/utilisateurs?profil=${p.code}`}
+          className={cn(
+            classesAuDessusDuLien,
+            "inline-flex min-h-11 items-center font-semibold text-royal tabular-nums underline-offset-4 hover:underline",
+          )}
+        >
+          {t("profils.comptes", { nombre: p.utilisateurs })}
+        </Link>
+      ),
     },
     {
       cle: "droits",
       entete: t("profils.colonnes.droits"),
+      interactive: true,
       rendu: (p) =>
         p.droits > 0 ? (
-          <span className="tabular-nums">{p.droits}</span>
+          <details className={classesAuDessusDuLien}>
+            <summary className="inline-flex min-h-11 cursor-pointer items-center font-semibold text-royal">
+              {t("profils.voirDroits", { nombre: p.droits })}
+            </summary>
+            <ul className="flex flex-col gap-1 pb-2 text-sm">
+              {p.permissions.map((d) => (
+                <li key={d}>{tDroits.has(d) ? tDroits(d) : d}</li>
+              ))}
+            </ul>
+          </details>
         ) : (
           <BadgeStatut ton="avertissement">{t("profils.sansDroit")}</BadgeStatut>
         ),
     },
   ];
+  const groupes = [
+    { cle: "internes", profils: tableau.profils.filter((p) => p.interne) },
+    { cle: "externes", profils: tableau.profils.filter((p) => !p.interne) },
+  ] as const;
 
   return (
     <div className="flex flex-col gap-6">
@@ -90,7 +118,7 @@ export function VueAdministration({
           libelle={t("chiffres.connectes")}
           periode={t("periodes.trenteJours")}
           valeur={tableau.comptes.connectes30Jours}
-          icone={Activity}
+          icone={UserCheck}
           href="/utilisateurs?recents=1"
         />
         <CarteChiffre
@@ -106,7 +134,7 @@ export function VueAdministration({
           periode={t("periodes.maintenant")}
           valeur={t("chiffres.surTotal", { n: disponibles, total: tableau.services.length })}
           precision={t("chiffres.disponibilitePrecision")}
-          icone={Activity}
+          icone={ServerCog}
           href="#services"
         />
       </GrilleChiffres>
@@ -170,18 +198,29 @@ export function VueAdministration({
         </Carte>
       </div>
 
-      <section id="profils" aria-labelledby="titre-profils" className="scroll-mt-24">
-        <h2 id="titre-profils" className="mb-3 text-xl">
+      <section
+        id="profils"
+        aria-labelledby="titre-profils"
+        className="flex scroll-mt-24 flex-col gap-4"
+      >
+        <h2 id="titre-profils" className="text-xl">
           {t("profils.titre")}
         </h2>
-        <TableauDonnees
-          legende={t("profils.titre")}
-          lignes={tableau.profils}
-          cleLigne={(p) => p.code}
-          Lien={LienNext}
-          lienLigne={(p) => `/utilisateurs?profil=${p.code}`}
-          colonnes={colonnes}
-        />
+        {groupes.map((g) => (
+          <div key={g.cle} className="flex flex-col gap-2">
+            <h3 className="text-base font-semibold text-texte-doux">
+              {t(`profils.groupes.${g.cle}`, { nombre: g.profils.length })}
+            </h3>
+            <TableauDonnees
+              legende={t(`profils.groupes.${g.cle}`, { nombre: g.profils.length })}
+              lignes={g.profils}
+              cleLigne={(p) => p.code}
+              Lien={LienNext}
+              lienLigne={(p) => `/utilisateurs?profil=${p.code}`}
+              colonnes={colonnes}
+            />
+          </div>
+        ))}
       </section>
     </div>
   );

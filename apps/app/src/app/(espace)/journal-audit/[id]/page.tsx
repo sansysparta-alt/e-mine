@@ -56,7 +56,12 @@ export default async function EntreeJournal({ params }: Props) {
   return (
     <div className="flex flex-col gap-6">
       <EnTetePage
-        titre={t("entree.titre", { operation: t(`operations.${entree.operation}`), table })}
+        titre={t("entree.titre", {
+          operation: t(
+            `operations.${entree.categorie === "connexions" ? "connexion" : entree.operation}`,
+          ),
+          table,
+        })}
         description={formaterDateHeure(entree.date)}
         retour={
           <FilArianeApp

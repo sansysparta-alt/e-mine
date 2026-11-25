@@ -82,6 +82,10 @@ const ligne: LigneFicheDto = {
   code: "PEX",
   libelleFr: "Permis d'exploitation",
   famille: "Titres miniers",
+  familleCode: "TITRES",
+  fraisDossierGnf: 5_000_000,
+  droitsGnf: 15_000_000,
+  attestationGnf: null,
   delaiJours: 60,
   signataire: "Ministre",
   actif: true,
@@ -100,6 +104,30 @@ describe("liste du catalogue", () => {
     );
     expect(screen.getAllByText("À valider")).toHaveLength(1);
     expect(screen.getAllByText("60 jours").length).toBeGreaterThan(0);
+  });
+
+  it("affiche les tarifs en vigueur : frais puis droits, ou tarif unique", () => {
+    avecTraductions(
+      <TableauFiches
+        lignes={[
+          ligne,
+          {
+            ...ligne,
+            code: "COP",
+            fraisDossierGnf: null,
+            droitsGnf: null,
+            attestationGnf: 500_000,
+          },
+          { ...ligne, code: "AUT", droitsGnf: null },
+        ]}
+        legende="Catalogue"
+      />,
+    );
+    const [pex, cop, aut] = screen.getAllByRole("row").slice(1);
+    expect(pex).toHaveTextContent(/5\s000\s000\sGNF frais de dossier/);
+    expect(pex).toHaveTextContent(/puis 15\s000\s000\sGNF de droits/);
+    expect(cop).toHaveTextContent(/500\s000\sGNF\s*tarif unique/);
+    expect(aut).toHaveTextContent("sans droits");
   });
 });
 

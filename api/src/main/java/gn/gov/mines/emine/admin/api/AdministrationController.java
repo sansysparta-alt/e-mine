@@ -31,8 +31,16 @@ class AdministrationController {
 
   private final ServiceAdministration service;
 
-  AdministrationController(ServiceAdministration service) {
+  /** Adresse de la console Keycloak du realm (fiche d'un compte : « …/users/{id}/settings »). */
+  private final String consoleKeycloak;
+
+  AdministrationController(
+      ServiceAdministration service,
+      @org.springframework.beans.factory.annotation.Value(
+              "${emine.administration.console-keycloak:}")
+          String consoleKeycloak) {
     this.service = service;
+    this.consoleKeycloak = consoleKeycloak;
   }
 
   @GetMapping("/tableau-de-bord")
@@ -53,11 +61,46 @@ class AdministrationController {
         t.profils().stream()
             .map(
                 p ->
-                    new ProfilDto(p.code(), p.libelle(), p.interne(), p.utilisateurs(), p.droits()))
+                    new ProfilDto(
+                        p.code(),
+                        p.libelle(),
+                        p.interne(),
+                        p.utilisateurs(),
+                        p.droits(),
+                        p.permissions()))
             .toList(),
         t.services().stream().map(s -> new ServiceDto(s.cle(), s.disponible())).toList(),
         t.verifieLe());
   }
+
+  @GetMapping("/alertes")
+  @Operation(
+      operationId = "lireAlertesAdministration",
+      summary =
+          "Alertes de l'administrateur technique (cloche) : services indisponibles, comptes"
+              + " suspendus, invitations jamais activées ; calculées à la lecture")
+  AlertesDto alertes() {
+    List<AlerteDto> alertes =
+        service.alertes().stream()
+            .map(a -> new AlerteDto(a.cle(), a.service(), a.nombre()))
+            .toList();
+    return new AlertesDto(alertes, alertes.size());
+  }
+
+  /**
+   * Une alerte.
+   *
+   * @param cle {@code service}, {@code suspendus} ou {@code invites}
+   * @param service clé du service indisponible ({@code base}, {@code stockage}…), sinon absente
+   * @param nombre comptes concernés (1 pour un service)
+   */
+  record AlerteDto(
+      @Schema(allowableValues = {"service", "suspendus", "invites"}) String cle,
+      @Schema(nullable = true) String service,
+      long nombre) {}
+
+  /** Alertes en cours et leur nombre (pastille de la cloche). */
+  record AlertesDto(List<AlerteDto> elements, int nombre) {}
 
   @GetMapping("/utilisateurs")
   @Operation(
@@ -73,20 +116,39 @@ class AdministrationController {
       @RequestParam(required = false) @Size(max = 100) String q,
       @RequestParam(required = false) Integer page,
       @RequestParam(required = false) Integer taille) {
-    PageResultat<Supervision.Utilisateur> p =
+    Supervision.PageUtilisateurs resultat =
         service.utilisateurs(
             profil, statut, Boolean.TRUE.equals(recents), q, Pagination.de(page, taille));
+    PageResultat<Supervision.Utilisateur> p = resultat.page();
+    var c = resultat.compteurs();
     return new PageUtilisateursDto(
-        p.elements().stream().map(UtilisateurDto::depuis).toList(),
+        p.elements().stream().map(u -> UtilisateurDto.depuis(u, consoleKeycloak)).toList(),
         p.page(),
         p.taille(),
         p.total(),
-        p.totalPages());
+        p.totalPages(),
+        new CompteursUtilisateursDto(
+            c.tous(), c.actifs(), c.suspendus(), c.invites(), c.connectes30Jours()));
   }
 
   record ComptesDto(long actifs, long suspendus, long invites, long connectes30Jours) {}
 
-  record ProfilDto(String code, String libelle, boolean interne, long utilisateurs, int droits) {}
+  /**
+   * Un profil, ses comptes et ses droits.
+   *
+   * @param permissions codes des droits de la matrice ({@code DEPOSER}, {@code PARAMETRER}…)
+   */
+  record ProfilDto(
+      String code,
+      String libelle,
+      boolean interne,
+      long utilisateurs,
+      int droits,
+      List<String> permissions) {}
+
+  /** Nombre de comptes de chaque filtre, pour le profil et la recherche choisis. */
+  record CompteursUtilisateursDto(
+      long tous, long actifs, long suspendus, long invites, long connectes30Jours) {}
 
   /**
    * @param cle {@code base}, {@code authentification}, {@code stockage} ou {@code messagerie}
@@ -105,9 +167,13 @@ class AdministrationController {
       String profilCode,
       String profilLibelle,
       String statut,
-      @Schema(nullable = true) Instant derniereConnexion) {
+      @Schema(nullable = true) Instant derniereConnexion,
+      @Schema(
+              nullable = true,
+              description = "Fiche du compte dans la console d'administration de Keycloak (D8)")
+          String lienKeycloak) {
 
-    static UtilisateurDto depuis(Supervision.Utilisateur u) {
+    static UtilisateurDto depuis(Supervision.Utilisateur u, String consoleKeycloak) {
       return new UtilisateurDto(
           u.id(),
           u.prenom(),
@@ -117,10 +183,18 @@ class AdministrationController {
           u.profilCode(),
           u.profilLibelle(),
           u.statut(),
-          u.derniereConnexion());
+          u.derniereConnexion(),
+          u.keycloakId() == null || consoleKeycloak == null || consoleKeycloak.isBlank()
+              ? null
+              : consoleKeycloak + "/users/" + u.keycloakId() + "/settings");
     }
   }
 
   record PageUtilisateursDto(
-      List<UtilisateurDto> elements, int page, int taille, long total, int totalPages) {}
+      List<UtilisateurDto> elements,
+      int page,
+      int taille,
+      long total,
+      int totalPages,
+      CompteursUtilisateursDto compteurs) {}
 }

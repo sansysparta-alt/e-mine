@@ -482,7 +482,8 @@
       "conseil": "Check the spelling, or type part of the number (for example 000009), the document or applicant name. Accents and capitals do not matter.",
       "effacer": "Clear search",
       "partout": "Search all requests"
-    }
+    },
+    "element": "request"
   },
   "session": {
     "avertissement": {
@@ -559,7 +560,8 @@
     "precedente": "Prev.",
     "suivante": "Next",
     "page": "Page {numero}",
-    "pageSur": "Page {numero} of {total}"
+    "pageSur": "Page {numero} of {total}",
+    "resumeUn": "1 {element}"
   },
   "visualiseur": {
     "consulter": "View",
@@ -871,16 +873,13 @@
       "bouton": "Search"
     },
     "periode": {
-      "du": "From",
-      "au": "To",
-      "appliquer": "Apply period",
-      "effacer": "Clear period",
       "inverseeTitre": "Incorrect period",
       "inversee": "The end date is before the start date: correct the period."
     },
     "filtre": "Object type",
     "categories": {
       "toutes": "All",
+      "connexions": "Sign-ins",
       "demandes": "Requests",
       "paiements": "Payments",
       "decisions": "Decisions",
@@ -898,7 +897,8 @@
     "operations": {
       "I": "Creation",
       "U": "Change",
-      "D": "Deletion"
+      "D": "Deletion",
+      "connexion": "Sign-in"
     },
     "tables": {
       "demande": "Request",
@@ -1004,7 +1004,8 @@
       "modele": "Event",
       "code": "Code",
       "renouvelable": "Renewable",
-      "genere_titre": "Creates a title"
+      "genere_titre": "Creates a title",
+      "derniere_connexion": "Last sign-in"
     },
     "systeme": "System",
     "systemeDetail": "System (TrésorPay notification, automatic task or migration)",
@@ -1044,7 +1045,16 @@
       }
     },
     "renseigne": "set",
-    "systemeAide": "Automatic platform action"
+    "systemeAide": "Automatic platform action",
+    "element": "entry",
+    "connexion": {
+      "precedente": "Previous sign-in: {date}",
+      "premiere": "First sign-in"
+    },
+    "auteurs": {
+      "libelle": "Author",
+      "tous": "All authors"
+    }
   },
   "delivrance": {
     "signer": {
@@ -1197,7 +1207,8 @@
       "ligne": "{date} · {auteur} · step \"{etape}\"",
       "passeNFois": "{nombre, plural, one {Skipped # time} other {Skipped # times}}",
       "bloqueCourt": "Blocked · skipped {nombre} times"
-    }
+    },
+    "element": "file"
   },
   "statutsAffiches": {
     "demandeur": {
@@ -1305,22 +1316,14 @@
     "actions": {
       "payerDroits": "Pay the fees",
       "completer": "Complete the file"
-    }
+    },
+    "element": "notification"
   },
   "catalogue": {
     "titre": "Catalogue and fees",
     "description": {
       "admin": "Records of the Ministry’s 15 documents: required documents, target time, signatory and fees. Each change is proposed here, then validated by the Minister before it is published.",
       "ministre": "Catalogue changes proposed by the administrator: validate or reject them. Nothing is published without your validation."
-    },
-    "chiffres": {
-      "periode": "To date",
-      "documents": "Documents in the catalogue",
-      "propositions": {
-        "admin": "Changes awaiting validation",
-        "ministre": "Changes to validate"
-      },
-      "inactifs": "Withdrawn from the catalogue"
     },
     "recherche": {
       "libelle": "Search a document",
@@ -1332,11 +1335,14 @@
       "TOUS": "All",
       "A_VALIDER_admin": "Awaiting validation",
       "A_VALIDER_ministre": "To validate",
-      "INACTIFS": "Withdrawn"
+      "INACTIFS": "Withdrawn",
+      "famille": "Category",
+      "toutesFamilles": "All categories"
     },
     "colonnes": {
       "code": "Code",
       "document": "Document",
+      "tarifs": "Fees",
       "delai": "Target time",
       "signataire": "Signatory",
       "version": "Version",
@@ -1547,6 +1553,13 @@
       "unites": {
         "jours": "days"
       }
+    },
+    "element": "document",
+    "tarifs": {
+      "unique": "single fee",
+      "frais": "filing fee",
+      "droits": "then {montant} in duties",
+      "sansDroits": "no duties"
     }
   },
   "workflows": {
@@ -1627,7 +1640,8 @@
     },
     "etapesNombre": "{n, plural, one {Process in # step} other {Process in # steps}}",
     "selonDocument": "depending on the document",
-    "documentsFamille": "Documents in this family"
+    "documentsFamille": "Documents in this family",
+    "element": "workflow"
   },
   "parametres": {
     "titre": "Time limits and notifications",
@@ -1903,7 +1917,7 @@
     "operations": {
       "titre": "Latest operations",
       "vide": "No operation recorded yet.",
-      "voirTout": "See the audit log",
+      "voirTout": "See the full log",
       "systeme": "System",
       "nature": {
         "I": "Creation · {objet}",
@@ -1913,13 +1927,17 @@
     },
     "profils": {
       "titre": "Accounts by profile",
-      "interne": "Internal profile",
-      "externe": "External profile",
       "sansDroit": "No permission",
       "colonnes": {
         "profil": "Profile",
         "utilisateurs": "Accounts",
         "droits": "Permissions"
+      },
+      "comptes": "{nombre, plural, =0 {No account} one {# account} other {# accounts}}",
+      "voirDroits": "{nombre, plural, one {# permission} other {# permissions}}",
+      "groupes": {
+        "internes": "Internal Ministry profiles ({nombre})",
+        "externes": "User profiles ({nombre})"
       }
     },
     "utilisateurs": {
@@ -1939,8 +1957,9 @@
       "colonnes": {
         "utilisateur": "User",
         "statut": "Status",
-        "profil": "Profile",
-        "connexion": "Last sign-in"
+        "profil": "Profile and permissions",
+        "connexion": "Last sign-in",
+        "actions": "Actions"
       },
       "statuts": {
         "actif": "Active",
@@ -1965,7 +1984,34 @@
         "recherche": "No account matches “{texte}”",
         "conseil": "Check the spelling, or type part of the name, e-mail or organisation. Accents and capitals do not matter.",
         "effacer": "See all accounts"
-      }
+      },
+      "element": "account",
+      "ouvrirKeycloak": "Open in Keycloak",
+      "nouvelOnglet": "(opens in a new tab)"
+    },
+    "droits": {
+      "DEPOSER": "Submit a request",
+      "PAYER": "Pay fees",
+      "INSTRUIRE": "Review a file",
+      "SIGNER": "Sign electronically",
+      "ENCAISSER": "Collect and reconcile payments",
+      "VERIFIER": "Verify a document",
+      "PARAMETRER": "Configure the platform",
+      "CADASTRE_LECTURE": "Read the cadastre",
+      "CADASTRE_ECRITURE": "Write to the cadastre",
+      "PUBLIER": "Publish content",
+      "VALIDER_CATALOGUE": "Approve the catalogue and fees"
+    },
+    "alertes": {
+      "titre": "Alerts",
+      "aucune": "No alert: all services are running and no account is awaiting action.",
+      "service": "Service unavailable: {service}",
+      "suspendus": "{nombre, plural, one {# suspended account} other {# suspended accounts}}",
+      "invites": "{nombre, plural, one {# invitation not yet activated} other {# invitations not yet activated}}",
+      "voirTout": "See the overview",
+      "avec": "Alerts, {nombre} ongoing",
+      "sans": "Alerts",
+      "erreur": "The alerts could not be loaded. Please try again shortly."
     }
   },
   "mesPaiements": {
@@ -2001,7 +2047,8 @@
     "actions": {
       "telechargerRecu": "Download the receipt",
       "voir": "View details"
-    }
+    },
+    "element": "payment"
   },
   "mesDocuments": {
     "titre": "Issued documents",
@@ -2052,7 +2099,8 @@
         "annuler": "Cancel",
         "confirmer": "Download anyway"
       }
-    }
+    },
+    "element": "document"
   },
   "detailPaiement": {
     "titre": "Payment details",

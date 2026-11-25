@@ -169,3 +169,33 @@ describe("centre de notifications (US-07.2)", () => {
     expect(cles(en.notifications)).toEqual(cles(fr.notifications));
   });
 });
+
+describe("cloche de l'administrateur technique (alertes)", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("annonce les alertes en cours et chacune mène à l'écran qui permet d'agir", async () => {
+    const reponse = {
+      elements: [
+        { cle: "service", service: "stockage", nombre: 1 },
+        { cle: "suspendus", service: null, nombre: 2 },
+      ],
+      nombre: 2,
+    };
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(JSON.stringify(reponse), { status: 200 })),
+    );
+    enFrancais(<ClocheNotifications source="alertes" />);
+    const cloche = screen.getByRole("button");
+    await waitFor(() => expect(cloche).toHaveAccessibleName("Alertes, 2 en cours"));
+    fireEvent.click(cloche);
+    expect(
+      await screen.findByRole("link", { name: "Service indisponible : Stockage des documents" }),
+    ).toHaveAttribute("href", "/tableau-de-bord#services");
+    expect(screen.getByRole("link", { name: "2 comptes suspendus" })).toHaveAttribute(
+      "href",
+      "/utilisateurs?statut=suspendu",
+    );
+    expect(screen.getByRole("link", { name: "Voir la vue d’ensemble" })).toBeVisible();
+  });
+});

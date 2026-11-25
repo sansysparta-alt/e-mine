@@ -1,5 +1,11 @@
-import { consulterJournal, ErreurApi, type PageJournalDto } from "@emine/api-client";
-import { Alerte, Bouton, classesChamp, EnTetePage, EtatVide, FiltresPastilles } from "@emine/ui";
+import {
+  type AuteurDto,
+  consulterJournal,
+  ErreurApi,
+  listerAuteursJournal,
+  type PageJournalDto,
+} from "@emine/api-client";
+import { Alerte, EnTetePage, EtatVide, FiltresPastilles } from "@emine/ui";
 import { ScrollText } from "@emine/ui/icones";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -11,8 +17,11 @@ import {
   type ParametresJournal,
 } from "@/composants/audit/journal";
 import { TableauJournal } from "@/composants/audit/tableau-journal";
+import { FiltrePeriode } from "@/composants/liste/filtre-periode";
 import { PaginationListe } from "@/composants/liste/pagination-liste";
+import { PlusDeFiltres } from "@/composants/liste/plus-de-filtres";
 import { RechercheListe } from "@/composants/liste/recherche-liste";
+import { libelleProfil } from "@/composants/referentiels";
 import { appelPage, chargerMoi, optionsApi } from "@/serveur/donnees";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -24,14 +33,21 @@ type Props = { searchParams: Promise<ParametresJournal> };
 
 /**
  * Journal d'audit (US-11.7, partiel V1) : toutes les modifications enregistrées par la base, de la
- * plus récente à la plus ancienne ; filtres par catégorie (avec leur nombre), recherche pendant la
- * saisie et période. Réservé à l'administrateur (droit « paramétrer »).
+ * plus récente à la plus ancienne, et les connexions ; filtres par catégorie (avec leur nombre) et
+ * par auteur, recherche pendant la saisie et période appliquée dès qu'une date est choisie. Réservé
+ * à l'administrateur (droit « paramétrer »).
  */
 export default async function JournalAudit({ searchParams }: Props) {
   const p = lireParametresJournal(await searchParams);
   const moi = await chargerMoi();
   if (!moi.interne || !moi.permissions.includes("PARAMETRER")) notFound();
   const t = await getTranslations("audit");
+  const tReferentiels = await getTranslations("referentiels");
+
+  const auteurs: AuteurDto[] = (
+    await appelPage("/journal-audit", async () => listerAuteursJournal(await optionsApi()))
+  ).data;
+  const auteurActif = auteurs.find((a) => String(a.id) === p.auteur);
 
   let resultat: PageJournalDto | null = null;
   let erreurPeriode = p.periodeInversee;
@@ -42,6 +58,7 @@ export default async function JournalAudit({ searchParams }: Props) {
           consulterJournal(
             {
               categorie: p.categorie,
+              auteur: p.auteur ? Number(p.auteur) : undefined,
               q: p.q,
               du: p.du,
               au: p.au,
@@ -63,6 +80,7 @@ export default async function JournalAudit({ searchParams }: Props) {
     const q = new URLSearchParams();
     const tout = {
       categorie: p.categorie,
+      auteur: p.auteur,
       q: p.q,
       du: p.du,
       au: p.au,
@@ -75,7 +93,9 @@ export default async function JournalAudit({ searchParams }: Props) {
   };
   const compteurs = resultat?.compteurs ?? {};
   const total = Object.values(compteurs).reduce((s, n) => s + n, 0);
-  const filtre = Boolean(p.categorie || p.q || p.du || p.au);
+  const filtre = Boolean(p.categorie || p.auteur || p.q || p.du || p.au);
+  const libelleAuteur = (a: AuteurDto) =>
+    `${a.nom} · ${libelleProfil(a.profilCode, a.profil, tReferentiels)}`;
 
   return (
     <div className="flex flex-col gap-6">
@@ -86,61 +106,18 @@ export default async function JournalAudit({ searchParams }: Props) {
         valeur={p.q}
         placeholder={t("recherche.exemple")}
         boutonLibelle={t("recherche.bouton")}
-        conserver={{ categorie: p.categorie, du: p.du, au: p.au }}
+        conserver={{ categorie: p.categorie, auteur: p.auteur, du: p.du, au: p.au }}
       />
 
-      <form
-        method="get"
-        action="/journal-audit"
-        className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end"
-        aria-describedby={erreurPeriode ? "periode-erreur" : undefined}
-      >
-        {p.categorie ? <input type="hidden" name="categorie" value={p.categorie} /> : null}
-        {p.q ? <input type="hidden" name="q" value={p.q} /> : null}
-        <div className="flex flex-col gap-1">
-          <label htmlFor="periode-du" className="font-semibold">
-            {t("periode.du")}
-          </label>
-          <input
-            id="periode-du"
-            type="date"
-            name="du"
-            defaultValue={p.du}
-            aria-invalid={erreurPeriode ? true : undefined}
-            className={classesChamp}
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label htmlFor="periode-au" className="font-semibold">
-            {t("periode.au")}
-          </label>
-          <input
-            id="periode-au"
-            type="date"
-            name="au"
-            defaultValue={p.au}
-            aria-invalid={erreurPeriode ? true : undefined}
-            className={classesChamp}
-          />
-        </div>
-        <Bouton type="submit" variante="secondaire">
-          {t("periode.appliquer")}
-        </Bouton>
-        {p.du || p.au ? (
-          <Link
-            href={adresse({ du: undefined, au: undefined })}
-            className="inline-flex min-h-11 items-center text-royal underline-offset-4 hover:underline"
-          >
-            {t("periode.effacer")}
-          </Link>
-        ) : null}
-      </form>
-      {erreurPeriode ? (
-        <div id="periode-erreur">
-          <Alerte nature="erreur" titre={t("periode.inverseeTitre")}>
-            {t("periode.inversee")}
-          </Alerte>
-        </div>
+      <FiltrePeriode
+        du={p.du}
+        au={p.au}
+        conserver={{ categorie: p.categorie, auteur: p.auteur, q: p.q }}
+      />
+      {erreurPeriode && !p.periodeInversee ? (
+        <Alerte nature="erreur" titre={t("periode.inverseeTitre")}>
+          {t("periode.inversee")}
+        </Alerte>
       ) : null}
 
       {resultat ? (
@@ -163,6 +140,29 @@ export default async function JournalAudit({ searchParams }: Props) {
                 nombre: compteurs[c] ?? 0,
               })),
             ]}
+            fin={
+              auteurs.length > 0 ? (
+                <PlusDeFiltres
+                  libelle={t("auteurs.libelle")}
+                  titre={t("auteurs.libelle")}
+                  options={auteurs.map((a) => ({
+                    valeur: String(a.id),
+                    libelle: libelleAuteur(a),
+                    href: adresse({ auteur: String(a.id) }),
+                    actif: p.auteur === String(a.id),
+                  }))}
+                  actif={
+                    auteurActif
+                      ? {
+                          libelle: auteurActif.nom,
+                          effacer: adresse({ auteur: undefined }),
+                          libelleEffacer: t("auteurs.tous"),
+                        }
+                      : undefined
+                  }
+                />
+              ) : undefined
+            }
           />
           {resultat.total === 0 ? (
             <EtatVide
@@ -184,11 +184,17 @@ export default async function JournalAudit({ searchParams }: Props) {
               <TableauJournal entrees={resultat.elements} legende={t("titre")} />
               <PaginationListe
                 chemin="/journal-audit"
-                parametres={{ categorie: p.categorie, q: p.q, du: p.du, au: p.au }}
+                parametres={{
+                  categorie: p.categorie,
+                  auteur: p.auteur,
+                  q: p.q,
+                  du: p.du,
+                  au: p.au,
+                }}
                 page={resultat.page}
                 taille={resultat.taille}
                 total={resultat.total}
-                elements={t("elements")}
+                elements={{ un: t("element"), plusieurs: t("elements") }}
               />
             </div>
           )}

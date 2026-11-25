@@ -71,12 +71,27 @@ public class ServiceFiches {
   /**
    * Page de la liste et nombre de documents de chaque filtre (pour la recherche donnée).
    *
-   * @param compteurs nombre de documents par filtre
+   * @param compteurs nombre de documents par filtre d'état (pour la famille choisie)
+   * @param familles familles (code et libellé) et nombre de documents de chacune (pour le filtre
+   *     d'état choisi), dans l'ordre du catalogue
    */
-  public record Liste(PageResultat<LigneFiche> page, Map<Filtre, Long> compteurs) {}
+  public record Liste(
+      PageResultat<LigneFiche> page, Map<Filtre, Long> compteurs, List<FamilleCompte> familles) {}
+
+  /** Une famille de documents et son nombre de documents. */
+  public record FamilleCompte(String code, String libelle, long nombre) {}
 
   @Transactional(readOnly = true)
   public Liste lister(Filtre filtre, String recherche, Pagination pagination) {
+    return lister(filtre, null, recherche, pagination);
+  }
+
+  /**
+   * Liste du catalogue : filtre d'état, famille (catégorie) et recherche ; les compteurs de chaque
+   * groupe de filtres suivent l'autre groupe et la recherche.
+   */
+  @Transactional(readOnly = true)
+  public Liste lister(Filtre filtre, String famille, String recherche, Pagination pagination) {
     UtilisateurConnecte moi = gestionnaire();
     Map<String, VersionDocumentRepository.Etat> etats = versions.etats();
     Predicate<TypeDocument> correspond = recherche(recherche);
@@ -96,18 +111,31 @@ public class ServiceFiches {
                       e.numeroProposee() == null ? Action.AUCUNE : action(moi));
                 })
             .toList();
+    Filtre etat = filtre == null ? Filtre.TOUS : filtre;
+    Predicate<LigneFiche> deLaFamille =
+        l -> famille == null || famille.equals(l.document().famille().code());
     Map<Filtre, Long> compteurs = new EnumMap<>(Filtre.class);
     for (Filtre f : Filtre.values()) {
-      compteurs.put(f, lignes.stream().filter(l -> dans(l, f)).count());
+      compteurs.put(f, lignes.stream().filter(deLaFamille).filter(l -> dans(l, f)).count());
+    }
+    Map<String, FamilleCompte> familles = new java.util.LinkedHashMap<>();
+    for (LigneFiche l : lignes) {
+      var f = l.document().famille();
+      long n = dans(l, etat) ? 1 : 0;
+      familles.merge(
+          f.code(),
+          new FamilleCompte(f.code(), f.libelle(), n),
+          (a, b) -> new FamilleCompte(a.code(), a.libelle(), a.nombre() + b.nombre()));
     }
     List<LigneFiche> filtrees =
-        lignes.stream().filter(l -> dans(l, filtre == null ? Filtre.TOUS : filtre)).toList();
+        lignes.stream().filter(deLaFamille).filter(l -> dans(l, etat)).toList();
     int debut = Math.min(pagination.decalage(), filtrees.size());
     int fin = Math.min(debut + pagination.taille(), filtrees.size());
     return new Liste(
         new PageResultat<>(
             filtrees.subList(debut, fin), pagination.page(), pagination.taille(), filtrees.size()),
-        compteurs);
+        compteurs,
+        List.copyOf(familles.values()));
   }
 
   /**

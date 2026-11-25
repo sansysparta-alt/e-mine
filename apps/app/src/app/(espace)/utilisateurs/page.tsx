@@ -7,6 +7,7 @@ import {
   Alerte,
   BadgeStatut,
   Bouton,
+  classesAuDessusDuLien,
   type ColonneTableau,
   EnTetePage,
   EtatVide,
@@ -17,7 +18,7 @@ import {
   type TonBadge,
   TexteSurligne,
 } from "@emine/ui";
-import { Users } from "@emine/ui/icones";
+import { ExternalLink, Users } from "@emine/ui/icones";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -48,9 +49,10 @@ type Parametres = {
 };
 
 /**
- * Utilisateurs & rôles (cahier des charges, espace « Administrateur technique ») : comptes, profil,
- * statut et dernière connexion, en lecture seule (les comptes sont gérés dans Keycloak, D8).
- * Filtres par statut (avec leur nombre), par profil (« Plus de filtres »), recherche tolérante.
+ * Utilisateurs & rôles (cahier des charges, espace « Administrateur technique ») : comptes, profil
+ * et ses droits, statut et dernière connexion, en lecture seule ; chaque compte s'ouvre dans
+ * Keycloak, où il se gère (D8). Filtres par statut (avec leur nombre, qui suit le profil et la
+ * recherche choisis), par profil (le bouton affiche le profil choisi), recherche tolérante.
  */
 export default async function Utilisateurs({
   searchParams,
@@ -62,6 +64,8 @@ export default async function Utilisateurs({
   if (!moi.interne || !moi.permissions.includes("PARAMETRER")) notFound();
   const t = await getTranslations("administration.utilisateurs");
   const tReferentiels = await getTranslations("referentiels");
+  const tAdmin = await getTranslations("administration");
+  const tDroits = await getTranslations("administration.droits");
 
   const statut = STATUTS.find((s) => s === brut.statut);
   const recents = brut.recents === "1";
@@ -89,25 +93,19 @@ export default async function Utilisateurs({
     return chaine ? `/utilisateurs?${chaine}` : "/utilisateurs";
   };
   const nomProfil = (code: string, repli: string) => libelleProfil(code, repli, tReferentiels);
-  const total = tableau.comptes.actifs + tableau.comptes.suspendus + tableau.comptes.invites;
+  // Compteurs de l'API : ils suivent le profil et la recherche choisis.
+  const c = resultat.compteurs;
+  const total = c.tous;
   const nombres: Record<Statut, number> = {
-    actif: tableau.comptes.actifs,
-    suspendu: tableau.comptes.suspendus,
-    invite: tableau.comptes.invites,
+    actif: c.actifs,
+    suspendu: c.suspendus,
+    invite: c.invites,
   };
+  const profilChoisi = tableau.profils.find((p) => p.code === profil);
+  const droitsDe = (code: string) =>
+    tableau.profils.find((p) => p.code === code)?.permissions ?? [];
   const filtresActifs: FiltreActif[] = [
     recents ? { cle: "recents", libelle: t("filtres.recents") } : null,
-    profil
-      ? {
-          cle: "profil",
-          libelle: t("filtres.profil", {
-            profil: nomProfil(
-              profil,
-              tableau.profils.find((p) => p.code === profil)?.libelle ?? "",
-            ),
-          }),
-        }
-      : null,
   ]
     .filter((f) => f !== null)
     .map((f) => ({ ...f, effacer: adresse({ [f.cle]: undefined }) }));
@@ -121,7 +119,7 @@ export default async function Utilisateurs({
           <span className="font-semibold text-navy">
             <TexteSurligne texte={`${u.prenom} ${u.nom}`} recherche={q ?? ""} />
           </span>
-          <span className="text-sm break-all text-texte-doux">
+          <span className="text-sm whitespace-nowrap text-texte-doux">
             <TexteSurligne texte={u.email} recherche={q ?? ""} />
           </span>
         </span>
@@ -138,16 +136,34 @@ export default async function Utilisateurs({
     {
       cle: "profil",
       entete: t("colonnes.profil"),
-      rendu: (u) => (
-        <span className="flex flex-col">
-          <span>{nomProfil(u.profilCode, u.profilLibelle)}</span>
-          {u.organisation ? (
-            <span className="text-sm text-texte-doux">
-              <TexteSurligne texte={u.organisation} recherche={q ?? ""} />
-            </span>
-          ) : null}
-        </span>
-      ),
+      interactive: true,
+      rendu: (u) => {
+        const droits = droitsDe(u.profilCode);
+        return (
+          <span className="flex flex-col">
+            <span>{nomProfil(u.profilCode, u.profilLibelle)}</span>
+            {u.organisation ? (
+              <span className="text-sm text-texte-doux">
+                <TexteSurligne texte={u.organisation} recherche={q ?? ""} />
+              </span>
+            ) : null}
+            {droits.length > 0 ? (
+              <details className={classesAuDessusDuLien}>
+                <summary className="inline-flex min-h-11 cursor-pointer items-center text-sm font-semibold text-royal">
+                  {tAdmin("profils.voirDroits", { nombre: droits.length })}
+                </summary>
+                <ul className="flex flex-col gap-1 pb-2 text-sm">
+                  {droits.map((d) => (
+                    <li key={d}>{tDroits.has(d) ? tDroits(d) : d}</li>
+                  ))}
+                </ul>
+              </details>
+            ) : (
+              <span className="text-sm text-avertissement">{tAdmin("profils.sansDroit")}</span>
+            )}
+          </span>
+        );
+      },
     },
     {
       cle: "connexion",
@@ -157,6 +173,29 @@ export default async function Utilisateurs({
           formaterDateHeure(u.derniereConnexion)
         ) : (
           <span className="text-texte-doux">{t("jamais")}</span>
+        ),
+    },
+    {
+      cle: "actions",
+      entete: t("colonnes.actions"),
+      interactive: true,
+      rendu: (u) =>
+        u.lienKeycloak ? (
+          <a
+            href={u.lienKeycloak}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex min-h-11 items-center gap-1 rounded-lg px-2 text-sm font-semibold whitespace-nowrap text-royal hover:bg-ice"
+          >
+            <ExternalLink aria-hidden="true" className="size-4" />
+            {t("ouvrirKeycloak")}
+            <span className="sr-only">
+              {" "}
+              {u.prenom} {u.nom} {t("nouvelOnglet")}
+            </span>
+          </a>
+        ) : (
+          <span className="text-texte-doux">—</span>
         ),
     },
   ];
@@ -203,6 +242,15 @@ export default async function Utilisateurs({
               actif: profil === p.code,
               nombre: p.utilisateurs,
             }))}
+            actif={
+              profilChoisi
+                ? {
+                    libelle: nomProfil(profilChoisi.code, profilChoisi.libelle),
+                    effacer: adresse({ profil: undefined }),
+                    libelleEffacer: t("filtres.effacer"),
+                  }
+                : undefined
+            }
           />
         }
       />
@@ -236,7 +284,7 @@ export default async function Utilisateurs({
             page={resultat.page}
             taille={resultat.taille}
             total={resultat.total}
-            elements={t("elements")}
+            elements={{ un: t("element"), plusieurs: t("elements") }}
           />
         </div>
       )}

@@ -41,16 +41,23 @@ class JournalAuditController {
   @Operation(
       operationId = "consulterJournal",
       summary =
-          "Journal d'audit paginé, du plus récent au plus ancien, filtrable par catégorie,"
-              + " recherche et période (dates de Conakry, bornes incluses)")
+          "Journal d'audit paginé, du plus récent au plus ancien, filtrable par catégorie"
+              + " (dont « connexions »), auteur, recherche et période (dates de Conakry, bornes"
+              + " incluses)")
   PageJournalDto consulter(
       @RequestParam(required = false) @Pattern(regexp = "^[a-z]{1,20}$") String categorie,
       @RequestParam(required = false) @Size(max = 100) String q,
       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate du,
       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate au,
+      @RequestParam(required = false) Long auteur,
+      @io.swagger.v3.oas.annotations.Parameter(
+              description = "false : sans les connexions (dernières opérations du tableau de bord)")
+          @RequestParam(required = false)
+          Boolean connexions,
       @RequestParam(required = false) Integer page,
       @RequestParam(required = false) Integer taille) {
-    Consultation c = service.consulter(categorie, q, du, au, Pagination.de(page, taille));
+    Consultation c =
+        service.consulter(categorie, q, du, au, auteur, connexions, Pagination.de(page, taille));
     return new PageJournalDto(
         c.page().elements().stream().map(EntreeJournalDto::depuis).toList(),
         c.page().page(),
@@ -60,7 +67,20 @@ class JournalAuditController {
         c.compteurs());
   }
 
-  @GetMapping("/{id}")
+  @GetMapping("/auteurs")
+  @Operation(
+      operationId = "listerAuteursJournal",
+      summary = "Auteurs présents dans le journal d'audit (filtre « Auteur »), par nom")
+  List<AuteurDto> auteurs() {
+    return service.auteurs().stream()
+        .map(a -> new AuteurDto(a.id(), a.nom(), a.profilCode(), a.profil()))
+        .toList();
+  }
+
+  /** Auteur d'au moins une ligne du journal. */
+  record AuteurDto(long id, String nom, String profilCode, String profil) {}
+
+  @GetMapping("/{id:\\d+}")
   @Operation(operationId = "lireEntreeJournal", summary = "Une ligne du journal d'audit")
   EntreeJournalDto lire(@PathVariable long id) {
     return EntreeJournalDto.depuis(service.lire(id));

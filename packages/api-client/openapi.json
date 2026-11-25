@@ -1750,7 +1750,7 @@
     "/api/v1/journal-audit" : {
       "get" : {
         "tags" : [ "Audit" ],
-        "summary" : "Journal d'audit paginé, du plus récent au plus ancien, filtrable par catégorie, recherche et période (dates de Conakry, bornes incluses)",
+        "summary" : "Journal d'audit paginé, du plus récent au plus ancien, filtrable par catégorie (dont « connexions »), auteur, recherche et période (dates de Conakry, bornes incluses)",
         "operationId" : "consulterJournal",
         "parameters" : [ {
           "name" : "categorie",
@@ -1784,6 +1784,22 @@
           "schema" : {
             "type" : "string",
             "format" : "date"
+          }
+        }, {
+          "name" : "auteur",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "connexions",
+          "in" : "query",
+          "description" : "false : sans les connexions (dernières opérations du tableau de bord)",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
           }
         }, {
           "name" : "page",
@@ -1844,6 +1860,28 @@
         }
       }
     },
+    "/api/v1/journal-audit/auteurs" : {
+      "get" : {
+        "tags" : [ "Audit" ],
+        "summary" : "Auteurs présents dans le journal d'audit (filtre « Auteur »), par nom",
+        "operationId" : "listerAuteursJournal",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/AuteurDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/fiches-documents" : {
       "get" : {
         "tags" : [ "Catalogue" ],
@@ -1856,6 +1894,14 @@
           "schema" : {
             "type" : "string",
             "pattern" : "^(TOUS|A_VALIDER|INACTIFS)$"
+          }
+        }, {
+          "name" : "famille",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "^[A-Z_]{2,30}$"
           }
         }, {
           "name" : "q",
@@ -2330,6 +2376,25 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/TableauDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/administration/alertes" : {
+      "get" : {
+        "tags" : [ "Administration" ],
+        "summary" : "Alertes de l'administrateur technique (cloche) : services indisponibles, comptes suspendus, invitations jamais activées ; calculées à la lecture",
+        "operationId" : "lireAlertesAdministration",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AlertesDto"
                 }
               }
             }
@@ -3711,6 +3776,41 @@
         },
         "required" : [ "compteurs", "elements", "page", "taille", "total", "totalPages" ]
       },
+      "AuteurDto" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "nom" : {
+            "type" : "string"
+          },
+          "profilCode" : {
+            "type" : "string"
+          },
+          "profil" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "id", "nom", "profil", "profilCode" ]
+      },
+      "FamilleDto" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "libelle" : {
+            "type" : "string"
+          },
+          "nombre" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "code", "libelle", "nombre" ]
+      },
       "LigneFicheDto" : {
         "type" : "object",
         "properties" : {
@@ -3722,6 +3822,21 @@
           },
           "famille" : {
             "type" : "string"
+          },
+          "familleCode" : {
+            "type" : "string"
+          },
+          "fraisDossierGnf" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "droitsGnf" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "attestationGnf" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
           },
           "delaiJours" : {
             "type" : "integer",
@@ -3749,7 +3864,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "actif", "action", "code", "delaiJours", "famille", "libelleFr", "numeroEnVigueur", "numeroProposee", "proposeeLe", "signataire" ]
+        "required" : [ "actif", "action", "attestationGnf", "code", "delaiJours", "droitsGnf", "famille", "familleCode", "fraisDossierGnf", "libelleFr", "numeroEnVigueur", "numeroProposee", "proposeeLe", "signataire" ]
       },
       "PageFichesDto" : {
         "type" : "object",
@@ -3782,9 +3897,15 @@
               "type" : "integer",
               "format" : "int64"
             }
+          },
+          "familles" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/FamilleDto"
+            }
           }
         },
-        "required" : [ "compteurs", "elements", "page", "taille", "total", "totalPages" ]
+        "required" : [ "compteurs", "elements", "familles", "page", "taille", "total", "totalPages" ]
       },
       "ChangementFicheDto" : {
         "type" : "object",
@@ -4458,6 +4579,32 @@
         },
         "required" : [ "groupes", "total" ]
       },
+      "CompteursUtilisateursDto" : {
+        "type" : "object",
+        "properties" : {
+          "tous" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "actifs" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "suspendus" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "invites" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "connectes30Jours" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "actifs", "connectes30Jours", "invites", "suspendus", "tous" ]
+      },
       "PageUtilisateursDto" : {
         "type" : "object",
         "properties" : {
@@ -4482,9 +4629,12 @@
           "totalPages" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "compteurs" : {
+            "$ref" : "#/components/schemas/CompteursUtilisateursDto"
           }
         },
-        "required" : [ "elements", "page", "taille", "total", "totalPages" ]
+        "required" : [ "compteurs", "elements", "page", "taille", "total", "totalPages" ]
       },
       "UtilisateurDto" : {
         "type" : "object",
@@ -4517,9 +4667,13 @@
           "derniereConnexion" : {
             "type" : [ "string", "null" ],
             "format" : "date-time"
+          },
+          "lienKeycloak" : {
+            "type" : [ "string", "null" ],
+            "description" : "Fiche du compte dans la console d'administration de Keycloak (D8)"
           }
         },
-        "required" : [ "derniereConnexion", "email", "id", "nom", "organisation", "prenom", "profilCode", "profilLibelle", "statut" ]
+        "required" : [ "derniereConnexion", "email", "id", "lienKeycloak", "nom", "organisation", "prenom", "profilCode", "profilLibelle", "statut" ]
       },
       "ComptesDto" : {
         "type" : "object",
@@ -4562,9 +4716,15 @@
           "droits" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "permissions" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           }
         },
-        "required" : [ "code", "droits", "interne", "libelle", "utilisateurs" ]
+        "required" : [ "code", "droits", "interne", "libelle", "permissions", "utilisateurs" ]
       },
       "ServiceDto" : {
         "type" : "object",
@@ -4602,6 +4762,39 @@
           }
         },
         "required" : [ "comptes", "profils", "services", "verifieLe" ]
+      },
+      "AlerteDto" : {
+        "type" : "object",
+        "properties" : {
+          "cle" : {
+            "type" : "string",
+            "enum" : [ "service", "suspendus", "invites" ]
+          },
+          "service" : {
+            "type" : [ "string", "null" ]
+          },
+          "nombre" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "cle", "nombre", "service" ]
+      },
+      "AlertesDto" : {
+        "type" : "object",
+        "properties" : {
+          "elements" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/AlerteDto"
+            }
+          },
+          "nombre" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "elements", "nombre" ]
       }
     }
   }

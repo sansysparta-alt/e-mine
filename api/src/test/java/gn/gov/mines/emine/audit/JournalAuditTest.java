@@ -4,6 +4,7 @@ import static gn.gov.mines.emine.support.Personas.ADMIN_TECH;
 import static gn.gov.mines.emine.support.Personas.GUICHET;
 import static gn.gov.mines.emine.support.Personas.INVESTISSEUR;
 import static gn.gov.mines.emine.support.Personas.jeton;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasItem;
@@ -140,6 +141,63 @@ class JournalAuditTest extends TestIntegration {
     mvc.perform(get(URL + "/999999999").with(admin()))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.code").value("SYS-002"));
+  }
+
+  @Test
+  void uneConnexionEstUneActionDistincteQuiNeNoiePasLesModificationsDeComptes() throws Exception {
+    long adminId;
+    try (java.sql.Connection c = gn.gov.mines.emine.support.BaseDeDonneesDeTest.connexionOwner()) {
+      c.setAutoCommit(false);
+      try (var ps = c.prepareStatement("SELECT id FROM utilisateur WHERE keycloak_id = ?::uuid")) {
+        ps.setString(1, ADMIN_TECH);
+        var rs = ps.executeQuery();
+        rs.next();
+        adminId = rs.getLong(1);
+      }
+      try (var st = c.createStatement()) {
+        st.execute("SELECT set_config('emine.user_id', '" + adminId + "', true)");
+        st.execute(
+            "UPDATE utilisateur SET derniere_connexion = now() + interval '1 second'"
+                + " WHERE id = "
+                + adminId);
+      }
+      c.commit();
+    }
+    String connexions =
+        mvc.perform(get(URL).param("categorie", "connexions").param("taille", "100").with(admin()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.compteurs.connexions", greaterThanOrEqualTo(1)))
+            .andExpect(jsonPath("$.elements[0].categorie").value("connexions"))
+            .andExpect(jsonPath("$.elements[0].changements.length()").value(1))
+            .andExpect(jsonPath("$.elements[0].changements[0].champ").value("derniere_connexion"))
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+    long total = JSON.readTree(connexions).path("total").asLong();
+    assertThat(total)
+        .isEqualTo(JSON.readTree(connexions).path("compteurs").path("connexions").asLong());
+    // « Comptes » ne montre plus les connexions, mais garde les créations de comptes.
+    mvc.perform(get(URL).param("categorie", "comptes").param("taille", "100").with(admin()))
+        .andExpect(jsonPath("$.elements[?(@.categorie == 'connexions')]").isEmpty())
+        .andExpect(jsonPath("$.elements[?(@.operation == 'I')]").isNotEmpty());
+    // Les dernières opérations du tableau de bord se lisent sans les connexions.
+    mvc.perform(get(URL).param("connexions", "false").param("taille", "100").with(admin()))
+        .andExpect(jsonPath("$.elements[?(@.categorie == 'connexions')]").isEmpty());
+    // Filtre par auteur : la liste des auteurs le propose, et seules ses lignes restent.
+    mvc.perform(get(URL + "/auteurs").with(admin()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[?(@.id == " + adminId + ")].profilCode").value("ADMIN_TECH"));
+    String parAuteur =
+        mvc.perform(get(URL).param("auteur", String.valueOf(adminId)).with(admin()))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+    JsonNode elements = JSON.readTree(parAuteur).path("elements");
+    assertThat(elements.size()).isPositive();
+    for (JsonNode e : elements) {
+      assertThat(e.path("auteurProfilCode").asString()).isEqualTo("ADMIN_TECH");
+    }
   }
 
   private long brouillon(String superficie) throws Exception {

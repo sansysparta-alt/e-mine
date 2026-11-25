@@ -42,7 +42,13 @@ public class ServiceJournal {
    */
   @Transactional(readOnly = true)
   public Consultation consulter(
-      String categorie, String recherche, LocalDate du, LocalDate au, Pagination pagination) {
+      String categorie,
+      String recherche,
+      LocalDate du,
+      LocalDate au,
+      Long auteurId,
+      Boolean avecConnexions,
+      Pagination pagination) {
     List<String> tables =
         categorie == null || categorie.isBlank()
             ? List.of()
@@ -51,14 +57,29 @@ public class ServiceJournal {
     if (du != null && au != null && du.isAfter(au)) {
       throw champInvalide("au", "La fin de la période précède son début.");
     }
+    // Les connexions ont leur catégorie : « Comptes » ne montre que les vraies modifications.
+    Boolean connexions =
+        RegleJournal.CONNEXIONS.equals(categorie)
+            ? Boolean.TRUE
+            : "comptes".equals(categorie) || Boolean.FALSE.equals(avecConnexions)
+                ? Boolean.FALSE
+                : null;
     CritereJournal critere =
         new CritereJournal(
             tables,
             recherche,
             du == null ? null : du.atStartOfDay(CONAKRY).toInstant(),
-            au == null ? null : au.plusDays(1).atStartOfDay(CONAKRY).toInstant());
+            au == null ? null : au.plusDays(1).atStartOfDay(CONAKRY).toInstant(),
+            connexions,
+            auteurId);
     return new Consultation(
         journal.lister(critere, pagination), journal.compteursParCategorie(critere));
+  }
+
+  /** Auteurs présents dans le journal (filtre « Auteur »). */
+  @Transactional(readOnly = true)
+  public List<JournalRepository.Auteur> auteurs() {
+    return journal.auteurs();
   }
 
   /** Une ligne du journal (SYS-002 si elle n'existe pas). */
