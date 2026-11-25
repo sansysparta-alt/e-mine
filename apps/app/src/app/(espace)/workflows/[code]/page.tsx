@@ -1,18 +1,31 @@
-import { type DetailWorkflowDto, ErreurApi, lireWorkflow } from "@emine/api-client";
+import {
+  type DetailWorkflowDto,
+  ErreurApi,
+  lireWorkflow,
+  type VersionWorkflowDto,
+} from "@emine/api-client";
 import { Alerte, Bouton, Carte, EnTetePage, formaterDate } from "@emine/ui";
 import { FilePen } from "@emine/ui/icones";
 import type { Metadata } from "next";
-import { libelleDocument, libelleWorkflow } from "@/composants/referentiels";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
+import { DecisionVersion } from "@/composants/catalogue/decision-version";
 import { FilArianeApp } from "@/composants/fil-ariane-app";
+import {
+  CarteProposition,
+  HistoriqueVersions,
+  type VersionGouvernee,
+} from "@/composants/gouvernance/gouvernance";
+import { libelleDocument, libelleWorkflow } from "@/composants/referentiels";
+import { ContenuVersionWorkflow } from "@/composants/workflow/contenu-version";
 import { EtapesWorkflow } from "@/composants/workflow/etapes-workflow";
+import { deciderWorkflow } from "@/serveur/actions-workflow";
 import { appelPage, chargerMoi, optionsApi } from "@/serveur/donnees";
 
 type Props = {
   params: Promise<{ code: string }>;
-  searchParams: Promise<{ version?: string }>;
+  searchParams: Promise<{ proposee?: string; resultat?: string }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -21,13 +34,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title: `${code} · ${t("titre")}` };
 }
 
+const RESULTATS = ["approuver", "refuser", "retirer"] as const;
+
+/** Version de workflow au format commun de la gouvernance. */
+function gouvernee(v: VersionWorkflowDto): VersionGouvernee & VersionWorkflowDto {
+  return { ...v, proposeePar: v.modifieePar, proposeeLe: v.modifieeLe };
+}
+
 /**
  * Un workflow (US-02.5) : étapes en vigueur, documents de la famille, règle de paiement, délais
- * (déduits des fiches approuvées) et historique des versions.
+ * (déduits des fiches approuvées). Gouvernance (US-02.8) : proposition à valider (le Ministre
+ * décide, l'administrateur peut retirer), version programmée, historique des versions.
  */
 export default async function DetailWorkflow({ params, searchParams }: Props) {
   const { code } = await params;
-  const { version } = await searchParams;
+  const { proposee, resultat } = await searchParams;
   if (!/^[A-Z_]{2,30}$/.test(code)) notFound();
   const moi = await chargerMoi();
   if (
@@ -37,6 +58,7 @@ export default async function DetailWorkflow({ params, searchParams }: Props) {
     notFound();
   }
   const t = await getTranslations("workflows");
+  const tGouvernance = await getTranslations("gouvernance");
   const tReferentiels = await getTranslations("referentiels");
 
   let d: DetailWorkflowDto;
@@ -50,24 +72,22 @@ export default async function DetailWorkflow({ params, searchParams }: Props) {
   const w = d.workflow;
   const langue = await getLocale();
   const v = w.enVigueur;
+  const nom = libelleWorkflow(w.code, v.libelle, tReferentiels);
+  const admin = moi.permissions.includes("PARAMETRER");
   const delai =
     w.delaiMinJours === w.delaiMaxJours
       ? t("jours", { n: w.delaiMinJours })
       : t("fourchette", { min: w.delaiMinJours, max: w.delaiMaxJours });
+  const resultatConnu = RESULTATS.find((r) => r === resultat);
 
   return (
     <div className="flex flex-col gap-6">
       <EnTetePage
-        retour={
-          <FilArianeApp
-            rubrique="workflows"
-            courante={libelleWorkflow(w.code, v.libelle, tReferentiels)}
-          />
-        }
-        titre={libelleWorkflow(w.code, v.libelle, tReferentiels)}
+        retour={<FilArianeApp rubrique="workflows" courante={nom} />}
+        titre={nom}
         description={t("etapesNombre", { n: v.etapes.length })}
         actions={
-          d.peutModifier ? (
+          d.peutProposer ? (
             <Bouton asChild>
               <Link href={`/workflows/${w.code}/modifier`}>
                 <FilePen aria-hidden="true" className="size-5" />
@@ -78,9 +98,49 @@ export default async function DetailWorkflow({ params, searchParams }: Props) {
         }
       />
 
-      {version ? (
-        <Alerte nature="succes" titre={t("enregistre.titre")}>
-          {t("enregistre.texte", { n: Number(version) })}
+      {proposee && /^\d{1,4}$/.test(proposee) ? (
+        <Alerte nature="succes" titre={tGouvernance("resultat.titre")}>
+          {tGouvernance("resultat.proposee", { n: Number(proposee) })}
+        </Alerte>
+      ) : null}
+      {resultatConnu ? (
+        <Alerte nature="succes" titre={tGouvernance("resultat.titre")}>
+          {tGouvernance(`resultat.${resultatConnu}`)}
+        </Alerte>
+      ) : null}
+
+      {w.aValider ? (
+        <CarteProposition
+          v={gouvernee(w.aValider)}
+          decideur={d.peutDecider}
+          decision={
+            d.peutDecider || admin ? (
+              <DecisionVersion
+                code={w.code}
+                numero={w.aValider.version}
+                action={d.peutDecider ? "DECIDER" : "ATTENDRE"}
+                changeSignataire={false}
+                desactive={false}
+                decider={deciderWorkflow}
+                adresseApres={`/workflows/${w.code}`}
+                texteApprobation={tGouvernance("approbation")}
+              />
+            ) : undefined
+          }
+        >
+          <ContenuVersionWorkflow version={w.aValider} />
+        </CarteProposition>
+      ) : null}
+
+      {w.programmee ? (
+        <Alerte
+          nature="info"
+          titre={tGouvernance("programmee.titre", {
+            n: w.programmee.version,
+            date: formaterDate(w.programmee.dateEffet),
+          })}
+        >
+          {tGouvernance("programmee.texte", { actuelle: v.version })}
         </Alerte>
       ) : null}
 
@@ -125,35 +185,11 @@ export default async function DetailWorkflow({ params, searchParams }: Props) {
         </div>
       </Carte>
 
-      <Carte titre={t("historique")}>
-        <ol className="flex flex-col">
-          {d.versions.map((x) => (
-            <li
-              key={x.version}
-              className="flex flex-col gap-2 border-b border-bordure py-4 first:pt-0 last:border-0 last:pb-0"
-            >
-              <p className="font-semibold text-navy">
-                {t("version", { n: x.version })}
-                {x.version === v.version ? ` · ${t("actuelle")}` : ""}
-              </p>
-              <p className="text-sm text-texte-doux">
-                {x.modifieePar
-                  ? t("par", { date: formaterDate(x.modifieeLe), nom: x.modifieePar })
-                  : t("initiale")}
-              </p>
-              <p>{x.motif}</p>
-              {x.version !== v.version ? (
-                <details>
-                  <summary className="inline-flex min-h-11 cursor-pointer items-center text-royal">
-                    {t("voirEtapes", { n: x.etapes.length })}
-                  </summary>
-                  <EtapesWorkflow etapes={x.etapes} />
-                </details>
-              ) : null}
-            </li>
-          ))}
-        </ol>
-      </Carte>
+      <HistoriqueVersions
+        versions={d.versions.map(gouvernee)}
+        decideur={d.peutDecider}
+        contenu={(x) => <ContenuVersionWorkflow version={x} />}
+      />
     </div>
   );
 }

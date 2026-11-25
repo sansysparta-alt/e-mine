@@ -1,4 +1,10 @@
-import { compterATraiter, listerFichesDocuments, type MoiDto } from "@emine/api-client";
+import {
+  compterATraiter,
+  lireParametresDelai,
+  listerFichesDocuments,
+  listerWorkflows,
+  type MoiDto,
+} from "@emine/api-client";
 import { optionsApi } from "./donnees";
 
 /** Nombre affiché à côté d'une rubrique du menu, par clé de rubrique (`navigation/config.ts`). */
@@ -7,8 +13,8 @@ export type CompteursNavigation = Record<string, number>;
 /**
  * Compteurs du menu : ce que **le profil connecté** doit faire maintenant (règle « À traiter » du
  * socle, calculée par l'API, jamais recomptée ici). Demandeur : ses demandes qui attendent une
- * action de sa part ; agent : sa file « À traiter » ; Ministre : les fiches du catalogue à
- * approuver. Une rubrique dont le nombre ne peut être lu reste simplement sans compteur.
+ * action de sa part ; agent : sa file « À traiter » ; Ministre : les fiches du catalogue, les
+ * workflows et la règle des délais à valider. Une rubrique dont le nombre ne peut être lu reste simplement sans compteur.
  */
 export async function compteursNavigation(moi: MoiDto): Promise<CompteursNavigation> {
   const options = await optionsApi();
@@ -26,6 +32,12 @@ export async function compteursNavigation(moi: MoiDto): Promise<CompteursNavigat
       listerFichesDocuments({ filtre: "A_VALIDER", taille: 10 }, options).then((r) => [
         "catalogue",
         r.data.total,
+      ]),
+      // Gouvernance (US-02.8) : propositions de workflows et de règle des délais à valider.
+      listerWorkflows({ taille: 10 }, options).then((r) => ["workflows", r.data.aValider]),
+      lireParametresDelai(options).then((r) => [
+        "parametres",
+        r.data.versions.filter((v) => v.etat === "a_valider").length,
       ]),
     );
   }

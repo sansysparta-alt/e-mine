@@ -19,11 +19,16 @@ function avecTraductions(enfant: React.ReactNode) {
 
 const enVigueur: VersionWorkflowDto = {
   version: 1,
+  etat: "en_vigueur",
   libelle: "Export et expertise",
   reglePaiement: "Frais d'expertise puis droits d'export",
   motif: "Workflow initial",
   modifieePar: null,
   modifieeLe: "2026-01-01T00:00:00Z",
+  dateEffet: "2026-01-01",
+  decideePar: null,
+  decideeLe: "2026-01-01T00:00:00Z",
+  motifRefus: null,
   etapes: [
     { acteur: "BNE", libelle: "Expertise du lot" },
     { acteur: "DNM, Fiscalité ou Brigade", libelle: "Contrôle" },
@@ -57,8 +62,10 @@ describe("liste des workflows (US-02.5)", () => {
         },
       ],
       enVigueur,
+      aValider: { ...enVigueur, version: 2, etat: "a_valider", decideeLe: null },
+      programmee: null,
     };
-    avecTraductions(<TableauWorkflows lignes={[w]} legende="Workflows" />);
+    avecTraductions(<TableauWorkflows lignes={[w]} legende="Workflows" decideur />);
     expect(screen.getByRole("link", { name: /Export et expertise/ })).toHaveAttribute(
       "href",
       "/workflows/EXPORT",
@@ -68,11 +75,13 @@ describe("liste des workflows (US-02.5)", () => {
     expect(document.querySelector("abbr")).toBeNull();
     expect(screen.getByText(/Autorisation d'exportation/)).toBeVisible();
     expect(screen.getByText(/Certificat d'expertise \(BNE\) \(désactivé\)/)).toBeVisible();
+    // Une proposition attend le Ministre : un seul badge, orange pour lui.
+    expect(screen.getByText("À valider")).toBeVisible();
   });
 });
 
-describe("modification d'un workflow (US-02.5)", () => {
-  it("réordonne, ajoute et retire des étapes, exige un motif, puis enregistre", async () => {
+describe("proposition de modification d'un workflow (US-02.5, US-02.8)", () => {
+  it("réordonne, ajoute et retire des étapes, exige un motif, puis soumet au Ministre", async () => {
     const enregistrer = vi.fn().mockResolvedValue({ ok: true, valeur: { version: 2 } });
     avecTraductions(
       <FormulaireWorkflow code="EXPORT" enVigueur={enVigueur} enregistrer={enregistrer} />,
@@ -87,7 +96,7 @@ describe("modification d'un workflow (US-02.5)", () => {
     fireEvent.change(within(nouvelle).getByLabelText(/Action/), {
       target: { value: "Signature" },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Enregistrer la nouvelle version" }));
+    fireEvent.click(screen.getByRole("button", { name: "Soumettre au Ministre" }));
     expect(
       await screen.findByText("Expliquez la modification en 10 à 2 000 caractères."),
     ).toBeInTheDocument();
@@ -96,7 +105,7 @@ describe("modification d'un workflow (US-02.5)", () => {
     fireEvent.change(screen.getByLabelText(/Motif de la modification/), {
       target: { value: "Contrôle avant expertise (test)" },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Enregistrer la nouvelle version" }));
+    fireEvent.click(screen.getByRole("button", { name: "Soumettre au Ministre" }));
     await waitFor(() =>
       expect(enregistrer).toHaveBeenCalledWith(
         "EXPORT",
@@ -109,7 +118,9 @@ describe("modification d'un workflow (US-02.5)", () => {
         }),
       ),
     );
-    expect(push).toHaveBeenCalledWith("/workflows/EXPORT?version=2");
+    // La date d'effet proposée est aujourd'hui par défaut.
+    expect(enregistrer.mock.calls[0]?.[1]?.dateEffet).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(push).toHaveBeenCalledWith("/workflows/EXPORT?proposee=2");
   });
 
   it("une version identique est signalée clairement", async () => {
@@ -123,9 +134,9 @@ describe("modification d'un workflow (US-02.5)", () => {
     fireEvent.change(screen.getByLabelText(/Motif de la modification/), {
       target: { value: "Aucun changement réel" },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Enregistrer la nouvelle version" }));
+    fireEvent.click(screen.getByRole("button", { name: "Soumettre au Ministre" }));
     expect(
-      await screen.findByText("Rien n’a changé par rapport à la version en vigueur."),
+      await screen.findByText("Rien n’a changé par rapport à la dernière version validée."),
     ).toBeInTheDocument();
   });
 

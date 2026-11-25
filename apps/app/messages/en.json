@@ -175,10 +175,12 @@
       "sansReponse": "Unanswered requests",
       "sansReponsePrecision": "Requested by your service, answer deadline passed"
     },
-    "catalogue": {
-      "titre": "{nombre, plural, one {# catalogue change to validate} other {# catalogue changes to validate}}",
-      "texte": "Nothing is published in the catalogue without your validation.",
-      "lien": "See the changes"
+    "aValider": {
+      "titre": "{nombre, plural, one {# change to approve} other {# changes to approve}}",
+      "texte": "Nothing changes in the catalogue, the workflows or the deadline rule without your approval.",
+      "catalogue": "{n, plural, one {# catalogue record} other {# catalogue records}}",
+      "workflows": "{n, plural, one {# workflow} other {# workflows}}",
+      "delais": "The deadline rule"
     }
   },
   "demande": {
@@ -1560,8 +1562,8 @@
   "workflows": {
     "titre": "Workflows",
     "description": {
-      "admin": "The Ministry’s 5 processes, one per document family. A change applies at once and is recorded; pending requests keep the process in force when they were filed.",
-      "lecture": "The Ministry’s 5 processes, one per document family: steps, stakeholders, payments and time limits."
+      "admin": "The Ministry’s 5 circuits, one per document family. Any change is approved by the Minister, then applied from its effective date; requests in progress keep the circuit they were submitted under.",
+      "lecture": "The Ministry’s 5 circuits, one per document family: steps, actors, payments and deadlines. You approve the changes proposed by the administrator."
     },
     "colonnes": {
       "famille": "Family and documents",
@@ -1577,7 +1579,7 @@
     "elements": "workflows",
     "vide": "No workflow.",
     "etape": "Step {n} of {total}",
-    "modifier": "Edit the workflow",
+    "modifier": "Propose a change",
     "enVigueur": "Process in force (version {n})",
     "delaiAide": "Target times of the family’s documents, set on their record and validated by the Minister.",
     "affichage": "This process informs applicants and staff. A file is processed according to its document’s record (required opinions, signatory).",
@@ -1586,22 +1588,18 @@
     "par": "Changed on {date} by {nom}",
     "initiale": "Initial version (schema provided by the Ministry).",
     "voirEtapes": "Show the {n} steps",
-    "enregistre": {
-      "titre": "Saved",
-      "texte": "Version v{n} is in force and recorded in the audit log. Requests already filed keep their process."
-    },
     "formulaire": {
-      "titre": "Edit the workflow",
-      "description": "{libelle} — version in force v{n}",
+      "titre": "Propose a change",
+      "description": "{libelle} — starting from the latest approved version (v{n})",
       "obligatoire": "required",
       "effet": {
-        "titre": "Immediate effect",
-        "texte": "The new version applies on saving to requests filed afterwards. Pending requests keep the version in force when they were filed."
+        "titre": "Minister’s approval",
+        "texte": "Your proposal is sent to the Minister. Once approved, it will apply from the chosen effective date to requests submitted afterwards; requests in progress keep their version."
       },
       "sections": {
         "famille": "Family",
         "etapes": "Steps and stakeholders",
-        "motif": "Reason"
+        "motif": "Reason and effective date"
       },
       "champs": {
         "libelle": "Family name",
@@ -1627,22 +1625,28 @@
         "action": "2 to 150 characters.",
         "motif": "Explain the change in 10 to 2,000 characters."
       },
-      "aucunChangement": "Nothing has changed compared with the version in force.",
-      "echec": "The change could not be saved",
+      "aucunChangement": "Nothing has changed compared with the latest approved version.",
+      "echec": "The proposal could not be sent",
       "indisponible": "The service is temporarily unavailable. Please try again shortly.",
       "annuler": "Cancel",
-      "enregistrer": "Save the new version"
+      "enregistrer": "Submit to the Minister"
     },
     "etapesNombre": "{n, plural, one {Process in # step} other {Process in # steps}}",
     "selonDocument": "depending on the document",
     "documentsFamille": "Documents in this family",
-    "desactive": "disabled"
+    "desactive": "disabled",
+    "aValider": "Proposal {n} to approve",
+    "programmeeLe": "Version {n} on {date}",
+    "enVigueurCourt": "Version {n} in force",
+    "decision": {
+      "aApprouverTitre": "{n, plural, one {# workflow proposal to approve} other {# workflow proposals to approve}}"
+    }
   },
   "parametres": {
     "titre": "Time limits and notifications",
     "description": {
-      "admin": "How time limits are calculated and the channels for each notification. A change applies at once and is recorded in the audit log.",
-      "lecture": "How time limits are calculated and the channels for each notification, set by the administrator."
+      "admin": "Deadline calculation rule and channels for each notification. The deadline rule is approved by the Minister, then applied from its effective date; channels change immediately. Everything is recorded in the audit log.",
+      "lecture": "Deadline calculation rule and channels for each notification. You approve the changes to the deadline rule proposed by the administrator."
     },
     "provisoire": {
       "titre": "Choices to be validated by the Ministry",
@@ -1672,13 +1676,28 @@
         "pourcentUnite": "%",
         "joursUnite": "days"
       },
-      "enregistre": {
-        "titre": "Saved",
-        "texte": "The new rule already applies to records, lists and dashboards."
-      },
-      "echec": "The rule could not be saved",
+      "echec": "The proposal could not be sent",
       "indisponible": "The service is temporarily unavailable. Please try again shortly.",
-      "enregistrer": "Save the time limit rule"
+      "enVigueur": "Rule in force (version {n})",
+      "proposer": "Propose a change",
+      "proposerTitre": "Propose a deadline rule",
+      "proposerDescription": "Starting from the latest approved rule (v{n}). The Minister will approve it before it applies.",
+      "motif": "Reason for the change",
+      "motifAide": "Why this change? The Minister will read it. At least 10 characters.",
+      "erreursMotif": {
+        "court": "Explain the change in at least 10 characters.",
+        "long": "The reason exceeds 2,000 characters: shorten it."
+      },
+      "aucunChangement": "Nothing has changed compared with the latest approved rule.",
+      "annuler": "Cancel",
+      "soumettre": "Submit to the Minister",
+      "resume": {
+        "depart": "The deadline starts",
+        "pauses": "The deadline is paused",
+        "aucunePause": "Never",
+        "seuil": "“Close to the deadline”",
+        "seuilValeur": "at most {pct}% of the deadline remains, and at least {min, plural, =0 {0 days} one {# day} other {# days}}"
+      }
     },
     "canaux": {
       "titre": "Notification channels",
@@ -2101,5 +2120,56 @@
     "vider": "Clear the period",
     "inverseeTitre": "Incorrect period",
     "inversee": "The end date is before the start date."
+  },
+  "gouvernance": {
+    "etats": {
+      "aValider": "To approve",
+      "enAttenteMinistre": "Awaiting the Minister",
+      "enVigueur": "In force",
+      "programmee": "Scheduled",
+      "remplacee": "Superseded",
+      "refusee": "Refused",
+      "retiree": "Withdrawn"
+    },
+    "version": "Version {n}",
+    "proposee": "Proposed on {date} by {nom}",
+    "decision": {
+      "validee": "approved on {date} by {nom}",
+      "refusee": "refused on {date} by {nom}",
+      "retiree": "withdrawn on {date} by {nom}",
+      "valideeSansNom": "approved on {date}",
+      "refuseeSansNom": "refused on {date}",
+      "retireeSansNom": "withdrawn on {date}",
+      "initiale": "Initial version (schema supplied by the Ministry)"
+    },
+    "depuis": "applies from {date}",
+    "dateEffet": "Will apply to requests submitted from {date}. Requests in progress keep their version.",
+    "proposition": {
+      "titre": "Proposal {n} to approve",
+      "aideMinistre": "Review the proposal, then approve or refuse it. Nothing changes before your decision.",
+      "aideAdmin": "The Minister must approve it. You can withdraw it until the Minister decides.",
+      "motif": "Reason for the change"
+    },
+    "motifRefus": "Reason for refusal",
+    "historique": "Version history",
+    "voirContenu": "Show the content of version {n}",
+    "champDate": {
+      "libelle": "Effective date",
+      "aide": "Today or later. From that date, new requests follow the new version; requests in progress keep theirs.",
+      "erreur": "Choose today or a future date."
+    },
+    "approbation": "The version will apply from its effective date (today at the earliest) to requests submitted afterwards; requests in progress keep theirs. The approval is recorded in your name.",
+    "programmee": {
+      "titre": "Version {n} approved: it will apply on {date}",
+      "texte": "Until then, version {actuelle} remains in force."
+    },
+    "resultat": {
+      "titre": "Saved",
+      "approuver": "Version approved: it applies from its effective date to requests submitted afterwards.",
+      "refuser": "Proposal refused: the version in force does not change.",
+      "retirer": "Proposal withdrawn: the version in force does not change.",
+      "proposee": "Proposal {n} sent to the Minister. It will apply after approval, from the chosen effective date."
+    },
+    "circuit": "Any change is proposed by the administrator, approved by the Minister, then applied from its effective date. Everything is recorded in the audit log."
   }
 }

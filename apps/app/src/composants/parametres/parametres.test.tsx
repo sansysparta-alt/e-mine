@@ -6,7 +6,8 @@ import { FormulaireCanaux } from "./formulaire-canaux";
 import { FormulaireDelais } from "./formulaire-delais";
 
 const refresh = vi.fn();
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn(), refresh }) }));
+const push = vi.fn();
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push, refresh }) }));
 
 function avecTraductions(enfant: React.ReactNode) {
   return render(
@@ -43,45 +44,69 @@ const canaux: CanauxDto[] = [
   },
 ];
 
-describe("règle des délais (US-02.6)", () => {
-  it("l'administrateur modifie la règle et voit la confirmation", async () => {
-    const enregistrer = vi
-      .fn()
-      .mockImplementation(async (p: ParametresDelaiDto) => ({ ok: true, valeur: p }));
-    avecTraductions(<FormulaireDelais initial={delais} modifiable enregistrer={enregistrer} />);
+describe("proposition d'une règle des délais (US-02.6, US-02.8)", () => {
+  it("l'administrateur propose une règle avec motif et date d'effet, soumise au Ministre", async () => {
+    const proposer = vi.fn().mockResolvedValue({ ok: true, valeur: { version: 2 } });
+    avecTraductions(<FormulaireDelais initial={delais} proposer={proposer} />);
     fireEvent.click(screen.getByLabelText(/Au dépôt de la demande/));
     fireEvent.click(screen.getByLabelText("Pendant l’attente du paiement des droits"));
     fireEvent.change(screen.getByLabelText("Part du délai restant, en %"), {
       target: { value: "25" },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Enregistrer la règle des délais" }));
+    // Sans motif, rien n'est envoyé.
+    fireEvent.click(screen.getByRole("button", { name: "Soumettre au Ministre" }));
+    expect(
+      screen.getByText("Expliquez la modification en 10 caractères au moins."),
+    ).toBeInTheDocument();
+    expect(proposer).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByLabelText("Motif de la modification"), {
+      target: { value: "Aligner le départ sur le dépôt (test)" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Soumettre au Ministre" }));
     await waitFor(() =>
-      expect(enregistrer).toHaveBeenCalledWith({
-        depart: "depot",
-        pauseComplement: true,
-        pauseDroits: false,
-        seuilProchePourcent: 25,
-        seuilProcheMinJours: 2,
-      }),
+      expect(proposer).toHaveBeenCalledWith(
+        expect.objectContaining({
+          depart: "depot",
+          pauseComplement: true,
+          pauseDroits: false,
+          seuilProchePourcent: 25,
+          seuilProcheMinJours: 2,
+          motif: "Aligner le départ sur le dépôt (test)",
+          dateEffet: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+        }),
+      ),
     );
-    expect(await screen.findByText("C’est enregistré")).toBeInTheDocument();
+    expect(push).toHaveBeenCalledWith("/parametres?proposee=2");
   });
 
-  it("un seuil hors bornes est signalé et rien n'est envoyé", () => {
-    const enregistrer = vi.fn();
-    avecTraductions(<FormulaireDelais initial={delais} modifiable enregistrer={enregistrer} />);
+  it("une date d'effet passée ou un seuil hors bornes est signalé et rien n'est envoyé", () => {
+    const proposer = vi.fn();
+    avecTraductions(<FormulaireDelais initial={delais} proposer={proposer} />);
     fireEvent.change(screen.getByLabelText("Part du délai restant, en %"), {
       target: { value: "0" },
     });
     expect(screen.getByText("Saisissez un nombre entier entre 1 et 100.")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Enregistrer la règle des délais" }));
-    expect(enregistrer).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByLabelText("Date d’effet"), { target: { value: "2020-01-01" } });
+    fireEvent.change(screen.getByLabelText("Motif de la modification"), {
+      target: { value: "Motif suffisamment long" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Soumettre au Ministre" }));
+    expect(screen.getByText("Choisissez aujourd’hui ou une date à venir.")).toBeInTheDocument();
+    expect(proposer).not.toHaveBeenCalled();
   });
 
-  it("le Ministre consulte sans pouvoir modifier", () => {
-    avecTraductions(<FormulaireDelais initial={delais} modifiable={false} enregistrer={vi.fn()} />);
-    expect(screen.queryByRole("button")).toBeNull();
-    expect(screen.getByLabelText(/Au dépôt de la demande/)).toBeDisabled();
+  it("une règle identique à la dernière validée est signalée clairement", async () => {
+    const proposer = vi
+      .fn()
+      .mockResolvedValue({ ok: false, erreur: { code: "DOC-010", message: "x", champs: [] } });
+    avecTraductions(<FormulaireDelais initial={delais} proposer={proposer} />);
+    fireEvent.change(screen.getByLabelText("Motif de la modification"), {
+      target: { value: "Aucun changement réel" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Soumettre au Ministre" }));
+    expect(
+      await screen.findByText("Rien n’a changé par rapport à la dernière règle validée."),
+    ).toBeInTheDocument();
   });
 });
 

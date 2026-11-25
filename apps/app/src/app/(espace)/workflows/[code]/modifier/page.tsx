@@ -1,11 +1,11 @@
 import { ErreurApi, lireWorkflow } from "@emine/api-client";
 import { EnTetePage } from "@emine/ui";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { libelleWorkflow } from "@/composants/referentiels";
 import { FormulaireWorkflow } from "@/composants/workflow/formulaire-workflow";
-import { enregistrerWorkflow } from "@/serveur/actions-workflow";
+import { proposerVersionWorkflow } from "@/serveur/actions-workflow";
 import { FilArianeApp } from "@/composants/fil-ariane-app";
 import { appelPage, chargerMoi, optionsApi } from "@/serveur/donnees";
 
@@ -36,7 +36,10 @@ export default async function ModifierWorkflow({ params }: Props) {
     if (e instanceof ErreurApi && e.code === "SYS-002") notFound();
     throw e;
   }
-  const v = detail.workflow.enVigueur;
+  // Une proposition attend déjà le Ministre : retour à la fiche, qui l'affiche.
+  if (!detail.peutProposer) redirect(`/workflows/${code}`);
+  // Point de départ : la dernière version validée (programmée, sinon en vigueur).
+  const v = detail.workflow.programmee ?? detail.workflow.enVigueur;
   const tReferentiels = await getTranslations("referentiels");
 
   return (
@@ -60,7 +63,7 @@ export default async function ModifierWorkflow({ params }: Props) {
           n: v.version,
         })}
       />
-      <FormulaireWorkflow code={code} enVigueur={v} enregistrer={enregistrerWorkflow} />
+      <FormulaireWorkflow code={code} enVigueur={v} enregistrer={proposerVersionWorkflow} />
     </div>
   );
 }

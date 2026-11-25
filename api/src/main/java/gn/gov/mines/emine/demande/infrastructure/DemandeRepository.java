@@ -323,15 +323,12 @@ public class DemandeRepository {
 
   /**
    * Proche du dépassement ({@link RegleDelais}) : en cours, ni en retard ni en pause, et il reste
-   * au plus le seuil paramétré du délai ({@code fn_seuil_proche}).
+   * au plus le seuil de la règle des délais de la demande ({@code fn_seuil_proche}, V27).
    */
   static Condition conditionProcheDepassement(Instant maintenant) {
     return enCoursDepose()
         .and(MOTIF_PAUSE.isNull())
-        .and(
-            joursRestants(maintenant)
-                .between(
-                    DSL.val(0), Routines.fnSeuilProche(DEMANDE.DELAI_JOURS.cast(Integer.class))));
+        .and(joursRestants(maintenant).between(DSL.val(0), Routines.fnSeuilProche(DEMANDE.ID)));
   }
 
   /** Le profil connecté a changé le statut du dossier depuis cet instant (historique en base). */

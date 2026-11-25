@@ -42,7 +42,11 @@ export default async function Workflows({ searchParams }: Props) {
         <EtatVide icone={Workflow} titre={t("vide")} />
       ) : (
         <div className="flex flex-col gap-4">
-          <TableauWorkflows lignes={data.elements} legende={t("titre")} />
+          <TableauWorkflows
+            lignes={data.elements}
+            legende={t("titre")}
+            decideur={moi.permissions.includes("VALIDER_CATALOGUE")}
+          />
           <PaginationListe
             chemin="/workflows"
             page={data.page}

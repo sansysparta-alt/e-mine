@@ -173,6 +173,13 @@ class GestionnaireErreurs extends ResponseEntityExceptionHandler {
         if ("23505".equals(etat) && m != null && "ux_paiement_paye".equals(m.getConstraint())) {
           return Optional.of(CodeErreur.PAY_001);
         }
+        // Deux propositions simultanées (V18, V27) : une seule reste ouverte.
+        if ("23505".equals(etat)
+            && m != null
+            && m.getConstraint() != null
+            && m.getConstraint().endsWith("_une_ouverte")) {
+          return Optional.of(CodeErreur.DOC_008);
+        }
         return Optional.empty();
       }
     }

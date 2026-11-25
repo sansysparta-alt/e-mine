@@ -264,7 +264,7 @@ describe("proposition d'une modification (US-02.2)", () => {
 });
 
 describe("tableau de bord du Ministre (US-02.4)", () => {
-  it("annonce les modifications du catalogue à approuver et ouvre la liste filtrée", async () => {
+  it("annonce les propositions à valider et ouvre chaque liste", async () => {
     const { VueTableauDeBord } = await import("../vue-tableau-de-bord");
     avecTraductions(
       <VueTableauDeBord
@@ -272,14 +272,17 @@ describe("tableau de bord du Ministre (US-02.4)", () => {
         nom="Test"
         profilLibelle="Ministre"
         profil="autre"
-        catalogueAApprouver={2}
+        aValider={{ catalogue: 2, workflows: 1, delais: 0 }}
       />,
     );
-    expect(screen.getByText("2 modifications du catalogue à valider")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Voir les modifications" })).toHaveAttribute(
+    // Le total additionne les listes ; chaque lien ouvre la liste qui donne le même nombre.
+    expect(screen.getByText("3 modifications à valider")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "2 fiches du catalogue" })).toHaveAttribute(
       "href",
       "/catalogue?filtre=A_VALIDER",
     );
+    expect(screen.getByRole("link", { name: "1 workflow" })).toHaveAttribute("href", "/workflows");
+    expect(screen.queryByRole("link", { name: /règle des délais/ })).toBeNull();
   });
 });
 

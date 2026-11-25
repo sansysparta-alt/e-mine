@@ -6,7 +6,9 @@ import {
   type IndicateursDto,
   lireIndicateurs,
   listerDemandes,
+  lireParametresDelai,
   listerFichesDocuments,
+  listerWorkflows,
   listerTypesDocuments,
   lireTableauAdministration,
 } from "@emine/api-client";
@@ -18,6 +20,7 @@ import { unstable_rethrow } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import {
   type ActionAFaire,
+  type AValider,
   actionAttendue,
   type ClePeriode,
   DEMANDES_RECENTES,
@@ -50,8 +53,8 @@ type Donnees = {
   vues?: VuesTableau;
   indicateurs?: IndicateursDto;
   travail?: { groupe: CleGroupe; dossiers: DemandeDto[]; total: number };
-  /** Ministre : modifications du catalogue à approuver (US-02.4). */
-  catalogueAApprouver?: number;
+  /** Ministre : propositions à valider (catalogue, workflows, règle des délais ; US-02.4, US-02.8). */
+  aValider?: AValider;
   /** Données indisponibles : on le dit, plutôt qu'un état vide trompeur (revue B). */
   indisponible?: boolean;
 };
@@ -108,12 +111,8 @@ async function charger(moi: Profil, periode: ClePeriode): Promise<Donnees> {
             options,
           ).then((r) => r.data)
         : null,
-      // Même nombre que la liste « À approuver » du catalogue (compteur de l'API).
-      moi.permissions.includes("VALIDER_CATALOGUE")
-        ? listerFichesDocuments({ filtre: "A_VALIDER", taille: 10 }, options).then(
-            (r) => r.data.compteurs["A_VALIDER"] ?? 0,
-          )
-        : 0,
+      // Mêmes nombres que les listes « À valider » (compteurs de l'API).
+      moi.permissions.includes("VALIDER_CATALOGUE") ? propositionsAValider(options) : undefined,
     ]);
     const tarifs = Object.fromEntries(documents.map((d) => [d.code, d.tarifs]));
     const aFaire: ActionAFaire[] = (aTraiter?.elements ?? [])
@@ -135,7 +134,7 @@ async function charger(moi: Profil, periode: ClePeriode): Promise<Donnees> {
       groupes: compteur.groupes,
       vues,
       indicateurs,
-      catalogueAApprouver: catalogue,
+      aValider: catalogue,
       ...(groupeTravail && file
         ? {
             travail: {
@@ -164,6 +163,23 @@ async function charger(moi: Profil, periode: ClePeriode): Promise<Donnees> {
 type Props = { searchParams: Promise<{ periode?: string }> };
 
 /** Tableau de bord de l'espace connecté (gabarit du socle), adapté au profil. */
+/** Propositions à valider par le Ministre ; une lecture impossible compte zéro (pas d'alerte). */
+async function propositionsAValider(
+  options: Awaited<ReturnType<typeof optionsApi>>,
+): Promise<AValider> {
+  const [catalogue, workflows, delais] = await Promise.allSettled([
+    listerFichesDocuments({ filtre: "A_VALIDER", taille: 10 }, options).then(
+      (r) => r.data.compteurs["A_VALIDER"] ?? 0,
+    ),
+    listerWorkflows({ taille: 10 }, options).then((r) => r.data.aValider),
+    lireParametresDelai(options).then(
+      (r) => r.data.versions.filter((v) => v.etat === "a_valider").length,
+    ),
+  ]);
+  const n = (r: PromiseSettledResult<number>) => (r.status === "fulfilled" ? r.value : 0);
+  return { catalogue: n(catalogue), workflows: n(workflows), delais: n(delais) };
+}
+
 export default async function TableauDeBord({ searchParams }: Props) {
   const demandee = (await searchParams).periode;
   const periode = PERIODES.find((p) => p === demandee) ?? "mois";

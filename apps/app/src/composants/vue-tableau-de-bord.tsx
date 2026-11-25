@@ -99,13 +99,21 @@ export type VueTableauDeBordProps = {
   /** Premiers dossiers de la file de travail de l'agent, avec de quoi commencer le traitement. */
   travail?: { groupe: CleGroupe; dossiers: DemandeDto[]; total: number };
   /**
-   * Ministre (US-02.4) : modifications du catalogue à approuver (même nombre que la liste filtrée
-   * « À approuver » du catalogue) ; absent pour les autres profils.
+   * Ministre (US-02.4, US-02.8) : propositions à valider au catalogue, dans les workflows et pour
+   * la règle des délais (mêmes nombres que les listes « À valider ») ; absent pour les autres.
    */
-  catalogueAApprouver?: number;
+  aValider?: AValider;
   /** Données indisponibles (API injoignable) : état d'erreur explicite, aucun chiffre. */
   indisponible?: boolean;
 };
+
+/** Propositions à valider par le Ministre, par objet (nombres de l'API). */
+export type AValider = { catalogue: number; workflows: number; delais: number };
+
+/** Total des propositions à valider : les trois listes ensemble. */
+export function totalAValider(a: AValider): number {
+  return a.catalogue + a.workflows + a.delais;
+}
 
 /** Adresse de la liste des demandes filtrée (cartes cliquables). */
 function liste(parametres: Record<string, string>): string {
@@ -139,7 +147,7 @@ export function VueTableauDeBord({
   indicateurs,
   periode = "mois",
   travail,
-  catalogueAApprouver = 0,
+  aValider,
   indisponible = false,
 }: VueTableauDeBordProps) {
   const t = useTranslations("tableauDeBord");
@@ -199,18 +207,32 @@ export function VueTableauDeBord({
         />
       ) : null}
 
-      {catalogueAApprouver > 0 ? (
+      {aValider && totalAValider(aValider) > 0 ? (
         <Alerte
           nature="avertissement"
-          titre={t("catalogue.titre", { nombre: catalogueAApprouver })}
+          titre={t("aValider.titre", { nombre: totalAValider(aValider) })}
         >
-          <p>{t("catalogue.texte")}</p>
-          <Link
-            href="/catalogue?filtre=A_VALIDER"
-            className="mt-1 inline-flex min-h-11 items-center font-semibold text-royal underline"
-          >
-            {t("catalogue.lien")}
-          </Link>
+          <p>{t("aValider.texte")}</p>
+          <ul className="mt-1 flex flex-col">
+            {(
+              [
+                ["catalogue", aValider.catalogue, "/catalogue?filtre=A_VALIDER"],
+                ["workflows", aValider.workflows, "/workflows"],
+                ["delais", aValider.delais, "/parametres"],
+              ] as const
+            )
+              .filter(([, n]) => n > 0)
+              .map(([cle, n, href]) => (
+                <li key={cle}>
+                  <Link
+                    href={href}
+                    className="inline-flex min-h-11 items-center font-semibold text-royal underline"
+                  >
+                    {t(`aValider.${cle}`, { n })}
+                  </Link>
+                </li>
+              ))}
+          </ul>
         </Alerte>
       ) : null}
 

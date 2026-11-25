@@ -83,10 +83,9 @@ class DelaisTest extends TestIntegration {
 
   @Test
   void leSeuilVautVingtPourCentDuDelaiEtDeuxJoursAuMoins() throws Exception {
-    assertThat(seuil(60)).isEqualTo(12);
-    assertThat(seuil(45)).isEqualTo(9);
-    assertThat(seuil(5)).isEqualTo(2);
-    assertThat(seuil(2)).isEqualTo(2);
+    // Seuil de la règle du dépôt de la demande, sur le délai de sa fiche.
+    assertThat(seuil(pexLarge)).isEqualTo(12); // PEX : 20 % de 60 jours
+    assertThat(seuil(corLarge)).isEqualTo(2); // COR : 20 % de 5 jours = 1, mais 2 jours au moins
   }
 
   @Test
@@ -165,11 +164,16 @@ class DelaisTest extends TestIntegration {
 
   @Test
   void laRegleEstParametrableDepartAuDepotSansPauseEtSeuil() throws Exception {
+    // Les calculs suivent la règle du dépôt de chaque demande (V27) : on modifie ici, en
+    // propriétaire et pour ce seul test, la version de la règle qu'elles portent.
+    String version = "(SELECT regle_delai_version FROM demande WHERE id = " + sansFrais + ")";
+    executer("ALTER TABLE version_regle_delai DISABLE TRIGGER trg_version_regle_delai_fige");
     try {
       executer(
-          "UPDATE parametre_delai SET depart = 'depot', pause_complement = false,"
-              + " seuil_proche_pourcent = 50");
-      assertThat(seuil(60)).isEqualTo(30);
+          "UPDATE version_regle_delai SET depart = 'depot', pause_complement = false,"
+              + " seuil_proche_pourcent = 50 WHERE version = "
+              + version);
+      assertThat(seuil(pexLarge)).isEqualTo(30);
       // Départ au dépôt (il y a 100 jours) : 101 jours, dépassé de 41.
       verifier(sansFrais, -41, false, true, null);
       // Sans pause pendant le complément : le délai n'est plus suspendu.
@@ -177,8 +181,11 @@ class DelaisTest extends TestIntegration {
           .andExpect(jsonPath("$.delaiSuspendu").value(false));
     } finally {
       executer(
-          "UPDATE parametre_delai SET depart = 'paiement_frais', pause_complement = true,"
-              + " pause_droits = true, seuil_proche_pourcent = 20, seuil_proche_min_jours = 2");
+          "UPDATE version_regle_delai SET depart = 'paiement_frais', pause_complement = true,"
+              + " pause_droits = true, seuil_proche_pourcent = 20, seuil_proche_min_jours = 2"
+              + " WHERE version = "
+              + version);
+      executer("ALTER TABLE version_regle_delai ENABLE TRIGGER trg_version_regle_delai_fige");
     }
   }
 
@@ -202,10 +209,11 @@ class DelaisTest extends TestIntegration {
     return id;
   }
 
-  private static int seuil(int delai) throws SQLException {
+  /** Seuil « proche du dépassement » d'une demande, selon la règle de son dépôt. */
+  private static int seuil(long demande) throws SQLException {
     try (Connection c = BaseDeDonneesDeTest.connexionOwner();
         PreparedStatement ps = c.prepareStatement("SELECT fn_seuil_proche(?)")) {
-      ps.setInt(1, delai);
+      ps.setLong(1, demande);
       ResultSet rs = ps.executeQuery();
       rs.next();
       return rs.getInt(1);
