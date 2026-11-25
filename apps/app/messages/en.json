@@ -922,7 +922,8 @@
       "version_workflow": "Workflow version",
       "workflow_etape": "Workflow step",
       "parametre_delai": "Time limit rule",
-      "notification_evenement": "Notification channels"
+      "notification_evenement": "Notification channels",
+      "version_regle_delai": "Deadline rule version"
     },
     "champs": {
       "statut": "Status",
@@ -1008,7 +1009,17 @@
       "modele": "Event",
       "code": "Code",
       "renouvelable": "Renewable",
-      "genere_titre": "Creates a title"
+      "genere_titre": "Creates a title",
+      "regle_paiement_en": "Payments (English)",
+      "acteur_en": "Actor (English)",
+      "pieces_cles_en": "Required documents (English)",
+      "instruit_par_en": "Reviewed by (English)",
+      "regle_delai_version": "Deadline rule at submission (version)",
+      "revoque_autorite": "Revoked by",
+      "revoque_autorite_en": "Revoked by (English)",
+      "revoque_le": "Revoked on",
+      "revoque_par": "Revoked by (no.)",
+      "titre": "Official title"
     },
     "systeme": "System",
     "systemeDetail": "System (TrésorPay notification, automatic task or migration)",
@@ -1045,13 +1056,21 @@
       "depart": {
         "paiement_frais": "On fee payment",
         "depot": "On filing"
+      },
+      "statutVersion": {
+        "a_valider": "To approve",
+        "publiee": "Approved",
+        "remplacee": "Superseded",
+        "refusee": "Refused",
+        "retiree": "Withdrawn"
       }
     },
     "renseigne": "set",
     "systemeAide": "Automatic platform action",
     "objets": {
       "parametre_delai": "Deadline calculation rules",
-      "tarif": "Fee schedule"
+      "tarif": "Fee schedule",
+      "version_regle_delai": "Deadline rule"
     }
   },
   "delivrance": {
