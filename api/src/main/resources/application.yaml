@@ -105,6 +105,10 @@ emine:
     banque: ${VIREMENT_BANQUE:Banque de démonstration}
     iban: ${VIREMENT_IBAN:GN00 0000 0000 0000 0000 0000 000}
     bic: ${VIREMENT_BIC:DEMOGNGNXXX}
+  # Relevés bancaires (US-04.8) : relevé d'exemple de démonstration, À DÉSACTIVER en recette et
+  # production (RELEVE_EXEMPLE_ACTIF=false).
+  releves:
+    exemple-actif: ${RELEVE_EXEMPLE_ACTIF:true}
   # Signature des documents délivrés (US-06.2) : PAdES-BASELINE-B, certificat de test en V1
   # (pnpm signature:certificat, exclu de Git) ; pkcs11 (SoftHSM2) au plan complet.
   signature:

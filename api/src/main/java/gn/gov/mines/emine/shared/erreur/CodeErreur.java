@@ -75,6 +75,10 @@ public enum CodeErreur {
    * nouvelle) ; ou changement de moyen impossible pendant la vérification d'un virement déclaré.
    */
   PAY_010("PAY-010", HttpStatus.CONFLICT),
+  /** Relevé bancaire déjà importé : même fichier (empreinte SHA-256), US-04.8. */
+  PAY_011("PAY-011", HttpStatus.CONFLICT),
+  /** Relevé bancaire introuvable (ou relevé d'exemple désactivé), US-04.8. */
+  PAY_012("PAY-012", HttpStatus.NOT_FOUND),
   /** Format de fichier non accepté (PDF, JPG ou PNG). */
   DOC_001("DOC-001", HttpStatus.UNSUPPORTED_MEDIA_TYPE),
   /** Fichier trop volumineux (10 Mo au plus). */

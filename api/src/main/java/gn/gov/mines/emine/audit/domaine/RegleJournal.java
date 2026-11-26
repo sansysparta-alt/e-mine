@@ -22,7 +22,7 @@ public final class RegleJournal {
   static {
     Map<String, List<String>> c = new LinkedHashMap<>();
     c.put("demandes", List.of("demande"));
-    c.put("paiements", List.of("paiement"));
+    c.put("paiements", List.of("paiement", "releve_bancaire", "ligne_releve", "remboursement"));
     c.put("decisions", List.of("avis_decision"));
     c.put("pieces", List.of("piece_jointe"));
     c.put("comptes", List.of("utilisateur", "organisation"));
@@ -52,7 +52,8 @@ public final class RegleJournal {
 
   /** Clés de l'objet lisible par un humain, par ordre de préférence. */
   private static final List<String> CLES_LIBELLE =
-      List.of("numero", "reference", "recu_numero", "nom_fichier", "email", "code", "nif");
+      List.of(
+          "numero", "reference", "recu_numero", "nom_fichier", "email", "code", "nif", "libelle");
 
   private RegleJournal() {}
 

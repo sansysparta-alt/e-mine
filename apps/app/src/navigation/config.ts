@@ -4,6 +4,7 @@ import {
   CircleHelp,
   CreditCard,
   FileCheck2,
+  FileSpreadsheet,
   FileText,
   Inbox,
   LayoutDashboard,
@@ -87,6 +88,20 @@ export const NAVIGATION: SectionConfig[] = [
         href: "/a-traiter",
         icone: Inbox,
         auMoinsUnDroit: ["INSTRUIRE", "SIGNER"],
+        interne: true,
+      },
+    ],
+  },
+  {
+    // Responsable fiscal (lot 5) : relevés du compte des virements, rapprochement (US-04.8).
+    cle: "encaissements",
+    entrees: [
+      {
+        cle: "releves",
+        module: "paiement",
+        href: "/releves",
+        icone: FileSpreadsheet,
+        permission: "ENCAISSER",
         interne: true,
       },
     ],
