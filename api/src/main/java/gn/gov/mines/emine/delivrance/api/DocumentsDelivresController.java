@@ -62,6 +62,8 @@ class DocumentsDelivresController {
                         l.document().delivreLe(),
                         l.document().revoqueLe(),
                         l.document().motifInvalidation(),
+                        l.document().revoqueAutorite(),
+                        l.document().revoqueAutoriteEn(),
                         l.document().demandeId(),
                         l.numeroDemande(),
                         proprietes.urlVerification(l.document().codeVerification())))
@@ -100,6 +102,7 @@ class DocumentsDelivresController {
    * @param valide {@code false} après révocation
    * @param revoqueLe date de la révocation, ou {@code null}
    * @param motifRevocation motif de la révocation, ou {@code null}
+   * @param revoqueAutorite autorité qui a révoqué (titre du signataire ou profil), ou {@code null}
    * @param urlVerification page publique de vérification (QR)
    */
   record LigneDocumentDto(
@@ -109,6 +112,8 @@ class DocumentsDelivresController {
       Instant delivreLe,
       @Schema(nullable = true) Instant revoqueLe,
       @Schema(nullable = true) String motifRevocation,
+      @Schema(nullable = true) String revoqueAutorite,
+      @Schema(nullable = true) String revoqueAutoriteEn,
       long demandeId,
       @Schema(nullable = true) String numeroDemande,
       String urlVerification) {}

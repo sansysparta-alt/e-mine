@@ -7,6 +7,7 @@ import static gn.gov.mines.emine.shared.jooq.Tables.WORKFLOW;
 import static gn.gov.mines.emine.shared.jooq.Tables.WORKFLOW_ETAPE;
 
 import gn.gov.mines.emine.catalogue.domaine.Workflow;
+import gn.gov.mines.emine.catalogue.domaine.Workflow.DocumentFamille;
 import gn.gov.mines.emine.catalogue.domaine.Workflow.Etape;
 import gn.gov.mines.emine.catalogue.domaine.Workflow.VersionWorkflow;
 import gn.gov.mines.emine.shared.jooq.Routines;
@@ -35,14 +36,27 @@ public class WorkflowRepository {
 
   /** Les workflows, dans l'ordre du catalogue, avec leur version en vigueur. */
   public List<Workflow> lister() {
-    Map<Short, List<String>> documents = new HashMap<>();
-    dsl.select(TYPE_DOCUMENT.WORKFLOW_ID, TYPE_DOCUMENT.CODE)
+    Map<Short, List<DocumentFamille>> documents = new HashMap<>();
+    dsl.select(
+            TYPE_DOCUMENT.WORKFLOW_ID,
+            TYPE_DOCUMENT.CODE,
+            TYPE_DOCUMENT.LIBELLE_FR,
+            TYPE_DOCUMENT.LIBELLE_EN,
+            TYPE_DOCUMENT.ACTIF)
         .from(TYPE_DOCUMENT)
         .where(TYPE_DOCUMENT.DELETED_AT.isNull())
         .orderBy(TYPE_DOCUMENT.CODE)
         .fetch()
         .forEach(
-            r -> documents.computeIfAbsent(r.value1(), k -> new ArrayList<>()).add(r.value2()));
+            r ->
+                documents
+                    .computeIfAbsent(r.value1(), k -> new ArrayList<>())
+                    .add(
+                        new DocumentFamille(
+                            r.value2(),
+                            r.value3(),
+                            r.value4() == null ? r.value3() : r.value4(),
+                            Boolean.TRUE.equals(r.value5()))));
     List<Workflow> liste = new ArrayList<>();
     for (var w : dsl.selectFrom(WORKFLOW).orderBy(WORKFLOW.ID).fetch()) {
       liste.add(

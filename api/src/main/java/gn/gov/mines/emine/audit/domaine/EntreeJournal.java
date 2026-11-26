@@ -14,6 +14,7 @@ import java.util.List;
  * @param categorie catégorie d'objet proposée au filtre ({@code demandes}…)
  * @param operation {@code I} création, {@code U} modification, {@code D} suppression
  * @param objetLibelle numéro, référence ou nom lisible de l'objet, ou {@code null}
+ * @param objetLibelleEn le même en anglais (identique s'il n'a pas de traduction)
  * @param demandeId demande concernée, pour ouvrir sa fiche, ou {@code null}
  * @param changements champs modifiés (toutes les valeurs pour une création, dans le détail)
  */
@@ -28,6 +29,7 @@ public record EntreeJournal(
     String operation,
     String objetId,
     String objetLibelle,
+    String objetLibelleEn,
     Long demandeId,
     List<Changement> changements,
     String adresseIp) {

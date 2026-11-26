@@ -5,6 +5,7 @@ import fr from "../../../messages/fr.json";
 import { LienRecu } from "./lien-recu";
 import { adresseRecu } from "./recu";
 import { lienPaiement, TableauPaiements } from "./tableau-paiements";
+import { attendrePdf } from "@/test/pdf";
 
 const paye: PaiementDto = {
   reference: "PAY-2026-000002",
@@ -37,38 +38,29 @@ function afficher(enfant: React.ReactNode) {
 }
 
 describe("historique des paiements et reçu (US-04.4, US-04.6)", () => {
-  it("affiche statut, montant et reçu téléchargeable ; la ligne ouvre le détail", () => {
+  it("affiche statut, montant et reçu téléchargeable ; la ligne ouvre le détail", async () => {
     afficher(<TableauPaiements paiements={[paye, refuse]} />);
     const [premiere, seconde] = screen.getAllByRole("row").slice(1) as [HTMLElement, HTMLElement];
     expect(within(premiere).getByText("Payé")).toBeInTheDocument();
     expect(within(premiere).getByText("Frais de dossier")).toBeInTheDocument();
     expect(within(premiere).getByText(/5\s000\s000/)).toBeInTheDocument();
     fireEvent.click(within(premiere).getByRole("button", { name: /REC-2026-000001/ }));
-    expect(document.querySelector("iframe")?.getAttribute("src")).toMatch(
-      new RegExp(`^${echapper("/api/paiements/PAY-2026-000002/recu?inline=1")}#toolbar=0`),
-    );
+    await attendrePdf("/api/paiements/PAY-2026-000002/recu?inline=1");
     expect(within(seconde).getByText("Refusé")).toBeInTheDocument();
     expect(within(seconde).queryByRole("button", { name: /REC-/ })).not.toBeInTheDocument();
     expect(lienPaiement(paye)).toBe("/demandes/42/paiement/retour?reference=PAY-2026-000002");
   });
 
-  it("ouvre le reçu dans le visualiseur, qui propose le téléchargement", () => {
+  it("ouvre le reçu dans le visualiseur, qui propose le téléchargement", async () => {
     afficher(<LienRecu reference="PAY-2026-000002" numero="REC-2026-000001" />);
     fireEvent.click(screen.getByRole("button", { name: "Voir le reçu REC-2026-000001" }));
-    expect(document.querySelector("iframe")?.getAttribute("src")).toMatch(
-      new RegExp(`^${echapper(`${adresseRecu("PAY-2026-000002")}?inline=1`)}#toolbar=0`),
-    );
+    await attendrePdf(`${adresseRecu("PAY-2026-000002")}?inline=1`);
     expect(screen.getByRole("link", { name: /Télécharger/ })).toHaveAttribute(
       "href",
       adresseRecu("PAY-2026-000002"),
     );
   });
 });
-
-/** Texte pris littéralement dans une expression régulière. */
-function echapper(texte: string): string {
-  return texte.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
 
 describe("« Paiements & reçus » (historique de l'usager)", () => {
   const demande = () => ({ numero: "DEM-2026-000042", document: "Permis d’exploitation" });

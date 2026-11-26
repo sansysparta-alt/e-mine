@@ -31,3 +31,9 @@ SELECT pr.id, o.id, v.nom, v.prenom, v.email, v.tel, v.kc::uuid, false
   JOIN profil pr ON pr.code = v.profil
   LEFT JOIN organisation o ON o.nif = v.nif
 ON CONFLICT (keycloak_id) DO NOTHING;
+
+-- Titres officiels (V25) : ce qu'affichent une révocation ou une signature.
+UPDATE utilisateur u SET titre = v.titre
+  FROM (VALUES ('00000000-0000-4000-8000-000000000007', 'Directeur national'),
+               ('00000000-0000-4000-8000-000000000008', 'Ministre')) AS v(kc, titre)
+ WHERE u.keycloak_id = v.kc::uuid AND u.titre IS NULL;

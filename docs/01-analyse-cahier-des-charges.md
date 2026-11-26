@@ -144,6 +144,20 @@ Le cahier des charges ne fixe que des « délais cibles » de 2 à 60 jours par 
 | D4 | Les documents signés par le Ministre sont **paramétrables dans le catalogue** | Règle le point 4 : signataire porté par le type de document / l'étape du workflow |
 | D5 | ArcGIS, TrésorPay, HSM et SMS sont **simulés** au début, derrière des interfaces remplaçables | Voir [02-stack-technique.md](02-stack-technique.md) |
 
+### Décisions du porteur du projet pour la V1 (lot 4, 25/11/2026)
+
+Choix proposés par défaut et acceptés par le porteur du projet ; ils fixent le périmètre de la V1 et restent à confirmer par le Ministère.
+
+| # | Décision | Conséquence |
+|---|---|---|
+| V1-1 | **Renouvellement des titres en V2** | Alertes J-180/90/30 et suspension automatique (lot 3) hors V1 |
+| V1-2 | **Messagerie, Annonces et Rapports hiérarchiques en V2** | Menus communs du lot 4 non livrés en V1 |
+| V1-3 | **Virement bancaire en V1**, à côté de TrésorPay | Rapprochement par le Responsable fiscal |
+| V1-4 | **Frais de dossier non remboursés en cas de rejet**, sauf double paiement ou erreur ; règle à rendre **modifiable** par l'Administrateur | Remboursement seulement sur ces deux motifs ; le réglage sera administré avec l'outillage des remboursements |
+| V1-5 | **Comptes gérés dans Keycloak** (D8) | Création, suspension, mot de passe et 2FA côté Keycloak ; la base garde le profil et le titre officiel |
+| V1-6 | **Géologue et Inspecteur en V1 pour l'avis technique seulement** | Leurs rubriques métier (cadastre, inspection) arrivent avec leurs lots |
+| V1-7 | **Certificats CEX et KIM désactivés au catalogue pour la V1** : ils sont instruits par le BNE, dont le profil arrive en V2 | Migration V26 : nouvelle version de chaque fiche, « non disponible à la demande », motif tracé ; les demandes déjà déposées vont à leur terme |
+
 Restent ouverts : points 5 à 15, et 17 à 24 (choix provisoires appliqués et paramétrables). Point 16 : corrigé de notre côté (V4), à porter à la connaissance du Ministère. Décisions D6 à D10 (stack, forge, Keycloak, hébergement, méthode) : voir [02-stack-technique.md §5](02-stack-technique.md).
 
 ## 4. Risques

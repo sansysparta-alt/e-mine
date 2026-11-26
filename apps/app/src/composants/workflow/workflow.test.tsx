@@ -42,7 +42,20 @@ describe("liste des workflows (US-02.5)", () => {
       code: "EXPORT",
       delaiMinJours: 2,
       delaiMaxJours: 3,
-      documents: ["AEX", "CEX", "KIM"],
+      documents: [
+        {
+          code: "AEX",
+          libelleFr: "Autorisation d'exportation",
+          libelleEn: "Export authorisation",
+          actif: true,
+        },
+        {
+          code: "CEX",
+          libelleFr: "Certificat d'expertise (BNE)",
+          libelleEn: "Expert appraisal certificate (BNE)",
+          actif: false,
+        },
+      ],
       enVigueur,
     };
     avecTraductions(<TableauWorkflows lignes={[w]} legende="Workflows" />);
@@ -51,6 +64,10 @@ describe("liste des workflows (US-02.5)", () => {
       "/workflows/EXPORT",
     );
     expect(screen.getAllByText("2 à 3 jours").length).toBeGreaterThan(0);
+    // Codes expliqués en clair, sans survol (lisible sur mobile) ; un document désactivé le dit.
+    expect(document.querySelector("abbr")).toBeNull();
+    expect(screen.getByText(/Autorisation d'exportation/)).toBeVisible();
+    expect(screen.getByText(/Certificat d'expertise \(BNE\) \(désactivé\)/)).toBeVisible();
   });
 });
 

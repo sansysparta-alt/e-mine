@@ -73,7 +73,9 @@ class JournalAuditTest extends TestIntegration {
         .andExpect(jsonPath("$.elements[0].changements[0].avant").value("12.50"))
         .andExpect(jsonPath("$.elements[0].changements[0].apres").value("40.00"))
         .andExpect(jsonPath("$.elements[1].operation").value("I"))
-        .andExpect(jsonPath("$.elements[1].changements.length()").value(0))
+        // Une création montre ses valeurs dès la liste (résumé utile, lot 4).
+        .andExpect(
+            jsonPath("$.elements[1].changements[?(@.champ == 'statut')].apres").value("brouillon"))
         .andExpect(jsonPath("$.compteurs.demandes").value(2))
         .andExpect(jsonPath("$.compteurs.paiements").value(0));
   }

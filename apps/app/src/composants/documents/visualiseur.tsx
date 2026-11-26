@@ -39,10 +39,11 @@ export function useVisualiseurDocument(): {
           zoomAvant: t("zoomAvant"),
           zoomArriere: t("zoomArriere"),
           ajuster: t("ajuster"),
-          pleinEcran: t("pleinEcran"),
-          quitterPleinEcran: t("quitterPleinEcran"),
           fermer: t("fermer"),
           formatNonAffichable: t("formatNonAffichable"),
+          chargement: t("chargement"),
+          erreurPdf: t("erreurPdf"),
+          page: (numero, total) => t("page", { numero, total }),
         }}
       />
     ),

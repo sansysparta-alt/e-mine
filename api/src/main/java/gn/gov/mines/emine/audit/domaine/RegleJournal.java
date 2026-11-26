@@ -106,17 +106,56 @@ public final class RegleJournal {
     return resultat;
   }
 
-  /** Libellé lisible de l'objet (numéro de demande, référence de paiement…), ou {@code null}. */
-  public static String libelleObjet(Map<String, String> avant, Map<String, String> apres) {
+  /**
+   * Libellé lisible de l'objet, en français et en anglais (le même s'il n'a pas de traduction), ou
+   * {@code null} : nom de l'événement d'une notification, libellé et version d'une fiche ou d'un
+   * workflow, sinon numéro, référence, e-mail… Une valeur oui / non n'est jamais un libellé.
+   */
+  public static Libelle libelleObjet(
+      String table, Map<String, String> avant, Map<String, String> apres) {
+    String fr = valeur("libelle_fr", avant, apres);
+    String version =
+        switch (table == null ? "" : table) {
+          case "version_document" -> valeur("numero", avant, apres);
+          case "version_workflow" -> valeur("version", avant, apres);
+          default -> null;
+        };
+    if (fr == null && ("version_workflow".equals(table) || "workflow_etape".equals(table))) {
+      fr = valeur("libelle", avant, apres);
+    }
+    if (fr != null) {
+      String en = valeur("libelle_en", avant, apres);
+      String suffixe = version == null ? "" : " · v" + version;
+      return new Libelle(fr + suffixe, (en == null ? fr : en) + suffixe);
+    }
     for (String cle : CLES_LIBELLE) {
-      for (Map<String, String> valeurs : java.util.Arrays.asList(apres, avant)) {
-        if (valeurs != null && valeurs.get(cle) != null) {
-          return valeurs.get(cle);
-        }
+      String v = valeur(cle, avant, apres);
+      if (v != null) {
+        return new Libelle(v, v);
       }
     }
     return null;
   }
+
+  /** Version compatible : libellé français, sans connaître la table. */
+  public static String libelleObjet(Map<String, String> avant, Map<String, String> apres) {
+    Libelle l = libelleObjet(null, avant, apres);
+    return l == null ? null : l.fr();
+  }
+
+  /** Valeur d'une clé après, sinon avant ; jamais un booléen ni une chaîne vide. */
+  private static String valeur(String cle, Map<String, String> avant, Map<String, String> apres) {
+    for (Map<String, String> valeurs : java.util.Arrays.asList(apres, avant)) {
+      String v = valeurs == null ? null : valeurs.get(cle);
+      if (v != null && !v.isBlank() && !"true".equals(v) && !"false".equals(v)) {
+        return v;
+      }
+    }
+    return null;
+  }
+
+  /** Libellé d'un objet dans les deux langues. */
+  public record Libelle(String fr, String en) {}
 
   /**
    * Demande concernée par la ligne (la demande elle-même, ou celle d'un paiement, d'une pièce…).

@@ -40,7 +40,7 @@ import tools.jackson.databind.json.JsonMapper;
  * US-02.5 (V20) : les 5 workflows (étapes, intervenants, règle de paiement, délais) sont modifiés
  * par l'administrateur, immédiatement et avec une trace (une version par modification) ; un
  * changement de workflow n'affecte pas les demandes en cours ({@code workflow_version}). Workflow
- * EXPORT, document CEX (inutilisés par les autres tests).
+ * EXPORT, document AEX (inutilisés par les autres tests).
  */
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -54,12 +54,12 @@ class WorkflowsTest extends TestIntegration {
   final JsonMapper json = JsonMapper.builder().build();
   final RequestPostProcessor admin = jeton(ADMIN_TECH, "ADMIN_TECH");
 
-  long cexAvant;
+  long aexAvant;
 
   @BeforeAll
   void donnees() throws Exception {
     Personas.charger();
-    cexAvant = DemandesDeTest.deposee(INVESTISSEUR, "CEX");
+    aexAvant = DemandesDeTest.deposee(INVESTISSEUR, "AEX");
   }
 
   @Test
@@ -70,7 +70,10 @@ class WorkflowsTest extends TestIntegration {
         .andExpect(jsonPath("$.total").value(5))
         .andExpect(jsonPath("$.elements[0].code").value("TITRES"))
         .andExpect(jsonPath("$.elements[0].enVigueur.etapes.length()").value(6))
-        .andExpect(jsonPath("$.elements[0].documents[0]").value("CAR"));
+        .andExpect(jsonPath("$.elements[0].documents[0].code").value("CAR"))
+        .andExpect(
+            jsonPath("$.elements[0].documents[0].libelleFr").value("Autorisation de carrière"))
+        .andExpect(jsonPath("$.elements[0].documents[0].actif").value(true));
     mvc.perform(get(EXPORT).with(jeton(MINISTRE, "MINISTRE")))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.peutModifier").value(false));
@@ -114,9 +117,9 @@ class WorkflowsTest extends TestIntegration {
   @Test
   @Order(3)
   void uneDemandeGardeLaVersionDuWorkflowDeSonDepot() throws Exception {
-    long cexApres = DemandesDeTest.deposee(INVESTISSEUR, "CEX");
-    assertThat(versionWorkflow(cexAvant)).isEqualTo(1);
-    assertThat(versionWorkflow(cexApres)).isEqualTo(2);
+    long aexApres = DemandesDeTest.deposee(INVESTISSEUR, "AEX");
+    assertThat(versionWorkflow(aexAvant)).isEqualTo(1);
+    assertThat(versionWorkflow(aexApres)).isEqualTo(2);
   }
 
   @Test

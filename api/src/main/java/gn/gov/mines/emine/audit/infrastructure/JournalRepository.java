@@ -41,7 +41,10 @@ public class JournalRepository {
     this.dsl = dsl;
   }
 
-  /** Page du journal selon les critères (lignes résumées : champs modifiés seulement). */
+  /**
+   * Page du journal selon les critères : champs modifiés, ou valeurs enregistrées pour une création
+   * (l'écran en résume l'essentiel).
+   */
   public PageResultat<EntreeJournal> lister(CritereJournal critere, Pagination pagination) {
     Condition condition = condition(critere, true);
     long total = dsl.fetchCount(JOURNAL_AUDIT, condition);
@@ -51,7 +54,7 @@ public class JournalRepository {
             .orderBy(JOURNAL_AUDIT.CREATED_AT.desc(), JOURNAL_AUDIT.ID.desc())
             .limit(pagination.taille())
             .offset(pagination.decalage())
-            .fetch(r -> entree(r, false));
+            .fetch(r -> entree(r, true));
     return new PageResultat<>(elements, pagination.page(), pagination.taille(), total);
   }
 
@@ -149,6 +152,7 @@ public class JournalRepository {
     String operation = r.get(JOURNAL_AUDIT.OPERATION).strip();
     String objetId = r.get(JOURNAL_AUDIT.OBJET_ID);
     String prenom = r.get(UTILISATEUR.PRENOM);
+    RegleJournal.Libelle libelle = RegleJournal.libelleObjet(table, avant, apres);
     String auteur = prenom == null ? null : (prenom + " " + r.get(UTILISATEUR.NOM)).strip();
     return new EntreeJournal(
         r.get(JOURNAL_AUDIT.ID),
@@ -160,7 +164,8 @@ public class JournalRepository {
         RegleJournal.categorie(table),
         operation,
         objetId,
-        RegleJournal.libelleObjet(avant, apres),
+        libelle == null ? null : libelle.fr(),
+        libelle == null ? null : libelle.en(),
         RegleJournal.demandeId(table, objetId, avant, apres),
         RegleJournal.changements(operation, avant, apres, complet),
         r.get(JOURNAL_AUDIT.ADRESSE_IP));

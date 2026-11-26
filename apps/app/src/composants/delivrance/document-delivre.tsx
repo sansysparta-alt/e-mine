@@ -10,7 +10,7 @@ import {
   formaterDateHeure,
 } from "@emine/ui";
 import { ExternalLink, Eye } from "@emine/ui/icones";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { libelleSignataire } from "../referentiels";
 import type { ReactNode } from "react";
 import { useVisualiseurDocument } from "../documents/visualiseur";
@@ -52,13 +52,15 @@ export function DocumentDelivre({
   const tReferentiels = useTranslations("referentiels");
   const { ouvrir, visualiseur } = useVisualiseurDocument();
   const revoqueLe = document.valide ? null : (document.revoqueLe ?? null);
+  const anglais = useLocale() === "en";
+  const autorite = document.valide
+    ? null
+    : ((anglais ? document.revoqueAutoriteEn : null) ?? document.revoqueAutorite ?? null);
   return (
     <div className="flex flex-col gap-4">
       {document.valide ? null : (
         <Alerte nature="erreur" titre={t("alerteRevoque.titre")}>
-          {revoqueLe
-            ? t("alerteRevoque.texteDate", { date: formaterDate(revoqueLe) })
-            : t("alerteRevoque.texte")}
+          {t("alerteRevoque.texte")}
         </Alerte>
       )}
       <dl className="grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-[auto_1fr]">
@@ -74,6 +76,12 @@ export function DocumentDelivre({
           <>
             <dt className="font-semibold">{t("revoqueLe")}</dt>
             <dd>{formaterDateHeure(revoqueLe)}</dd>
+          </>
+        ) : null}
+        {autorite ? (
+          <>
+            <dt className="font-semibold">{t("revoquePar")}</dt>
+            <dd>{autorite}</dd>
           </>
         ) : null}
         {!document.valide && document.motifInvalidation ? (
@@ -95,8 +103,8 @@ export function DocumentDelivre({
         <Bouton
           type="button"
           onClick={() =>
-            ouvrir(
-              documentDelivreAffiche(
+            ouvrir({
+              ...documentDelivreAffiche(
                 demandeId,
                 document.numero,
                 document.valide
@@ -105,7 +113,17 @@ export function DocumentDelivre({
                     ? t("alerteRevoque.visualiseur", { date: formaterDate(revoqueLe) })
                     : t("alerteRevoque.titre"),
               ),
-            )
+              avertissementDetail: document.valide
+                ? undefined
+                : [
+                    autorite ? t("detailAutorite", { autorite }) : null,
+                    document.motifInvalidation
+                      ? t("detailMotif", { motif: document.motifInvalidation })
+                      : null,
+                  ]
+                    .filter(Boolean)
+                    .join("\n") || undefined,
+            })
           }
         >
           <Eye aria-hidden="true" className="size-4" />

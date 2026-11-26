@@ -7,9 +7,15 @@ import {
 } from "@emine/ui";
 import { Cpu } from "@emine/ui/icones";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { libelleProfil } from "../referentiels";
-import { estTechnique, formaterValeur, libelleChamp, trierChangements } from "./journal";
+import {
+  estTechnique,
+  formaterValeur,
+  libelleChamp,
+  libelleObjet,
+  trierChangements,
+} from "./journal";
 
 const LienNext: ComposantLien = ({ href, children, ...props }) => (
   <Link href={href} {...props}>
@@ -33,6 +39,7 @@ export function TableauJournal({
   legende: string;
 }) {
   const t = useTranslations("audit");
+  const anglais = useLocale() === "en";
   const tReferentiels = useTranslations("referentiels");
   const tStatut = useTranslations("statuts");
   const tStatutPaiement = useTranslations("statutsPaiement");
@@ -121,7 +128,7 @@ export function TableauJournal({
           entete: t("colonnes.objet"),
           interactive: true,
           rendu: (e) => {
-            const libelle = e.objetLibelle ?? (e.objetId ? `#${e.objetId}` : "—");
+            const libelle = libelleObjet(e, anglais, t);
             return e.demandeId != null ? (
               <Link
                 href={`/demandes/${e.demandeId}`}

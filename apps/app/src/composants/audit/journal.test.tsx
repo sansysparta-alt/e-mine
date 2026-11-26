@@ -2,7 +2,7 @@ import type { EntreeJournalDto } from "@emine/api-client";
 import { render, screen, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import fr from "../../../messages/fr.json";
-import { formaterValeur, lireParametresJournal } from "./journal";
+import { formaterValeur, libelleObjet, lireParametresJournal } from "./journal";
 import { TableauJournal } from "./tableau-journal";
 
 function traduire(table: Record<string, string>) {
@@ -34,6 +34,22 @@ describe("journal d'audit : valeurs lisibles (US-11.7)", () => {
     );
   });
 
+  it("nomme l'objet dans la langue de l'écran, jamais par une valeur brute", () => {
+    const tAudit = traduire({ "objets.parametre_delai": "Règles de calcul des délais" });
+    const canal = {
+      table: "notification_evenement",
+      objetId: "3",
+      objetLibelle: "Demande déposée",
+      objetLibelleEn: "Application submitted",
+    };
+    expect(libelleObjet(canal, false, tAudit)).toBe("Demande déposée");
+    expect(libelleObjet(canal, true, tAudit)).toBe("Application submitted");
+    expect(libelleObjet({ table: "parametre_delai", objetId: "1" }, false, tAudit)).toBe(
+      "Règles de calcul des délais",
+    );
+    expect(libelleObjet({ table: "tarif", objetId: "7" }, false, tAudit)).toBe("#7");
+  });
+
   it("valide les paramètres et repère une période inversée sans appeler l'API", () => {
     expect(lireParametresJournal({ categorie: "demandes" }).categorie).toBe("demandes");
     expect(lireParametresJournal({ categorie: "inconnue" }).categorie).toBeUndefined();
@@ -59,6 +75,7 @@ describe("tableau du journal", () => {
     operation: "U",
     objetId: "12",
     objetLibelle: "DEM-2026-000012",
+    objetLibelleEn: "DEM-2026-000012",
     demandeId: 12,
     changements: [{ champ: "statut", avant: "deposee", apres: "recevable" }],
     adresseIp: "10.0.0.1",

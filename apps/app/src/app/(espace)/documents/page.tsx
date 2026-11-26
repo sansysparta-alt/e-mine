@@ -66,6 +66,9 @@ export default async function MesDocuments({ searchParams }: Props) {
     chargerReferentiels(),
     getLocale(),
   ]);
+  /** Autorité de la révocation, dans la langue de l'écran. */
+  const autorite = (d: LigneDocumentDto) =>
+    (langue === "en" ? d.revoqueAutoriteEn : null) ?? d.revoqueAutorite ?? undefined;
   const colonnes: ColonneTableau<LigneDocumentDto>[] = [
     {
       cle: "document",
@@ -102,6 +105,9 @@ export default async function MesDocuments({ searchParams }: Props) {
                 {t("revoqueLe", { date: formaterDate(d.revoqueLe) })}
               </span>
             ) : null}
+            {autorite(d) ? (
+              <span className="text-sm">{t("revoquePar", { autorite: autorite(d) ?? "" })}</span>
+            ) : null}
             {d.motifRevocation ? (
               <span className="line-clamp-3 text-sm">
                 {t("motif", { motif: d.motifRevocation })}
@@ -129,7 +135,9 @@ export default async function MesDocuments({ searchParams }: Props) {
           <TelechargerDocument
             demandeId={d.demandeId}
             numero={d.numero}
-            revocation={d.valide ? null : { le: d.revoqueLe, motif: d.motifRevocation }}
+            revocation={
+              d.valide ? null : { le: d.revoqueLe, autorite: autorite(d), motif: d.motifRevocation }
+            }
           />
           <a href={d.urlVerification} target="_blank" rel="noopener" className={classesAction}>
             <ExternalLink aria-hidden="true" className="size-4" />

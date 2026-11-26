@@ -44,7 +44,7 @@ Langue du projet : **français** (documents, interface, commits, échanges). Int
 |---|---|
 | Back-end | Java 25, Spring Boot 4, Spring Modulith, **jOOQ (pas de JPA)**, Flyway, springdoc-openapi, db-scheduler + outbox, Maven (`mvnw`) |
 | Base | PostgreSQL 16, schéma `emine`, RLS, triggers ; PostGIS seulement dans le simulateur cadastre |
-| Front-end | Next.js (App Router), TypeScript, pnpm + Turborepo, Tailwind + shadcn/ui, next-intl, TanStack Query, React Hook Form + Zod, orval, `@arcgis/core`, Recharts, Serwist ; BFF : openid-client, iron-session |
+| Front-end | Next.js (App Router), TypeScript, pnpm + Turborepo, Tailwind + shadcn/ui, next-intl, TanStack Query, React Hook Form + Zod, orval, `@arcgis/core`, Recharts, Serwist, pdf.js (lecteur PDF du socle) ; BFF : openid-client, iron-session |
 | Auth | Keycloak (OIDC, SAML 2.0 vers ArcGIS, 2FA SMS par SPI) |
 | Documents | Thymeleaf → OpenHTMLtoPDF (PDF/A), ZXing, EU DSS (PAdES), SoftHSM2 / PKCS#11, MinIO (Object Lock), ClamAV |
 | Qualité | Prettier, ESLint, Spotless (google-java-format), JUnit 5, Testcontainers, ArchUnit, JaCoCo, Vitest, Playwright, axe-core, Lighthouse CI, k6, ZAP, Trivy, CodeQL, Gitleaks |

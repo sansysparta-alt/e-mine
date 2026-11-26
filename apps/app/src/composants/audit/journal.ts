@@ -129,3 +129,24 @@ export function libelleChamp(champ: string, t: Traduire): string {
   const texte = champ.replace(/_/g, " ");
   return texte.charAt(0).toUpperCase() + texte.slice(1);
 }
+
+/**
+ * Libellé de l'objet d'une entrée : celui de l'API dans la langue de l'écran (nom de l'événement,
+ * fiche et version, numéro…), sinon le nom de l'objet unique (« Règles de calcul des délais »),
+ * sinon son identifiant.
+ */
+export function libelleObjet(
+  e: {
+    table: string;
+    objetId?: string | null;
+    objetLibelle?: string | null;
+    objetLibelleEn?: string | null;
+  },
+  anglais: boolean,
+  t: Traduire,
+): string {
+  const libelle = anglais ? (e.objetLibelleEn ?? e.objetLibelle) : e.objetLibelle;
+  if (libelle) return libelle;
+  if (t.has(`objets.${e.table}`)) return t(`objets.${e.table}`);
+  return e.objetId ? `#${e.objetId}` : "—";
+}

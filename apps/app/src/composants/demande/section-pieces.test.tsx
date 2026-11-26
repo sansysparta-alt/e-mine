@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { StrictMode, useState } from "react";
 import fr from "../../../messages/fr.json";
 import { controlerFichier, SectionPieces, TAILLE_MAX_OCTETS } from "./section-pieces";
+import { attendrePdf } from "@/test/pdf";
 
 const eies: PieceDto = {
   id: 7,
@@ -158,9 +159,7 @@ describe("écran des pièces (correctifs J2 C5–C7)", () => {
     const surChangement = afficher();
     await waitFor(() => expect(surChangement).toHaveBeenCalledWith([eies]));
     fireEvent.click(within(bloc("EIES")).getByRole("button", { name: /Voir/ }));
-    expect(document.querySelector("iframe")?.getAttribute("src")).toMatch(
-      new RegExp(`^${echapper("/api/demandes/41/pieces/7/contenu?inline=1")}#toolbar=0`),
-    );
+    await attendrePdf("/api/demandes/41/pieces/7/contenu?inline=1");
     fireEvent.click(within(bloc("EIES")).getByRole("button", { name: /Retirer/ }));
     await waitFor(() => expect(surChangement).toHaveBeenLastCalledWith([]));
     expect(within(bloc("EIES")).getByText("Obligatoire")).toBeInTheDocument();
@@ -246,8 +245,3 @@ describe("intégration dans le formulaire (correctif de rendu)", () => {
     erreurs.mockRestore();
   });
 });
-
-/** Texte pris littéralement dans une expression régulière. */
-function echapper(texte: string): string {
-  return texte.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}

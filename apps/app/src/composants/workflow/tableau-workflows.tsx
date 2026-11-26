@@ -2,8 +2,8 @@ import type { WorkflowDto } from "@emine/api-client";
 import { type ComposantLien, formaterDate, TableauDonnees } from "@emine/ui";
 import { ChevronRight } from "@emine/ui/icones";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
-import { libelleWorkflow } from "../referentiels";
+import { useLocale, useTranslations } from "next-intl";
+import { libelleDocument, libelleWorkflow } from "../referentiels";
 
 const LienNext: ComposantLien = ({ href, children, ...props }) => (
   <Link href={href} {...props}>
@@ -48,19 +48,37 @@ export function CircuitCompact({ etapes }: { etapes: WorkflowDto["enVigueur"]["e
 }
 
 /**
- * Les workflows (US-02.5) : famille et documents (nom au survol et pour les lecteurs d'écran),
- * circuit compact, délais, version ; la ligne entière ouvre le workflow.
+ * Documents d'une famille, lisibles partout (mobile compris, rien au seul survol) : code et nom,
+ * « désactivé » en clair pour un document qui ne se demande plus.
  */
-export function TableauWorkflows({
-  lignes,
-  legende,
-  libelles = {},
+export function DocumentsFamille({
+  documents,
+  className,
 }: {
-  lignes: WorkflowDto[];
-  legende: string;
-  /** Nom de chaque document du catalogue, par code. */
-  libelles?: Record<string, string>;
+  documents: WorkflowDto["documents"];
+  className?: string;
 }) {
+  const t = useTranslations("workflows");
+  const langue = useLocale();
+  return (
+    <ul className={className ?? "flex flex-col gap-0.5 text-sm"}>
+      {documents.map((d) => (
+        <li key={d.code} className={d.actif ? undefined : "text-texte-doux"}>
+          <span className="font-mono font-semibold">{d.code}</span>
+          {" · "}
+          {libelleDocument(d, langue)}
+          {d.actif ? null : <> ({t("desactive")})</>}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/**
+ * Les workflows (US-02.5) : famille et ses documents (code et nom), circuit compact, délais,
+ * version ; la ligne entière ouvre le workflow.
+ */
+export function TableauWorkflows({ lignes, legende }: { lignes: WorkflowDto[]; legende: string }) {
   const t = useTranslations("workflows");
   const tReferentiels = useTranslations("referentiels");
   const fourchette = useFourchette();
@@ -80,14 +98,7 @@ export function TableauWorkflows({
               <span className="font-semibold text-navy">
                 {libelleWorkflow(w.code, w.enVigueur.libelle, tReferentiels)}
               </span>
-              <span className="text-sm text-texte-doux">
-                {w.documents.map((c, i) => (
-                  <span key={c}>
-                    {i > 0 ? " · " : null}
-                    {libelles[c] ? <abbr title={libelles[c]}>{c}</abbr> : c}
-                  </span>
-                ))}
-              </span>
+              <DocumentsFamille documents={w.documents} />
             </span>
           ),
         },

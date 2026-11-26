@@ -20,4 +20,15 @@ describe("traductions de l'application", () => {
     expect(valeurs(fr).every((v) => typeof v === "string" && v.trim() !== "")).toBe(true);
     expect(valeurs(en).every((v) => typeof v === "string" && v.trim() !== "")).toBe(true);
   });
+
+  it("les exemples des champs de recherche tiennent sur un mobile (30 caractères au plus)", () => {
+    // Un exemple plus long est coupé dans le champ à 375 px de large (correction 8 du lot 4).
+    const trop = (messages: object) =>
+      cles(messages)
+        .filter((c) => /recherche\.exemple$|\.placeholder$/.test(c))
+        .map((c) => [c, c.split(".").reduce<unknown>((o, k) => (o as never)[k], messages)])
+        .filter(([, v]) => String(v).length > 30);
+    expect(trop(fr)).toEqual([]);
+    expect(trop(en)).toEqual([]);
+  });
 });
