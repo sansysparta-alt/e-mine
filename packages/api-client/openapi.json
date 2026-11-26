@@ -9,6 +9,16 @@
     "url" : "http://localhost",
     "description" : "Generated server url"
   } ],
+  "tags" : [ {
+    "name" : "Encaissements",
+    "description" : "Écarts à vérifier (US-04.9)"
+  }, {
+    "name" : "Relevés bancaires",
+    "description" : "Import et rapprochement des virements (US-04.8)"
+  }, {
+    "name" : "Remboursements",
+    "description" : "Remboursements et règle V1-4 (US-04.10)"
+  } ],
   "paths" : {
     "/api/v1/parametres/notifications" : {
       "get" : {
@@ -290,6 +300,283 @@
         }
       }
     },
+    "/api/v1/remboursements/{id}/validation" : {
+      "post" : {
+        "tags" : [ "Remboursements" ],
+        "summary" : "Le Responsable fiscal valide : l'ordre peut être demandé au Trésor",
+        "operationId" : "validerRemboursement",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        }
+      }
+    },
+    "/api/v1/remboursements/{id}/refus" : {
+      "post" : {
+        "tags" : [ "Remboursements" ],
+        "summary" : "Refus motivé d'un remboursement",
+        "operationId" : "refuserRemboursement",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/MotifRemboursementDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        }
+      }
+    },
+    "/api/v1/remboursements/{id}/execution" : {
+      "post" : {
+        "tags" : [ "Remboursements" ],
+        "summary" : "Ordre de remboursement émis par le Trésor (hors plateforme) : sa référence est enregistrée et le demandeur est informé",
+        "operationId" : "executerRemboursement",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ExecutionRemboursementDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        }
+      }
+    },
+    "/api/v1/releves" : {
+      "get" : {
+        "tags" : [ "Relevés bancaires" ],
+        "summary" : "Relevés importés, du plus récent au plus ancien, avec leurs résultats",
+        "operationId" : "listerReleves",
+        "parameters" : [ {
+          "name" : "page",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "name" : "taille",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageRelevesDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Relevés bancaires" ],
+        "summary" : "Importer un relevé CSV (contrat docs/contrats/releve-csv.md) et rapprocher ses lignes ; PAY-011 si le fichier a déjà été importé, VAL-001 si son format est invalide",
+        "operationId" : "importerReleve",
+        "parameters" : [ {
+          "name" : "banque",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "dateReleve",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "fichier" : {
+                    "type" : "string",
+                    "format" : "binary"
+                  }
+                },
+                "required" : [ "fichier" ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Created",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReleveDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/parametres/remboursement/versions" : {
+      "post" : {
+        "tags" : [ "Remboursements" ],
+        "summary" : "L'administrateur propose une nouvelle règle, à valider par le Ministre",
+        "operationId" : "proposerRegleRemboursement",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PropositionRegleRemboursementDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Created",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/VersionRegleProposeeDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/parametres/remboursement/versions/{version}/retrait" : {
+      "post" : {
+        "tags" : [ "Remboursements" ],
+        "summary" : "L'administrateur retire sa proposition avant la décision du Ministre",
+        "operationId" : "retirerRegleRemboursement",
+        "parameters" : [ {
+          "name" : "version",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        }
+      }
+    },
+    "/api/v1/parametres/remboursement/versions/{version}/refus" : {
+      "post" : {
+        "tags" : [ "Remboursements" ],
+        "summary" : "Le Ministre refuse la proposition",
+        "operationId" : "refuserRegleRemboursement",
+        "parameters" : [ {
+          "name" : "version",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/MotifRemboursementDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        }
+      }
+    },
+    "/api/v1/parametres/remboursement/versions/{version}/approbation" : {
+      "post" : {
+        "tags" : [ "Remboursements" ],
+        "summary" : "Le Ministre valide : la règle s'applique à sa date d'effet",
+        "operationId" : "approuverRegleRemboursement",
+        "parameters" : [ {
+          "name" : "version",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApprobationRegleDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/parametres/delais/versions" : {
       "post" : {
         "tags" : [ "Demandes" ],
@@ -392,6 +679,50 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/ApprobationDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/paiements/{reference}/virement" : {
+      "post" : {
+        "tags" : [ "Paiements" ],
+        "summary" : "« J'ai effectué le virement » : joint le justificatif (PDF, JPG ou PNG, 5 Mo au plus) et passe le paiement en attente du relevé bancaire ; PAY-010 si le virement est déjà déclaré ou si sa référence a expiré",
+        "operationId" : "declarerVirement",
+        "parameters" : [ {
+          "name" : "reference",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "^PAY-[0-9]{4}-[0-9]{6}$"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "fichier" : {
+                    "type" : "string",
+                    "format" : "binary"
+                  }
+                },
+                "required" : [ "fichier" ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PaiementDto"
                 }
               }
             }
@@ -619,6 +950,68 @@
             "format" : "int32"
           }
         } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        }
+      }
+    },
+    "/api/v1/encaissements/paiements/{reference}/decision" : {
+      "post" : {
+        "tags" : [ "Encaissements" ],
+        "summary" : "Décision sur un paiement en ligne au montant divergent : valider (montant reçu au moins égal) ou rejeter avec motif",
+        "operationId" : "deciderPaiementAVerifier",
+        "parameters" : [ {
+          "name" : "reference",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "^PAY-[0-9]{4}-[0-9]{6}$"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DecisionEcartDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        }
+      }
+    },
+    "/api/v1/encaissements/lignes/{id}/decision" : {
+      "post" : {
+        "tags" : [ "Encaissements" ],
+        "summary" : "Décision sur une ligne de relevé : valider, rejeter, associer (référence du paiement) ou classer ; motif obligatoire pour rejeter ou classer ; PAY-013 si la décision n'est pas possible, PAY-014 si le paiement à associer ne convient pas",
+        "operationId" : "deciderLigneReleve",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DecisionEcartDto"
+              }
+            }
+          },
+          "required" : true
+        },
         "responses" : {
           "204" : {
             "description" : "No Content"
@@ -1648,6 +2041,178 @@
         }
       }
     },
+    "/api/v1/remboursements" : {
+      "get" : {
+        "tags" : [ "Remboursements" ],
+        "summary" : "Remboursements : à valider et à exécuter d'abord, puis l'historique ; nombre par statut",
+        "operationId" : "listerRemboursements",
+        "parameters" : [ {
+          "name" : "statut",
+          "in" : "query",
+          "description" : "demande, valide, execute ou refuse ; absent : tous",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "page",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "name" : "taille",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageRemboursementsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/remboursements/{id}" : {
+      "get" : {
+        "tags" : [ "Remboursements" ],
+        "summary" : "Un remboursement",
+        "operationId" : "lireRemboursement",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RemboursementDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/releves/{id}" : {
+      "get" : {
+        "tags" : [ "Relevés bancaires" ],
+        "summary" : "Un relevé et ses nombres de lignes par résultat",
+        "operationId" : "lireReleve",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReleveDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/releves/{id}/lignes" : {
+      "get" : {
+        "tags" : [ "Relevés bancaires" ],
+        "summary" : "Lignes d'un relevé, dans l'ordre du fichier, avec le paiement rapproché",
+        "operationId" : "listerLignesReleve",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "resultat",
+          "in" : "query",
+          "description" : "rapprochees, a-verifier ou traitees ; absent : toutes",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "page",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "name" : "taille",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageLignesDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/releves/exemple" : {
+      "get" : {
+        "tags" : [ "Relevés bancaires" ],
+        "summary" : "Relevé d'exemple de démonstration : une ligne conforme par virement déclaré en attente (désactivé en recette et production)",
+        "operationId" : "telechargerReleveExemple",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "text/csv" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/referentiels/substances" : {
       "get" : {
         "tags" : [ "Catalogue" ],
@@ -1685,6 +2250,25 @@
                   "items" : {
                     "$ref" : "#/components/schemas/PrefectureDto"
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/parametres/remboursement" : {
+      "get" : {
+        "tags" : [ "Remboursements" ],
+        "summary" : "Règle de remboursement des frais en vigueur, propositions et historique",
+        "operationId" : "lireRegleRemboursement",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DetailRegleRemboursementDto"
                 }
               }
             }
@@ -1841,6 +2425,35 @@
             "description" : "OK",
             "content" : {
               "application/pdf" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/paiements/{reference}/justificatif" : {
+      "get" : {
+        "tags" : [ "Paiements" ],
+        "summary" : "Justificatif d'un virement déclaré (affiché dans le navigateur)",
+        "operationId" : "lireJustificatifVirement",
+        "parameters" : [ {
+          "name" : "reference",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "^PAY-[0-9]{4}-[0-9]{6}$"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
                 "schema" : {
                   "type" : "string",
                   "format" : "binary"
@@ -2123,6 +2736,180 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/ReferencesDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/encaissements/journal" : {
+      "get" : {
+        "tags" : [ "Encaissements" ],
+        "summary" : "Journal des encaissements : recettes (paiements acceptés) et frais remboursés sur rejet, du plus récent au plus ancien, avec les totaux des mêmes critères",
+        "operationId" : "listerJournalEncaissements",
+        "parameters" : [ {
+          "name" : "du",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "name" : "au",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "name" : "moyen",
+          "in" : "query",
+          "description" : "TRESORPAY ou VIREMENT ; absent : tous",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "objet",
+          "in" : "query",
+          "description" : "FRAIS_DOSSIER, DROITS, ATTESTATION ou FORMATION ; absent : tous",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "page",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "name" : "taille",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageJournalEncaissementsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/encaissements/journal.csv" : {
+      "get" : {
+        "tags" : [ "Encaissements" ],
+        "summary" : "Export CSV du journal (mêmes critères que l'écran), pour un tableur",
+        "operationId" : "exporterJournalEncaissements",
+        "parameters" : [ {
+          "name" : "du",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "name" : "au",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "name" : "moyen",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "objet",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "text/csv" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/encaissements/indicateurs" : {
+      "get" : {
+        "tags" : [ "Encaissements" ],
+        "summary" : "Tableau de bord du Responsable fiscal : à vérifier, remboursements à valider, ordres à enregistrer (à ce jour) et recettes du mois en cours",
+        "operationId" : "lireIndicateursEncaissements",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/IndicateursEncaissementsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/encaissements/a-verifier" : {
+      "get" : {
+        "tags" : [ "Encaissements" ],
+        "summary" : "Éléments à vérifier, les plus anciens d'abord, avec les décisions possibles pour chacun (règle unique de l'API)",
+        "operationId" : "listerAVerifier",
+        "parameters" : [ {
+          "name" : "page",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "name" : "taille",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageAVerifierDto"
                 }
               }
             }
@@ -2681,6 +3468,9 @@
           "fraisPayes" : {
             "type" : "boolean"
           },
+          "paiementEnVerification" : {
+            "type" : "boolean"
+          },
           "motifRejet" : {
             "type" : [ "string", "null" ]
           },
@@ -2730,7 +3520,7 @@
             } ]
           }
         },
-        "required" : [ "aTraiterParMoi", "avancement", "bloque", "creeLe", "delaiDemarre", "delaiSuspendu", "demandeur", "deposeLe", "documentRevoque", "enRetard", "etapeDepuis", "fraisPayes", "id", "joursRestants", "motifRejet", "motifSuspension", "numero", "passages", "prefectureId", "prefectureNom", "procheDepassement", "statut", "substanceCode", "substanceLibelle", "superficieHa", "typeDocumentCode" ]
+        "required" : [ "aTraiterParMoi", "avancement", "bloque", "creeLe", "delaiDemarre", "delaiSuspendu", "demandeur", "deposeLe", "documentRevoque", "enRetard", "etapeDepuis", "fraisPayes", "id", "joursRestants", "motifRejet", "motifSuspension", "numero", "paiementEnVerification", "passages", "prefectureId", "prefectureNom", "procheDepassement", "statut", "substanceCode", "substanceLibelle", "superficieHa", "typeDocumentCode" ]
       },
       "Demandeur" : {
         "type" : "object",
@@ -2850,6 +3640,117 @@
         },
         "required" : [ "dateEffet" ]
       },
+      "MotifRemboursementDto" : {
+        "type" : "object",
+        "properties" : {
+          "motif" : {
+            "type" : "string",
+            "maxLength" : 2000,
+            "minLength" : 10
+          }
+        },
+        "required" : [ "motif" ]
+      },
+      "ExecutionRemboursementDto" : {
+        "type" : "object",
+        "properties" : {
+          "referenceOrdre" : {
+            "type" : "string",
+            "maxLength" : 60,
+            "minLength" : 3
+          }
+        },
+        "required" : [ "referenceOrdre" ]
+      },
+      "ReleveDto" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "banque" : {
+            "type" : "string"
+          },
+          "dateReleve" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "nomFichier" : {
+            "type" : "string"
+          },
+          "importeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "importePar" : {
+            "type" : [ "string", "null" ]
+          },
+          "lignes" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "rapprochees" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "ecarts" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "inconnues" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "traitees" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "totalCreditsGnf" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "banque", "dateReleve", "ecarts", "id", "importeLe", "importePar", "inconnues", "lignes", "nomFichier", "rapprochees", "totalCreditsGnf", "traitees" ]
+      },
+      "PropositionRegleRemboursementDto" : {
+        "type" : "object",
+        "properties" : {
+          "rembourserSiRejet" : {
+            "type" : "boolean"
+          },
+          "dateEffet" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "motif" : {
+            "type" : "string",
+            "maxLength" : 2000,
+            "minLength" : 10
+          }
+        },
+        "required" : [ "dateEffet", "motif", "rembourserSiRejet" ]
+      },
+      "VersionRegleProposeeDto" : {
+        "type" : "object",
+        "properties" : {
+          "version" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "version" ]
+      },
+      "ApprobationRegleDto" : {
+        "type" : "object",
+        "properties" : {
+          "dateEffet" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        },
+        "required" : [ "dateEffet" ]
+      },
       "PropositionRegleDelaiDto" : {
         "type" : "object",
         "properties" : {
@@ -2896,6 +3797,141 @@
           }
         },
         "required" : [ "version" ]
+      },
+      "CoordonneesVirementDto" : {
+        "type" : "object",
+        "properties" : {
+          "beneficiaire" : {
+            "type" : "string"
+          },
+          "banque" : {
+            "type" : "string"
+          },
+          "iban" : {
+            "type" : "string"
+          },
+          "bic" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "banque", "beneficiaire", "bic", "iban" ]
+      },
+      "FichierDto" : {
+        "type" : "object",
+        "properties" : {
+          "nomFichier" : {
+            "type" : "string"
+          },
+          "typeMime" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "nomFichier", "typeMime" ]
+      },
+      "PaiementDto" : {
+        "type" : "object",
+        "properties" : {
+          "reference" : {
+            "type" : "string"
+          },
+          "demandeId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "objet" : {
+            "type" : "string"
+          },
+          "moyen" : {
+            "type" : "string"
+          },
+          "montantGnf" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "statut" : {
+            "type" : "string"
+          },
+          "dateExpiration" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "montantRecuGnf" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "datePaiement" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "recuNumero" : {
+            "type" : [ "string", "null" ]
+          },
+          "creeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "virementDeclareLe" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "justificatif" : {
+            "type" : "boolean"
+          },
+          "motifRejet" : {
+            "type" : [ "string", "null" ]
+          },
+          "justificatifFichier" : {
+            "oneOf" : [ {
+              "$ref" : "#/components/schemas/FichierDto"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "remboursements" : {
+            "type" : [ "array", "null" ],
+            "items" : {
+              "$ref" : "#/components/schemas/RemboursementPaiementDto"
+            }
+          },
+          "coordonnees" : {
+            "oneOf" : [ {
+              "$ref" : "#/components/schemas/CoordonneesVirementDto"
+            }, {
+              "type" : "null"
+            } ]
+          }
+        },
+        "required" : [ "coordonnees", "creeLe", "dateExpiration", "datePaiement", "demandeId", "justificatif", "justificatifFichier", "montantGnf", "montantRecuGnf", "motifRejet", "moyen", "objet", "recuNumero", "reference", "remboursements", "statut", "virementDeclareLe" ]
+      },
+      "RemboursementPaiementDto" : {
+        "type" : "object",
+        "properties" : {
+          "numero" : {
+            "type" : "string"
+          },
+          "statut" : {
+            "type" : "string"
+          },
+          "montantGnf" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "demandeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "executeLe" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "referenceOrdre" : {
+            "type" : [ "string", "null" ]
+          },
+          "motifRefus" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "demandeLe", "executeLe", "montantGnf", "motifRefus", "numero", "referenceOrdre", "statut" ]
       },
       "AccuseDto" : {
         "type" : "object",
@@ -3035,6 +4071,22 @@
         },
         "required" : [ "motif" ]
       },
+      "DecisionEcartDto" : {
+        "type" : "object",
+        "properties" : {
+          "decision" : {
+            "type" : "string",
+            "minLength" : 1
+          },
+          "motif" : {
+            "type" : [ "string", "null" ]
+          },
+          "reference" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "decision", "motif", "reference" ]
+      },
       "DeclarationRecevabiliteDto" : {
         "type" : "object",
         "properties" : {
@@ -3130,51 +4182,6 @@
           }
         },
         "required" : [ "paiement", "urlPaiement" ]
-      },
-      "PaiementDto" : {
-        "type" : "object",
-        "properties" : {
-          "reference" : {
-            "type" : "string"
-          },
-          "demandeId" : {
-            "type" : "integer",
-            "format" : "int64"
-          },
-          "objet" : {
-            "type" : "string"
-          },
-          "moyen" : {
-            "type" : "string"
-          },
-          "montantGnf" : {
-            "type" : "integer",
-            "format" : "int64"
-          },
-          "statut" : {
-            "type" : "string"
-          },
-          "dateExpiration" : {
-            "type" : [ "string", "null" ],
-            "format" : "date-time"
-          },
-          "montantRecuGnf" : {
-            "type" : [ "integer", "null" ],
-            "format" : "int64"
-          },
-          "datePaiement" : {
-            "type" : [ "string", "null" ],
-            "format" : "date-time"
-          },
-          "recuNumero" : {
-            "type" : [ "string", "null" ]
-          },
-          "creeLe" : {
-            "type" : "string",
-            "format" : "date-time"
-          }
-        },
-        "required" : [ "creeLe", "dateExpiration", "datePaiement", "demandeId", "montantGnf", "montantRecuGnf", "moyen", "objet", "recuNumero", "reference", "statut" ]
       },
       "RevocationDto" : {
         "type" : "object",
@@ -3718,6 +4725,248 @@
         },
         "required" : [ "avisRequis", "code", "delaiJours", "famille", "instruitPar", "instruitParEn", "libelleEn", "libelleFr", "piecesRequises", "piecesRequisesEn", "renouvelable", "signataire", "tarifs" ]
       },
+      "CompteursRemboursementsDto" : {
+        "type" : "object",
+        "properties" : {
+          "tous" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "demande" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "valide" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "execute" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "refuse" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "demande", "execute", "refuse", "tous", "valide" ]
+      },
+      "PageRemboursementsDto" : {
+        "type" : "object",
+        "properties" : {
+          "elements" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/RemboursementDto"
+            }
+          },
+          "page" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "taille" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "total" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "compteurs" : {
+            "$ref" : "#/components/schemas/CompteursRemboursementsDto"
+          }
+        },
+        "required" : [ "compteurs", "elements", "page", "taille", "total", "totalPages" ]
+      },
+      "RemboursementDto" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "numero" : {
+            "type" : "string"
+          },
+          "statut" : {
+            "type" : "string"
+          },
+          "motif" : {
+            "type" : "string"
+          },
+          "montantGnf" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "explication" : {
+            "type" : [ "string", "null" ]
+          },
+          "motifRefus" : {
+            "type" : [ "string", "null" ]
+          },
+          "referenceOrdre" : {
+            "type" : [ "string", "null" ]
+          },
+          "demandeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "demandePar" : {
+            "type" : [ "string", "null" ]
+          },
+          "decideLe" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "decidePar" : {
+            "type" : [ "string", "null" ]
+          },
+          "executeLe" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "referencePaiement" : {
+            "type" : "string"
+          },
+          "objetPaiement" : {
+            "type" : "string"
+          },
+          "moyenPaiement" : {
+            "type" : "string"
+          },
+          "demandeId" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "numeroDemande" : {
+            "type" : [ "string", "null" ]
+          },
+          "beneficiaire" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "beneficiaire", "decideLe", "decidePar", "demandeId", "demandeLe", "demandePar", "executeLe", "explication", "id", "montantGnf", "motif", "motifRefus", "moyenPaiement", "numero", "numeroDemande", "objetPaiement", "referenceOrdre", "referencePaiement", "statut" ]
+      },
+      "PageRelevesDto" : {
+        "type" : "object",
+        "properties" : {
+          "elements" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ReleveDto"
+            }
+          },
+          "page" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "taille" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "total" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "exempleDisponible" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "elements", "exempleDisponible", "page", "taille", "total", "totalPages" ]
+      },
+      "LigneReleveDto" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "numero" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "dateOperation" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "libelle" : {
+            "type" : "string"
+          },
+          "montantGnf" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "sens" : {
+            "type" : "string"
+          },
+          "statut" : {
+            "type" : "string"
+          },
+          "nature" : {
+            "type" : [ "string", "null" ]
+          },
+          "referenceLue" : {
+            "type" : [ "string", "null" ]
+          },
+          "ecartGnf" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "referencePaiement" : {
+            "type" : [ "string", "null" ]
+          },
+          "demandeId" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "numeroDemande" : {
+            "type" : [ "string", "null" ]
+          },
+          "decision" : {
+            "type" : [ "string", "null" ]
+          },
+          "motif" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "dateOperation", "decision", "demandeId", "ecartGnf", "id", "libelle", "montantGnf", "motif", "nature", "numero", "numeroDemande", "referenceLue", "referencePaiement", "sens", "statut" ]
+      },
+      "PageLignesDto" : {
+        "type" : "object",
+        "properties" : {
+          "elements" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/LigneReleveDto"
+            }
+          },
+          "page" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "taille" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "total" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "elements", "page", "taille", "total", "totalPages" ]
+      },
       "SubstanceDto" : {
         "type" : "object",
         "properties" : {
@@ -3748,6 +4997,67 @@
           }
         },
         "required" : [ "id", "nom", "region" ]
+      },
+      "DetailRegleRemboursementDto" : {
+        "type" : "object",
+        "properties" : {
+          "rembourserSiRejet" : {
+            "type" : "boolean"
+          },
+          "versions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/VersionRegleRemboursementDto"
+            }
+          },
+          "peutProposer" : {
+            "type" : "boolean"
+          },
+          "peutDecider" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "peutDecider", "peutProposer", "rembourserSiRejet", "versions" ]
+      },
+      "VersionRegleRemboursementDto" : {
+        "type" : "object",
+        "properties" : {
+          "version" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "etat" : {
+            "type" : "string"
+          },
+          "rembourserSiRejet" : {
+            "type" : "boolean"
+          },
+          "dateEffet" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "motif" : {
+            "type" : "string"
+          },
+          "proposeePar" : {
+            "type" : [ "string", "null" ]
+          },
+          "proposeeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "decideePar" : {
+            "type" : [ "string", "null" ]
+          },
+          "decideeLe" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "motifRefus" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "dateEffet", "decideeLe", "decideePar", "etat", "motif", "motifRefus", "proposeeLe", "proposeePar", "rembourserSiRejet", "version" ]
       },
       "DetailRegleDelaiDto" : {
         "type" : "object",
@@ -4408,6 +5718,231 @@
         },
         "required" : [ "profilsAvis", "signataires" ]
       },
+      "LigneJournalEncaissementsDto" : {
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string"
+          },
+          "date" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "reference" : {
+            "type" : "string"
+          },
+          "piece" : {
+            "type" : [ "string", "null" ]
+          },
+          "montantGnf" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "moyen" : {
+            "type" : "string"
+          },
+          "objet" : {
+            "type" : "string"
+          },
+          "demandeId" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "numeroDemande" : {
+            "type" : [ "string", "null" ]
+          },
+          "codeDocument" : {
+            "type" : "string"
+          },
+          "payeur" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "codeDocument", "date", "demandeId", "montantGnf", "moyen", "numeroDemande", "objet", "payeur", "piece", "reference", "type" ]
+      },
+      "PageJournalEncaissementsDto" : {
+        "type" : "object",
+        "properties" : {
+          "elements" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/LigneJournalEncaissementsDto"
+            }
+          },
+          "page" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "taille" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "total" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "totaux" : {
+            "$ref" : "#/components/schemas/TotauxEncaissementsDto"
+          }
+        },
+        "required" : [ "elements", "page", "taille", "total", "totalPages", "totaux" ]
+      },
+      "TotauxEncaissementsDto" : {
+        "type" : "object",
+        "properties" : {
+          "encaisseGnf" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rembourseGnf" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "soldeGnf" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "nombre" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "tresorPayGnf" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "virementGnf" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "encaisseGnf", "nombre", "rembourseGnf", "soldeGnf", "tresorPayGnf", "virementGnf" ]
+      },
+      "IndicateursEncaissementsDto" : {
+        "type" : "object",
+        "properties" : {
+          "aVerifier" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "remboursementsAValider" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "ordresAEnregistrer" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "mois" : {
+            "$ref" : "#/components/schemas/TotauxEncaissementsDto"
+          },
+          "debutMois" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "finMois" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        },
+        "required" : [ "aVerifier", "debutMois", "finMois", "mois", "ordresAEnregistrer", "remboursementsAValider" ]
+      },
+      "ElementAVerifierDto" : {
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string"
+          },
+          "ligneId" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "releveId" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "dateOperation" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "libelle" : {
+            "type" : "string"
+          },
+          "montantGnf" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "sens" : {
+            "type" : "string"
+          },
+          "nature" : {
+            "type" : "string"
+          },
+          "ecartGnf" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "referencePaiement" : {
+            "type" : [ "string", "null" ]
+          },
+          "montantAttenduGnf" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "moyen" : {
+            "type" : [ "string", "null" ]
+          },
+          "demandeId" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "numeroDemande" : {
+            "type" : [ "string", "null" ]
+          },
+          "signaleLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "decisions" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        },
+        "required" : [ "dateOperation", "decisions", "demandeId", "ecartGnf", "libelle", "ligneId", "montantAttenduGnf", "montantGnf", "moyen", "nature", "numeroDemande", "referencePaiement", "releveId", "sens", "signaleLe", "type" ]
+      },
+      "PageAVerifierDto" : {
+        "type" : "object",
+        "properties" : {
+          "elements" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ElementAVerifierDto"
+            }
+          },
+          "page" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "taille" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "total" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "elements", "page", "taille", "total", "totalPages" ]
+      },
       "CompteursDto" : {
         "type" : "object",
         "properties" : {
@@ -4601,12 +6136,15 @@
           "moyenOuvert" : {
             "type" : [ "string", "null" ]
           },
+          "enVerification" : {
+            "type" : "boolean"
+          },
           "tentativesRestantes" : {
             "type" : "integer",
             "format" : "int32"
           }
         },
-        "required" : [ "montantGnf", "moyenOuvert", "moyens", "objet", "referenceOuverte", "tentativesRestantes" ]
+        "required" : [ "enVerification", "montantGnf", "moyenOuvert", "moyens", "objet", "referenceOuverte", "tentativesRestantes" ]
       },
       "MoyenDto" : {
         "type" : "object",

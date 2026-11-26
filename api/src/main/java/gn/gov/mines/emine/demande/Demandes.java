@@ -1,5 +1,6 @@
 package gn.gov.mines.emine.demande;
 
+import gn.gov.mines.emine.demande.application.ServicePieces;
 import gn.gov.mines.emine.demande.domaine.Piece;
 import gn.gov.mines.emine.demande.infrastructure.DemandeRepository;
 import gn.gov.mines.emine.demande.infrastructure.PieceRepository;
@@ -17,11 +18,44 @@ public class Demandes {
 
   private final DemandeRepository demandes;
   private final PieceRepository pieces;
+  private final ServicePieces servicePieces;
 
-  public Demandes(DemandeRepository demandes, PieceRepository pieces) {
+  public Demandes(DemandeRepository demandes, PieceRepository pieces, ServicePieces servicePieces) {
     this.demandes = demandes;
     this.pieces = pieces;
+    this.servicePieces = servicePieces;
   }
+
+  /**
+   * Justificatif d'un virement (US-04.7) joint à une demande déposée et visible : contrôle du
+   * format (PDF, JPG, PNG), de la taille (5 Mo), empreinte et stockage. Renvoie l'identifiant de la
+   * pièce, que le module paiement rattache au paiement.
+   */
+  public long deposerJustificatifVirement(long id, String nomOriginal, byte[] contenu) {
+    return servicePieces.ajouterJustificatifVirement(id, nomOriginal, contenu).id();
+  }
+
+  /** Justificatif d'un virement : nom, format et flux du contenu (l'appelant ferme le flux). */
+  public FichierJoint justificatifVirement(long id, long pieceId) {
+    ServicePieces.Contenu c = servicePieces.contenuJustificatif(id, pieceId);
+    return new FichierJoint(c.piece().nomFichier(), c.piece().typeMime(), c.flux());
+  }
+
+  /**
+   * Nom et format du justificatif d'un virement, sans son contenu ; vide s'il n'est pas visible.
+   */
+  @Transactional(readOnly = true)
+  public Optional<InfosFichier> infosJustificatifVirement(long id, long pieceId) {
+    return pieces
+        .lireJustificatif(id, pieceId)
+        .map(p -> new InfosFichier(p.nomFichier(), p.typeMime()));
+  }
+
+  /** Nom et format d'un fichier joint. */
+  public record InfosFichier(String nomFichier, String typeMime) {}
+
+  /** Fichier joint lu dans le stockage. */
+  public record FichierJoint(String nomFichier, String typeMime, java.io.InputStream flux) {}
 
   /** La demande si elle existe et est visible pour l'utilisateur courant (RLS). */
   @Transactional(readOnly = true)

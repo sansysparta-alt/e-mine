@@ -1,15 +1,19 @@
 import {
   Bell,
   BookOpen,
+  BookText,
   CircleHelp,
   CreditCard,
   FileCheck2,
+  FileSpreadsheet,
   FileText,
   Inbox,
   LayoutDashboard,
   type LucideIcon,
   Plus,
   ScrollText,
+  SearchCheck,
+  Undo2,
   SlidersHorizontal,
   Users,
   Workflow,
@@ -87,6 +91,47 @@ export const NAVIGATION: SectionConfig[] = [
         href: "/a-traiter",
         icone: Inbox,
         auMoinsUnDroit: ["INSTRUIRE", "SIGNER"],
+        interne: true,
+      },
+    ],
+  },
+  {
+    // Responsable fiscal (lot 5) : relevés du compte des virements, rapprochement (US-04.8).
+    cle: "encaissements",
+    entrees: [
+      // File du Responsable fiscal : ce que le rapprochement n'a pas confirmé (US-04.9).
+      {
+        cle: "aVerifier",
+        module: "paiement",
+        href: "/a-verifier",
+        icone: SearchCheck,
+        permission: "ENCAISSER",
+        interne: true,
+      },
+      // Remboursements (US-04.10) : validation, puis ordre du Trésor enregistré.
+      {
+        cle: "remboursements",
+        module: "paiement",
+        href: "/remboursements",
+        icone: Undo2,
+        permission: "ENCAISSER",
+        interne: true,
+      },
+      {
+        cle: "releves",
+        module: "paiement",
+        href: "/releves",
+        icone: FileSpreadsheet,
+        permission: "ENCAISSER",
+        interne: true,
+      },
+      // Journal des encaissements (US-04.11) : recettes, frais remboursés, export CSV.
+      {
+        cle: "journalEncaissements",
+        module: "paiement",
+        href: "/journal-encaissements",
+        icone: BookText,
+        permission: "ENCAISSER",
         interne: true,
       },
     ],

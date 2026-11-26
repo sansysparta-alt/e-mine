@@ -10,6 +10,14 @@ import java.time.Instant;
  * @param objet {@code FRAIS_DOSSIER}, {@code DROITS}, {@code FORMATION} ou {@code ATTESTATION}
  * @param moyen {@code TRESORPAY} ou {@code VIREMENT}
  * @param statut statut de la base ({@code initie}, {@code en_attente}, {@code paye}…)
+ * @param virementDeclareLe virement déclaré effectué par le demandeur (US-04.7), sinon {@code null}
+ * @param justificatif un justificatif de virement est joint
+ * @param motifRejet motif d'un paiement rejeté par le Responsable fiscal (US-04.9)
+ * @param justificatifFichier nom et format du justificatif, pour un paiement lu seul ; {@code null}
+ *     sinon
+ * @param remboursements remboursements de ce paiement, pour un paiement lu seul (US-04.10)
+ * @param coordonnees compte à créditer, pour un virement lu seul ({@code GET
+ *     /paiements/{reference}}) ; {@code null} sinon
  */
 record PaiementDto(
     String reference,
@@ -22,9 +30,43 @@ record PaiementDto(
     @Schema(nullable = true) Long montantRecuGnf,
     @Schema(nullable = true) Instant datePaiement,
     @Schema(nullable = true) String recuNumero,
-    Instant creeLe) {
+    Instant creeLe,
+    @Schema(nullable = true) Instant virementDeclareLe,
+    boolean justificatif,
+    @Schema(nullable = true) String motifRejet,
+    @Schema(nullable = true) FichierDto justificatifFichier,
+    @Schema(nullable = true) java.util.List<RemboursementPaiementDto> remboursements,
+    @Schema(nullable = true) CoordonneesVirementDto coordonnees) {
+
+  /**
+   * Remboursement d'un paiement, tel que le demandeur le suit.
+   *
+   * @param statut {@code demande}, {@code valide}, {@code execute} ou {@code refuse}
+   */
+  record RemboursementPaiementDto(
+      String numero,
+      String statut,
+      long montantGnf,
+      Instant demandeLe,
+      @Schema(nullable = true) Instant executeLe,
+      @Schema(nullable = true) String referenceOrdre,
+      @Schema(nullable = true) String motifRefus) {}
+
+  /** Fichier joint : nom et format (PDF, JPG ou PNG). */
+  record FichierDto(String nomFichier, String typeMime) {}
+
+  /** Compte à créditer par virement (valeurs de la configuration, fictives en démonstration). */
+  record CoordonneesVirementDto(String beneficiaire, String banque, String iban, String bic) {}
 
   static PaiementDto depuis(Paiement p) {
+    return depuis(p, null, null, null);
+  }
+
+  static PaiementDto depuis(
+      Paiement p,
+      FichierDto justificatifFichier,
+      java.util.List<RemboursementPaiementDto> remboursements,
+      CoordonneesVirementDto coordonnees) {
     return new PaiementDto(
         p.reference(),
         p.demandeId(),
@@ -36,6 +78,14 @@ record PaiementDto(
         p.montantRecuGnf(),
         p.datePaiement(),
         p.recuNumero(),
-        p.creeLe());
+        p.creeLe(),
+        p.virementDeclareLe(),
+        p.justificatifPieceId() != null,
+        p.motifRejet(),
+        justificatifFichier,
+        remboursements,
+        p.moyen() == gn.gov.mines.emine.shared.jooq.enums.MoyenPaiement.VIREMENT
+            ? coordonnees
+            : null);
   }
 }

@@ -19,6 +19,12 @@ const paye: PaiementDto = {
   datePaiement: "2026-11-21T10:03:00Z",
   recuNumero: "REC-2026-000001",
   creeLe: "2026-11-21T10:00:00Z",
+  virementDeclareLe: null,
+  justificatif: false,
+  motifRejet: null,
+  justificatifFichier: null,
+  remboursements: null,
+  coordonnees: null,
 };
 const refuse: PaiementDto = {
   ...paye,

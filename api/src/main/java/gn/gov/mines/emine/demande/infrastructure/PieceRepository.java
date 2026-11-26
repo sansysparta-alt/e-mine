@@ -19,6 +19,10 @@ public class PieceRepository {
 
   private final DSLContext dsl;
 
+  /** Pièces du dossier : le justificatif d'un virement (US-04.7) appartient au paiement. */
+  private static final org.jooq.Condition PIECES_DU_DOSSIER =
+      PIECE_JOINTE.TYPE_PIECE.ne(Piece.JUSTIFICATIF_VIREMENT);
+
   public PieceRepository(DSLContext dsl) {
     this.dsl = dsl;
   }
@@ -50,6 +54,7 @@ public class PieceRepository {
     return dsl.selectFrom(PIECE_JOINTE)
         .where(PIECE_JOINTE.DEMANDE_ID.eq(demandeId))
         .and(PIECE_JOINTE.DELETED_AT.isNull())
+        .and(PIECES_DU_DOSSIER)
         .orderBy(PIECE_JOINTE.ID)
         .fetch(PieceRepository::piece);
   }
@@ -58,6 +63,17 @@ public class PieceRepository {
     return dsl.selectFrom(PIECE_JOINTE)
         .where(PIECE_JOINTE.ID.eq(pieceId))
         .and(PIECE_JOINTE.DEMANDE_ID.eq(demandeId))
+        .and(PIECE_JOINTE.DELETED_AT.isNull())
+        .and(PIECES_DU_DOSSIER)
+        .fetchOptional(PieceRepository::piece);
+  }
+
+  /** Justificatif d'un virement de la demande (US-04.7), visible selon la RLS. */
+  public Optional<Piece> lireJustificatif(long demandeId, long pieceId) {
+    return dsl.selectFrom(PIECE_JOINTE)
+        .where(PIECE_JOINTE.ID.eq(pieceId))
+        .and(PIECE_JOINTE.DEMANDE_ID.eq(demandeId))
+        .and(PIECE_JOINTE.TYPE_PIECE.eq(Piece.JUSTIFICATIF_VIREMENT))
         .and(PIECE_JOINTE.DELETED_AT.isNull())
         .fetchOptional(PieceRepository::piece);
   }
@@ -69,6 +85,7 @@ public class PieceRepository {
         .where(PIECE_JOINTE.ID.eq(pieceId))
         .and(PIECE_JOINTE.DEMANDE_ID.eq(demandeId))
         .and(PIECE_JOINTE.DELETED_AT.isNull())
+        .and(PIECES_DU_DOSSIER)
         .execute();
   }
 
@@ -83,6 +100,7 @@ public class PieceRepository {
         .where(PIECE_JOINTE.ID.eq(pieceId))
         .and(PIECE_JOINTE.DEMANDE_ID.eq(demandeId))
         .and(PIECE_JOINTE.DELETED_AT.isNull())
+        .and(PIECES_DU_DOSSIER)
         .and(
             PIECE_JOINTE.CREATED_AT.ge(
                 dsl.select(COMPLEMENT.DEMANDE_LE)
@@ -119,6 +137,7 @@ public class PieceRepository {
         .and(PIECE_JOINTE.CREATED_AT.lt(depuis))
         .and(PIECE_JOINTE.REMPLACEE_LE.isNull())
         .and(PIECE_JOINTE.DELETED_AT.isNull())
+        .and(PIECES_DU_DOSSIER)
         .and(remplacante.isNotNull())
         .execute();
   }

@@ -55,7 +55,8 @@ public class ServicePaiements {
    *
    * @param objet objet et montant attendus, vide si rien n'est à payer à ce stade
    * @param moyens moyens proposés (aucun présélectionné)
-   * @param paiementOuvert paiement en cours (initié ou en attente) pour cet objet, s'il existe
+   * @param paiementOuvert paiement en cours (initié, en attente ou en vérification) pour cet objet,
+   *     s'il existe
    */
   public record APayer(
       Optional<ObjetAPayer> objet,
@@ -71,7 +72,8 @@ public class ServicePaiements {
         objet.flatMap(
             o ->
                 paiements.lister(demandeId).stream()
-                    .filter(p -> p.objet() == o.objet() && p.ouvert())
+                    .filter(p -> p.objet() == o.objet() && (p.ouvert() || p.enVerification()))
+                    .filter(p -> !p.referenceExpiree(horloge.instant()))
                     .findFirst());
     int restantes =
         objet.map(o -> tentativesRestantes(demandeId, o)).orElse(RegleTentatives.MAX_PAR_JOUR);
@@ -113,7 +115,8 @@ public class ServicePaiements {
   /**
    * Choix du moyen de paiement (US-04.2) : crée un paiement {@code initie} au montant du barème. Un
    * paiement encore ouvert pour le même objet est annulé (changement de moyen) ; PAY-001 si l'objet
-   * est déjà payé, PAY-007 si rien n'est attendu, PAY-008 si le moyen n'est pas proposé.
+   * est déjà payé, PAY-007 si rien n'est attendu, PAY-008 si le moyen n'est pas proposé, PAY-010 si
+   * un paiement de cet objet est en cours de vérification (virement déclaré).
    */
   @Transactional
   public Paiement choisirMoyen(long demandeId, MoyenPaiement moyen) {
@@ -131,6 +134,10 @@ public class ServicePaiements {
           Map.of(
               "prochaineTentative",
               RegleTentatives.debutDuJourSuivant(horloge.instant()).toString()));
+    }
+    if (paiements.estEnVerification(demandeId, objet.objet())) {
+      // Un virement déclaré peut être en route : il n'est jamais annulé par un autre choix.
+      throw new ErreurMetier(CodeErreur.PAY_010, Map.of("objet", objet.objet().getLiteral()));
     }
     paiements.annulerOuverts(demandeId, objet.objet());
     return paiements.creer(demandeId, objet.objet(), moyen, objet.montantGnf(), moi().id());

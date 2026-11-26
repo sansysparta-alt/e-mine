@@ -181,6 +181,20 @@
       "catalogue": "{n, plural, one {# catalogue record} other {# catalogue records}}",
       "workflows": "{n, plural, one {# workflow} other {# workflows}}",
       "delais": "The deadline rule"
+    },
+    "fiscal": {
+      "aFaire": "What you have to do",
+      "aVerifier": "To check",
+      "aVerifierPrecision": "Differences and unrecognised credits",
+      "remboursementsAValider": "Refunds to approve",
+      "remboursementsAValiderPrecision": "Duplicates, excess amounts, rejected payments",
+      "ordresAEnregistrer": "Orders to record",
+      "ordresAEnregistrerPrecision": "Approved refunds awaiting the Treasury",
+      "recettesMois": "Revenue this month",
+      "ceMois": "This month ({du} to {au})",
+      "recettesMoisPrecision": "{nombre, plural, one {# operation} other {# operations}}, refunded fees deducted",
+      "importer": "Import a bank statement",
+      "indisponible": "Collection figures cannot be read at the moment. Try again in a few moments."
     }
   },
   "demande": {
@@ -362,7 +376,10 @@
         "pauseComplement": "Expected time limit: {delai, plural, one {# day} other {# days}}. It is paused until you answer the request for additional information.",
         "pauseDroits": "Expected time limit: {delai, plural, one {# day} other {# days}}. It is paused until the fees are paid.",
         "depasse": "The expected time limit ({delai, plural, one {# day} other {# days}}) has been exceeded by {jours, plural, one {# day} other {# days}}. The department concerned has been informed."
-      }
+      },
+      "demandeurPaiementVerification": "Your payment is being checked by the finance department. A transfer is confirmed once the bank statement is received; you will be notified. There is nothing for you to do for now.",
+      "agentPaiementVerification": "The applicant has declared payment of the filing fee: it is being checked by the finance department. You can declare the request admissible once it is confirmed.",
+      "agentDroitsVerification": "The applicant has declared payment of the duties: it is being checked by the finance department."
     },
     "fraisPayes": "Fee paid",
     "paiements": {
@@ -512,7 +529,8 @@
       "principal": "Main",
       "demarches": "Procedures",
       "instruction": "Processing",
-      "administration": "Administration"
+      "administration": "Administration",
+      "encaissements": "Collections"
     },
     "entrees": {
       "tableauDeBord": "Dashboard",
@@ -524,13 +542,17 @@
       "notifications": "Notifications",
       "catalogue": "Catalogue and fees",
       "workflows": "Workflows",
-      "parametres": "Time limits and notifications",
+      "parametres": "Rules and notifications",
       "profil": "My profile",
       "aide": "Help",
       "mentionsLegales": "Legal notice",
       "utilisateurs": "Users & roles",
       "paiements": "Payments & receipts",
-      "documents": "Issued documents"
+      "documents": "Issued documents",
+      "releves": "Bank statements",
+      "aVerifier": "To check",
+      "remboursements": "Refunds",
+      "journalEncaissements": "Collections journal"
     },
     "compte": {
       "menu": "User menu",
@@ -603,7 +625,6 @@
     "choix": {
       "legende": "Choose your payment method",
       "obligatoire": "Choose a payment method to continue.",
-      "bientot": "Coming soon",
       "moyens": {
         "TRESORPAY": {
           "titre": "TrésorPay",
@@ -611,7 +632,7 @@
         },
         "VIREMENT": {
           "titre": "Bank transfer",
-          "aide": "Transfer from your bank with the payment reference. Coming soon on e-mine."
+          "aide": "Transfer from your bank, quoting the payment reference. You then attach your proof of transfer; the payment is confirmed once the bank statement is received (a few working days)."
         }
       },
       "continuer": "Pay {montant}",
@@ -621,19 +642,22 @@
       },
       "enCours": "Preparing the payment…",
       "cree": "Payment {reference} created",
-      "creeSuite": "You will be taken to TrésorPay to complete it.",
+      "creeSuite": "You will be taken to TrésorPay to pay.",
       "erreurs": {
         "PAY-001": "This payment has already been made",
         "PAY-002": "Attempt limit reached for today",
         "PAY-003": "TrésorPay is temporarily unavailable",
         "PAY-007": "No payment is expected at this stage",
         "autre": "The payment could not be prepared",
-        "reessayer": "Please try again in a moment. If the problem persists, contact the one-stop shop."
+        "reessayer": "Please try again in a moment. If the problem persists, contact the one-stop shop.",
+        "PAY-010": "A payment is already being checked"
       },
       "redirection": "You will be taken to the secure TrésorPay page.",
       "tentatives": "{nombre, plural, one {You have # attempt left today.} other {You have # attempts left today.}}",
       "tentativesEpuisees": "You have made 3 online payment attempts today. You can try again tomorrow from midnight.",
-      "indisponibleTexte": "No amount has been charged and no attempt has been counted. Please try again in a few minutes."
+      "indisponibleTexte": "No amount has been charged and no attempt has been counted. Please try again in a few minutes.",
+      "redirectionVirement": "You will get the account details and a reference valid for 7 days.",
+      "indisponible": "Not available"
     },
     "retour": {
       "titreOnglet": "Payment result",
@@ -692,7 +716,13 @@
       "voir": "view the receipt",
       "voirNumero": "View receipt {numero}"
     },
-    "filAriane": "Payment"
+    "filAriane": "Payment",
+    "enVerificationTitre": "Payment being checked ({reference})",
+    "enVerificationTexte": "The finance department is checking your payment. It is confirmed once the bank statement is received; you will be notified. There is nothing to pay for now.",
+    "voirPaiement": "View the payment",
+    "virementOuvertTitre": "Transfer to make ({reference})",
+    "virementOuvertTexte": "You chose bank transfer: make it before the deadline quoting the reference shown, then attach your proof of transfer. You can also choose another method below: the current reference will then be cancelled.",
+    "voirVirement": "Transfer details and declaration"
   },
   "statutsPaiement": {
     "initie": "Initiated",
@@ -923,7 +953,9 @@
       "workflow_etape": "Workflow step",
       "parametre_delai": "Time limit rule",
       "notification_evenement": "Notification channels",
-      "version_regle_delai": "Deadline rule version"
+      "version_regle_delai": "Deadline rule version",
+      "releve_bancaire": "Bank statement",
+      "ligne_releve": "Statement line"
     },
     "champs": {
       "statut": "Status",
@@ -1240,7 +1272,8 @@
       "delivre": "Document issued",
       "rejetee": "Rejected",
       "archivee": "Archived",
-      "documentRevoque": "Document revoked"
+      "documentRevoque": "Document revoked",
+      "paiementEnVerification": "Payment being checked"
     },
     "agent": {
       "fraisAttendus": "Fee pending",
@@ -1258,7 +1291,8 @@
       "archivee": "Archived",
       "sansReponse": "No answer",
       "avisARendre": "Opinion to give",
-      "documentRevoque": "Document revoked"
+      "documentRevoque": "Document revoked",
+      "paiementEnVerification": "Payment being checked"
     }
   },
   "dates": {
@@ -1673,10 +1707,10 @@
     }
   },
   "parametres": {
-    "titre": "Time limits and notifications",
+    "titre": "Rules and notifications",
     "description": {
-      "admin": "Deadline calculation rule and channels for each notification. The deadline rule is approved by the Minister, then applied from its effective date; channels change immediately. Everything is recorded in the audit log.",
-      "lecture": "Deadline calculation rule and channels for each notification. You approve the changes to the deadline rule proposed by the administrator."
+      "admin": "Rules for computing deadlines and refunding fees, channels of each notification. Rules are approved by the Minister then applied from their effective date; channels change immediately. Everything is recorded in the audit log.",
+      "lecture": "Rules for computing deadlines and refunding fees, channels of each notification. You approve changes to the rules proposed by the administrator."
     },
     "provisoire": {
       "titre": "Choices to be validated by the Ministry",
@@ -1752,6 +1786,22 @@
         "interne": "notification in their online space (bell), always on"
       },
       "toujoursActif": "always on"
+    },
+    "remboursement": {
+      "titre": "Fee refunds",
+      "enVigueur": "Refund rule in force (version {n})",
+      "historique": "History of the refund rule",
+      "oui": "Filing fees of a rejected request are refunded.",
+      "non": "Filing fees of a rejected request are not refunded.",
+      "toujours": "A double payment or an error (excess amount, rejected payment) is always refunded, after approval by the tax officer.",
+      "proposer": "Propose a change",
+      "nouvelle": "Proposed rule:",
+      "motif": "Reason for the change",
+      "motifAide": "Why change the rule (Ministry decision, order…).",
+      "envoyer": "Propose to the Minister",
+      "enCours": "Sending…",
+      "annuler": "Cancel",
+      "erreur": "The proposal could not be sent"
     }
   },
   "profil": {
@@ -2141,6 +2191,57 @@
       "titre": "This payment did not go through",
       "texte": "No amount was charged. The sum is still due for the related request.",
       "payer": "Pay again"
+    },
+    "dateLimite": "To be made before",
+    "declareLe": "Transfer declared on",
+    "justificatif": "Proof of transfer",
+    "voirJustificatif": "View the proof of transfer",
+    "virementAEffectuer": {
+      "titre": "Transfer to make before {date}",
+      "texte": "Make the transfer from your bank using the details below, quoting the reference {reference} in the payment description. Then attach your proof of transfer."
+    },
+    "virementExpire": {
+      "titre": "The reference of this transfer has expired",
+      "texte": "It is no longer valid. If you have not paid yet, choose a payment method again to get a new reference."
+    },
+    "virementDeclare": {
+      "titre": "Transfer being checked",
+      "texte": "You declared this transfer on {date}. The finance department confirms it once the bank statement is received, usually within a few working days; you will be notified. There is nothing for you to do."
+    },
+    "coordonnees": {
+      "titre": "Transfer details",
+      "beneficiaire": "Beneficiary",
+      "banque": "Bank",
+      "iban": "IBAN",
+      "bic": "BIC",
+      "montant": "Exact amount",
+      "libelle": "Payment description",
+      "aide": "Quote the exact reference in the payment description and pay the exact amount: this is how the Ministry recognises your payment on its bank statement."
+    },
+    "declaration": {
+      "titre": "Declare the transfer",
+      "champ": "Proof of transfer",
+      "aide": "Transfer order or debit advice from your bank: PDF, JPG or PNG, 5 MB maximum.",
+      "choisir": "Choose a file",
+      "choisi": "Selected file: {nom}",
+      "bouton": "I have made the transfer",
+      "enCours": "Sending…",
+      "obligatoire": "Attach your proof to declare the transfer.",
+      "format": "Format not accepted: PDF, JPG or PNG only.",
+      "taille": "File too large: 5 MB maximum.",
+      "rappel": "The proof is not a payment: the payment is confirmed once the bank statement is received.",
+      "erreur": "The transfer could not be declared"
+    },
+    "rejete": {
+      "titre": "Payment rejected: a new payment is expected",
+      "motif": "Reason: {motif}",
+      "texte": "Pay the expected amount again so that your request can continue. Any amount received will be refunded to you."
+    },
+    "remboursements": {
+      "titre": "Refunds",
+      "enCours": "{numero} · requested on {date}: being processed by the finance department.",
+      "effectue": "{numero} · refunded on {date} by the Treasury (order {ordre}).",
+      "refuse": "{numero} · refused. Reason: {motif}"
     }
   },
   "periode": {
@@ -2201,5 +2302,298 @@
       "proposee": "Proposal {n} sent to the Minister. It will apply after approval, from the chosen effective date."
     },
     "circuit": "Any change is proposed by the administrator, approved by the Minister, then applied from its effective date. Everything is recorded in the audit log."
+  },
+  "statutsPaiementAffiches": {
+    "enCours": "In progress",
+    "attenteConfirmation": "Awaiting confirmation",
+    "virementAEffectuer": "Transfer to make",
+    "virementAttendu": "Transfer expected",
+    "enVerification": "Being checked",
+    "attenduSurReleve": "Expected on statement",
+    "aVerifier": "To check",
+    "paye": "Paid",
+    "refuse": "Declined",
+    "rejete": "Rejected",
+    "expire": "Expired",
+    "annule": "Cancelled",
+    "remboursementEnCours": "Refund in progress",
+    "remboursementAValider": "Refund to approve",
+    "rembourse": "Refunded"
+  },
+  "commun": {
+    "copier": {
+      "libelle": "Copy: {quoi}",
+      "fait": "Copied: {quoi}"
+    }
+  },
+  "releves": {
+    "titre": "Bank statements",
+    "description": "Import the statement of the transfer account: each transfer is recognised by its reference and amount. Anything that does not match exactly is submitted to you.",
+    "elements": "statements",
+    "import": {
+      "titre": "Import a statement",
+      "fichier": "Bank statement (CSV)",
+      "aideFichier": "CSV format of the contract: date_operation;libelle;montant_gnf;sens. 2 MB maximum.",
+      "banque": "Bank",
+      "aideBanque": "Optional: the bank of the transfer account by default.",
+      "date": "Statement date",
+      "aideDate": "Optional: the latest transaction date by default.",
+      "bouton": "Import and reconcile",
+      "enCours": "Importing…",
+      "obligatoire": "Choose the statement file.",
+      "format": "Format not accepted: CSV file only.",
+      "taille": "File too large: 2 MB maximum.",
+      "erreur": "The statement could not be imported",
+      "exemple": "Download a sample statement",
+      "exempleAide": "Demonstration: one matching line for each declared transfer awaiting confirmation."
+    },
+    "colonnes": {
+      "date": "Statement date",
+      "banque": "Bank",
+      "fichier": "File",
+      "lignes": "Lines",
+      "rapprochees": "Reconciled",
+      "aVerifier": "To check",
+      "importe": "Imported"
+    },
+    "importePar": "on {date} by {nom}",
+    "importeLe": "on {date}",
+    "vide": {
+      "titre": "No statement imported",
+      "description": "Import the first statement of the transfer account: transfers declared by applicants will be confirmed automatically."
+    },
+    "detail": {
+      "titreOnglet": "Statement",
+      "titre": "Statement of {date}",
+      "description": "{banque} · {fichier}",
+      "importe": "Statement imported: {rapprochees, plural, =0 {no transfer confirmed} one {# transfer confirmed} other {# transfers confirmed}}, {aVerifier, plural, =0 {nothing to check} one {# line to check} other {# lines to check}}.",
+      "importeTexte": "Confirmed payments have their receipt and the requests concerned move to the front desk. Lines to check await your decision.",
+      "periode": "This statement",
+      "lignes": "Lines",
+      "credits": "Credits {montant}",
+      "rapprochees": "Transfers confirmed",
+      "rapprocheesPrecision": "Exact reference and amount",
+      "aVerifier": "To check",
+      "aVerifierPrecision": "Differences and unknown references",
+      "filtres": "Result",
+      "toutes": "All",
+      "filtreRapprochees": "Reconciled",
+      "filtreAVerifier": "To check",
+      "aucune": "No line for this filter.",
+      "elements": "lines",
+      "traitees": "Processed",
+      "filtreTraitees": "Processed"
+    },
+    "ligne": {
+      "numero": "No.",
+      "date": "Transaction",
+      "libelle": "Description",
+      "montant": "Amount",
+      "resultat": "Result",
+      "paiement": "Payment",
+      "credit": "Credit",
+      "debit": "Debit",
+      "statuts": {
+        "rapprochee": "Reconciled",
+        "ecart": "To check",
+        "inconnue": "To check",
+        "non_traitee": "Not processed"
+      },
+      "natures": {
+        "conforme": "Transfer confirmed",
+        "inferieur": "Amount lower by {ecart}",
+        "superieur": "Amount higher by {ecart}",
+        "inconnue": "No transfer matches",
+        "doublon": "Already paid: duplicate payment",
+        "tardif": "Reference expired or cancelled",
+        "retour": "Debit: return or bank charges"
+      },
+      "decisions": {
+        "valide": "Payment approved",
+        "rejete": "Payment rejected",
+        "associe": "Matched to a payment",
+        "classe": "Closed with no action"
+      },
+      "motif": "Reason: {motif}"
+    }
+  },
+  "aVerifier": {
+    "titre": "To check",
+    "description": "{nombre, plural, =0 {Nothing to check: all payments are reconciled.} one {# item awaits your decision: what automatic reconciliation could not confirm.} other {# items await your decision: what automatic reconciliation could not confirm.}}",
+    "elements": "items",
+    "badge": "To check",
+    "paiementEnLigne": "TrésorPay online payment",
+    "operationDu": "Transaction of {date}",
+    "attendu": "Expected: {montant}",
+    "aucunPaiement": "No payment recognised",
+    "colonnes": {
+      "operation": "Transaction",
+      "montant": "Received",
+      "situation": "Situation",
+      "demande": "Payment and request",
+      "actions": "Decision"
+    },
+    "natures": {
+      "inferieur": "Amount lower by {ecart}",
+      "superieur": "Amount higher by {ecart}",
+      "inconnue": "No payment reference recognised",
+      "doublon": "Payment already received: duplicate",
+      "tardif": "Reference expired or cancelled",
+      "retour": "Debit: returned transfer or charges",
+      "montant_divergent": "Notified amount differs by {ecart}"
+    },
+    "vide": {
+      "titre": "Nothing to check",
+      "description": "Payments in the latest statements are all reconciled. Future differences will appear here."
+    },
+    "decision": {
+      "annuler": "Cancel",
+      "enCours": "Saving…",
+      "erreur": "The decision could not be saved",
+      "motif": "Reason",
+      "motifAide": "What you found or did, for traceability.",
+      "motifAideRejet": "Sent to the applicant, who will have to pay again.",
+      "reference": "Payment reference",
+      "referenceAide": "Pending transfer of the same amount (PAY-YYYY-NNNNNN).",
+      "referenceInvalide": "Enter a reference in the format PAY-YYYY-NNNNNN.",
+      "VALIDER": {
+        "bouton": "Approve the payment",
+        "titre": "Approve this payment?",
+        "effet": "The payment is confirmed: the receipt is issued and the request continues. Any excess can be refunded.",
+        "confirmer": "Approve the payment"
+      },
+      "REJETER": {
+        "bouton": "Reject",
+        "titre": "Reject this payment?",
+        "effet": "The payment is rejected and the applicant is informed with your reason: they will have to pay again.",
+        "confirmer": "Reject the payment"
+      },
+      "ASSOCIER": {
+        "bouton": "Match",
+        "titre": "Match this credit to a payment?",
+        "effet": "The transfer entered is confirmed with this credit: the receipt is issued and the request continues.",
+        "confirmer": "Match and confirm"
+      },
+      "CLASSER": {
+        "bouton": "Close",
+        "titre": "Close this line with no further action?",
+        "effet": "The line leaves the “To check” queue. The reason is kept in the log.",
+        "confirmer": "Close with no action"
+      }
+    }
+  },
+  "remboursements": {
+    "titre": "Refunds",
+    "description": "Approve each refund request, then record the reference of the order issued by the Treasury: the money is returned outside the platform and the applicant is notified.",
+    "elements": "refunds",
+    "aucun": "No refund for this filter.",
+    "demandeLe": "Requested on {date}",
+    "ordreDu": "Treasury order: {ordre}",
+    "motifRefus": "Reason for refusal: {motif}",
+    "vide": {
+      "titre": "No refunds",
+      "description": "Refunds proposed from “To check” (duplicate, excess, rejected payment) will appear here."
+    },
+    "filtres": {
+      "libelle": "Status",
+      "tous": "All",
+      "demande": "To approve",
+      "valide": "Order to record",
+      "execute": "Refunded",
+      "refuse": "Refused"
+    },
+    "colonnes": {
+      "numero": "Refund",
+      "beneficiaire": "Beneficiary",
+      "motif": "Reason",
+      "montant": "Amount",
+      "statut": "Status",
+      "actions": "Actions"
+    },
+    "motifs": {
+      "double_paiement": "Double payment",
+      "excedent": "Amount overpaid",
+      "rejet_demande": "Request rejected",
+      "autre": "Payment error"
+    },
+    "statuts": {
+      "aValider": "To approve",
+      "ordreAEnregistrer": "Order to record",
+      "enCours": "Refund in progress",
+      "rembourse": "Refunded",
+      "refuse": "Refused"
+    },
+    "actions": {
+      "annuler": "Cancel",
+      "enCours": "Saving…",
+      "erreur": "The action could not be saved",
+      "motif": "Reason for refusal",
+      "motifAide": "Kept in the log and visible to the applicant.",
+      "ordre": "Refund order reference",
+      "ordreAide": "Reference given by the Treasury for this refund.",
+      "ordreObligatoire": "Enter the reference of the Treasury refund order.",
+      "valider": {
+        "bouton": "Approve",
+        "titre": "Approve refund {numero}?",
+        "effet": "The refund of {montant} to {beneficiaire} is approved: the order can be requested from the Treasury.",
+        "confirmer": "Approve the refund"
+      },
+      "refuser": {
+        "bouton": "Refuse",
+        "titre": "Refuse refund {numero}?",
+        "effet": "The refund of {montant} will not take place. The reason is kept in the log.",
+        "confirmer": "Refuse the refund"
+      },
+      "executer": {
+        "bouton": "Record the order",
+        "titre": "Treasury order for {numero}",
+        "effet": "The Treasury has issued the refund order of {montant} to {beneficiaire}. The applicant will be notified.",
+        "confirmer": "Record and notify the applicant"
+      }
+    }
+  },
+  "journalEncaissements": {
+    "titre": "Collections journal",
+    "description": "Ministry revenue (amount due on accepted payments) and fees refunded after a request was rejected, for the selected period.",
+    "elements": "operations",
+    "exporter": "Export as CSV",
+    "periode": "From {du} to {au}",
+    "toutePeriode": "Whole period",
+    "note": "Amounts received without consideration (excess, duplicate, rejected payment) are not revenue: they are tracked in “Refunds”.",
+    "periodeInvalide": {
+      "titre": "Invalid period",
+      "texte": "The end of the period is before its start: correct one of the two dates."
+    },
+    "chiffres": {
+      "encaisse": "Revenue",
+      "encaissePrecision": "TrésorPay {tresorpay} · transfer {virement}",
+      "rembourse": "Fees refunded",
+      "remboursePrecision": "Rejected requests, Treasury order recorded",
+      "solde": "Balance",
+      "soldePrecision": "{nombre, plural, one {# operation} other {# operations}}"
+    },
+    "filtres": {
+      "libelle": "Payment method",
+      "tous": "All"
+    },
+    "moyens": {
+      "TRESORPAY": "TrésorPay",
+      "VIREMENT": "Bank transfer"
+    },
+    "types": {
+      "encaissement": "Collection",
+      "remboursement": "Fee refund"
+    },
+    "colonnes": {
+      "date": "Date",
+      "operation": "Operation",
+      "demande": "Request",
+      "payeur": "Payer",
+      "montant": "Amount"
+    },
+    "vide": {
+      "titre": "No operation in this period",
+      "description": "Choose another period or payment method."
+    }
   }
 }

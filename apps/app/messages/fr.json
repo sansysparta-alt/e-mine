@@ -181,6 +181,20 @@
       "catalogue": "{n, plural, one {# fiche du catalogue} other {# fiches du catalogue}}",
       "workflows": "{n, plural, one {# workflow} other {# workflows}}",
       "delais": "La règle des délais"
+    },
+    "fiscal": {
+      "aFaire": "Ce que vous avez à faire",
+      "aVerifier": "À vérifier",
+      "aVerifierPrecision": "Écarts et versements non reconnus",
+      "remboursementsAValider": "Remboursements à valider",
+      "remboursementsAValiderPrecision": "Doublons, excédents, paiements rejetés",
+      "ordresAEnregistrer": "Ordres à enregistrer",
+      "ordresAEnregistrerPrecision": "Remboursements validés, en attente du Trésor",
+      "recettesMois": "Recettes du mois",
+      "ceMois": "Ce mois-ci (du {du} au {au})",
+      "recettesMoisPrecision": "{nombre, plural, one {# opération} other {# opérations}}, frais remboursés déduits",
+      "importer": "Importer un relevé bancaire",
+      "indisponible": "Les chiffres des encaissements ne peuvent pas être lus pour le moment. Réessayez dans quelques instants."
     }
   },
   "demande": {
@@ -362,7 +376,10 @@
         "pauseComplement": "Délai prévu : {delai, plural, one {# jour} other {# jours}}. Il est en pause jusqu’à votre réponse au complément.",
         "pauseDroits": "Délai prévu : {delai, plural, one {# jour} other {# jours}}. Il est en pause jusqu’au paiement des droits.",
         "depasse": "Le délai prévu ({delai, plural, one {# jour} other {# jours}}) est dépassé de {jours, plural, one {# jour} other {# jours}}. Le service concerné en est informé."
-      }
+      },
+      "demandeurPaiementVerification": "Votre paiement est en cours de vérification par le service financier. Un virement est confirmé à réception du relevé bancaire ; vous serez informé par message. Vous n’avez rien à faire pour l’instant.",
+      "agentPaiementVerification": "Le demandeur a déclaré le paiement des frais : il est en cours de vérification par le service financier. Vous pourrez déclarer la demande recevable dès sa confirmation.",
+      "agentDroitsVerification": "Le demandeur a déclaré le paiement des droits : il est en cours de vérification par le service financier."
     },
     "fraisPayes": "Frais payés",
     "paiements": {
@@ -512,7 +529,8 @@
       "principal": "Principal",
       "demarches": "Démarches",
       "instruction": "Instruction",
-      "administration": "Administration"
+      "administration": "Administration",
+      "encaissements": "Encaissements"
     },
     "entrees": {
       "tableauDeBord": "Tableau de bord",
@@ -524,13 +542,17 @@
       "notifications": "Notifications",
       "catalogue": "Catalogue et tarifs",
       "workflows": "Workflows",
-      "parametres": "Délais et notifications",
+      "parametres": "Règles et notifications",
       "profil": "Mon profil",
       "aide": "Aide",
       "mentionsLegales": "Mentions légales",
       "utilisateurs": "Utilisateurs & rôles",
       "paiements": "Paiements & reçus",
-      "documents": "Documents délivrés"
+      "documents": "Documents délivrés",
+      "releves": "Relevés bancaires",
+      "aVerifier": "À vérifier",
+      "remboursements": "Remboursements",
+      "journalEncaissements": "Journal des encaissements"
     },
     "compte": {
       "menu": "Menu de l’utilisateur",
@@ -603,7 +625,6 @@
     "choix": {
       "legende": "Choisissez votre moyen de paiement",
       "obligatoire": "Choisissez un moyen de paiement pour continuer.",
-      "bientot": "Bientôt disponible",
       "moyens": {
         "TRESORPAY": {
           "titre": "TrésorPay",
@@ -611,7 +632,7 @@
         },
         "VIREMENT": {
           "titre": "Virement bancaire",
-          "aide": "Virement depuis votre banque avec la référence du paiement. Bientôt proposé sur e-mine."
+          "aide": "Virement depuis votre banque, avec la référence du paiement. Vous joignez ensuite votre justificatif ; le paiement est confirmé à réception du relevé bancaire (quelques jours ouvrés)."
         }
       },
       "continuer": "Payer {montant}",
@@ -628,12 +649,15 @@
         "PAY-003": "TrésorPay est momentanément indisponible",
         "PAY-007": "Aucun paiement n’est attendu à cette étape",
         "autre": "Le paiement n’a pas pu être préparé",
-        "reessayer": "Réessayez dans quelques instants. Si le problème persiste, contactez le guichet unique."
+        "reessayer": "Réessayez dans quelques instants. Si le problème persiste, contactez le guichet unique.",
+        "PAY-010": "Un paiement est déjà en cours de vérification"
       },
       "redirection": "Vous serez dirigé vers la page sécurisée de TrésorPay.",
       "tentatives": "{nombre, plural, one {Il vous reste # tentative aujourd’hui.} other {Il vous reste # tentatives aujourd’hui.}}",
       "tentativesEpuisees": "Vous avez fait 3 tentatives de paiement en ligne aujourd’hui. Vous pourrez réessayer demain à partir de minuit.",
-      "indisponibleTexte": "Aucun montant n’a été prélevé et aucune tentative n’a été décomptée. Réessayez dans quelques minutes."
+      "indisponibleTexte": "Aucun montant n’a été prélevé et aucune tentative n’a été décomptée. Réessayez dans quelques minutes.",
+      "redirectionVirement": "Vous obtiendrez les coordonnées du compte et une référence valable 7 jours.",
+      "indisponible": "Non disponible"
     },
     "retour": {
       "titreOnglet": "Résultat du paiement",
@@ -692,7 +716,13 @@
       "voir": "voir le reçu",
       "voirNumero": "Voir le reçu {numero}"
     },
-    "filAriane": "Paiement"
+    "filAriane": "Paiement",
+    "enVerificationTitre": "Paiement en cours de vérification ({reference})",
+    "enVerificationTexte": "Le service financier vérifie votre paiement. Il est confirmé à réception du relevé bancaire ; vous serez informé par message. Vous n’avez rien à payer pour l’instant.",
+    "voirPaiement": "Voir le paiement",
+    "virementOuvertTitre": "Virement à effectuer ({reference})",
+    "virementOuvertTexte": "Vous avez choisi le virement : effectuez-le avant la date limite avec la référence indiquée, puis joignez votre justificatif. Vous pouvez aussi choisir un autre moyen ci-dessous : la référence actuelle sera alors annulée.",
+    "voirVirement": "Coordonnées et déclaration du virement"
   },
   "statutsPaiement": {
     "initie": "Initié",
@@ -923,7 +953,9 @@
       "workflow_etape": "Étape de workflow",
       "parametre_delai": "Règle des délais",
       "notification_evenement": "Canaux de notification",
-      "version_regle_delai": "Version de la règle des délais"
+      "version_regle_delai": "Version de la règle des délais",
+      "releve_bancaire": "Relevé bancaire",
+      "ligne_releve": "Ligne de relevé"
     },
     "champs": {
       "statut": "Statut",
@@ -1240,7 +1272,8 @@
       "delivre": "Document délivré",
       "rejetee": "Rejetée",
       "archivee": "Archivée",
-      "documentRevoque": "Document révoqué"
+      "documentRevoque": "Document révoqué",
+      "paiementEnVerification": "Paiement en vérification"
     },
     "agent": {
       "fraisAttendus": "Frais attendus",
@@ -1258,7 +1291,8 @@
       "archivee": "Archivée",
       "sansReponse": "Sans réponse",
       "avisARendre": "Avis à rendre",
-      "documentRevoque": "Document révoqué"
+      "documentRevoque": "Document révoqué",
+      "paiementEnVerification": "Paiement en vérification"
     }
   },
   "dates": {
@@ -1673,10 +1707,10 @@
     }
   },
   "parametres": {
-    "titre": "Délais et notifications",
+    "titre": "Règles et notifications",
     "description": {
-      "admin": "Règle de calcul des délais et canaux de chaque notification. La règle des délais est validée par le Ministre puis appliquée à sa date d’effet ; les canaux changent aussitôt. Tout est tracé au journal d’audit.",
-      "lecture": "Règle de calcul des délais et canaux de chaque notification. Vous validez les modifications de la règle des délais proposées par l’administrateur."
+      "admin": "Règles de calcul des délais et de remboursement des frais, canaux de chaque notification. Les règles sont validées par le Ministre puis appliquées à leur date d’effet ; les canaux changent aussitôt. Tout est tracé au journal d’audit.",
+      "lecture": "Règles de calcul des délais et de remboursement des frais, canaux de chaque notification. Vous validez les modifications des règles proposées par l’administrateur."
     },
     "provisoire": {
       "titre": "Choix à faire valider par le Ministère",
@@ -1752,6 +1786,22 @@
         "interne": "notification dans son espace (cloche), toujours active"
       },
       "toujoursActif": "toujours actif"
+    },
+    "remboursement": {
+      "titre": "Remboursement des frais",
+      "enVigueur": "Règle de remboursement en vigueur (version {n})",
+      "historique": "Historique de la règle de remboursement",
+      "oui": "Les frais de dossier d’une demande rejetée sont remboursés.",
+      "non": "Les frais de dossier d’une demande rejetée ne sont pas remboursés.",
+      "toujours": "Un double paiement ou une erreur (montant en trop, paiement rejeté) est toujours remboursé, après validation du Responsable fiscal.",
+      "proposer": "Proposer une modification",
+      "nouvelle": "Règle proposée :",
+      "motif": "Motif de la modification",
+      "motifAide": "Pourquoi changer la règle (décision du Ministère, arrêté…).",
+      "envoyer": "Proposer au Ministre",
+      "enCours": "Envoi…",
+      "annuler": "Annuler",
+      "erreur": "La proposition n’a pas pu être envoyée"
     }
   },
   "profil": {
@@ -2141,6 +2191,57 @@
       "titre": "Ce paiement n’a pas abouti",
       "texte": "Aucun montant n’a été prélevé. La somme est toujours attendue pour la demande liée.",
       "payer": "Payer à nouveau"
+    },
+    "dateLimite": "À effectuer avant le",
+    "declareLe": "Virement déclaré le",
+    "justificatif": "Justificatif",
+    "voirJustificatif": "Voir le justificatif",
+    "virementAEffectuer": {
+      "titre": "Virement à effectuer avant le {date}",
+      "texte": "Effectuez le virement depuis votre banque avec les coordonnées ci-dessous, en indiquant la référence {reference} dans le libellé. Joignez ensuite votre justificatif."
+    },
+    "virementExpire": {
+      "titre": "La référence de ce virement a expiré",
+      "texte": "Elle n’est plus valable. Si vous n’avez pas encore payé, choisissez à nouveau un moyen de paiement pour obtenir une nouvelle référence."
+    },
+    "virementDeclare": {
+      "titre": "Virement en cours de vérification",
+      "texte": "Vous avez déclaré ce virement le {date}. Le service financier le confirme à réception du relevé bancaire, en général sous quelques jours ouvrés ; vous serez informé par message. Vous n’avez rien à faire."
+    },
+    "coordonnees": {
+      "titre": "Coordonnées du virement",
+      "beneficiaire": "Bénéficiaire",
+      "banque": "Banque",
+      "iban": "IBAN",
+      "bic": "BIC",
+      "montant": "Montant exact",
+      "libelle": "Libellé à indiquer",
+      "aide": "Indiquez la référence exacte dans le libellé du virement et payez le montant exact : c’est ce qui permet au Ministère de reconnaître votre paiement sur son relevé."
+    },
+    "declaration": {
+      "titre": "Déclarer le virement",
+      "champ": "Justificatif du virement",
+      "aide": "Ordre de virement ou avis de débit de votre banque : PDF, JPG ou PNG, 5 Mo au plus.",
+      "choisir": "Choisir un fichier",
+      "choisi": "Fichier choisi : {nom}",
+      "bouton": "J’ai effectué le virement",
+      "enCours": "Envoi en cours…",
+      "obligatoire": "Joignez votre justificatif pour déclarer le virement.",
+      "format": "Format non accepté : PDF, JPG ou PNG uniquement.",
+      "taille": "Fichier trop volumineux : 5 Mo au maximum.",
+      "rappel": "Le justificatif ne vaut pas paiement : le paiement est confirmé à réception du relevé bancaire.",
+      "erreur": "Le virement n’a pas pu être déclaré"
+    },
+    "rejete": {
+      "titre": "Paiement rejeté : un nouveau paiement est attendu",
+      "motif": "Motif : {motif}",
+      "texte": "Payez à nouveau la somme attendue pour que votre demande poursuive son traitement. Si une somme a été reçue, elle vous sera remboursée."
+    },
+    "remboursements": {
+      "titre": "Remboursements",
+      "enCours": "{numero} · demandé le {date} : en cours de traitement par le service financier.",
+      "effectue": "{numero} · remboursé le {date} par le Trésor (ordre {ordre}).",
+      "refuse": "{numero} · refusé. Motif : {motif}"
     }
   },
   "periode": {
@@ -2201,5 +2302,298 @@
       "proposee": "Proposition {n} envoyée au Ministre. Elle s’appliquera après sa validation, à la date d’effet choisie."
     },
     "circuit": "Toute modification est proposée par l’administrateur, validée par le Ministre puis appliquée à sa date d’effet. Tout est tracé au journal d’audit."
+  },
+  "statutsPaiementAffiches": {
+    "enCours": "En cours",
+    "attenteConfirmation": "En attente de confirmation",
+    "virementAEffectuer": "Virement à effectuer",
+    "virementAttendu": "Virement attendu",
+    "enVerification": "En cours de vérification",
+    "attenduSurReleve": "Attendu sur relevé",
+    "aVerifier": "À vérifier",
+    "paye": "Payé",
+    "refuse": "Refusé",
+    "rejete": "Rejeté",
+    "expire": "Expiré",
+    "annule": "Annulé",
+    "remboursementEnCours": "Remboursement en cours",
+    "remboursementAValider": "Remboursement à valider",
+    "rembourse": "Remboursé"
+  },
+  "commun": {
+    "copier": {
+      "libelle": "Copier : {quoi}",
+      "fait": "Copié : {quoi}"
+    }
+  },
+  "releves": {
+    "titre": "Relevés bancaires",
+    "description": "Importez le relevé du compte des virements : chaque virement est reconnu par sa référence et son montant. Ce qui ne correspond pas exactement vous est soumis.",
+    "elements": "relevés",
+    "import": {
+      "titre": "Importer un relevé",
+      "fichier": "Relevé bancaire (CSV)",
+      "aideFichier": "Format CSV du contrat : date_operation;libelle;montant_gnf;sens. 2 Mo au plus.",
+      "banque": "Banque",
+      "aideBanque": "Facultatif : la banque du compte des virements par défaut.",
+      "date": "Date du relevé",
+      "aideDate": "Facultatif : la dernière date d’opération par défaut.",
+      "bouton": "Importer et rapprocher",
+      "enCours": "Import en cours…",
+      "obligatoire": "Choisissez le fichier du relevé.",
+      "format": "Format non accepté : fichier CSV uniquement.",
+      "taille": "Fichier trop volumineux : 2 Mo au maximum.",
+      "erreur": "Le relevé n’a pas pu être importé",
+      "exemple": "Télécharger un relevé d’exemple",
+      "exempleAide": "Démonstration : une ligne conforme pour chaque virement déclaré en attente."
+    },
+    "colonnes": {
+      "date": "Date du relevé",
+      "banque": "Banque",
+      "fichier": "Fichier",
+      "lignes": "Lignes",
+      "rapprochees": "Rapprochées",
+      "aVerifier": "À vérifier",
+      "importe": "Importé"
+    },
+    "importePar": "le {date} par {nom}",
+    "importeLe": "le {date}",
+    "vide": {
+      "titre": "Aucun relevé importé",
+      "description": "Importez le premier relevé du compte des virements : les virements déclarés par les usagers seront confirmés automatiquement."
+    },
+    "detail": {
+      "titreOnglet": "Relevé",
+      "titre": "Relevé du {date}",
+      "description": "{banque} · {fichier}",
+      "importe": "Relevé importé : {rapprochees, plural, =0 {aucun virement confirmé} one {# virement confirmé} other {# virements confirmés}}, {aVerifier, plural, =0 {rien à vérifier} one {# ligne à vérifier} other {# lignes à vérifier}}.",
+      "importeTexte": "Les paiements confirmés ont leur reçu et les demandes concernées passent au guichet. Les lignes à vérifier attendent votre décision.",
+      "periode": "Ce relevé",
+      "lignes": "Lignes",
+      "credits": "Crédits {montant}",
+      "rapprochees": "Virements confirmés",
+      "rapprocheesPrecision": "Référence et montant exacts",
+      "aVerifier": "À vérifier",
+      "aVerifierPrecision": "Écarts et références inconnues",
+      "filtres": "Résultat",
+      "toutes": "Toutes",
+      "filtreRapprochees": "Rapprochées",
+      "filtreAVerifier": "À vérifier",
+      "aucune": "Aucune ligne pour ce filtre.",
+      "elements": "lignes",
+      "traitees": "Traitées",
+      "filtreTraitees": "Traitées"
+    },
+    "ligne": {
+      "numero": "N°",
+      "date": "Opération",
+      "libelle": "Libellé",
+      "montant": "Montant",
+      "resultat": "Résultat",
+      "paiement": "Paiement",
+      "credit": "Crédit",
+      "debit": "Débit",
+      "statuts": {
+        "rapprochee": "Rapprochée",
+        "ecart": "À vérifier",
+        "inconnue": "À vérifier",
+        "non_traitee": "Non traitée"
+      },
+      "natures": {
+        "conforme": "Virement confirmé",
+        "inferieur": "Montant inférieur de {ecart}",
+        "superieur": "Montant supérieur de {ecart}",
+        "inconnue": "Aucun virement ne correspond",
+        "doublon": "Déjà payé : versement en double",
+        "tardif": "Référence expirée ou annulée",
+        "retour": "Débit : retour ou frais bancaires"
+      },
+      "decisions": {
+        "valide": "Paiement validé",
+        "rejete": "Paiement rejeté",
+        "associe": "Associée à un paiement",
+        "classe": "Classée sans suite"
+      },
+      "motif": "Motif : {motif}"
+    }
+  },
+  "aVerifier": {
+    "titre": "À vérifier",
+    "description": "{nombre, plural, =0 {Rien à vérifier : tous les versements sont rapprochés.} one {# élément attend votre décision : ce que le rapprochement automatique n’a pas pu confirmer.} other {# éléments attendent votre décision : ce que le rapprochement automatique n’a pas pu confirmer.}}",
+    "elements": "éléments",
+    "badge": "À vérifier",
+    "paiementEnLigne": "Paiement en ligne TrésorPay",
+    "operationDu": "Opération du {date}",
+    "attendu": "Attendu : {montant}",
+    "aucunPaiement": "Aucun paiement reconnu",
+    "colonnes": {
+      "operation": "Opération",
+      "montant": "Reçu",
+      "situation": "Situation",
+      "demande": "Paiement et demande",
+      "actions": "Décision"
+    },
+    "natures": {
+      "inferieur": "Montant inférieur de {ecart}",
+      "superieur": "Montant supérieur de {ecart}",
+      "inconnue": "Aucune référence de paiement reconnue",
+      "doublon": "Paiement déjà reçu : versement en double",
+      "tardif": "Référence expirée ou annulée",
+      "retour": "Débit : retour de virement ou frais",
+      "montant_divergent": "Montant notifié différent de {ecart}"
+    },
+    "vide": {
+      "titre": "Rien à vérifier",
+      "description": "Les versements des derniers relevés sont tous rapprochés. Les prochains écarts apparaîtront ici."
+    },
+    "decision": {
+      "annuler": "Annuler",
+      "enCours": "Enregistrement…",
+      "erreur": "La décision n’a pas pu être enregistrée",
+      "motif": "Motif",
+      "motifAide": "Ce que vous avez constaté ou fait, pour la traçabilité.",
+      "motifAideRejet": "Communiqué au demandeur, qui devra payer à nouveau.",
+      "reference": "Référence du paiement",
+      "referenceAide": "Virement en cours du même montant (PAY-AAAA-NNNNNN).",
+      "referenceInvalide": "Indiquez une référence au format PAY-AAAA-NNNNNN.",
+      "VALIDER": {
+        "bouton": "Valider le paiement",
+        "titre": "Valider ce paiement ?",
+        "effet": "Le paiement est confirmé : le reçu est émis et la demande poursuit son instruction. Un excédent éventuel pourra être remboursé.",
+        "confirmer": "Valider le paiement"
+      },
+      "REJETER": {
+        "bouton": "Rejeter",
+        "titre": "Rejeter ce paiement ?",
+        "effet": "Le paiement est rejeté et le demandeur en est informé avec votre motif : il devra payer à nouveau.",
+        "confirmer": "Rejeter le paiement"
+      },
+      "ASSOCIER": {
+        "bouton": "Associer",
+        "titre": "Associer ce versement à un paiement ?",
+        "effet": "Le virement indiqué est confirmé avec ce versement : le reçu est émis et la demande poursuit son instruction.",
+        "confirmer": "Associer et confirmer"
+      },
+      "CLASSER": {
+        "bouton": "Classer",
+        "titre": "Classer ce versement sans suite ?",
+        "effet": "La ligne sort de la file « À vérifier ». Le motif est conservé au journal.",
+        "confirmer": "Classer sans suite"
+      }
+    }
+  },
+  "remboursements": {
+    "titre": "Remboursements",
+    "description": "Validez chaque demande de remboursement, puis enregistrez la référence de l’ordre émis par le Trésor : l’argent est rendu hors plateforme et le demandeur est informé.",
+    "elements": "remboursements",
+    "aucun": "Aucun remboursement pour ce filtre.",
+    "demandeLe": "Demandé le {date}",
+    "ordreDu": "Ordre du Trésor : {ordre}",
+    "motifRefus": "Motif du refus : {motif}",
+    "vide": {
+      "titre": "Aucun remboursement",
+      "description": "Les remboursements proposés depuis « À vérifier » (doublon, excédent, paiement rejeté) apparaîtront ici."
+    },
+    "filtres": {
+      "libelle": "Statut",
+      "tous": "Tous",
+      "demande": "À valider",
+      "valide": "Ordre à enregistrer",
+      "execute": "Remboursés",
+      "refuse": "Refusés"
+    },
+    "colonnes": {
+      "numero": "Remboursement",
+      "beneficiaire": "Bénéficiaire",
+      "motif": "Motif",
+      "montant": "Montant",
+      "statut": "Statut",
+      "actions": "Actions"
+    },
+    "motifs": {
+      "double_paiement": "Double paiement",
+      "excedent": "Montant payé en trop",
+      "rejet_demande": "Demande rejetée",
+      "autre": "Erreur de paiement"
+    },
+    "statuts": {
+      "aValider": "À valider",
+      "ordreAEnregistrer": "Ordre à enregistrer",
+      "enCours": "Remboursement en cours",
+      "rembourse": "Remboursé",
+      "refuse": "Refusé"
+    },
+    "actions": {
+      "annuler": "Annuler",
+      "enCours": "Enregistrement…",
+      "erreur": "L’action n’a pas pu être enregistrée",
+      "motif": "Motif du refus",
+      "motifAide": "Conservé au journal et visible du demandeur.",
+      "ordre": "Référence de l’ordre de remboursement",
+      "ordreAide": "Référence donnée par le Trésor pour ce remboursement.",
+      "ordreObligatoire": "Indiquez la référence de l’ordre de remboursement du Trésor.",
+      "valider": {
+        "bouton": "Valider",
+        "titre": "Valider le remboursement {numero} ?",
+        "effet": "Le remboursement de {montant} à {beneficiaire} est validé : l’ordre peut être demandé au Trésor.",
+        "confirmer": "Valider le remboursement"
+      },
+      "refuser": {
+        "bouton": "Refuser",
+        "titre": "Refuser le remboursement {numero} ?",
+        "effet": "Le remboursement de {montant} n’aura pas lieu. Le motif est conservé au journal.",
+        "confirmer": "Refuser le remboursement"
+      },
+      "executer": {
+        "bouton": "Enregistrer l’ordre",
+        "titre": "Ordre du Trésor pour {numero}",
+        "effet": "Le Trésor a émis l’ordre de remboursement de {montant} à {beneficiaire}. Le demandeur sera informé.",
+        "confirmer": "Enregistrer et informer le demandeur"
+      }
+    }
+  },
+  "journalEncaissements": {
+    "titre": "Journal des encaissements",
+    "description": "Recettes du Ministère (montant dû des paiements acceptés) et frais remboursés sur rejet d’une demande, pour la période choisie.",
+    "elements": "opérations",
+    "exporter": "Exporter en CSV",
+    "periode": "Du {du} au {au}",
+    "toutePeriode": "Toute la période",
+    "note": "Les sommes reçues sans contrepartie (excédent, versement en double, paiement rejeté) ne sont pas des recettes : elles sont suivies dans « Remboursements ».",
+    "periodeInvalide": {
+      "titre": "Période invalide",
+      "texte": "La fin de la période précède son début : corrigez l’une des deux dates."
+    },
+    "chiffres": {
+      "encaisse": "Recettes",
+      "encaissePrecision": "TrésorPay {tresorpay} · virement {virement}",
+      "rembourse": "Frais remboursés",
+      "remboursePrecision": "Demandes rejetées, ordre du Trésor enregistré",
+      "solde": "Solde",
+      "soldePrecision": "{nombre, plural, one {# opération} other {# opérations}}"
+    },
+    "filtres": {
+      "libelle": "Moyen de paiement",
+      "tous": "Tous"
+    },
+    "moyens": {
+      "TRESORPAY": "TrésorPay",
+      "VIREMENT": "Virement bancaire"
+    },
+    "types": {
+      "encaissement": "Encaissement",
+      "remboursement": "Remboursement de frais"
+    },
+    "colonnes": {
+      "date": "Date",
+      "operation": "Opération",
+      "demande": "Demande",
+      "payeur": "Payeur",
+      "montant": "Montant"
+    },
+    "vide": {
+      "titre": "Aucune opération sur cette période",
+      "description": "Choisissez une autre période ou un autre moyen de paiement."
+    }
   }
 }

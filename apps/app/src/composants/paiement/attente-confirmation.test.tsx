@@ -58,8 +58,10 @@ describe("statuts de paiement", () => {
   });
 
   it("distingue l'attente de confirmation et les issues qui permettent de réessayer", () => {
-    expect(enAttenteDeConfirmation("en_attente")).toBe(true);
-    expect(enAttenteDeConfirmation("paye")).toBe(false);
+    expect(enAttenteDeConfirmation({ statut: "en_attente", moyen: "TRESORPAY" })).toBe(true);
+    expect(enAttenteDeConfirmation({ statut: "paye", moyen: "TRESORPAY" })).toBe(false);
+    // Un virement déclaré n'attend pas TrésorPay : il attend le relevé bancaire (US-04.7).
+    expect(enAttenteDeConfirmation({ statut: "en_attente", moyen: "VIREMENT" })).toBe(false);
     expect(peutReessayer("echoue")).toBe(true);
     expect(peutReessayer("annule")).toBe(true);
     expect(peutReessayer("paye")).toBe(false);

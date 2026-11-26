@@ -9,6 +9,9 @@ import java.time.Instant;
  * @param numero {@code DEM-AAAA-NNNNNN}, {@code null} tant que la demande est un brouillon (V5)
  * @param statut statut de la base ({@code brouillon}, {@code deposee}…)
  * @param fraisPayes frais de dossier (ou attestation) payés : condition de la recevabilité (V8)
+ * @param paiementEnVerification la somme attendue à ce stade (frais ou droits) a fait l'objet d'un
+ *     paiement en cours de vérification (virement déclaré, montant à vérifier) : le demandeur n'a
+ *     rien à payer pour l'instant (US-04.7)
  * @param motifRejet motif communiqué au demandeur si la demande est rejetée, sinon {@code null}
  * @param etapeDepuis entrée dans le statut actuel (dernier changement de statut), pour le temps
  *     d'attente à l'étape
@@ -40,6 +43,7 @@ public record DemandeDetail(
     Instant creeLe,
     Instant deposeLe,
     boolean fraisPayes,
+    boolean paiementEnVerification,
     String motifRejet,
     Instant etapeDepuis,
     boolean aTraiterParMoi,
@@ -71,6 +75,7 @@ public record DemandeDetail(
         creeLe,
         deposeLe,
         fraisPayes,
+        paiementEnVerification,
         motifRejet,
         etapeDepuis,
         aTraiterParMoi,

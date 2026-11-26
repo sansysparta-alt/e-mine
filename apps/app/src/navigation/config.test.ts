@@ -13,8 +13,18 @@ describe("configuration unique de la navigation", () => {
       "documents",
     ]);
     const fiscal = navigationPour({ permissions: ["ENCAISSER"], interne: true });
-    expect(cles(fiscal)).toEqual(["tableauDeBord", "mesDemandes"]);
-    expect(fiscal.map((s) => s.cle)).toEqual(["principal"]); // sections vides retirées
+    expect(cles(fiscal)).toEqual([
+      "tableauDeBord",
+      "mesDemandes",
+      "aVerifier",
+      "remboursements",
+      "releves",
+      "journalEncaissements",
+    ]);
+    // Sections vides retirées ; « Encaissements » pour le Responsable fiscal (lot 5).
+    expect(fiscal.map((s) => s.cle)).toEqual(["principal", "encaissements"]);
+    const guichet = navigationPour({ permissions: ["INSTRUIRE"], interne: true });
+    expect(cles(guichet)).not.toContain("releves");
   });
 
   it("montre « À traiter » aux agents internes qui instruisent ou signent (correctifs J5)", () => {

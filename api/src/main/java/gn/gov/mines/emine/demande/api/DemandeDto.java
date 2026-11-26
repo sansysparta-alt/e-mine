@@ -11,6 +11,9 @@ import java.time.Instant;
  *
  * @param numero {@code DEM-AAAA-NNNNNN}, attribué au dépôt ; {@code null} pour un brouillon
  * @param fraisPayes frais de dossier (ou attestation) payés, affiché « Frais payés »
+ * @param paiementEnVerification la somme attendue (frais ou droits) est en cours de vérification
+ *     par le service financier (virement déclaré, montant à vérifier) : rien à payer pour l'instant
+ *     (US-04.7)
  * @param motifRejet motif de la non-recevabilité ou du rejet, {@code null} sinon
  * @param etapeDepuis entrée dans le statut actuel : l'écran affiche « En attente depuis N jours »
  * @param aTraiterParMoi la demande attend une action du profil connecté (règle « À traiter » de
@@ -40,6 +43,7 @@ record DemandeDto(
     Instant creeLe,
     @Schema(nullable = true) Instant deposeLe,
     boolean fraisPayes,
+    boolean paiementEnVerification,
     @Schema(nullable = true) String motifRejet,
     Instant etapeDepuis,
     boolean aTraiterParMoi,
@@ -93,6 +97,7 @@ record DemandeDto(
         d.creeLe(),
         d.deposeLe(),
         d.fraisPayes(),
+        d.paiementEnVerification(),
         d.motifRejet(),
         d.etapeDepuis(),
         d.aTraiterParMoi(),

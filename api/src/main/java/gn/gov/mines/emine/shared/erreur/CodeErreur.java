@@ -66,10 +66,27 @@ public enum CodeErreur {
   PAY_006("PAY-006", HttpStatus.CONFLICT),
   /** Aucun paiement n'est attendu pour cette demande à ce stade. */
   PAY_007("PAY-007", HttpStatus.CONFLICT),
-  /** Moyen de paiement pas encore proposé (le virement arrive après la V1). */
+  /** Moyen de paiement non proposé (désactivé). */
   PAY_008("PAY-008", HttpStatus.UNPROCESSABLE_CONTENT),
   /** Reçu pas encore disponible : le paiement n'est pas confirmé (US-04.6). */
   PAY_009("PAY-009", HttpStatus.CONFLICT),
+  /**
+   * Virement non déclarable (US-04.7) : déjà déclaré, ou référence expirée (en choisir une
+   * nouvelle) ; ou changement de moyen impossible pendant la vérification d'un virement déclaré.
+   */
+  PAY_010("PAY-010", HttpStatus.CONFLICT),
+  /** Relevé bancaire déjà importé : même fichier (empreinte SHA-256), US-04.8. */
+  PAY_011("PAY-011", HttpStatus.CONFLICT),
+  /** Relevé bancaire introuvable (ou relevé d'exemple désactivé), US-04.8. */
+  PAY_012("PAY-012", HttpStatus.NOT_FOUND),
+  /** Décision impossible sur cet élément « à vérifier » (déjà traité, ou non prévue), US-04.9. */
+  PAY_013("PAY-013", HttpStatus.CONFLICT),
+  /** Paiement à associer introuvable : pas un virement en cours du même montant, US-04.9. */
+  PAY_014("PAY-014", HttpStatus.UNPROCESSABLE_CONTENT),
+  /** Remboursement introuvable, US-04.10. */
+  PAY_015("PAY-015", HttpStatus.NOT_FOUND),
+  /** Remboursement non prévu par la règle en vigueur (frais d'une demande rejetée), V1-4. */
+  PAY_016("PAY-016", HttpStatus.CONFLICT),
   /** Format de fichier non accepté (PDF, JPG ou PNG). */
   DOC_001("DOC-001", HttpStatus.UNSUPPORTED_MEDIA_TYPE),
   /** Fichier trop volumineux (10 Mo au plus). */
@@ -90,6 +107,8 @@ public enum CodeErreur {
   DOC_009("DOC-009", HttpStatus.CONFLICT),
   /** La proposition ne change rien à la fiche en vigueur (US-02.2). */
   DOC_010("DOC-010", HttpStatus.UNPROCESSABLE_CONTENT),
+  /** Justificatif de virement trop volumineux (5 Mo au plus, US-04.7). */
+  DOC_011("DOC-011", HttpStatus.CONTENT_TOO_LARGE),
   /** Erreur interne : un identifiant d'incident est donné dans le message et les détails. */
   SYS_001("SYS-001", HttpStatus.INTERNAL_SERVER_ERROR),
   /** Ressource ou adresse introuvable. */
