@@ -535,7 +535,8 @@
       "utilisateurs": "Users & roles",
       "paiements": "Payments & receipts",
       "documents": "Issued documents",
-      "releves": "Bank statements"
+      "releves": "Bank statements",
+      "aVerifier": "To check"
     },
     "compte": {
       "menu": "User menu",
@@ -2198,6 +2199,11 @@
       "taille": "File too large: 5 MB maximum.",
       "rappel": "The proof is not a payment: the payment is confirmed once the bank statement is received.",
       "erreur": "The transfer could not be declared"
+    },
+    "rejete": {
+      "titre": "Payment rejected: a new payment is expected",
+      "motif": "Reason: {motif}",
+      "texte": "Pay the expected amount again so that your request can continue. Any amount received will be refunded to you."
     }
   },
   "periode": {
@@ -2336,7 +2342,9 @@
       "filtreRapprochees": "Reconciled",
       "filtreAVerifier": "To check",
       "aucune": "No line for this filter.",
-      "elements": "lines"
+      "elements": "lines",
+      "traitees": "Processed",
+      "filtreTraitees": "Processed"
     },
     "ligne": {
       "numero": "No.",
@@ -2361,6 +2369,78 @@
         "doublon": "Already paid: duplicate payment",
         "tardif": "Reference expired or cancelled",
         "retour": "Debit: return or bank charges"
+      },
+      "decisions": {
+        "valide": "Payment approved",
+        "rejete": "Payment rejected",
+        "associe": "Matched to a payment",
+        "classe": "Closed with no action"
+      },
+      "motif": "Reason: {motif}"
+    }
+  },
+  "aVerifier": {
+    "titre": "To check",
+    "description": "{nombre, plural, =0 {Nothing to check: all payments are reconciled.} one {# item awaits your decision: what automatic reconciliation could not confirm.} other {# items await your decision: what automatic reconciliation could not confirm.}}",
+    "elements": "items",
+    "badge": "To check",
+    "paiementEnLigne": "TrésorPay online payment",
+    "operationDu": "Transaction of {date}",
+    "attendu": "Expected: {montant}",
+    "aucunPaiement": "No payment recognised",
+    "colonnes": {
+      "operation": "Transaction",
+      "montant": "Received",
+      "situation": "Situation",
+      "demande": "Payment and request",
+      "actions": "Decision"
+    },
+    "natures": {
+      "inferieur": "Amount lower by {ecart}",
+      "superieur": "Amount higher by {ecart}",
+      "inconnue": "No payment reference recognised",
+      "doublon": "Payment already received: duplicate",
+      "tardif": "Reference expired or cancelled",
+      "retour": "Debit: returned transfer or charges",
+      "montant_divergent": "Notified amount differs by {ecart}"
+    },
+    "vide": {
+      "titre": "Nothing to check",
+      "description": "Payments in the latest statements are all reconciled. Future differences will appear here."
+    },
+    "decision": {
+      "annuler": "Cancel",
+      "enCours": "Saving…",
+      "erreur": "The decision could not be saved",
+      "motif": "Reason",
+      "motifAide": "What you found or did, for traceability.",
+      "motifAideRejet": "Sent to the applicant, who will have to pay again.",
+      "reference": "Payment reference",
+      "referenceAide": "Pending transfer of the same amount (PAY-YYYY-NNNNNN).",
+      "referenceInvalide": "Enter a reference in the format PAY-YYYY-NNNNNN.",
+      "VALIDER": {
+        "bouton": "Approve the payment",
+        "titre": "Approve this payment?",
+        "effet": "The payment is confirmed: the receipt is issued and the request continues. Any excess can be refunded.",
+        "confirmer": "Approve the payment"
+      },
+      "REJETER": {
+        "bouton": "Reject",
+        "titre": "Reject this payment?",
+        "effet": "The payment is rejected and the applicant is informed with your reason: they will have to pay again.",
+        "confirmer": "Reject the payment"
+      },
+      "ASSOCIER": {
+        "bouton": "Match",
+        "titre": "Match this credit to a payment?",
+        "effet": "The transfer entered is confirmed with this credit: the receipt is issued and the request continues.",
+        "confirmer": "Match and confirm"
+      },
+      "CLASSER": {
+        "bouton": "Close",
+        "titre": "Close this line with no further action?",
+        "effet": "The line leaves the “To check” queue. The reason is kept in the log.",
+        "confirmer": "Close with no action"
       }
     }
   }

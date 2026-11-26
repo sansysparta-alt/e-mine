@@ -24,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("titreOnglet") };
 }
 
-const RESULTATS = ["rapprochees", "a-verifier"] as const;
+const RESULTATS = ["rapprochees", "a-verifier", "traitees"] as const;
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -125,6 +125,13 @@ export default async function DetailReleve({ params, searchParams }: Props) {
             href: adresse("a-verifier"),
             actif: resultat === "a-verifier",
             nombre: aVerifier,
+          },
+          {
+            valeur: "traitees",
+            libelle: t("filtreTraitees"),
+            href: adresse("traitees"),
+            actif: resultat === "traitees",
+            nombre: releve.traitees,
           },
         ]}
       />

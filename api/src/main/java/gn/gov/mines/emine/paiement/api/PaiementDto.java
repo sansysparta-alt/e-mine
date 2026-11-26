@@ -12,6 +12,7 @@ import java.time.Instant;
  * @param statut statut de la base ({@code initie}, {@code en_attente}, {@code paye}…)
  * @param virementDeclareLe virement déclaré effectué par le demandeur (US-04.7), sinon {@code null}
  * @param justificatif un justificatif de virement est joint
+ * @param motifRejet motif d'un paiement rejeté par le Responsable fiscal (US-04.9)
  * @param justificatifFichier nom et format du justificatif, pour un paiement lu seul ; {@code null}
  *     sinon
  * @param coordonnees compte à créditer, pour un virement lu seul ({@code GET
@@ -31,6 +32,7 @@ record PaiementDto(
     Instant creeLe,
     @Schema(nullable = true) Instant virementDeclareLe,
     boolean justificatif,
+    @Schema(nullable = true) String motifRejet,
     @Schema(nullable = true) FichierDto justificatifFichier,
     @Schema(nullable = true) CoordonneesVirementDto coordonnees) {
 
@@ -60,6 +62,7 @@ record PaiementDto(
         p.creeLe(),
         p.virementDeclareLe(),
         p.justificatifPieceId() != null,
+        p.motifRejet(),
         justificatifFichier,
         p.moyen() == gn.gov.mines.emine.shared.jooq.enums.MoyenPaiement.VIREMENT
             ? coordonnees

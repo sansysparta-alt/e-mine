@@ -1,5 +1,6 @@
 import {
   compterATraiter,
+  listerAVerifier,
   lireParametresDelai,
   listerFichesDocuments,
   listerWorkflows,
@@ -26,6 +27,12 @@ export async function compteursNavigation(moi: MoiDto): Promise<CompteursNavigat
   }
   if (moi.interne && (droits.has("INSTRUIRE") || droits.has("SIGNER"))) {
     lectures.push(aTraiter().then((n) => ["aTraiter", n]));
+  }
+  // Responsable fiscal (US-04.9) : éléments « À vérifier » qui attendent sa décision.
+  if (moi.interne && droits.has("ENCAISSER")) {
+    lectures.push(
+      listerAVerifier({ taille: 10 }, options).then((r) => ["aVerifier", r.data.total]),
+    );
   }
   if (droits.has("VALIDER_CATALOGUE")) {
     lectures.push(

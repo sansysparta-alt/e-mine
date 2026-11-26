@@ -535,7 +535,8 @@
       "utilisateurs": "Utilisateurs & rôles",
       "paiements": "Paiements & reçus",
       "documents": "Documents délivrés",
-      "releves": "Relevés bancaires"
+      "releves": "Relevés bancaires",
+      "aVerifier": "À vérifier"
     },
     "compte": {
       "menu": "Menu de l’utilisateur",
@@ -2198,6 +2199,11 @@
       "taille": "Fichier trop volumineux : 5 Mo au maximum.",
       "rappel": "Le justificatif ne vaut pas paiement : le paiement est confirmé à réception du relevé bancaire.",
       "erreur": "Le virement n’a pas pu être déclaré"
+    },
+    "rejete": {
+      "titre": "Paiement rejeté : un nouveau paiement est attendu",
+      "motif": "Motif : {motif}",
+      "texte": "Payez à nouveau la somme attendue pour que votre demande poursuive son traitement. Si une somme a été reçue, elle vous sera remboursée."
     }
   },
   "periode": {
@@ -2336,7 +2342,9 @@
       "filtreRapprochees": "Rapprochées",
       "filtreAVerifier": "À vérifier",
       "aucune": "Aucune ligne pour ce filtre.",
-      "elements": "lignes"
+      "elements": "lignes",
+      "traitees": "Traitées",
+      "filtreTraitees": "Traitées"
     },
     "ligne": {
       "numero": "N°",
@@ -2361,6 +2369,78 @@
         "doublon": "Déjà payé : versement en double",
         "tardif": "Référence expirée ou annulée",
         "retour": "Débit : retour ou frais bancaires"
+      },
+      "decisions": {
+        "valide": "Paiement validé",
+        "rejete": "Paiement rejeté",
+        "associe": "Associée à un paiement",
+        "classe": "Classée sans suite"
+      },
+      "motif": "Motif : {motif}"
+    }
+  },
+  "aVerifier": {
+    "titre": "À vérifier",
+    "description": "{nombre, plural, =0 {Rien à vérifier : tous les versements sont rapprochés.} one {# élément attend votre décision : ce que le rapprochement automatique n’a pas pu confirmer.} other {# éléments attendent votre décision : ce que le rapprochement automatique n’a pas pu confirmer.}}",
+    "elements": "éléments",
+    "badge": "À vérifier",
+    "paiementEnLigne": "Paiement en ligne TrésorPay",
+    "operationDu": "Opération du {date}",
+    "attendu": "Attendu : {montant}",
+    "aucunPaiement": "Aucun paiement reconnu",
+    "colonnes": {
+      "operation": "Opération",
+      "montant": "Reçu",
+      "situation": "Situation",
+      "demande": "Paiement et demande",
+      "actions": "Décision"
+    },
+    "natures": {
+      "inferieur": "Montant inférieur de {ecart}",
+      "superieur": "Montant supérieur de {ecart}",
+      "inconnue": "Aucune référence de paiement reconnue",
+      "doublon": "Paiement déjà reçu : versement en double",
+      "tardif": "Référence expirée ou annulée",
+      "retour": "Débit : retour de virement ou frais",
+      "montant_divergent": "Montant notifié différent de {ecart}"
+    },
+    "vide": {
+      "titre": "Rien à vérifier",
+      "description": "Les versements des derniers relevés sont tous rapprochés. Les prochains écarts apparaîtront ici."
+    },
+    "decision": {
+      "annuler": "Annuler",
+      "enCours": "Enregistrement…",
+      "erreur": "La décision n’a pas pu être enregistrée",
+      "motif": "Motif",
+      "motifAide": "Ce que vous avez constaté ou fait, pour la traçabilité.",
+      "motifAideRejet": "Communiqué au demandeur, qui devra payer à nouveau.",
+      "reference": "Référence du paiement",
+      "referenceAide": "Virement en cours du même montant (PAY-AAAA-NNNNNN).",
+      "referenceInvalide": "Indiquez une référence au format PAY-AAAA-NNNNNN.",
+      "VALIDER": {
+        "bouton": "Valider le paiement",
+        "titre": "Valider ce paiement ?",
+        "effet": "Le paiement est confirmé : le reçu est émis et la demande poursuit son instruction. Un excédent éventuel pourra être remboursé.",
+        "confirmer": "Valider le paiement"
+      },
+      "REJETER": {
+        "bouton": "Rejeter",
+        "titre": "Rejeter ce paiement ?",
+        "effet": "Le paiement est rejeté et le demandeur en est informé avec votre motif : il devra payer à nouveau.",
+        "confirmer": "Rejeter le paiement"
+      },
+      "ASSOCIER": {
+        "bouton": "Associer",
+        "titre": "Associer ce versement à un paiement ?",
+        "effet": "Le virement indiqué est confirmé avec ce versement : le reçu est émis et la demande poursuit son instruction.",
+        "confirmer": "Associer et confirmer"
+      },
+      "CLASSER": {
+        "bouton": "Classer",
+        "titre": "Classer ce versement sans suite ?",
+        "effet": "La ligne sort de la file « À vérifier ». Le motif est conservé au journal.",
+        "confirmer": "Classer sans suite"
       }
     }
   }

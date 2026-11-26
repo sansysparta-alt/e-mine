@@ -32,6 +32,8 @@ function ligne(partiel: Partial<LigneReleveDto>): LigneReleveDto {
     referencePaiement: "PAY-2026-000123",
     demandeId: 42,
     numeroDemande: "DEM-2026-000042",
+    decision: null,
+    motif: null,
     ...partiel,
   };
 }
@@ -127,6 +129,8 @@ describe("lignes d'un relevé (US-04.8)", () => {
   });
 
   it("colore en orange ce qui attend la décision du Responsable fiscal", () => {
+    expect(tonLigneReleve("ecart", "valide")).toBe("succes");
+    expect(tonLigneReleve("inconnue", "classe")).toBe("neutre");
     expect(tonLigneReleve("rapprochee")).toBe("succes");
     expect(tonLigneReleve("ecart")).toBe("avertissement");
     expect(tonLigneReleve("inconnue")).toBe("avertissement");

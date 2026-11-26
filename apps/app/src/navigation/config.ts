@@ -11,6 +11,7 @@ import {
   type LucideIcon,
   Plus,
   ScrollText,
+  SearchCheck,
   SlidersHorizontal,
   Users,
   Workflow,
@@ -96,6 +97,15 @@ export const NAVIGATION: SectionConfig[] = [
     // Responsable fiscal (lot 5) : relevés du compte des virements, rapprochement (US-04.8).
     cle: "encaissements",
     entrees: [
+      // File du Responsable fiscal : ce que le rapprochement n'a pas confirmé (US-04.9).
+      {
+        cle: "aVerifier",
+        module: "paiement",
+        href: "/a-verifier",
+        icone: SearchCheck,
+        permission: "ENCAISSER",
+        interne: true,
+      },
       {
         cle: "releves",
         module: "paiement",

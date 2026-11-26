@@ -75,8 +75,9 @@ export default async function DetailPaiement({ params }: Props) {
   const aEffectuer = virement && paiement.statut === "initie" && !referenceExpiree;
   const declare = virement && paiement.statut === "en_attente";
   // Un nouvel essai n'a de sens que si cette somme est encore attendue pour la demande.
+  const rejete = paiement.statut === "rejete";
   const reessai =
-    (peutReessayer(paiement.statut) || referenceExpiree) &&
+    (peutReessayer(paiement.statut) || referenceExpiree || rejete) &&
     ((paiement.objet === "DROITS" && demande.statut === "decision") ||
       (paiement.objet !== "DROITS" && demande.statut === "deposee" && !demande.fraisPayes));
 
@@ -113,10 +114,25 @@ export default async function DetailPaiement({ params }: Props) {
         </Alerte>
       ) : reessai ? (
         <Alerte
-          nature="info"
-          titre={referenceExpiree ? t("virementExpire.titre") : t("nonAbouti.titre")}
+          nature={rejete ? "avertissement" : "info"}
+          titre={
+            rejete
+              ? t("rejete.titre")
+              : referenceExpiree
+                ? t("virementExpire.titre")
+                : t("nonAbouti.titre")
+          }
         >
-          <p>{referenceExpiree ? t("virementExpire.texte") : t("nonAbouti.texte")}</p>
+          {rejete ? (
+            <>
+              {paiement.motifRejet ? (
+                <p>{t("rejete.motif", { motif: paiement.motifRejet })}</p>
+              ) : null}
+              <p>{t("rejete.texte")}</p>
+            </>
+          ) : (
+            <p>{referenceExpiree ? t("virementExpire.texte") : t("nonAbouti.texte")}</p>
+          )}
           <div className="mt-3">
             <Bouton asChild>
               <Link href={`${lienDemande}/paiement`}>
