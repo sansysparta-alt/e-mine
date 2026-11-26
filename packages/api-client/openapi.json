@@ -399,6 +399,50 @@
         }
       }
     },
+    "/api/v1/paiements/{reference}/virement" : {
+      "post" : {
+        "tags" : [ "Paiements" ],
+        "summary" : "« J'ai effectué le virement » : joint le justificatif (PDF, JPG ou PNG, 5 Mo au plus) et passe le paiement en attente du relevé bancaire ; PAY-010 si le virement est déjà déclaré ou si sa référence a expiré",
+        "operationId" : "declarerVirement",
+        "parameters" : [ {
+          "name" : "reference",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "^PAY-[0-9]{4}-[0-9]{6}$"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "fichier" : {
+                    "type" : "string",
+                    "format" : "binary"
+                  }
+                },
+                "required" : [ "fichier" ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PaiementDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/paiements/notifications/tresorpay" : {
       "post" : {
         "tags" : [ "Paiements" ],
@@ -1851,6 +1895,35 @@
         }
       }
     },
+    "/api/v1/paiements/{reference}/justificatif" : {
+      "get" : {
+        "tags" : [ "Paiements" ],
+        "summary" : "Justificatif d'un virement déclaré (affiché dans le navigateur)",
+        "operationId" : "lireJustificatifVirement",
+        "parameters" : [ {
+          "name" : "reference",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "^PAY-[0-9]{4}-[0-9]{6}$"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/notifications" : {
       "get" : {
         "tags" : [ "Notifications" ],
@@ -2681,6 +2754,9 @@
           "fraisPayes" : {
             "type" : "boolean"
           },
+          "paiementEnVerification" : {
+            "type" : "boolean"
+          },
           "motifRejet" : {
             "type" : [ "string", "null" ]
           },
@@ -2730,7 +2806,7 @@
             } ]
           }
         },
-        "required" : [ "aTraiterParMoi", "avancement", "bloque", "creeLe", "delaiDemarre", "delaiSuspendu", "demandeur", "deposeLe", "documentRevoque", "enRetard", "etapeDepuis", "fraisPayes", "id", "joursRestants", "motifRejet", "motifSuspension", "numero", "passages", "prefectureId", "prefectureNom", "procheDepassement", "statut", "substanceCode", "substanceLibelle", "superficieHa", "typeDocumentCode" ]
+        "required" : [ "aTraiterParMoi", "avancement", "bloque", "creeLe", "delaiDemarre", "delaiSuspendu", "demandeur", "deposeLe", "documentRevoque", "enRetard", "etapeDepuis", "fraisPayes", "id", "joursRestants", "motifRejet", "motifSuspension", "numero", "paiementEnVerification", "passages", "prefectureId", "prefectureNom", "procheDepassement", "statut", "substanceCode", "substanceLibelle", "superficieHa", "typeDocumentCode" ]
       },
       "Demandeur" : {
         "type" : "object",
@@ -2896,6 +2972,102 @@
           }
         },
         "required" : [ "version" ]
+      },
+      "CoordonneesVirementDto" : {
+        "type" : "object",
+        "properties" : {
+          "beneficiaire" : {
+            "type" : "string"
+          },
+          "banque" : {
+            "type" : "string"
+          },
+          "iban" : {
+            "type" : "string"
+          },
+          "bic" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "banque", "beneficiaire", "bic", "iban" ]
+      },
+      "FichierDto" : {
+        "type" : "object",
+        "properties" : {
+          "nomFichier" : {
+            "type" : "string"
+          },
+          "typeMime" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "nomFichier", "typeMime" ]
+      },
+      "PaiementDto" : {
+        "type" : "object",
+        "properties" : {
+          "reference" : {
+            "type" : "string"
+          },
+          "demandeId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "objet" : {
+            "type" : "string"
+          },
+          "moyen" : {
+            "type" : "string"
+          },
+          "montantGnf" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "statut" : {
+            "type" : "string"
+          },
+          "dateExpiration" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "montantRecuGnf" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "datePaiement" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "recuNumero" : {
+            "type" : [ "string", "null" ]
+          },
+          "creeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "virementDeclareLe" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "justificatif" : {
+            "type" : "boolean"
+          },
+          "justificatifFichier" : {
+            "oneOf" : [ {
+              "$ref" : "#/components/schemas/FichierDto"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "coordonnees" : {
+            "oneOf" : [ {
+              "$ref" : "#/components/schemas/CoordonneesVirementDto"
+            }, {
+              "type" : "null"
+            } ]
+          }
+        },
+        "required" : [ "coordonnees", "creeLe", "dateExpiration", "datePaiement", "demandeId", "justificatif", "justificatifFichier", "montantGnf", "montantRecuGnf", "moyen", "objet", "recuNumero", "reference", "statut", "virementDeclareLe" ]
       },
       "AccuseDto" : {
         "type" : "object",
@@ -3130,51 +3302,6 @@
           }
         },
         "required" : [ "paiement", "urlPaiement" ]
-      },
-      "PaiementDto" : {
-        "type" : "object",
-        "properties" : {
-          "reference" : {
-            "type" : "string"
-          },
-          "demandeId" : {
-            "type" : "integer",
-            "format" : "int64"
-          },
-          "objet" : {
-            "type" : "string"
-          },
-          "moyen" : {
-            "type" : "string"
-          },
-          "montantGnf" : {
-            "type" : "integer",
-            "format" : "int64"
-          },
-          "statut" : {
-            "type" : "string"
-          },
-          "dateExpiration" : {
-            "type" : [ "string", "null" ],
-            "format" : "date-time"
-          },
-          "montantRecuGnf" : {
-            "type" : [ "integer", "null" ],
-            "format" : "int64"
-          },
-          "datePaiement" : {
-            "type" : [ "string", "null" ],
-            "format" : "date-time"
-          },
-          "recuNumero" : {
-            "type" : [ "string", "null" ]
-          },
-          "creeLe" : {
-            "type" : "string",
-            "format" : "date-time"
-          }
-        },
-        "required" : [ "creeLe", "dateExpiration", "datePaiement", "demandeId", "montantGnf", "montantRecuGnf", "moyen", "objet", "recuNumero", "reference", "statut" ]
       },
       "RevocationDto" : {
         "type" : "object",
@@ -4601,12 +4728,15 @@
           "moyenOuvert" : {
             "type" : [ "string", "null" ]
           },
+          "enVerification" : {
+            "type" : "boolean"
+          },
           "tentativesRestantes" : {
             "type" : "integer",
             "format" : "int32"
           }
         },
-        "required" : [ "montantGnf", "moyenOuvert", "moyens", "objet", "referenceOuverte", "tentativesRestantes" ]
+        "required" : [ "enVerification", "montantGnf", "moyenOuvert", "moyens", "objet", "referenceOuverte", "tentativesRestantes" ]
       },
       "MoyenDto" : {
         "type" : "object",

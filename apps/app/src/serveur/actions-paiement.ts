@@ -8,8 +8,9 @@ import { type ResultatAction, versErreurFormulaire } from "./erreurs-formulaire"
 /**
  * Choix du moyen de paiement (US-04.2) et paiement en ligne (US-04.3) : l'API crée le paiement au
  * montant du barème, ouvre la session TrésorPay et renvoie l'adresse de la page de paiement ; le
- * navigateur y est redirigé. Le navigateur ne transmet jamais de montant ; le jeton reste côté
- * serveur (BFF).
+ * navigateur y est redirigé. Pour un virement (US-04.7), le navigateur va au détail du paiement
+ * (coordonnées, référence, déclaration). Le navigateur ne transmet jamais de montant ; le jeton
+ * reste côté serveur (BFF).
  */
 export async function choisirMoyen(
   demandeId: number,
@@ -32,6 +33,10 @@ export async function choisirMoyen(
   // Hors du try : redirect() interrompt l'action par une exception que Next.js doit recevoir.
   if (urlPaiement && /^https?:\/\//.test(urlPaiement)) {
     redirect(urlPaiement);
+  }
+  // Virement (US-04.7) : coordonnées du compte, référence et déclaration sur le détail du paiement.
+  if (paiement.moyen === "VIREMENT" && /^PAY-\d{4}-\d{6}$/.test(paiement.reference)) {
+    redirect(`/paiements/${paiement.reference}`);
   }
   return { ok: true, valeur: paiement };
 }

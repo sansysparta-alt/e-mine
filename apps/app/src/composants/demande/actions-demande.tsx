@@ -19,12 +19,15 @@ const classesAction =
  * demande dont rien n'est attendu du demandeur n'a pas d'action : la ligne ouvre la fiche.
  */
 export function actionAttendue(
-  d: Pick<DemandeDto, "id" | "statut" | "fraisPayes">,
+  d: Pick<DemandeDto, "id" | "statut" | "fraisPayes"> & { paiementEnVerification?: boolean },
 ): { cle: "payerFrais" | "payerDroits" | "completer"; href: string } | null {
-  if (d.statut === "deposee" && !d.fraisPayes) {
+  // Paiement déclaré en cours de vérification (virement, US-04.7) : rien à payer pour l'instant.
+  const enVerification = d.paiementEnVerification === true;
+  if (d.statut === "deposee" && !d.fraisPayes && !enVerification) {
     return { cle: "payerFrais", href: `/demandes/${d.id}/paiement` };
   }
-  if (d.statut === "decision") return { cle: "payerDroits", href: `/demandes/${d.id}/paiement` };
+  if (d.statut === "decision" && !enVerification)
+    return { cle: "payerDroits", href: `/demandes/${d.id}/paiement` };
   if (d.statut === "complement_requis") return { cle: "completer", href: `/demandes/${d.id}` };
   return null;
 }
@@ -38,7 +41,9 @@ export function actionAttendue(
 export function ActionsDemande({
   demande,
 }: {
-  demande: Pick<DemandeDto, "id" | "statut" | "fraisPayes" | "documentRevoque">;
+  demande: Pick<DemandeDto, "id" | "statut" | "fraisPayes" | "documentRevoque"> & {
+    paiementEnVerification?: boolean;
+  };
 }) {
   const t = useTranslations("mesDemandes.actions");
   const router = useRouter();

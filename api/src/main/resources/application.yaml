@@ -99,6 +99,12 @@ emine:
     url-application: ${APP_URL:http://localhost:3001}
     tolerance-horodatage: 5m
     delai-reponse: 5s
+  # Virement bancaire (US-04.7) : compte à créditer, fictif en démonstration (dépôt public).
+  virement:
+    beneficiaire: ${VIREMENT_BENEFICIAIRE:Trésor public — recettes du Ministère des Mines (démonstration)}
+    banque: ${VIREMENT_BANQUE:Banque de démonstration}
+    iban: ${VIREMENT_IBAN:GN00 0000 0000 0000 0000 0000 000}
+    bic: ${VIREMENT_BIC:DEMOGNGNXXX}
   # Signature des documents délivrés (US-06.2) : PAdES-BASELINE-B, certificat de test en V1
   # (pnpm signature:certificat, exclu de Git) ; pkcs11 (SoftHSM2) au plan complet.
   signature:

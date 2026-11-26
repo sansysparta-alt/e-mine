@@ -52,6 +52,7 @@ import {
 import { DecisionRendue } from "@/composants/instruction/decision-rendue";
 import { ExamenRecevabilite } from "@/composants/instruction/examen-recevabilite";
 import { PriseDecision } from "@/composants/instruction/prise-decision";
+import { profilPaiement } from "@/composants/paiement/statut";
 import { TableauPaiements } from "@/composants/paiement/tableau-paiements";
 import { BarreSerie } from "@/composants/travail/barre-serie";
 import { HistoriquePassages } from "@/composants/travail/historique-passages";
@@ -204,7 +205,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
   const etapeCalculee = prochaineEtape(
     demande.statut,
     { interne: moi.interne, permissions: moi.permissions },
-    { fraisPayes: demande.fraisPayes },
+    { fraisPayes: demande.fraisPayes, paiementEnVerification: demande.paiementEnVerification },
   );
   const etape = etatDecision?.peutDecider
     ? { cle: "signataireDecider", pour: "agent" as const }
@@ -452,7 +453,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
   const blocPaiements =
     paiements.data.length > 0 ? (
       <Carte titre={t("paiements.titre", { nombre: paiements.data.length })}>
-        <TableauPaiements paiements={paiements.data} />
+        <TableauPaiements paiements={paiements.data} profil={profilPaiement(moi)} />
       </Carte>
     ) : null;
   // Délai prévu, dit à l'usager dans « Prochaine étape » (retours ergonomie) : durée du catalogue

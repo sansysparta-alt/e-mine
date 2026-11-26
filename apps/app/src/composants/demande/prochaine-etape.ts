@@ -33,8 +33,11 @@ const ETAPES_DEMANDEUR: Record<string, string> = {
   rejetee: "demandeurRejetee",
 };
 
-/** État de la demande utile au calcul (J3) : frais de dossier payés ou non. */
-export type EtatDemande = { fraisPayes?: boolean };
+/**
+ * État de la demande utile au calcul (J3) : frais de dossier payés ou non ; paiement attendu en
+ * cours de vérification (virement déclaré, US-04.7).
+ */
+export type EtatDemande = { fraisPayes?: boolean; paiementEnVerification?: boolean };
 
 export function prochaineEtape(
   statut: string,
@@ -42,13 +45,22 @@ export function prochaineEtape(
   etat: EtatDemande = {},
 ): ProchaineEtape | null {
   const fraisPayes = etat.fraisPayes === true;
+  const enVerification =
+    etat.paiementEnVerification === true &&
+    ((statut === "deposee" && !fraisPayes) || statut === "decision");
   if (profil.interne) {
     if (!profil.permissions.includes("INSTRUIRE")) return null;
+    if (enVerification)
+      return {
+        cle: statut === "decision" ? "agentDroitsVerification" : "agentPaiementVerification",
+        pour: "agent",
+      };
     // V8 : la recevabilité exige les frais payés ; l'agent sait s'il peut déjà la déclarer.
     if (statut === "deposee" && !fraisPayes) return { cle: "agentFraisAttendus", pour: "agent" };
     const cle = ETAPES_AGENT[statut];
     return cle ? { cle, pour: "agent" } : null;
   }
+  if (enVerification) return { cle: "demandeurPaiementVerification", pour: "demandeur" };
   if (statut === "deposee" && fraisPayes)
     return { cle: "demandeurAttenteGuichet", pour: "demandeur" };
   const cle = ETAPES_DEMANDEUR[statut];

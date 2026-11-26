@@ -15,6 +15,8 @@ export type PresentationStatut = { profil: "demandeur" | "agent"; cle: string; t
 export type DemandeAffichee = {
   statut: string;
   fraisPayes: boolean;
+  /** La somme attendue (frais ou droits) est en cours de vérification (US-04.7, calculé par l'API). */
+  paiementEnVerification?: boolean;
   aTraiterParMoi: boolean;
   /** Document délivré puis révoqué : rouge partout, comme dans « Documents délivrés ». */
   documentRevoque?: boolean;
@@ -22,13 +24,23 @@ export type DemandeAffichee = {
 
 const INSTRUCTION = new Set(["recevable", "en_instruction", "avis_rendu"]);
 
-function demandeur({ statut, fraisPayes, documentRevoque }: DemandeAffichee): [string, TonBadge] {
+function demandeur({
+  statut,
+  fraisPayes,
+  paiementEnVerification: enVerification,
+  documentRevoque,
+}: DemandeAffichee): [string, TonBadge] {
   if (statut === "brouillon") return ["aCompleter", "neutre"];
-  if (statut === "deposee")
-    return fraisPayes ? ["verification", "info"] : ["fraisAPayer", "avertissement"];
+  if (statut === "deposee") {
+    if (fraisPayes) return ["verification", "info"];
+    return enVerification ? ["paiementEnVerification", "neutre"] : ["fraisAPayer", "avertissement"];
+  }
   if (statut === "complement_requis") return ["complementAFournir", "avertissement"];
   if (INSTRUCTION.has(statut)) return ["instruction", "info"];
-  if (statut === "decision") return ["droitsAPayer", "avertissement"];
+  if (statut === "decision")
+    return enVerification
+      ? ["paiementEnVerification", "neutre"]
+      : ["droitsAPayer", "avertissement"];
   if (statut === "droits_payes") return ["preparation", "info"];
   if (statut === "delivree")
     return documentRevoque ? ["documentRevoque", "danger"] : ["delivre", "succes"];
@@ -39,11 +51,13 @@ function demandeur({ statut, fraisPayes, documentRevoque }: DemandeAffichee): [s
 function agent({
   statut,
   fraisPayes,
+  paiementEnVerification: enVerification,
   aTraiterParMoi: moi,
   documentRevoque,
 }: DemandeAffichee): [string, TonBadge] {
   if (statut === "deposee") {
-    if (!fraisPayes) return ["fraisAttendus", "neutre"];
+    if (!fraisPayes)
+      return enVerification ? ["paiementEnVerification", "neutre"] : ["fraisAttendus", "neutre"];
     return moi ? ["aExaminer", "avertissement"] : ["auGuichet", "info"];
   }
   // US-05.2 : sans réponse dans le délai, l'agent qui l'a demandé relance ou clôt (orange).
@@ -54,7 +68,8 @@ function agent({
   // US-05.3 : l'avis du profil connecté est attendu (orange), sinon l'instruction suit son cours.
   if (statut === "en_instruction")
     return moi ? ["avisARendre", "avertissement"] : ["instruction", "info"];
-  if (statut === "decision") return ["droitsAttendus", "neutre"];
+  if (statut === "decision")
+    return enVerification ? ["paiementEnVerification", "neutre"] : ["droitsAttendus", "neutre"];
   if (statut === "droits_payes")
     return moi ? ["aSigner", "avertissement"] : ["attenteSignature", "info"];
   if (statut === "delivree")
@@ -69,8 +84,12 @@ export function presentationStatut(d: DemandeAffichee, interne: boolean): Presen
   return { profil: interne ? "agent" : "demandeur", cle, ton };
 }
 
-/** Statuts où la main est au demandeur : payer les frais ou les droits, compléter. */
-function chezLeDemandeur({ statut, fraisPayes }: DemandeAffichee): boolean {
+/**
+ * Statuts où la main est au demandeur : payer les frais ou les droits, compléter. Un paiement
+ * déclaré en cours de vérification (virement) rend la main au Ministère.
+ */
+function chezLeDemandeur({ statut, fraisPayes, paiementEnVerification }: DemandeAffichee): boolean {
+  if (paiementEnVerification && (statut === "deposee" || statut === "decision")) return false;
   return (
     statut === "brouillon" ||
     (statut === "deposee" && !fraisPayes) ||

@@ -55,7 +55,7 @@ class ChoixMoyenPaiementTest extends TestIntegration {
         .andExpect(jsonPath("$.moyens[0].moyen").value("TRESORPAY"))
         .andExpect(jsonPath("$.moyens[0].disponible").value(true))
         .andExpect(jsonPath("$.moyens[1].moyen").value("VIREMENT"))
-        .andExpect(jsonPath("$.moyens[1].disponible").value(false))
+        .andExpect(jsonPath("$.moyens[1].disponible").value(true))
         .andExpect(jsonPath("$.referenceOuverte").value(nullValue()));
   }
 
@@ -120,11 +120,14 @@ class ChoixMoyenPaiementTest extends TestIntegration {
   }
 
   @Test
-  void leVirementNEstPasEncoreProposeEnV1() throws Exception {
+  void leVirementCreeUneReferenceSansRedirection() throws Exception {
     long id = DemandesDeTest.deposee(INVESTISSEUR, "PEX");
     choisir(id, "VIREMENT", investisseur())
-        .andExpect(status().isUnprocessableContent())
-        .andExpect(jsonPath("$.code").value("PAY-008"));
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.paiement.moyen").value("VIREMENT"))
+        .andExpect(jsonPath("$.paiement.statut").value("initie"))
+        .andExpect(jsonPath("$.paiement.montantGnf").value(5_000_000))
+        .andExpect(jsonPath("$.urlPaiement").value(nullValue()));
   }
 
   @Test

@@ -50,6 +50,7 @@ function dossier(id: number, statut: string, fraisPayes = true): DemandeDto {
     creeLe: "2026-11-15T10:00:00Z",
     deposeLe: "2026-11-15T10:00:00Z",
     fraisPayes,
+    paiementEnVerification: false,
     motifRejet: null,
     etapeDepuis: "2026-11-15T10:00:00Z",
     aTraiterParMoi: false,

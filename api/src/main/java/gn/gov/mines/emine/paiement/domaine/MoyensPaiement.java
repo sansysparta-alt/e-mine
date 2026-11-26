@@ -4,8 +4,8 @@ import gn.gov.mines.emine.shared.jooq.enums.MoyenPaiement;
 import java.util.List;
 
 /**
- * Moyens de paiement proposés (US-04.2). En V1, TrésorPay seul est actif ; le virement est affiché
- * « bientôt disponible » (US-04.7, plan complet).
+ * Moyens de paiement proposés (US-04.2) : TrésorPay et virement bancaire (US-04.7, décision V1-3 du
+ * porteur du projet). Un moyen peut être affiché désactivé, avec sa raison.
  */
 public final class MoyensPaiement {
 
@@ -18,7 +18,7 @@ public final class MoyensPaiement {
   public static List<MoyenPropose> proposes() {
     return List.of(
         new MoyenPropose(MoyenPaiement.TRESORPAY, true),
-        new MoyenPropose(MoyenPaiement.VIREMENT, false));
+        new MoyenPropose(MoyenPaiement.VIREMENT, true));
   }
 
   public static boolean disponible(MoyenPaiement moyen) {

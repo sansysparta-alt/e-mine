@@ -77,6 +77,55 @@ public class ServicePieces {
         moi);
   }
 
+  /**
+   * Justificatif d'un virement (US-04.7) : PDF, JPG ou PNG de 5 Mo au plus, sur une demande déposée
+   * et visible (RLS). Il n'entre pas dans les pièces du dossier ; le module paiement le rattache au
+   * paiement.
+   */
+  @Transactional
+  public Piece ajouterJustificatifVirement(long demandeId, String nomOriginal, byte[] contenu) {
+    DemandeDetail demande = visible(demandeId);
+    if (demande.estBrouillon()) {
+      throw new ErreurMetier(CodeErreur.DEM_003, Map.of("id", demandeId));
+    }
+    if (contenu.length == 0) {
+      throw new ErreurMetier(CodeErreur.DOC_001, Map.of("raison", "vide"));
+    }
+    if (contenu.length > Piece.TAILLE_MAX_JUSTIFICATIF) {
+      throw new ErreurMetier(
+          CodeErreur.DOC_011, Map.of("tailleMax", Piece.TAILLE_MAX_JUSTIFICATIF));
+    }
+    String typeMime =
+        ReglesPieces.formatReconnu(contenu)
+            .orElseThrow(() -> new ErreurMetier(CodeErreur.DOC_001, Map.of()));
+    String cle = "demandes/" + demandeId + "/virements/" + UUID.randomUUID();
+    stockage.deposer(compartiment, cle, contenu, typeMime);
+    long moi =
+        utilisateurCourant
+            .get()
+            .orElseThrow(() -> new IllegalStateException("Requête authentifiée sans compte"))
+            .id();
+    return pieces.ajouter(
+        demandeId,
+        Piece.JUSTIFICATIF_VIREMENT,
+        ReglesPieces.nomFichier(nomOriginal),
+        typeMime,
+        contenu.length,
+        ReglesPieces.empreinteSha256(contenu),
+        cle,
+        moi);
+  }
+
+  /** Justificatif d'un virement et flux de son contenu ; l'appelant ferme le flux. */
+  @Transactional(readOnly = true)
+  public Contenu contenuJustificatif(long demandeId, long pieceId) {
+    Piece piece =
+        pieces
+            .lireJustificatif(demandeId, pieceId)
+            .orElseThrow(() -> new ErreurMetier(CodeErreur.DOC_003, Map.of("id", pieceId)));
+    return new Contenu(piece, stockage.lire(compartiment, piece.stockageCle()));
+  }
+
   @Transactional(readOnly = true)
   public List<Piece> lister(long demandeId) {
     visible(demandeId);

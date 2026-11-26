@@ -1,24 +1,20 @@
 import { ErreurApi, lireDemande, lirePaiement, type PaiementDto } from "@emine/api-client";
-import {
-  Alerte,
-  BadgeStatut,
-  Bouton,
-  Carte,
-  EnTetePage,
-  formaterDateHeure,
-  formaterGnf,
-} from "@emine/ui";
+import { Alerte, Bouton, Carte, EnTetePage, formaterDateHeure, formaterGnf } from "@emine/ui";
 import { FolderOpen, RotateCcw } from "@emine/ui/icones";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { FilArianeApp } from "@/composants/fil-ariane-app";
+import { BadgeStatutPaiement } from "@/composants/paiement/badge-statut-paiement";
+import { CoordonneesVirement } from "@/composants/paiement/coordonnees-virement";
+import { DeclarationVirement } from "@/composants/paiement/declaration-virement";
+import { LienJustificatif } from "@/composants/paiement/lien-justificatif";
 import { LienRecu } from "@/composants/paiement/lien-recu";
 import {
   enAttenteDeConfirmation,
   peutReessayer,
-  tonStatutPaiement,
+  referenceVirementExpiree,
 } from "@/composants/paiement/statut";
 import { libelleDocument } from "@/composants/referentiels";
 import { appelPage, chargerMoi, chargerReferentiels, optionsApi } from "@/serveur/donnees";
@@ -37,6 +33,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
  * pas le retour juste après le paiement (dont le message « l'agent peut maintenant examiner »
  * reste réservé à ce moment-là). Statut, montant, moyen, date, reçu et **demande liée** ; le titre,
  * le menu et le fil d'Ariane restent sur « Paiements & reçus ».
+ *
+ * Virement (US-04.7) : tant qu'il n'est pas déclaré, la page donne les coordonnées du compte, le
+ * montant exact, la référence et la date limite, et recueille le justificatif (« J'ai effectué le
+ * virement ») ; une fois déclaré, elle dit qu'il est en cours de vérification.
  */
 export default async function DetailPaiement({ params }: Props) {
   const { reference } = await params;
@@ -52,14 +52,13 @@ export default async function DetailPaiement({ params }: Props) {
     if (e instanceof ErreurApi && e.code === "PAY-005") notFound();
     throw e;
   }
-  const [demande, { documents }, langue, t, tStatut, tObjet] = await Promise.all([
+  const [demande, { documents }, langue, t, tObjet] = await Promise.all([
     appelPage(chemin, async () => lireDemande(paiement.demandeId, await optionsApi())).then(
       (r) => r.data,
     ),
     chargerReferentiels(),
     getLocale(),
     getTranslations("detailPaiement"),
-    getTranslations("statutsPaiement"),
     getTranslations("paiement.objet"),
   ]);
   const document = libelleDocument(
@@ -69,9 +68,15 @@ export default async function DetailPaiement({ params }: Props) {
   );
   const objet = tObjet.has(paiement.objet) ? tObjet(paiement.objet) : paiement.objet;
   const lienDemande = `/demandes/${paiement.demandeId}`;
+  const virement = paiement.moyen === "VIREMENT";
+  // Référence de virement dépassée : la base la passe à « expiré » (tâche planifiée), l'écran le
+  // dit dès la date limite passée.
+  const referenceExpiree = referenceVirementExpiree(paiement);
+  const aEffectuer = virement && paiement.statut === "initie" && !referenceExpiree;
+  const declare = virement && paiement.statut === "en_attente";
   // Un nouvel essai n'a de sens que si cette somme est encore attendue pour la demande.
   const reessai =
-    peutReessayer(paiement.statut) &&
+    (peutReessayer(paiement.statut) || referenceExpiree) &&
     ((paiement.objet === "DROITS" && demande.statut === "decision") ||
       (paiement.objet !== "DROITS" && demande.statut === "deposee" && !demande.fraisPayes));
 
@@ -83,17 +88,35 @@ export default async function DetailPaiement({ params }: Props) {
         retour={<FilArianeApp rubrique="paiements" courante={paiement.reference} />}
       />
 
-      {enAttenteDeConfirmation(paiement.statut) ? (
+      {aEffectuer && paiement.dateExpiration ? (
+        <Alerte
+          nature="avertissement"
+          titre={t("virementAEffectuer.titre", {
+            date: formaterDateHeure(paiement.dateExpiration, langue),
+          })}
+        >
+          {t("virementAEffectuer.texte", { reference: paiement.reference })}
+        </Alerte>
+      ) : declare ? (
+        <Alerte nature="info" titre={t("virementDeclare.titre")}>
+          {t("virementDeclare.texte", {
+            date: formaterDateHeure(paiement.virementDeclareLe ?? paiement.creeLe, langue),
+          })}
+        </Alerte>
+      ) : enAttenteDeConfirmation(paiement) ? (
         <Alerte nature="info" titre={t("attente.titre")}>
           {t("attente.texte")}
         </Alerte>
       ) : paiement.statut === "a_verifier" ? (
-        <Alerte nature="avertissement" titre={t("aVerifier.titre")}>
+        <Alerte nature="info" titre={t("aVerifier.titre")}>
           {t("aVerifier.texte")}
         </Alerte>
       ) : reessai ? (
-        <Alerte nature="info" titre={t("nonAbouti.titre")}>
-          <p>{t("nonAbouti.texte")}</p>
+        <Alerte
+          nature="info"
+          titre={referenceExpiree ? t("virementExpire.titre") : t("nonAbouti.titre")}
+        >
+          <p>{referenceExpiree ? t("virementExpire.texte") : t("nonAbouti.texte")}</p>
           <div className="mt-3">
             <Bouton asChild>
               <Link href={`${lienDemande}/paiement`}>
@@ -110,20 +133,41 @@ export default async function DetailPaiement({ params }: Props) {
           <dl className="grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-[auto_1fr]">
             <dt className="font-semibold">{t("statut")}</dt>
             <dd>
-              <BadgeStatut ton={tonStatutPaiement(paiement.statut)}>
-                {tStatut.has(paiement.statut) ? tStatut(paiement.statut) : paiement.statut}
-              </BadgeStatut>
+              <BadgeStatutPaiement paiement={paiement} profil="usager" />
             </dd>
             <dt className="font-semibold">{t("objet")}</dt>
             <dd>{objet}</dd>
             <dt className="font-semibold">{t("montant")}</dt>
             <dd className="tabular-nums">{formaterGnf(paiement.montantGnf, langue)}</dd>
             <dt className="font-semibold">{t("moyen")}</dt>
-            <dd>{paiement.moyen === "TRESORPAY" ? "TrésorPay" : t("virement")}</dd>
+            <dd>{virement ? t("virement") : "TrésorPay"}</dd>
             <dt className="font-semibold">{t("reference")}</dt>
             <dd className="tabular-nums">{paiement.reference}</dd>
             <dt className="font-semibold">{t("initieLe")}</dt>
             <dd>{formaterDateHeure(paiement.creeLe, langue)}</dd>
+            {aEffectuer && paiement.dateExpiration ? (
+              <>
+                <dt className="font-semibold">{t("dateLimite")}</dt>
+                <dd>{formaterDateHeure(paiement.dateExpiration, langue)}</dd>
+              </>
+            ) : null}
+            {paiement.virementDeclareLe ? (
+              <>
+                <dt className="font-semibold">{t("declareLe")}</dt>
+                <dd>{formaterDateHeure(paiement.virementDeclareLe, langue)}</dd>
+              </>
+            ) : null}
+            {paiement.justificatifFichier ? (
+              <>
+                <dt className="font-semibold">{t("justificatif")}</dt>
+                <dd className="flex flex-col items-start gap-2">
+                  <LienJustificatif
+                    reference={paiement.reference}
+                    fichier={paiement.justificatifFichier}
+                  />
+                </dd>
+              </>
+            ) : null}
             {paiement.datePaiement ? (
               <>
                 <dt className="font-semibold">{t("payeLe")}</dt>
@@ -158,6 +202,16 @@ export default async function DetailPaiement({ params }: Props) {
           </div>
         </Carte>
       </div>
+      {aEffectuer && paiement.coordonnees ? (
+        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
+          <CoordonneesVirement
+            coordonnees={paiement.coordonnees}
+            montantGnf={paiement.montantGnf}
+            reference={paiement.reference}
+          />
+          <DeclarationVirement reference={paiement.reference} />
+        </div>
+      ) : null}
     </div>
   );
 }

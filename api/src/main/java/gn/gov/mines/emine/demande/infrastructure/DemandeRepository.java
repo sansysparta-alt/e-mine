@@ -22,6 +22,7 @@ import gn.gov.mines.emine.demande.domaine.RegleATraiter;
 import gn.gov.mines.emine.demande.domaine.RegleDelais;
 import gn.gov.mines.emine.demande.domaine.VueDemandes;
 import gn.gov.mines.emine.shared.jooq.Routines;
+import gn.gov.mines.emine.shared.jooq.enums.MoyenPaiement;
 import gn.gov.mines.emine.shared.jooq.enums.NatureAvis;
 import gn.gov.mines.emine.shared.jooq.enums.ObjetPaiement;
 import gn.gov.mines.emine.shared.jooq.enums.StatutDemande;
@@ -208,8 +209,14 @@ public class DemandeRepository {
         DEMANDE.SIGNATAIRE_PROFIL_ID.in(
             DSL.select(PROFIL.ID).from(PROFIL).where(PROFIL.CODE.eq(profilCode)));
     return switch (groupe) {
-      case PAYER_FRAIS -> DEMANDE.STATUT.eq(StatutDemande.deposee).and(DSL.not(FRAIS_PAYES_COND));
-      case PAYER_DROITS -> DEMANDE.STATUT.eq(StatutDemande.decision);
+      case PAYER_FRAIS ->
+          DEMANDE
+              .STATUT
+              .eq(StatutDemande.deposee)
+              .and(DSL.not(FRAIS_PAYES_COND))
+              .and(DSL.not(PAIEMENT_EN_VERIFICATION_COND));
+      case PAYER_DROITS ->
+          DEMANDE.STATUT.eq(StatutDemande.decision).and(DSL.not(PAIEMENT_EN_VERIFICATION_COND));
       case COMPLETER -> DEMANDE.STATUT.eq(StatutDemande.complement_requis);
       case A_EXAMINER -> DEMANDE.STATUT.eq(StatutDemande.deposee).and(FRAIS_PAYES_COND);
       case SANS_REPONSE ->
@@ -533,6 +540,38 @@ public class DemandeRepository {
   static final Field<Boolean> FRAIS_PAYES = DSL.field(FRAIS_PAYES_COND).as("frais_payes");
 
   /**
+   * La somme attendue à ce stade est en cours de vérification (US-04.7) : frais (ou attestation)
+   * pour une demande déposée, droits pour une demande en décision, payés par un virement déclaré
+   * (en attente du relevé bancaire) ou « à vérifier ». Le demandeur n'a rien à payer pour l'instant
+   * : la demande sort de « Frais à payer » et « Droits à payer ».
+   */
+  static final Condition PAIEMENT_EN_VERIFICATION_COND =
+      DSL.exists(
+          DSL.selectOne()
+              .from(PAIEMENT)
+              .where(PAIEMENT.DEMANDE_ID.eq(DEMANDE.ID))
+              .and(
+                  PAIEMENT
+                      .MOYEN
+                      .eq(MoyenPaiement.VIREMENT)
+                      .and(PAIEMENT.STATUT.eq(StatutPaiement.en_attente))
+                      .or(PAIEMENT.STATUT.eq(StatutPaiement.a_verifier)))
+              .and(
+                  DEMANDE
+                      .STATUT
+                      .eq(StatutDemande.deposee)
+                      .and(
+                          PAIEMENT.OBJET.in(ObjetPaiement.FRAIS_DOSSIER, ObjetPaiement.ATTESTATION))
+                      .or(
+                          DEMANDE
+                              .STATUT
+                              .eq(StatutDemande.decision)
+                              .and(PAIEMENT.OBJET.eq(ObjetPaiement.DROITS)))));
+
+  static final Field<Boolean> PAIEMENT_EN_VERIFICATION =
+      DSL.field(PAIEMENT_EN_VERIFICATION_COND).as("paiement_en_verification");
+
+  /**
    * Document délivré révoqué depuis (US-06.6) : la demande reste « délivrée » dans le circuit, mais
    * tous les écrans affichent « Document révoqué », comme la liste des documents délivrés.
    */
@@ -626,6 +665,7 @@ public class DemandeRepository {
             SUBSTANCE.CODE,
             SUBSTANCE.LIBELLE_FR,
             FRAIS_PAYES,
+            PAIEMENT_EN_VERIFICATION,
             DOCUMENT_REVOQUE,
             ETAPE_DEPUIS,
             PASSAGES,
@@ -669,6 +709,7 @@ public class DemandeRepository {
         r.get(DEMANDE.CREATED_AT),
         r.get(DEMANDE.DATE_DEPOT),
         Boolean.TRUE.equals(r.get(FRAIS_PAYES)),
+        Boolean.TRUE.equals(r.get(PAIEMENT_EN_VERIFICATION)),
         r.get(DEMANDE.MOTIF_REJET),
         r.get(ETAPE_DEPUIS) == null ? r.get(DEMANDE.CREATED_AT) : r.get(ETAPE_DEPUIS),
         Boolean.TRUE.equals(r.get(A_TRAITER_PAR_MOI, Boolean.class)),

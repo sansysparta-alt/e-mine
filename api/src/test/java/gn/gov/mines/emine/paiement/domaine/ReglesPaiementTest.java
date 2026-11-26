@@ -63,9 +63,9 @@ class ReglesPaiementTest {
   }
 
   @Test
-  void tresorPaySeulDisponibleEnV1() {
+  void tresorPayEtVirementSontProposesSansPreselection() {
     assertThat(MoyensPaiement.disponible(MoyenPaiement.TRESORPAY)).isTrue();
-    assertThat(MoyensPaiement.disponible(MoyenPaiement.VIREMENT)).isFalse();
+    assertThat(MoyensPaiement.disponible(MoyenPaiement.VIREMENT)).isTrue();
     assertThat(MoyensPaiement.proposes())
         .extracting(MoyensPaiement.MoyenPropose::moyen)
         .containsExactly(MoyenPaiement.TRESORPAY, MoyenPaiement.VIREMENT);

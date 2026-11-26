@@ -73,6 +73,18 @@ public final class DemandesDeTest {
     }
   }
 
+  /** Fait expirer la référence d'un paiement (date limite passée d'une minute). */
+  public static void expirerPaiement(String reference) throws SQLException {
+    try (Connection c = BaseDeDonneesDeTest.connexionOwner();
+        PreparedStatement ps =
+            c.prepareStatement(
+                "UPDATE paiement SET date_expiration = now() - interval '1 minute'"
+                    + " WHERE reference = ?")) {
+      ps.setString(1, reference);
+      ps.executeUpdate();
+    }
+  }
+
   /** Statut d'un paiement, lu hors RLS. */
   public static String statutPaiement(String reference) throws SQLException {
     try (Connection c = BaseDeDonneesDeTest.connexionOwner();
