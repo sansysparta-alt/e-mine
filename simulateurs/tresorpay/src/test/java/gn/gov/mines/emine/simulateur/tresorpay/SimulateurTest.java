@@ -311,7 +311,48 @@ class SimulateurTest {
         .andExpect(content().string(org.hamcrest.Matchers.containsString("Disponible")));
   }
 
+  @Test
+  void lInterrogationDonneLIssueDeLaDerniereSession() throws Exception {
+    String id = ouvrirSession("PAY-2026-000020", 500_000);
+    interroger("PAY-2026-000020", true)
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.statut").value("EN_COURS"));
+    // Paiement accepté sans notification : l'interrogation le confirme (US-04.5).
+    mvc.perform(post("/payer/" + id).param("scenario", "sans-notification"));
+    interroger("PAY-2026-000020", true)
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.statut").value("PAYE"))
+        .andExpect(jsonPath("$.montantGnf").value(500_000))
+        .andExpect(jsonPath("$.transactionId").isNotEmpty());
+  }
+
+  @Test
+  void lInterrogationRefuseUneSignatureFausseEtSignaleLesReferencesInconnues() throws Exception {
+    interroger("PAY-2026-000021", false).andExpect(status().isUnauthorized());
+    interroger("PAY-2026-000099", true)
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.code").value("INCONNUE"));
+  }
+
+  @Test
+  void uneSessionNonPayeeExpireApresQuinzeMinutes() throws Exception {
+    ouvrirSession("PAY-2026-000022", 500_000);
+    horloge.avancer(Duration.ofMinutes(16));
+    interroger("PAY-2026-000022", true).andExpect(jsonPath("$.statut").value("EXPIREE"));
+  }
+
   // --- Outils --------------------------------------------------------------------------------
+
+  private ResultActions interroger(String reference, boolean bonneSignature) throws Exception {
+    String horodatage = Long.toString(horloge.instant().getEpochSecond());
+    String secret = bonneSignature ? SECRET : "mauvais-secret";
+    return mvc.perform(
+        get("/api/v1/transactions/" + reference)
+            .header("X-TresorPay-Marchand", "MARCHAND-TEST-0001")
+            .header("X-TresorPay-Horodatage", horodatage)
+            .header(
+                "X-TresorPay-Signature", SignatureHmac.signer(secret, horodatage, new byte[0])));
+  }
 
   private byte[] corpsSession(String reference, long montant) {
     return json.writeValueAsBytes(

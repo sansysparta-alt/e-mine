@@ -37,6 +37,13 @@ public class RegistreSessions {
     return Optional.ofNullable(sessions.computeIfPresent(id, (k, s) -> maj.apply(s)));
   }
 
+  /** Session la plus récente d'une référence e-mine (interrogation, contrat §5). */
+  public java.util.Optional<SessionPaiement> derniereDe(String reference) {
+    return sessions.values().stream()
+        .filter(s -> s.reference().equals(reference))
+        .max(java.util.Comparator.comparing(SessionPaiement::creeeLe));
+  }
+
   public List<SessionPaiement> recentes(int nombre) {
     return sessions.values().stream()
         .sorted(Comparator.comparing(SessionPaiement::creeeLe).reversed())

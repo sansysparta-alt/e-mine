@@ -30,8 +30,23 @@ public record SessionPaiement(
    * @param scenario scénario joué
    * @param transactionId identifiant de transaction envoyé (ou {@code null} sans notification)
    * @param compteRendu compte rendu de l'envoi de la notification (code HTTP reçu ou erreur)
+   * @param statut issue de la transaction ({@code PAYE}, {@code REFUSE}, {@code ANNULE}), donnée à
+   *     l'interrogation (contrat §5), {@code null} tant que la session n'est pas jouée
+   * @param montantGnf montant payé, pour une transaction payée
+   * @param date date de l'issue
    */
-  public record Resultat(Scenario scenario, String transactionId, String compteRendu) {}
+  public record Resultat(
+      Scenario scenario,
+      String transactionId,
+      String compteRendu,
+      String statut,
+      Long montantGnf,
+      Instant date) {
+
+    public Resultat(Scenario scenario, String transactionId, String compteRendu) {
+      this(scenario, transactionId, compteRendu, null, null, null);
+    }
+  }
 
   public boolean terminee() {
     return resultat != null;

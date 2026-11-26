@@ -46,10 +46,17 @@ class ExpediteurNotifications {
    * rendu lisible des envois).
    */
   SessionPaiement.Resultat jouer(SessionPaiement session, Scenario scenario) {
-    if (scenario == Scenario.SANS_NOTIFICATION) {
-      return new SessionPaiement.Resultat(scenario, null, "Aucune notification envoyée");
-    }
     String transactionId = "TP-" + UUID.randomUUID();
+    if (scenario == Scenario.SANS_NOTIFICATION) {
+      // Paiement accepté, mais notification perdue : e-mine doit interroger (contrat §5).
+      return new SessionPaiement.Resultat(
+          scenario,
+          transactionId,
+          "Aucune notification envoyée (paiement accepté, à interroger)",
+          "PAYE",
+          session.montantGnf(),
+          horloge.instant());
+    }
     byte[] corps = corps(session, scenario, transactionId);
     List<String> comptesRendus = new ArrayList<>();
     comptesRendus.add(envoyer(corps, scenario == Scenario.SIGNATURE_INVALIDE));
@@ -57,20 +64,31 @@ class ExpediteurNotifications {
       comptesRendus.add(envoyer(corps, false));
     }
     return new SessionPaiement.Resultat(
-        scenario, transactionId, String.join(" puis ", comptesRendus));
+        scenario,
+        transactionId,
+        String.join(" puis ", comptesRendus),
+        statut(scenario),
+        montant(session, scenario),
+        horloge.instant());
+  }
+
+  private static String statut(Scenario scenario) {
+    return switch (scenario) {
+      case REFUS -> "REFUSE";
+      case ABANDON -> "ANNULE";
+      default -> "PAYE";
+    };
+  }
+
+  private static long montant(SessionPaiement session, Scenario scenario) {
+    return scenario == Scenario.MONTANT_DIVERGENT
+        ? Math.max(1, session.montantGnf() - ECART_MONTANT_DIVERGENT)
+        : session.montantGnf();
   }
 
   private byte[] corps(SessionPaiement session, Scenario scenario, String transactionId) {
-    String statut =
-        switch (scenario) {
-          case REFUS -> "REFUSE";
-          case ABANDON -> "ANNULE";
-          default -> "PAYE";
-        };
-    long montant =
-        scenario == Scenario.MONTANT_DIVERGENT
-            ? Math.max(1, session.montantGnf() - ECART_MONTANT_DIVERGENT)
-            : session.montantGnf();
+    String statut = statut(scenario);
+    long montant = montant(session, scenario);
     Map<String, Object> notification = new LinkedHashMap<>();
     notification.put("transactionId", transactionId);
     notification.put("reference", session.reference());

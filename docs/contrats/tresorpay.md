@@ -77,14 +77,36 @@ Effet côté e-mine (transitions de `transition_statut`, jamais contournées) :
 | `REFUSE` | `en_attente → echoue` (nouvelle tentative possible) |
 | `ANNULE` | `en_attente → annule` |
 
-## 5. Ordre des échanges
+## 5. Interrogation d'une transaction (e-mine → TrésorPay, US-04.5)
+
+Quand la notification n'est pas arrivée, e-mine interroge TrésorPay **toutes les 30 s**, à partir de 30 s après l'ouverture de la session et jusqu'à sa fin (15 min).
+
+`GET {TRESORPAY_BASE_URL}/api/v1/transactions/{reference}` · en-têtes signés (§2) sur un **corps vide**
+
+| Réponse | Sens |
+|---|---|
+| `200` `{ "reference", "statut": "EN_COURS" }` | Session ouverte, pas encore payée |
+| `200` `{ "reference", "statut": "PAYE", "transactionId", "montantGnf", "date" }` | Payée |
+| `200` `{ "reference", "statut": "REFUSE" \| "ANNULE", "transactionId", "date" }` | Refusée par la banque, ou abandonnée |
+| `200` `{ "reference", "statut": "EXPIREE" }` | Session close sans paiement |
+| `404` `{ "code": "INCONNUE" }` | Aucune session pour cette référence |
+| `401`, `503` | Comme pour l'initiation |
+
+Effet côté e-mine : la réponse s'applique comme une notification (§4), et chaque interrogation est journalisée (`paiement_evenement`, type `INTERROGATION`). **Après les 15 minutes**, le paiement devient :
+- `paye`, ou `a_verifier` si le montant diffère, quand TrésorPay confirme le paiement ;
+- `expire` quand la session s'est close sans paiement (`EN_COURS` ou `EXPIREE`) ;
+- `a_verifier` sans réponse, ou si la référence est inconnue : le Responsable fiscal tranche.
+
+La même tâche fait expirer les références dont la date limite est passée sans paiement : virement non déclaré au bout de 7 jours, session jamais ouverte.
+
+## 6. Ordre des échanges
 
 1. L'usager choisit TrésorPay ; e-mine crée le paiement (`initie`, référence `PAY-…` par la base), appelle `POST /api/v1/sessions`, passe le paiement à `en_attente` et redirige le navigateur.
 2. Sur la page du simulateur, l'usager paie (ou choisit un scénario de test).
 3. Le simulateur **envoie d'abord la notification signée**, puis redirige le navigateur vers `urlRetour?reference=PAY-…`.
 4. La page de retour d'e-mine relit le statut en base (rafraîchissement automatique pendant quelques secondes s'il est encore `en_attente`).
 
-## 6. Scénarios du simulateur (US-04.1)
+## 7. Scénarios du simulateur (US-04.1)
 
 Choisis sur la page de paiement (bloc « Scénarios de test ») ou par l'adresse `…/payer/{sessionId}?scenario=<code>` :
 
@@ -96,6 +118,6 @@ Choisis sur la page de paiement (bloc « Scénarios de test ») ou par l'adresse
 | `signature-invalide` | Notification `PAYE` avec une signature fausse (e-mine doit répondre 401) |
 | `double-notification` | La même notification `PAYE` envoyée deux fois (e-mine ne la traite qu'une fois) |
 | `montant-divergent` | Notification `PAYE` avec un montant inférieur de 1 000 GNF |
-| `sans-notification` | Retour du navigateur sans notification (le paiement reste `en_attente`) |
+| `sans-notification` | Paiement accepté mais notification perdue : retour du navigateur sans notification ; e-mine le confirme par interrogation (§5) |
 
 Indisponibilité : interrupteur sur la page d'accueil du simulateur (`http://localhost:8090/`) ; toute initiation reçoit alors `503`.

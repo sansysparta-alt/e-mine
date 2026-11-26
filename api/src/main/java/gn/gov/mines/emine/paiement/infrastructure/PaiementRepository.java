@@ -67,6 +67,47 @@ public class PaiementRepository {
   }
 
   /** Vrai si cet objet est déjà payé pour la demande. */
+  /**
+   * Paiements en ligne en attente dont la notification tarde (US-04.5) : TrésorPay, {@code
+   * en_attente}, session ouverte depuis plus longtemps que {@code avant}.
+   */
+  public List<Paiement> enAttenteAInterroger(Instant avant) {
+    return dsl.selectFrom(PAIEMENT)
+        .where(PAIEMENT.MOYEN.eq(MoyenPaiement.TRESORPAY))
+        .and(PAIEMENT.STATUT.eq(StatutPaiement.en_attente))
+        .and(PAIEMENT.UPDATED_AT.le(avant))
+        .orderBy(PAIEMENT.UPDATED_AT)
+        .fetch(PaiementRepository::versDomaine);
+  }
+
+  /** Trace d'une interrogation de la passerelle (réponse reçue ou absence de réponse). */
+  public void journaliserInterrogation(
+      UUID paiementId, String reference, String transactionId, String payloadJson) {
+    dsl.insertInto(PAIEMENT_EVENEMENT)
+        .set(PAIEMENT_EVENEMENT.PAIEMENT_ID, paiementId)
+        .set(PAIEMENT_EVENEMENT.REFERENCE_RECUE, reference)
+        .set(PAIEMENT_EVENEMENT.TRANSACTION_ID, transactionId)
+        .set(PAIEMENT_EVENEMENT.TYPE_EVENEMENT, "INTERROGATION")
+        .set(PAIEMENT_EVENEMENT.PAYLOAD, JSONB.valueOf(payloadJson))
+        .set(PAIEMENT_EVENEMENT.SIGNATURE_VALIDE, true)
+        .set(PAIEMENT_EVENEMENT.TRAITE, true)
+        .onConflictDoNothing()
+        .execute();
+  }
+
+  /**
+   * Références dont la date limite est passée sans paiement (US-04.5) : virement non déclaré (7
+   * jours) ou session en ligne jamais ouverte → {@code expire}. Renvoie le nombre de paiements.
+   */
+  public int expirerReferences() {
+    return dsl.update(PAIEMENT)
+        .set(PAIEMENT.STATUT, StatutPaiement.expire)
+        .where(PAIEMENT.STATUT.eq(StatutPaiement.initie))
+        .and(
+            PAIEMENT.DATE_EXPIRATION.lt(DSL.field("now()", PAIEMENT.DATE_EXPIRATION.getDataType())))
+        .execute();
+  }
+
   public boolean estPaye(long demandeId, ObjetPaiement objet) {
     return dsl.fetchExists(
         PAIEMENT,
