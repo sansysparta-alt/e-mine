@@ -181,6 +181,20 @@
       "catalogue": "{n, plural, one {# fiche du catalogue} other {# fiches du catalogue}}",
       "workflows": "{n, plural, one {# workflow} other {# workflows}}",
       "delais": "La règle des délais"
+    },
+    "fiscal": {
+      "aFaire": "Ce que vous avez à faire",
+      "aVerifier": "À vérifier",
+      "aVerifierPrecision": "Écarts et versements non reconnus",
+      "remboursementsAValider": "Remboursements à valider",
+      "remboursementsAValiderPrecision": "Doublons, excédents, paiements rejetés",
+      "ordresAEnregistrer": "Ordres à enregistrer",
+      "ordresAEnregistrerPrecision": "Remboursements validés, en attente du Trésor",
+      "recettesMois": "Recettes du mois",
+      "ceMois": "Ce mois-ci (du {du} au {au})",
+      "recettesMoisPrecision": "{nombre, plural, one {# opération} other {# opérations}}, frais remboursés déduits",
+      "importer": "Importer un relevé bancaire",
+      "indisponible": "Les chiffres des encaissements ne peuvent pas être lus pour le moment. Réessayez dans quelques instants."
     }
   },
   "demande": {
@@ -537,7 +551,8 @@
       "documents": "Documents délivrés",
       "releves": "Relevés bancaires",
       "aVerifier": "À vérifier",
-      "remboursements": "Remboursements"
+      "remboursements": "Remboursements",
+      "journalEncaissements": "Journal des encaissements"
     },
     "compte": {
       "menu": "Menu de l’utilisateur",
@@ -2535,6 +2550,50 @@
         "effet": "Le Trésor a émis l’ordre de remboursement de {montant} à {beneficiaire}. Le demandeur sera informé.",
         "confirmer": "Enregistrer et informer le demandeur"
       }
+    }
+  },
+  "journalEncaissements": {
+    "titre": "Journal des encaissements",
+    "description": "Recettes du Ministère (montant dû des paiements acceptés) et frais remboursés sur rejet d’une demande, pour la période choisie.",
+    "elements": "opérations",
+    "exporter": "Exporter en CSV",
+    "periode": "Du {du} au {au}",
+    "toutePeriode": "Toute la période",
+    "note": "Les sommes reçues sans contrepartie (excédent, versement en double, paiement rejeté) ne sont pas des recettes : elles sont suivies dans « Remboursements ».",
+    "periodeInvalide": {
+      "titre": "Période invalide",
+      "texte": "La fin de la période précède son début : corrigez l’une des deux dates."
+    },
+    "chiffres": {
+      "encaisse": "Recettes",
+      "encaissePrecision": "TrésorPay {tresorpay} · virement {virement}",
+      "rembourse": "Frais remboursés",
+      "remboursePrecision": "Demandes rejetées, ordre du Trésor enregistré",
+      "solde": "Solde",
+      "soldePrecision": "{nombre, plural, one {# opération} other {# opérations}}"
+    },
+    "filtres": {
+      "libelle": "Moyen de paiement",
+      "tous": "Tous"
+    },
+    "moyens": {
+      "TRESORPAY": "TrésorPay",
+      "VIREMENT": "Virement bancaire"
+    },
+    "types": {
+      "encaissement": "Encaissement",
+      "remboursement": "Remboursement de frais"
+    },
+    "colonnes": {
+      "date": "Date",
+      "operation": "Opération",
+      "demande": "Demande",
+      "payeur": "Payeur",
+      "montant": "Montant"
+    },
+    "vide": {
+      "titre": "Aucune opération sur cette période",
+      "description": "Choisissez une autre période ou un autre moyen de paiement."
     }
   }
 }

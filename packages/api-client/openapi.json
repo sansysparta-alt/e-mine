@@ -2743,6 +2743,144 @@
         }
       }
     },
+    "/api/v1/encaissements/journal" : {
+      "get" : {
+        "tags" : [ "Encaissements" ],
+        "summary" : "Journal des encaissements : recettes (paiements acceptés) et frais remboursés sur rejet, du plus récent au plus ancien, avec les totaux des mêmes critères",
+        "operationId" : "listerJournalEncaissements",
+        "parameters" : [ {
+          "name" : "du",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "name" : "au",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "name" : "moyen",
+          "in" : "query",
+          "description" : "TRESORPAY ou VIREMENT ; absent : tous",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "objet",
+          "in" : "query",
+          "description" : "FRAIS_DOSSIER, DROITS, ATTESTATION ou FORMATION ; absent : tous",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "page",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "name" : "taille",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageJournalEncaissementsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/encaissements/journal.csv" : {
+      "get" : {
+        "tags" : [ "Encaissements" ],
+        "summary" : "Export CSV du journal (mêmes critères que l'écran), pour un tableur",
+        "operationId" : "exporterJournalEncaissements",
+        "parameters" : [ {
+          "name" : "du",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "name" : "au",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "name" : "moyen",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "objet",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "text/csv" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/encaissements/indicateurs" : {
+      "get" : {
+        "tags" : [ "Encaissements" ],
+        "summary" : "Tableau de bord du Responsable fiscal : à vérifier, remboursements à valider, ordres à enregistrer (à ce jour) et recettes du mois en cours",
+        "operationId" : "lireIndicateursEncaissements",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/IndicateursEncaissementsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/encaissements/a-verifier" : {
       "get" : {
         "tags" : [ "Encaissements" ],
@@ -5579,6 +5717,138 @@
           }
         },
         "required" : [ "profilsAvis", "signataires" ]
+      },
+      "LigneJournalEncaissementsDto" : {
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string"
+          },
+          "date" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "reference" : {
+            "type" : "string"
+          },
+          "piece" : {
+            "type" : [ "string", "null" ]
+          },
+          "montantGnf" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "moyen" : {
+            "type" : "string"
+          },
+          "objet" : {
+            "type" : "string"
+          },
+          "demandeId" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "numeroDemande" : {
+            "type" : [ "string", "null" ]
+          },
+          "codeDocument" : {
+            "type" : "string"
+          },
+          "payeur" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "codeDocument", "date", "demandeId", "montantGnf", "moyen", "numeroDemande", "objet", "payeur", "piece", "reference", "type" ]
+      },
+      "PageJournalEncaissementsDto" : {
+        "type" : "object",
+        "properties" : {
+          "elements" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/LigneJournalEncaissementsDto"
+            }
+          },
+          "page" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "taille" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "total" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "totaux" : {
+            "$ref" : "#/components/schemas/TotauxEncaissementsDto"
+          }
+        },
+        "required" : [ "elements", "page", "taille", "total", "totalPages", "totaux" ]
+      },
+      "TotauxEncaissementsDto" : {
+        "type" : "object",
+        "properties" : {
+          "encaisseGnf" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rembourseGnf" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "soldeGnf" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "nombre" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "tresorPayGnf" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "virementGnf" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "encaisseGnf", "nombre", "rembourseGnf", "soldeGnf", "tresorPayGnf", "virementGnf" ]
+      },
+      "IndicateursEncaissementsDto" : {
+        "type" : "object",
+        "properties" : {
+          "aVerifier" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "remboursementsAValider" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "ordresAEnregistrer" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "mois" : {
+            "$ref" : "#/components/schemas/TotauxEncaissementsDto"
+          },
+          "debutMois" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "finMois" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        },
+        "required" : [ "aVerifier", "debutMois", "finMois", "mois", "ordresAEnregistrer", "remboursementsAValider" ]
       },
       "ElementAVerifierDto" : {
         "type" : "object",

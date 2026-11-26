@@ -1,6 +1,7 @@
 import {
   Bell,
   BookOpen,
+  BookText,
   CircleHelp,
   CreditCard,
   FileCheck2,
@@ -121,6 +122,15 @@ export const NAVIGATION: SectionConfig[] = [
         module: "paiement",
         href: "/releves",
         icone: FileSpreadsheet,
+        permission: "ENCAISSER",
+        interne: true,
+      },
+      // Journal des encaissements (US-04.11) : recettes, frais remboursés, export CSV.
+      {
+        cle: "journalEncaissements",
+        module: "paiement",
+        href: "/journal-encaissements",
+        icone: BookText,
         permission: "ENCAISSER",
         interne: true,
       },

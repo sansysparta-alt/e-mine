@@ -181,6 +181,20 @@
       "catalogue": "{n, plural, one {# catalogue record} other {# catalogue records}}",
       "workflows": "{n, plural, one {# workflow} other {# workflows}}",
       "delais": "The deadline rule"
+    },
+    "fiscal": {
+      "aFaire": "What you have to do",
+      "aVerifier": "To check",
+      "aVerifierPrecision": "Differences and unrecognised credits",
+      "remboursementsAValider": "Refunds to approve",
+      "remboursementsAValiderPrecision": "Duplicates, excess amounts, rejected payments",
+      "ordresAEnregistrer": "Orders to record",
+      "ordresAEnregistrerPrecision": "Approved refunds awaiting the Treasury",
+      "recettesMois": "Revenue this month",
+      "ceMois": "This month ({du} to {au})",
+      "recettesMoisPrecision": "{nombre, plural, one {# operation} other {# operations}}, refunded fees deducted",
+      "importer": "Import a bank statement",
+      "indisponible": "Collection figures cannot be read at the moment. Try again in a few moments."
     }
   },
   "demande": {
@@ -537,7 +551,8 @@
       "documents": "Issued documents",
       "releves": "Bank statements",
       "aVerifier": "To check",
-      "remboursements": "Refunds"
+      "remboursements": "Refunds",
+      "journalEncaissements": "Collections journal"
     },
     "compte": {
       "menu": "User menu",
@@ -2535,6 +2550,50 @@
         "effet": "The Treasury has issued the refund order of {montant} to {beneficiaire}. The applicant will be notified.",
         "confirmer": "Record and notify the applicant"
       }
+    }
+  },
+  "journalEncaissements": {
+    "titre": "Collections journal",
+    "description": "Ministry revenue (amount due on accepted payments) and fees refunded after a request was rejected, for the selected period.",
+    "elements": "operations",
+    "exporter": "Export as CSV",
+    "periode": "From {du} to {au}",
+    "toutePeriode": "Whole period",
+    "note": "Amounts received without consideration (excess, duplicate, rejected payment) are not revenue: they are tracked in “Refunds”.",
+    "periodeInvalide": {
+      "titre": "Invalid period",
+      "texte": "The end of the period is before its start: correct one of the two dates."
+    },
+    "chiffres": {
+      "encaisse": "Revenue",
+      "encaissePrecision": "TrésorPay {tresorpay} · transfer {virement}",
+      "rembourse": "Fees refunded",
+      "remboursePrecision": "Rejected requests, Treasury order recorded",
+      "solde": "Balance",
+      "soldePrecision": "{nombre, plural, one {# operation} other {# operations}}"
+    },
+    "filtres": {
+      "libelle": "Payment method",
+      "tous": "All"
+    },
+    "moyens": {
+      "TRESORPAY": "TrésorPay",
+      "VIREMENT": "Bank transfer"
+    },
+    "types": {
+      "encaissement": "Collection",
+      "remboursement": "Fee refund"
+    },
+    "colonnes": {
+      "date": "Date",
+      "operation": "Operation",
+      "demande": "Request",
+      "payeur": "Payer",
+      "montant": "Amount"
+    },
+    "vide": {
+      "titre": "No operation in this period",
+      "description": "Choose another period or payment method."
     }
   }
 }
