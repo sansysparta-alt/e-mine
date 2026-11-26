@@ -162,7 +162,7 @@ La V1 a dépassé la version allégée de la semaine initiale. Ce tableau fait f
 | Catalogue | Fiches versionnées, tarifs à date d'effet, **validation par le Ministre** ; CEX et KIM désactivés (profil BNE en V2) | CEX, KIM, profil BNE |
 | Workflows et délais | Versions **proposées par l'administrateur, validées par le Ministre, appliquées à leur date d'effet** ; une demande garde la version de son dépôt (US-02.8) | — |
 | Notifications | Canaux par événement (réglage immédiat), e-mails et SMS simulés reçus dans Mailpit | Passerelle SMS réelle |
-| Paiement | TrésorPay simulé et **virement** ; frais non remboursés sur rejet, sauf double paiement ou erreur | Réglage administrable du remboursement |
+| Paiement | TrésorPay simulé, avec **interrogation** quand la notification manque (US-04.5) ; **virement** : coordonnées, justificatif, déclaration (US-04.7) ; **relevé bancaire CSV** et rapprochement automatique (US-04.8) ; file **« À vérifier »** du Responsable fiscal (US-04.9) ; **remboursements** validés puis exécutés par le Trésor, **règle V1-4 gouvernée** (US-04.10) ; **journal des encaissements**, export CSV, tableau de bord fiscal (US-04.11) | Relevé **MT940** (format réel de la banque) ; passerelle TrésorPay réelle |
 | Instruction | Recevabilité, compléments, **avis du Géologue et de l'Inspecteur** (avis seulement), décision, délais | Rubriques métier cadastre et inspection |
 | Délivrance | PDF signé, QR, vérification publique, révocation avec **autorité et motif** ; lecteur PDF paginé (pdf.js) | — |
 | Comptes | Gérés dans Keycloak (D8) ; titre officiel de l'agent (`utilisateur.titre`) | Écran d'administration des comptes |

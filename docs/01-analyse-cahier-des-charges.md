@@ -153,7 +153,7 @@ Choix proposés par défaut et acceptés par le porteur du projet ; ils fixent l
 | V1-1 | **Renouvellement des titres en V2** | Alertes J-180/90/30 et suspension automatique (lot 3) hors V1 |
 | V1-2 | **Messagerie, Annonces et Rapports hiérarchiques en V2** | Menus communs du lot 4 non livrés en V1 |
 | V1-3 | **Virement bancaire en V1**, à côté de TrésorPay | Rapprochement par le Responsable fiscal |
-| V1-4 | **Frais de dossier non remboursés en cas de rejet**, sauf double paiement ou erreur ; règle à rendre **modifiable** par l'Administrateur | Remboursement seulement sur ces deux motifs ; le réglage sera administré avec l'outillage des remboursements |
+| V1-4 | **Frais de dossier non remboursés en cas de rejet**, sauf double paiement ou erreur ; règle à rendre **modifiable** par l'Administrateur | Fait au lot 5 (V32) : règle versionnée, proposée par l'administrateur, validée par le Ministre, figée au dépôt ; un double paiement, un excédent ou la somme d'un paiement rejeté sont toujours proposés au remboursement |
 | V1-5 | **Comptes gérés dans Keycloak** (D8) | Création, suspension, mot de passe et 2FA côté Keycloak ; la base garde le profil et le titre officiel |
 | V1-6 | **Géologue et Inspecteur en V1 pour l'avis technique seulement** | Leurs rubriques métier (cadastre, inspection) arrivent avec leurs lots |
 | V1-7 | **Certificats CEX et KIM désactivés au catalogue pour la V1** : ils sont instruits par le BNE, dont le profil arrive en V2 | Migration V26 : nouvelle version de chaque fiche, « non disponible à la demande », motif tracé ; les demandes déjà déposées vont à leur terme |
