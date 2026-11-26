@@ -39,6 +39,8 @@ public record Workflow(
    * @param dateEffet date d'application aux demandes déposées (heure de Conakry)
    * @param decideePar personne qui a validé, refusé ou retiré, ou {@code null}
    * @param etapes étapes dans l'ordre
+   * @param libelleEn nom de la famille en anglais, ou {@code null} (repli sur le français)
+   * @param reglePaiementEn paiements affichés en anglais, ou {@code null}
    */
   public record VersionWorkflow(
       int version,
@@ -52,7 +54,9 @@ public record Workflow(
       String decideePar,
       Instant decideeLe,
       String motifRefus,
-      List<Etape> etapes) {
+      List<Etape> etapes,
+      String libelleEn,
+      String reglePaiementEn) {
 
     public VersionWorkflow {
       etapes = List.copyOf(etapes);
@@ -70,8 +74,16 @@ public record Workflow(
    *
    * @param acteur intervenant (Guichet unique, DNM, Ministre…)
    * @param libelle ce qui est fait à cette étape
+   * @param acteurEn intervenant en anglais, ou {@code null} (repli sur le français)
+   * @param libelleEn action en anglais, ou {@code null}
    */
-  public record Etape(String acteur, String libelle) {}
+  public record Etape(String acteur, String libelle, String acteurEn, String libelleEn) {
+
+    /** Étape sans traduction. */
+    public Etape(String acteur, String libelle) {
+      this(acteur, libelle, null, null);
+    }
+  }
 
   /** Nombre d'étapes et de caractères acceptés (comme la base, V20). */
   public static final int ETAPES_MAX = 12;

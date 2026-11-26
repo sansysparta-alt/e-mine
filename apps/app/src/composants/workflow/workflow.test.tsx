@@ -29,10 +29,12 @@ const enVigueur: VersionWorkflowDto = {
   decideePar: null,
   decideeLe: "2026-01-01T00:00:00Z",
   motifRefus: null,
+  libelleEn: "Export and appraisal",
+  reglePaiementEn: null,
   etapes: [
-    { acteur: "BNE", libelle: "Expertise du lot" },
-    { acteur: "DNM, Fiscalité ou Brigade", libelle: "Contrôle" },
-    { acteur: "Signataire", libelle: "Signature" },
+    { acteur: "BNE", libelle: "Expertise du lot", acteurEn: "BNE", libelleEn: "Lot appraisal" },
+    { acteur: "DNM, Fiscalité ou Brigade", libelle: "Contrôle", acteurEn: null, libelleEn: null },
+    { acteur: "Signataire", libelle: "Signature", acteurEn: null, libelleEn: null },
   ],
 };
 
@@ -90,10 +92,10 @@ describe("proposition de modification d'un workflow (US-02.5, US-02.8)", () => {
     fireEvent.click(screen.getByRole("button", { name: "Retirer l’étape 3" }));
     fireEvent.click(screen.getByRole("button", { name: "Ajouter une étape" }));
     const nouvelle = screen.getByRole("listitem", { name: "Étape 3" });
-    fireEvent.change(within(nouvelle).getByLabelText(/Intervenant/), {
+    fireEvent.change(within(nouvelle).getByLabelText(/^Intervenant(?!, en anglais)/), {
       target: { value: "Directeur" },
     });
-    fireEvent.change(within(nouvelle).getByLabelText(/Action/), {
+    fireEvent.change(within(nouvelle).getByLabelText(/^Action(?!, en anglais)/), {
       target: { value: "Signature" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Soumettre au Ministre" }));
@@ -110,10 +112,22 @@ describe("proposition de modification d'un workflow (US-02.5, US-02.8)", () => {
       expect(enregistrer).toHaveBeenCalledWith(
         "EXPORT",
         expect.objectContaining({
+          libelleEn: "Export and appraisal",
+          reglePaiementEn: null,
           etapes: [
-            { acteur: "DNM, Fiscalité ou Brigade", libelle: "Contrôle" },
-            { acteur: "BNE", libelle: "Expertise du lot" },
-            { acteur: "Directeur", libelle: "Signature" },
+            {
+              acteur: "DNM, Fiscalité ou Brigade",
+              libelle: "Contrôle",
+              acteurEn: null,
+              libelleEn: null,
+            },
+            {
+              acteur: "BNE",
+              libelle: "Expertise du lot",
+              acteurEn: "BNE",
+              libelleEn: "Lot appraisal",
+            },
+            { acteur: "Directeur", libelle: "Signature", acteurEn: null, libelleEn: null },
           ],
         }),
       ),

@@ -50,6 +50,25 @@ public final class RegleFiche {
         : Optional.of(List.copyOf(pieces));
   }
 
+  /**
+   * Pièces en anglais (US-02.9) : aucune (repli sur le français), ou une traduction pour chaque
+   * pièce française, dans le même ordre ; vide si la liste est incomplète ou mal formée.
+   */
+  public static Optional<List<String>> piecesEn(List<String> saisies, int nombreFr) {
+    List<String> nettes =
+        (saisies == null ? List.<String>of() : saisies)
+            .stream().map(p -> p == null ? "" : p.strip().replaceAll("\\s+", " ")).toList();
+    if (nettes.stream().allMatch(String::isEmpty)) {
+      return Optional.of(List.of());
+    }
+    if (nettes.size() != nombreFr
+        || nettes.stream()
+            .anyMatch(p -> p.contains(",") || p.length() < 2 || p.length() > PIECE_MAX)) {
+      return Optional.empty();
+    }
+    return Optional.of(List.copyOf(nettes));
+  }
+
   /** Pièces au format de la base ({@code pieces_cles}) : séparées par une virgule. */
   public static String piecesCles(List<String> pieces) {
     return String.join(", ", pieces);
@@ -58,9 +77,10 @@ public final class RegleFiche {
   /**
    * Un champ modifié par une version.
    *
-   * @param champ {@code libelleFr}, {@code libelleEn}, {@code pieces}, {@code delaiJours}, {@code
-   *     instruitPar}, {@code signataire}, {@code avis}, {@code actif}, {@code fraisDossierGnf},
-   *     {@code droitsGnf} ou {@code attestationGnf} (montants en GNF entiers)
+   * @param champ {@code libelleFr}, {@code libelleEn}, {@code pieces}, {@code piecesEn}, {@code
+   *     delaiJours}, {@code instruitPar}, {@code instruitParEn}, {@code signataire}, {@code avis},
+   *     {@code actif}, {@code fraisDossierGnf}, {@code droitsGnf} ou {@code attestationGnf}
+   *     (montants en GNF entiers)
    * @param avant valeur de la fiche de référence, en texte ({@code null} si vide)
    * @param apres valeur proposée, en texte ({@code null} si vide)
    */
@@ -73,8 +93,11 @@ public final class RegleFiche {
     ajouter(c, "libelleEn", avant.libelleEn(), apres.libelleEn());
     ajouter(c, "pieces", String.join(" · ", avant.pieces()), String.join(" · ", apres.pieces()));
     ajouter(
+        c, "piecesEn", String.join(" · ", avant.piecesEn()), String.join(" · ", apres.piecesEn()));
+    ajouter(
         c, "delaiJours", String.valueOf(avant.delaiJours()), String.valueOf(apres.delaiJours()));
     ajouter(c, "instruitPar", avant.instruitPar(), apres.instruitPar());
+    ajouter(c, "instruitParEn", avant.instruitParEn(), apres.instruitParEn());
     ajouter(c, "signataire", avant.signataire(), apres.signataire());
     ajouter(c, "avis", avis(avant.avis()), avis(apres.avis()));
     ajouter(c, "actif", String.valueOf(avant.actif()), String.valueOf(apres.actif()));

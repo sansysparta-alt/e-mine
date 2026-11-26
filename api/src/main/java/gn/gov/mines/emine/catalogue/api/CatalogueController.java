@@ -44,7 +44,12 @@ class CatalogueController {
         .orElseThrow(() -> new ErreurMetier(CodeErreur.SYS_002, Map.of("code", code)));
   }
 
-  /** Document du catalogue tel que publié par l'API. */
+  /**
+   * Document du catalogue tel que publié par l'API.
+   *
+   * @param piecesRequisesEn pièces en anglais, dans le même ordre (vide : afficher le français)
+   * @param instruitParEn service instructeur en anglais ({@code null} : afficher le français)
+   */
   record TypeDocumentDto(
       String code,
       String libelleFr,
@@ -56,7 +61,9 @@ class CatalogueController {
       String instruitPar,
       String signataire,
       Tarifs tarifs,
-      List<AvisRequis> avisRequis) {
+      List<AvisRequis> avisRequis,
+      List<String> piecesRequisesEn,
+      @Schema(nullable = true) String instruitParEn) {
 
     record Famille(String code, String libelle) {}
 
@@ -86,7 +93,9 @@ class CatalogueController {
               t.tarifs().droitsGnf(),
               t.tarifs().attestationGnf(),
               t.tarifs().aPayerAuDepotGnf()),
-          t.avisRequis().stream().map(a -> new AvisRequis(a.profilCode(), a.libelle())).toList());
+          t.avisRequis().stream().map(a -> new AvisRequis(a.profilCode(), a.libelle())).toList(),
+          t.piecesRequisesEn(),
+          t.instruitParEn());
     }
   }
 }

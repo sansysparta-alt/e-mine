@@ -9,9 +9,23 @@ export function ContenuVersionWorkflow({ version }: { version: VersionWorkflowDt
     <div className="flex flex-col gap-3">
       <dl className="grid grid-cols-1 gap-x-6 gap-y-1 sm:grid-cols-[auto_1fr]">
         <dt className="font-semibold text-navy">{t("formulaire.champs.libelle")}</dt>
-        <dd>{version.libelle}</dd>
+        <dd>
+          {version.libelle}
+          {version.libelleEn ? (
+            <span lang="en" className="block text-sm text-texte-doux">
+              {version.libelleEn}
+            </span>
+          ) : null}
+        </dd>
         <dt className="font-semibold text-navy">{t("colonnes.paiements")}</dt>
-        <dd>{version.reglePaiement}</dd>
+        <dd>
+          {version.reglePaiement}
+          {version.reglePaiementEn ? (
+            <span lang="en" className="block text-sm text-texte-doux">
+              {version.reglePaiementEn}
+            </span>
+          ) : null}
+        </dd>
       </dl>
       <EtapesWorkflow etapes={version.etapes} />
     </div>

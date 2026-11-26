@@ -19,6 +19,8 @@ const pex: TypeDocumentDto = {
   delaiJours: 60,
   renouvelable: true,
   piecesRequises: ["Étude de faisabilité", "EIES", "Plan de restauration"],
+  piecesRequisesEn: [],
+  instruitParEn: null,
   instruitPar: "DNM + Inspection",
   signataire: "Ministre",
   avisRequis: [],

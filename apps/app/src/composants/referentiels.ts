@@ -92,3 +92,27 @@ export const CODES_WORKFLOWS: Record<string, string> = {
   "Attestations et copies": "ATTESTATIONS",
   "Contenu local": "CONTENU_LOCAL",
 };
+
+/**
+ * Libellés affichés des pièces requises d'un document (US-02.9) : la traduction anglaise de même
+ * rang si l'interface est en anglais et que la fiche en a une ; sinon le libellé français, qui reste
+ * l'identifiant de la pièce déposée (jamais traduit en base).
+ */
+export function libellesPieces(
+  d: { piecesRequises: string[]; piecesRequisesEn?: string[] | null } | undefined,
+  langue: string,
+): Record<string, string> {
+  if (!d) return {};
+  const en = langue === "en" && d.piecesRequisesEn?.length === d.piecesRequises.length;
+  return Object.fromEntries(
+    d.piecesRequises.map((p, i) => [p, en ? (d.piecesRequisesEn?.[i] ?? p) : p]),
+  );
+}
+
+/** Service instructeur dans la langue de l'interface (repli sur le français). */
+export function libelleInstruitPar(
+  d: { instruitPar: string; instruitParEn?: string | null },
+  langue: string,
+): string {
+  return langue === "en" && d.instruitParEn ? d.instruitParEn : d.instruitPar;
+}

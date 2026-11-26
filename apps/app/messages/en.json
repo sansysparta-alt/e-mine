@@ -1404,7 +1404,9 @@
         "fraisDossierGnf": "Filing fee",
         "droitsGnf": "Duties",
         "attestationGnf": "Single payment (certificate)",
-        "tarifsDateEffet": "Fees take effect on"
+        "tarifsDateEffet": "Fees take effect on",
+        "piecesEn": "Required documents in English",
+        "instruitParEn": "Reviewed by, in English"
       },
       "changements": {
         "champ": "Item",
@@ -1524,7 +1526,8 @@
         "motifDesactivation": "Explain why the document leaves the catalogue (at least 10 characters).",
         "tarifs": "Amounts in whole Guinean francs. A payment keeps the amount in force when it was created.",
         "tarifsDateEffet": "Today or later. Fees apply from this date, never before the Minister’s validation.",
-        "instruitPar": "Department that reviews the file, as shown to applicants."
+        "instruitPar": "Department that reviews the file, as shown to applicants.",
+        "piecesEn": "One translation per line, in the same order as the French documents. Empty: English-speaking users see the French."
       },
       "actif": "This document can be requested (in the catalogue)",
       "signataireChange": {
@@ -1548,7 +1551,9 @@
         "fraisDossierGnf": "Enter a positive whole amount in GNF.",
         "droitsGnf": "Enter a positive whole amount in GNF.",
         "attestationGnf": "Enter a positive whole amount in GNF.",
-        "tarifsDateEffet": "Choose an effective date from today onwards."
+        "tarifsDateEffet": "Choose an effective date from today onwards.",
+        "piecesEn": "Translate each document, one per line in the same order (no comma), or leave empty.",
+        "instruitParEn": "Leave empty or enter 2 to 150 characters."
       },
       "echec": "The proposal could not be sent",
       "indisponible": "The service is temporarily unavailable. Please try again shortly.",
@@ -1606,7 +1611,11 @@
         "reglePaiement": "Payments (displayed)",
         "acteur": "Stakeholder",
         "action": "Action",
-        "motif": "Reason for the change"
+        "motif": "Reason for the change",
+        "libelleEn": "Family name, in English",
+        "reglePaiementEn": "Payments (displayed), in English",
+        "acteurEn": "Actor, in English",
+        "actionEn": "Action, in English"
       },
       "aide": {
         "reglePaiement": "Displayed text. Amounts and payment items come from the documents’ records.",
@@ -1623,13 +1632,15 @@
         "reglePaiement": "3 to 300 characters.",
         "acteur": "2 to 100 characters.",
         "action": "2 to 150 characters.",
-        "motif": "Explain the change in 10 to 2,000 characters."
+        "motif": "Explain the change in 10 to 2,000 characters.",
+        "traduction": "Leave empty or complete the translation (at least 2 characters)."
       },
       "aucunChangement": "Nothing has changed compared with the latest approved version.",
       "echec": "The proposal could not be sent",
       "indisponible": "The service is temporarily unavailable. Please try again shortly.",
       "annuler": "Cancel",
-      "enregistrer": "Submit to the Minister"
+      "enregistrer": "Submit to the Minister",
+      "facultatif": "optional"
     },
     "etapesNombre": "{n, plural, one {Process in # step} other {Process in # steps}}",
     "selonDocument": "depending on the document",

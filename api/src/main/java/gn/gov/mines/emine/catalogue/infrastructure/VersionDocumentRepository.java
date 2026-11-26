@@ -115,6 +115,10 @@ public class VersionDocumentRepository {
         .set(VERSION_DOCUMENT.PIECES_CLES, RegleFiche.piecesCles(c.pieces()))
         .set(VERSION_DOCUMENT.DELAI_JOURS, (short) c.delaiJours())
         .set(VERSION_DOCUMENT.INSTRUIT_PAR, c.instruitPar())
+        .set(
+            VERSION_DOCUMENT.PIECES_CLES_EN,
+            c.piecesEn().isEmpty() ? null : RegleFiche.piecesCles(c.piecesEn()))
+        .set(VERSION_DOCUMENT.INSTRUIT_PAR_EN, c.instruitParEn())
         .set(VERSION_DOCUMENT.SIGNE_PAR, c.signataire())
         .set(
             VERSION_DOCUMENT.SIGNATAIRE_PROFIL_ID,
@@ -223,7 +227,9 @@ public class VersionDocumentRepository {
             r.get(VERSION_DOCUMENT.ACTIF),
             r.get(VERSION_DOCUMENT.FRAIS_DOSSIER_GNF),
             r.get(VERSION_DOCUMENT.DROITS_GNF),
-            r.get(VERSION_DOCUMENT.ATTESTATION_GNF)),
+            r.get(VERSION_DOCUMENT.ATTESTATION_GNF),
+            TypeDocumentRepository.pieces(r.get(VERSION_DOCUMENT.PIECES_CLES_EN)),
+            r.get(VERSION_DOCUMENT.INSTRUIT_PAR_EN)),
         r.get(VERSION_DOCUMENT.MOTIF),
         proposant == null || proposant.isBlank() ? null : proposant,
         r.get(VERSION_DOCUMENT.PROPOSEE_LE),

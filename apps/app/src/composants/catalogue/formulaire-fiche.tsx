@@ -41,6 +41,16 @@ export function lignesPieces(texte: string): string[] {
   return pieces;
 }
 
+/**
+ * Pièces en anglais (US-02.9) : une ligne par pièce française, dans le même ordre, ou aucune (repli
+ * sur le français). Les lignes vides comptent : la traduction suit la liste française ligne à ligne.
+ */
+export function lignesPiecesEn(texte: string): string[] {
+  const lignes = texte.split(/\r?\n/).map((l) => l.trim().replace(/\s+/g, " "));
+  while (lignes.length && lignes[lignes.length - 1] === "") lignes.pop();
+  return lignes.every((l) => l === "") ? [] : lignes;
+}
+
 /** Montant du barème en GNF entiers (vide si le document n'a pas cet objet de paiement). */
 const montant = z
   .string()
@@ -76,32 +86,50 @@ export function baremeApprouve(
   };
 }
 
-export const schemaFiche = z.object({
-  libelleFr: z.string().trim().min(BORNES_FICHE.libelleMin).max(BORNES_FICHE.libelleMax),
-  libelleEn: z
-    .string()
-    .trim()
-    .max(BORNES_FICHE.libelleMax)
-    .refine((v) => v === "" || v.length >= BORNES_FICHE.libelleMin),
-  pieces: z.string().refine((v) => {
-    const p = lignesPieces(v);
-    return (
-      p.length >= 1 &&
-      p.length <= BORNES_FICHE.piecesMax &&
-      p.every((x) => !x.includes(",") && x.length >= 2 && x.length <= BORNES_FICHE.pieceMax)
-    );
-  }),
-  delaiJours: z.coerce.number().int().min(1).max(BORNES_FICHE.delaiMax),
-  instruitPar: z.string().trim().min(2).max(BORNES_FICHE.libelleMax),
-  signataire: z.string().min(1),
-  avis: z.array(z.string()),
-  actif: z.boolean(),
-  motif: z.string().trim().min(BORNES_FICHE.motifMin).max(BORNES_FICHE.motifMax),
-  fraisDossierGnf: montant,
-  droitsGnf: montant,
-  attestationGnf: montant,
-  tarifsDateEffet: z.string(),
-});
+export const schemaFiche = z
+  .object({
+    libelleFr: z.string().trim().min(BORNES_FICHE.libelleMin).max(BORNES_FICHE.libelleMax),
+    libelleEn: z
+      .string()
+      .trim()
+      .max(BORNES_FICHE.libelleMax)
+      .refine((v) => v === "" || v.length >= BORNES_FICHE.libelleMin),
+    pieces: z.string().refine((v) => {
+      const p = lignesPieces(v);
+      return (
+        p.length >= 1 &&
+        p.length <= BORNES_FICHE.piecesMax &&
+        p.every((x) => !x.includes(",") && x.length >= 2 && x.length <= BORNES_FICHE.pieceMax)
+      );
+    }),
+    delaiJours: z.coerce.number().int().min(1).max(BORNES_FICHE.delaiMax),
+    instruitPar: z.string().trim().min(2).max(BORNES_FICHE.libelleMax),
+    piecesEn: z.string(),
+    instruitParEn: z
+      .string()
+      .trim()
+      .max(BORNES_FICHE.libelleMax)
+      .refine((v) => v === "" || v.length >= 2),
+    signataire: z.string().min(1),
+    avis: z.array(z.string()),
+    actif: z.boolean(),
+    motif: z.string().trim().min(BORNES_FICHE.motifMin).max(BORNES_FICHE.motifMax),
+    fraisDossierGnf: montant,
+    droitsGnf: montant,
+    attestationGnf: montant,
+    tarifsDateEffet: z.string(),
+  })
+  .superRefine((v, ctx) => {
+    const en = lignesPiecesEn(v.piecesEn);
+    const fr = lignesPieces(v.pieces);
+    if (
+      en.length > 0 &&
+      (en.length !== fr.length ||
+        en.some((x) => x.includes(",") || x.length < 2 || x.length > BORNES_FICHE.pieceMax))
+    ) {
+      ctx.addIssue({ code: "custom", path: ["piecesEn"], message: "piecesEn" });
+    }
+  });
 
 type Saisie = z.input<typeof schemaFiche>;
 type Valeurs = z.output<typeof schemaFiche>;
@@ -153,6 +181,8 @@ export function FormulaireFiche({
       libelleFr: enVigueur.libelleFr,
       libelleEn: enVigueur.libelleEn ?? "",
       pieces: enVigueur.pieces.join("\n"),
+      piecesEn: (enVigueur.piecesEn ?? []).join("\n"),
+      instruitParEn: enVigueur.instruitParEn ?? "",
       delaiJours: enVigueur.delaiJours,
       instruitPar: enVigueur.instruitPar,
       signataire: enVigueur.signataire,
@@ -188,6 +218,8 @@ export function FormulaireFiche({
         pieces: lignesPieces(v.pieces),
         delaiJours: v.delaiJours,
         instruitPar: v.instruitPar,
+        piecesEn: lignesPiecesEn(v.piecesEn),
+        instruitParEn: v.instruitParEn || null,
         signataire: v.signataire,
         avis: profilsAvis.map((p) => p.code).filter((c) => v.avis.includes(c)),
         actif: v.actif,
@@ -273,20 +305,39 @@ export function FormulaireFiche({
             />
             {erreur("libelleEn")}
           </div>
-          <div className="flex flex-col gap-1">
-            {libelle("pieces")}
-            <p id="pieces-aide" className="text-sm text-texte-doux">
-              {t("aide.pieces")}
-            </p>
-            <textarea
-              id="pieces"
-              rows={5}
-              {...register("pieces")}
-              aria-invalid={errors.pieces ? true : undefined}
-              aria-describedby={decrit("pieces", true)}
-              className={classesChamp}
-            />
-            {erreur("pieces")}
+          {/* Français et anglais côte à côte (empilés sur mobile) : même ordre, ligne à ligne. */}
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-4">
+            <div className="flex flex-col gap-1">
+              {libelle("pieces")}
+              <p id="pieces-aide" className="text-sm text-texte-doux">
+                {t("aide.pieces")}
+              </p>
+              <textarea
+                id="pieces"
+                rows={5}
+                {...register("pieces")}
+                aria-invalid={errors.pieces ? true : undefined}
+                aria-describedby={decrit("pieces", true)}
+                className={classesChamp}
+              />
+              {erreur("pieces")}
+            </div>
+            <div className="flex flex-col gap-1">
+              {libelle("piecesEn", false)}
+              <p id="piecesEn-aide" className="text-sm text-texte-doux">
+                {t("aide.piecesEn")}
+              </p>
+              <textarea
+                id="piecesEn"
+                lang="en"
+                rows={5}
+                {...register("piecesEn")}
+                aria-invalid={errors.piecesEn ? true : undefined}
+                aria-describedby={decrit("piecesEn", true)}
+                className={classesChamp}
+              />
+              {erreur("piecesEn")}
+            </div>
           </div>
           <div className="flex flex-col gap-1">
             {libelle("delaiJours")}
@@ -329,6 +380,18 @@ export function FormulaireFiche({
               className={classesChamp}
             />
             {erreur("instruitPar")}
+          </div>
+          <div className="flex flex-col gap-1">
+            {libelle("instruitParEn", false)}
+            <input
+              id="instruitParEn"
+              lang="en"
+              {...register("instruitParEn")}
+              aria-invalid={errors.instruitParEn ? true : undefined}
+              aria-describedby={decrit("instruitParEn")}
+              className={classesChamp}
+            />
+            {erreur("instruitParEn")}
           </div>
           <div className="flex flex-col gap-1">
             {libelle("signataire")}

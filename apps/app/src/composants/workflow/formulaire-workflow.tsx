@@ -16,14 +16,26 @@ import { aujourdhuiConakry, ChampDateEffet, dateEffetValide } from "../gouvernan
 /** Bornes communes avec l'API et la base (V20). */
 export const ETAPES_MAX = 12;
 
+/** Traduction facultative (US-02.9) : vide, ou entre `min` et `max` caractères. */
+const traduction = (min: number, max: number) =>
+  z
+    .string()
+    .trim()
+    .max(max)
+    .refine((v) => v === "" || v.length >= min);
+
 export const schemaWorkflow = z.object({
   libelle: z.string().trim().min(3).max(150),
+  libelleEn: traduction(3, 150),
   reglePaiement: z.string().trim().min(3).max(300),
+  reglePaiementEn: traduction(3, 300),
   etapes: z
     .array(
       z.object({
         acteur: z.string().trim().min(2).max(100),
         libelle: z.string().trim().min(2).max(150),
+        acteurEn: traduction(2, 100),
+        libelleEn: traduction(2, 150),
       }),
     )
     .min(1)
@@ -64,8 +76,15 @@ export function FormulaireWorkflow({ code, enVigueur, enregistrer }: FormulaireW
     resolver: zodResolver(schemaWorkflow),
     defaultValues: {
       libelle: enVigueur.libelle,
+      libelleEn: enVigueur.libelleEn ?? "",
       reglePaiement: enVigueur.reglePaiement,
-      etapes: enVigueur.etapes.map((e) => ({ acteur: e.acteur, libelle: e.libelle })),
+      reglePaiementEn: enVigueur.reglePaiementEn ?? "",
+      etapes: enVigueur.etapes.map((e) => ({
+        acteur: e.acteur,
+        libelle: e.libelle,
+        acteurEn: e.acteurEn ?? "",
+        libelleEn: e.libelleEn ?? "",
+      })),
       motif: "",
       dateEffet: aujourdhuiConakry(),
     },
@@ -75,7 +94,17 @@ export function FormulaireWorkflow({ code, enVigueur, enregistrer }: FormulaireW
   function envoyer(v: Valeurs) {
     setErreurApi(null);
     demarrer(async () => {
-      const r = await enregistrer(code, v);
+      const vide = (x: string) => (x.trim() === "" ? null : x);
+      const r = await enregistrer(code, {
+        ...v,
+        libelleEn: vide(v.libelleEn),
+        reglePaiementEn: vide(v.reglePaiementEn),
+        etapes: v.etapes.map((e) => ({
+          ...e,
+          acteurEn: vide(e.acteurEn),
+          libelleEn: vide(e.libelleEn),
+        })),
+      });
       if (r.ok) {
         router.push(`/workflows/${code}?proposee=${r.valeur.version}`);
         router.refresh();
@@ -100,6 +129,7 @@ export function FormulaireWorkflow({ code, enVigueur, enregistrer }: FormulaireW
       <span className="sr-only">({t("obligatoire")})</span>
     </>
   );
+  const facultatif = <span className="font-normal text-texte-doux"> ({t("facultatif")})</span>;
   const message = (id: string, present: boolean, texte: string) =>
     present ? (
       <p id={id} className="text-sm font-semibold text-danger">
@@ -130,6 +160,21 @@ export function FormulaireWorkflow({ code, enVigueur, enregistrer }: FormulaireW
             {message("libelle-erreur", !!errors.libelle, t("erreurs.libelle"))}
           </div>
           <div className="flex flex-col gap-1">
+            <label htmlFor="libelleEn" className="font-semibold">
+              {t("champs.libelleEn")}
+              {facultatif}
+            </label>
+            <input
+              id="libelleEn"
+              lang="en"
+              {...register("libelleEn")}
+              aria-invalid={errors.libelleEn ? true : undefined}
+              aria-describedby={errors.libelleEn ? "libelleEn-erreur" : undefined}
+              className={classesChamp}
+            />
+            {message("libelleEn-erreur", !!errors.libelleEn, t("erreurs.traduction"))}
+          </div>
+          <div className="flex flex-col gap-1">
             <label htmlFor="reglePaiement" className="font-semibold">
               {t("champs.reglePaiement")}
               {obligatoire}
@@ -149,6 +194,21 @@ export function FormulaireWorkflow({ code, enVigueur, enregistrer }: FormulaireW
               className={classesChamp}
             />
             {message("reglePaiement-erreur", !!errors.reglePaiement, t("erreurs.reglePaiement"))}
+          </div>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="reglePaiementEn" className="font-semibold">
+              {t("champs.reglePaiementEn")}
+              {facultatif}
+            </label>
+            <input
+              id="reglePaiementEn"
+              lang="en"
+              {...register("reglePaiementEn")}
+              aria-invalid={errors.reglePaiementEn ? true : undefined}
+              aria-describedby={errors.reglePaiementEn ? "reglePaiementEn-erreur" : undefined}
+              className={classesChamp}
+            />
+            {message("reglePaiementEn-erreur", !!errors.reglePaiementEn, t("erreurs.traduction"))}
           </div>
         </div>
       </Carte>
@@ -193,6 +253,42 @@ export function FormulaireWorkflow({ code, enVigueur, enregistrer }: FormulaireW
                       />
                       {message(`etapes-${i}-libelle-erreur`, !!err?.libelle, t("erreurs.action"))}
                     </div>
+                    <div className="flex flex-col gap-1">
+                      <label htmlFor={`etapes.${i}.acteurEn`} className="font-semibold">
+                        {t("champs.acteurEn")}
+                        {facultatif}
+                      </label>
+                      <input
+                        id={`etapes.${i}.acteurEn`}
+                        lang="en"
+                        {...register(`etapes.${i}.acteurEn`)}
+                        aria-invalid={err?.acteurEn ? true : undefined}
+                        className={classesChamp}
+                      />
+                      {message(
+                        `etapes-${i}-acteurEn-erreur`,
+                        !!err?.acteurEn,
+                        t("erreurs.traduction"),
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label htmlFor={`etapes.${i}.libelleEn`} className="font-semibold">
+                        {t("champs.actionEn")}
+                        {facultatif}
+                      </label>
+                      <input
+                        id={`etapes.${i}.libelleEn`}
+                        lang="en"
+                        {...register(`etapes.${i}.libelleEn`)}
+                        aria-invalid={err?.libelleEn ? true : undefined}
+                        className={classesChamp}
+                      />
+                      {message(
+                        `etapes-${i}-libelleEn-erreur`,
+                        !!err?.libelleEn,
+                        t("erreurs.traduction"),
+                      )}
+                    </div>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <Bouton
@@ -232,7 +328,7 @@ export function FormulaireWorkflow({ code, enVigueur, enregistrer }: FormulaireW
               <Bouton
                 type="button"
                 variante="secondaire"
-                onClick={() => append({ acteur: "", libelle: "" })}
+                onClick={() => append({ acteur: "", libelle: "", acteurEn: "", libelleEn: "" })}
               >
                 <Plus aria-hidden="true" className="size-4" />
                 {t("ajouter")}

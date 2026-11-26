@@ -101,7 +101,12 @@ public class WorkflowRepository {
 
   private List<VersionWorkflow> versions(short workflowId) {
     Map<Integer, List<Etape>> etapes = new HashMap<>();
-    dsl.select(WORKFLOW_ETAPE.VERSION, WORKFLOW_ETAPE.ACTEUR, WORKFLOW_ETAPE.LIBELLE)
+    dsl.select(
+            WORKFLOW_ETAPE.VERSION,
+            WORKFLOW_ETAPE.ACTEUR,
+            WORKFLOW_ETAPE.LIBELLE,
+            WORKFLOW_ETAPE.ACTEUR_EN,
+            WORKFLOW_ETAPE.LIBELLE_EN)
         .from(WORKFLOW_ETAPE)
         .where(WORKFLOW_ETAPE.WORKFLOW_ID.eq(workflowId))
         .orderBy(WORKFLOW_ETAPE.VERSION, WORKFLOW_ETAPE.ORDRE)
@@ -110,7 +115,7 @@ public class WorkflowRepository {
             r ->
                 etapes
                     .computeIfAbsent(r.value1(), k -> new ArrayList<>())
-                    .add(new Etape(r.value2(), r.value3())));
+                    .add(new Etape(r.value2(), r.value3(), r.value4(), r.value5())));
     var proposeePar = UTILISATEUR.as("proposee_par");
     var decideePar = UTILISATEUR.as("decidee_par");
     Integer enVigueur = dsl.select(enVigueur(DSL.val(workflowId))).fetchOne(0, Integer.class);
@@ -140,7 +145,9 @@ public class WorkflowRepository {
                   vide(r.get("decideur", String.class)),
                   r.get(VERSION_WORKFLOW.DECIDEE_LE),
                   r.get(VERSION_WORKFLOW.MOTIF_REFUS),
-                  etapes.getOrDefault(version, List.of()));
+                  etapes.getOrDefault(version, List.of()),
+                  r.get(VERSION_WORKFLOW.LIBELLE_EN),
+                  r.get(VERSION_WORKFLOW.REGLE_PAIEMENT_EN));
             });
   }
 
@@ -164,14 +171,32 @@ public class WorkflowRepository {
       String reglePaiement,
       List<Etape> etapes,
       String motif,
-      LocalDate dateEffet) {
+      LocalDate dateEffet,
+      String libelleEn,
+      String reglePaiementEn) {
     String json =
         JSON.writeValueAsString(
             etapes.stream()
-                .map(e -> Map.of("acteur", e.acteur(), "libelle", e.libelle()))
+                .map(
+                    e -> {
+                      Map<String, String> m = new HashMap<>();
+                      m.put("acteur", e.acteur());
+                      m.put("libelle", e.libelle());
+                      m.put("acteur_en", e.acteurEn());
+                      m.put("libelle_en", e.libelleEn());
+                      return m;
+                    })
                 .toList());
     return Routines.fnProposerWorkflow(
-        dsl.configuration(), code, libelle, reglePaiement, JSONB.valueOf(json), motif, dateEffet);
+        dsl.configuration(),
+        code,
+        libelle,
+        reglePaiement,
+        JSONB.valueOf(json),
+        motif,
+        dateEffet,
+        libelleEn,
+        reglePaiementEn);
   }
 
   /**

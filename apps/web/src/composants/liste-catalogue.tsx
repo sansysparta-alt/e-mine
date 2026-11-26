@@ -1,6 +1,6 @@
 import type { TypeDocumentDto } from "@emine/api-client";
 import { Carte, formaterGnf } from "@emine/ui";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 export type ListeCatalogueProps = {
   documents: TypeDocumentDto[];
@@ -22,6 +22,8 @@ export function parFamille(documents: TypeDocumentDto[]) {
  * pièces requises, son signataire et ses tarifs.
  */
 export function ListeCatalogue({ documents }: ListeCatalogueProps) {
+  // Pièces en anglais quand la fiche en a une traduction complète (US-02.9).
+  const anglais = useLocale() === "en";
   const t = useTranslations("catalogue");
   return (
     <div className="flex flex-col gap-10">
@@ -63,8 +65,12 @@ export function ListeCatalogue({ documents }: ListeCatalogueProps) {
                   </dl>
                   <p className="mt-3 font-semibold">{t("pieces")}</p>
                   <ul className="mt-1 list-disc pl-6">
-                    {d.piecesRequises.map((p) => (
-                      <li key={p}>{p}</li>
+                    {d.piecesRequises.map((p, i) => (
+                      <li key={p}>
+                        {anglais && d.piecesRequisesEn.length === d.piecesRequises.length
+                          ? d.piecesRequisesEn[i]
+                          : p}
+                      </li>
                     ))}
                   </ul>
                 </Carte>

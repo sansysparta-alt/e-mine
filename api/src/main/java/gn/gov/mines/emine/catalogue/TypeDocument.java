@@ -17,6 +17,8 @@ import java.util.List;
  * @param signataireProfil code du profil qui décide et signe ce document (D4, V9), par exemple
  *     {@code MINISTRE}
  * @param tarifs montants en vigueur, en GNF entiers
+ * @param piecesRequisesEn pièces en anglais, dans le même ordre (vide : repli sur le français)
+ * @param instruitParEn service instructeur en anglais, ou {@code null}
  * @param actif document proposé au dépôt ; un document retiré du catalogue (US-02.2) ne se dépose
  *     plus, mais ses demandes en cours vont à leur terme
  */
@@ -34,11 +36,14 @@ public record TypeDocument(
     String signataireProfil,
     Tarifs tarifs,
     List<AvisRequis> avisRequis,
-    boolean actif) {
+    boolean actif,
+    List<String> piecesRequisesEn,
+    String instruitParEn) {
 
   public TypeDocument {
     piecesRequises = List.copyOf(piecesRequises);
     avisRequis = List.copyOf(avisRequis);
+    piecesRequisesEn = piecesRequisesEn == null ? List.of() : List.copyOf(piecesRequisesEn);
   }
 
   /**

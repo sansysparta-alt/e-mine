@@ -61,6 +61,8 @@ public class TypeDocumentRepository {
             TYPE_DOCUMENT.RENOUVELABLE,
             TYPE_DOCUMENT.PIECES_CLES,
             TYPE_DOCUMENT.INSTRUIT_PAR,
+            TYPE_DOCUMENT.PIECES_CLES_EN,
+            TYPE_DOCUMENT.INSTRUIT_PAR_EN,
             TYPE_DOCUMENT.SIGNE_PAR,
             TYPE_DOCUMENT.ACTIF,
             PROFIL.CODE,
@@ -90,7 +92,9 @@ public class TypeDocumentRepository {
                     r.get(PROFIL.CODE),
                     tarifs(tarifs.getOrDefault(r.get(TYPE_DOCUMENT.ID), Map.of())),
                     avis.getOrDefault(r.get(TYPE_DOCUMENT.ID), List.of()),
-                    r.get(TYPE_DOCUMENT.ACTIF)));
+                    r.get(TYPE_DOCUMENT.ACTIF),
+                    pieces(r.get(TYPE_DOCUMENT.PIECES_CLES_EN)),
+                    r.get(TYPE_DOCUMENT.INSTRUIT_PAR_EN)));
   }
 
   /**
@@ -115,6 +119,8 @@ public class TypeDocumentRepository {
             VERSION_DOCUMENT.DELAI_JOURS,
             VERSION_DOCUMENT.PIECES_CLES,
             VERSION_DOCUMENT.INSTRUIT_PAR,
+            VERSION_DOCUMENT.PIECES_CLES_EN,
+            VERSION_DOCUMENT.INSTRUIT_PAR_EN,
             VERSION_DOCUMENT.SIGNE_PAR,
             VERSION_DOCUMENT.SIGNATAIRE_PROFIL_ID,
             VERSION_DOCUMENT.AVIS_PROFILS,
@@ -146,7 +152,9 @@ public class TypeDocumentRepository {
                                 new TypeDocument.AvisRequis(
                                     codesProfils.get(id), libellesProfils.get(id)))
                         .toList(),
-                    r.get(VERSION_DOCUMENT.ACTIF)));
+                    r.get(VERSION_DOCUMENT.ACTIF),
+                    pieces(r.get(VERSION_DOCUMENT.PIECES_CLES_EN)),
+                    r.get(VERSION_DOCUMENT.INSTRUIT_PAR_EN)));
   }
 
   private static TypeDocument.Tarifs tarifs(Map<ObjetPaiement, Long> t) {

@@ -171,7 +171,7 @@ export default async function DetailWorkflow({ params, searchParams }: Props) {
             </div>
             <div>
               <dt className="font-semibold text-navy">{t("colonnes.paiements")}</dt>
-              <dd>{v.reglePaiement}</dd>
+              <dd>{(langue === "en" && v.reglePaiementEn) || v.reglePaiement}</dd>
             </div>
             <div>
               <dt className="font-semibold text-navy">{t("colonnes.delai")}</dt>

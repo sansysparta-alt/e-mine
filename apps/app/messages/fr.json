@@ -1404,7 +1404,9 @@
         "fraisDossierGnf": "Frais de dossier",
         "droitsGnf": "Droits",
         "attestationGnf": "Paiement unique (attestation)",
-        "tarifsDateEffet": "Entrée en vigueur des tarifs"
+        "tarifsDateEffet": "Entrée en vigueur des tarifs",
+        "piecesEn": "Pièces requises en anglais",
+        "instruitParEn": "Instruit par, en anglais"
       },
       "changements": {
         "champ": "Élément",
@@ -1524,7 +1526,8 @@
         "motifDesactivation": "Expliquez pourquoi le document quitte le catalogue (10 caractères au moins).",
         "tarifs": "Montants en francs guinéens entiers. Un paiement garde le montant en vigueur à sa création.",
         "tarifsDateEffet": "Aujourd’hui ou plus tard. Les tarifs s’appliquent à cette date, jamais avant la validation du Ministre.",
-        "instruitPar": "Service qui examine le dossier, tel qu’affiché aux usagers."
+        "instruitPar": "Service qui examine le dossier, tel qu’affiché aux usagers.",
+        "piecesEn": "Une traduction par ligne, dans le même ordre que les pièces en français. Vide : les usagers anglophones voient le français."
       },
       "actif": "Ce document peut être demandé (au catalogue)",
       "signataireChange": {
@@ -1548,7 +1551,9 @@
         "fraisDossierGnf": "Saisissez un montant entier positif en GNF.",
         "droitsGnf": "Saisissez un montant entier positif en GNF.",
         "attestationGnf": "Saisissez un montant entier positif en GNF.",
-        "tarifsDateEffet": "Choisissez une date d’entrée en vigueur à partir d’aujourd’hui."
+        "tarifsDateEffet": "Choisissez une date d’entrée en vigueur à partir d’aujourd’hui.",
+        "piecesEn": "Traduisez chaque pièce, une par ligne et dans le même ordre (sans virgule), ou laissez vide.",
+        "instruitParEn": "Laissez vide ou saisissez 2 à 150 caractères."
       },
       "echec": "La proposition n’a pas pu être envoyée",
       "indisponible": "Le service est momentanément indisponible. Réessayez dans un instant.",
@@ -1606,7 +1611,11 @@
         "reglePaiement": "Paiements (affichés)",
         "acteur": "Intervenant",
         "action": "Action",
-        "motif": "Motif de la modification"
+        "motif": "Motif de la modification",
+        "libelleEn": "Nom de la famille, en anglais",
+        "reglePaiementEn": "Paiements (affichés), en anglais",
+        "acteurEn": "Intervenant, en anglais",
+        "actionEn": "Action, en anglais"
       },
       "aide": {
         "reglePaiement": "Texte affiché. Les montants et les objets payés viennent des fiches des documents.",
@@ -1623,13 +1632,15 @@
         "reglePaiement": "De 3 à 300 caractères.",
         "acteur": "De 2 à 100 caractères.",
         "action": "De 2 à 150 caractères.",
-        "motif": "Expliquez la modification en 10 à 2 000 caractères."
+        "motif": "Expliquez la modification en 10 à 2 000 caractères.",
+        "traduction": "Laissez vide ou complétez la traduction (2 caractères au moins)."
       },
       "aucunChangement": "Rien n’a changé par rapport à la dernière version validée.",
       "echec": "La proposition n’a pas pu être envoyée",
       "indisponible": "Le service est momentanément indisponible. Réessayez dans un instant.",
       "annuler": "Annuler",
-      "enregistrer": "Soumettre au Ministre"
+      "enregistrer": "Soumettre au Ministre",
+      "facultatif": "facultatif"
     },
     "etapesNombre": "{n, plural, one {Circuit en # étape} other {Circuit en # étapes}}",
     "selonDocument": "selon le document",

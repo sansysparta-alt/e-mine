@@ -61,11 +61,14 @@ public record VersionFiche(
       boolean actif,
       Long fraisDossierGnf,
       Long droitsGnf,
-      Long attestationGnf) {
+      Long attestationGnf,
+      List<String> piecesEn,
+      String instruitParEn) {
 
     public ContenuFiche {
       pieces = List.copyOf(pieces);
       avis = List.copyOf(avis);
+      piecesEn = piecesEn == null ? List.of() : List.copyOf(piecesEn);
     }
   }
 

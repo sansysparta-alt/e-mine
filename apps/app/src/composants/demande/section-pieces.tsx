@@ -26,6 +26,8 @@ export function controlerFichier(f: { name: string; size: number; type: string }
 export type SectionPiecesProps = {
   demandeId: number;
   piecesRequises: string[];
+  /** Libellé affiché de chaque pièce, dans la langue de l'interface (US-02.9) ; défaut : le code. */
+  libelles?: Record<string, string>;
   /** Prévenu à chaque changement de la liste (récapitulatif, dépôt). */
   surChangement?: (pieces: PieceDto[]) => void;
   /**
@@ -58,6 +60,7 @@ async function lireErreur(r: Response): Promise<Erreur> {
 export function SectionPieces({
   demandeId,
   piecesRequises,
+  libelles,
   surChangement,
   depuis,
 }: SectionPiecesProps) {
@@ -145,6 +148,7 @@ export function SectionPieces({
           <li key={type}>
             <LignePiece
               type={type}
+              libelle={libelles?.[type]}
               obligatoire={type !== AUTRE_PIECE}
               pieces={pieces === null ? null : pieces.filter((p) => p.typePiece === type)}
               url={url}
@@ -161,6 +165,8 @@ export function SectionPieces({
 }
 
 type LignePieceProps = {
+  /** Libellé affiché (traduction de la pièce) ; défaut : le type. */
+  libelle?: string;
   type: string;
   obligatoire: boolean;
   /** `null` pendant le chargement. */
@@ -174,6 +180,7 @@ type LignePieceProps = {
 /** Une pièce attendue : état, bouton d'ajout (ou de remplacement), fichiers joints, erreurs. */
 function LignePiece({
   type,
+  libelle,
   obligatoire,
   pieces,
   url,
@@ -192,7 +199,7 @@ function LignePiece({
   const fournie = fichiers.length > 0;
   /** Une pièce obligatoire n'a qu'un fichier : en choisir un autre remplace le précédent. */
   const remplacer = obligatoire && fournie;
-  const titre = type === AUTRE_PIECE ? t("autre") : type;
+  const titre = type === AUTRE_PIECE ? t("autre") : (libelle ?? type);
 
   async function envoyer(fichier: File | undefined) {
     if (!fichier || envoi) return;

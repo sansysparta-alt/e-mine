@@ -1,5 +1,5 @@
 import type { EtapeDto } from "@emine/api-client";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 /**
  * Étapes d'un workflow en frise verticale : numéro, intervenant, action, reliés par un trait.
@@ -7,6 +7,8 @@ import { useTranslations } from "next-intl";
  */
 export function EtapesWorkflow({ etapes }: { etapes: EtapeDto[] }) {
   const t = useTranslations("workflows");
+  // Textes saisis par l'administrateur : l'anglais s'il existe (US-02.9), sinon le français.
+  const anglais = useLocale() === "en";
   return (
     <ol className="flex flex-col">
       {etapes.map((e, i) => (
@@ -25,8 +27,8 @@ export function EtapesWorkflow({ etapes }: { etapes: EtapeDto[] }) {
           </span>
           <span className="flex flex-col pt-0.5">
             <span className="sr-only">{t("etape", { n: i + 1, total: etapes.length })} : </span>
-            <span className="font-semibold text-navy">{e.acteur}</span>
-            <span className="text-texte-doux">{e.libelle}</span>
+            <span className="font-semibold text-navy">{(anglais && e.acteurEn) || e.acteur}</span>
+            <span className="text-texte-doux">{(anglais && e.libelleEn) || e.libelle}</span>
           </span>
         </li>
       ))}
