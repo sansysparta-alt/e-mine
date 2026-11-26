@@ -143,13 +143,17 @@ class EvenementsNotificationsTest extends TestIntegration {
       throws Exception {
     long id = DemandesDeTest.deposee(INVESTISSEUR, "PEX");
     String virement = paiementVirement(id, "now() + interval '1 day'");
-    DemandesDeTest.changerStatutPaiement(virement, "en_attente");
+    // Un virement déjà déclaré (en attente du relevé) n'est jamais alerté (US-04.7, V29).
+    long declare = DemandesDeTest.deposee(INVESTISSEUR, "PEX");
+    DemandesDeTest.changerStatutPaiement(
+        paiementVirement(declare, "now() + interval '1 day'"), "en_attente");
 
-    // J-2 : une seule alerte par référence, même si la tâche repasse.
+    // J-2 : une seule alerte par référence non déclarée, même si la tâche repasse.
     assertThat(envoi.alerterReferencesExpirantes()).isEqualTo(1);
     assertThat(envoi.alerterReferencesExpirantes()).isZero();
+    assertThat(modeles(declare)).isEmpty();
 
-    DemandesDeTest.changerStatutPaiement(virement, "a_verifier");
+    DemandesDeTest.changerStatutPaiement(virement, "en_attente", "a_verifier");
     long autre = DemandesDeTest.deposee(INVESTISSEUR, "PEX");
     String paye = paiementVirement(autre, "now() + interval '7 days'");
     DemandesDeTest.changerStatutPaiement(
