@@ -922,7 +922,8 @@
       "version_workflow": "Version de workflow",
       "workflow_etape": "Étape de workflow",
       "parametre_delai": "Règle des délais",
-      "notification_evenement": "Canaux de notification"
+      "notification_evenement": "Canaux de notification",
+      "version_regle_delai": "Version de la règle des délais"
     },
     "champs": {
       "statut": "Statut",
@@ -1008,7 +1009,17 @@
       "modele": "Événement",
       "code": "Code",
       "renouvelable": "Renouvelable",
-      "genere_titre": "Génère un titre"
+      "genere_titre": "Génère un titre",
+      "regle_paiement_en": "Paiements (anglais)",
+      "acteur_en": "Intervenant (anglais)",
+      "pieces_cles_en": "Pièces requises (anglais)",
+      "instruit_par_en": "Instruit par (anglais)",
+      "regle_delai_version": "Règle des délais au dépôt (version)",
+      "revoque_autorite": "Révoqué par",
+      "revoque_autorite_en": "Révoqué par (anglais)",
+      "revoque_le": "Révoqué le",
+      "revoque_par": "Révoqué par (n°)",
+      "titre": "Titre officiel"
     },
     "systeme": "Système",
     "systemeDetail": "Système (notification TrésorPay, tâche automatique ou migration)",
@@ -1045,13 +1056,21 @@
       "depart": {
         "paiement_frais": "Au paiement des frais",
         "depot": "Au dépôt"
+      },
+      "statutVersion": {
+        "a_valider": "À valider",
+        "publiee": "Validée",
+        "remplacee": "Remplacée",
+        "refusee": "Refusée",
+        "retiree": "Retirée"
       }
     },
     "renseigne": "renseigné",
     "systemeAide": "Action automatique de la plateforme",
     "objets": {
       "parametre_delai": "Règles de calcul des délais",
-      "tarif": "Barème des tarifs"
+      "tarif": "Barème des tarifs",
+      "version_regle_delai": "Règle des délais"
     }
   },
   "delivrance": {

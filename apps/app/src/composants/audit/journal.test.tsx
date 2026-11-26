@@ -34,6 +34,17 @@ describe("journal d'audit : valeurs lisibles (US-11.7)", () => {
     );
   });
 
+  it("traduit le statut d'une version gouvernée, jamais « a_valider »", () => {
+    const valeurs = traduire({ "statutVersion.retiree": "Retirée" });
+    expect(
+      formaterValeur("version_workflow", "statut", "retiree", { ...traductions, valeurs }),
+    ).toBe("Retirée");
+    // Chaque champ des tables du lot 4 a un libellé.
+    for (const c of ["pieces_cles_en", "instruit_par_en", "acteur_en", "revoque_autorite"]) {
+      expect(fr.audit.champs).toHaveProperty(c);
+    }
+  });
+
   it("nomme l'objet dans la langue de l'écran, jamais par une valeur brute", () => {
     const tAudit = traduire({ "objets.parametre_delai": "Règles de calcul des délais" });
     const canal = {

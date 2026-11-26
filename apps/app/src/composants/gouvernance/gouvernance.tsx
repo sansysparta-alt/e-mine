@@ -146,7 +146,7 @@ export function HistoriqueVersions<V extends VersionGouvernee>({
               v.etat === "remplacee" ||
               v.etat === "a_valider" ? (
                 <>
-                  {v.proposeePar ? " · " : null}
+                  {v.proposeePar || v.decideeLe ? " · " : null}
                   {t("depuis", { date: formaterDate(v.dateEffet) })}
                 </>
               ) : null}

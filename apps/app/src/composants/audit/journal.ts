@@ -76,6 +76,10 @@ export function formaterValeur(
   if (v && champ === "depart" && v.has(`depart.${valeur}`)) return v(`depart.${valeur}`);
   if (valeur === "true") return t.oui;
   if (valeur === "false") return t.non;
+  // Versions gouvernées (catalogue, workflows, règle des délais) : statut en clair.
+  if (champ === "statut" && table.startsWith("version_") && v?.has(`statutVersion.${valeur}`)) {
+    return v(`statutVersion.${valeur}`);
+  }
   if (champ === "statut") {
     const source =
       table === "paiement" ? t.statutsPaiement : table === "demande" ? t.statuts : null;
