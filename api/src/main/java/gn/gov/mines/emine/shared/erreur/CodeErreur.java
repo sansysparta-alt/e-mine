@@ -83,6 +83,10 @@ public enum CodeErreur {
   PAY_013("PAY-013", HttpStatus.CONFLICT),
   /** Paiement à associer introuvable : pas un virement en cours du même montant, US-04.9. */
   PAY_014("PAY-014", HttpStatus.UNPROCESSABLE_CONTENT),
+  /** Remboursement introuvable, US-04.10. */
+  PAY_015("PAY-015", HttpStatus.NOT_FOUND),
+  /** Remboursement non prévu par la règle en vigueur (frais d'une demande rejetée), V1-4. */
+  PAY_016("PAY-016", HttpStatus.CONFLICT),
   /** Format de fichier non accepté (PDF, JPG ou PNG). */
   DOC_001("DOC-001", HttpStatus.UNSUPPORTED_MEDIA_TYPE),
   /** Fichier trop volumineux (10 Mo au plus). */

@@ -44,12 +44,17 @@ class PaiementController {
   private final ServicePaiements service;
   private final ServicePaiementEnLigne enLigne;
   private final ServiceVirements virements;
+  private final gn.gov.mines.emine.paiement.application.ServiceRemboursements remboursements;
 
   PaiementController(
-      ServicePaiements service, ServicePaiementEnLigne enLigne, ServiceVirements virements) {
+      ServicePaiements service,
+      ServicePaiementEnLigne enLigne,
+      ServiceVirements virements,
+      gn.gov.mines.emine.paiement.application.ServiceRemboursements remboursements) {
     this.service = service;
     this.enLigne = enLigne;
     this.virements = virements;
+    this.remboursements = remboursements;
   }
 
   @GetMapping("/api/v1/demandes/{id}/paiements/a-payer")
@@ -214,6 +219,18 @@ class PaiementController {
             .infosJustificatif(p)
             .map(f -> new PaiementDto.FichierDto(f.nomFichier(), f.typeMime()))
             .orElse(null),
+        remboursements.duPaiement(p.id()).stream()
+            .map(
+                r ->
+                    new PaiementDto.RemboursementPaiementDto(
+                        r.numero(),
+                        r.statut(),
+                        r.montantGnf(),
+                        r.demandeLe(),
+                        r.executeLe(),
+                        r.referenceOrdre(),
+                        r.motifRefus()))
+            .toList(),
         new PaiementDto.CoordonneesVirementDto(c.beneficiaire(), c.banque(), c.iban(), c.bic()));
   }
 

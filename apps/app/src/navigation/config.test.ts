@@ -13,7 +13,13 @@ describe("configuration unique de la navigation", () => {
       "documents",
     ]);
     const fiscal = navigationPour({ permissions: ["ENCAISSER"], interne: true });
-    expect(cles(fiscal)).toEqual(["tableauDeBord", "mesDemandes", "aVerifier", "releves"]);
+    expect(cles(fiscal)).toEqual([
+      "tableauDeBord",
+      "mesDemandes",
+      "aVerifier",
+      "remboursements",
+      "releves",
+    ]);
     // Sections vides retirées ; « Encaissements » pour le Responsable fiscal (lot 5).
     expect(fiscal.map((s) => s.cle)).toEqual(["principal", "encaissements"]);
     const guichet = navigationPour({ permissions: ["INSTRUIRE"], interne: true });
