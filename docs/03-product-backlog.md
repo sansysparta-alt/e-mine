@@ -95,6 +95,8 @@
 | US-02.5 | En tant qu'administrateur, je paramètre les 5 workflows (étapes, intervenants, délais) | 5 | S |
 | US-02.6 | En tant qu'administrateur, je règle les paramètres des délais (départ, pauses, seuil « proche du dépassement ») | 2 | S |
 | US-02.7 | En tant qu'administrateur, je choisis les canaux (SMS, e-mail, application) de chaque notification | 2 | S |
+| US-02.8 | En tant que Ministre, je valide toute modification des workflows et de la règle des délais proposée par l'administrateur, appliquée à sa date d'effet | 5 | M |
+| US-02.9 | En tant qu'administrateur, je saisis en français et en anglais les textes que je paramètre (pièces, instruction, workflows) | 3 | M |
 
 **Critères d'acceptation**
 
@@ -102,6 +104,8 @@
 - **US-02.2** — Le signataire (Directeur, Directeur général, Ministre, Chef du BNE) est un paramètre du document (D4) ; modification tracée (ancienne et nouvelle valeur).
 - **US-02.3 / 02.4** — Un tarif a une date d'effet et une version ; seule une version validée s'applique ; un paiement garde le tarif en vigueur à sa création.
 - **US-02.5** — Un changement de workflow n'affecte pas les demandes en cours (`workflow_version`).
+- **US-02.8** — (lot 4) Même circuit que le catalogue : proposition de l'administrateur (motif, date d'effet ≥ aujourd'hui), une seule proposition ouverte (DOC-008), version identique refusée (DOC-010) ; validation ou refus motivé du Ministre, retrait par l'administrateur ; la version s'applique à sa date d'effet ; une demande garde la version de workflow et la règle des délais de son dépôt (`workflow_version`, `regle_delai_version`) ; tout est tracé (journal d'audit) ; compteurs du menu et alerte du tableau de bord du Ministre. Les canaux de notification restent réglés immédiatement (décision du 25/11/2026).
+- **US-02.9** — (lot 4) Champs FR et EN côte à côte pour les textes saisis par l'administrateur ; l'anglais est facultatif (repli sur le français, signalé) ; l'usager voit la langue de son interface.
 
 ### E03 · Dépôt d'une demande
 

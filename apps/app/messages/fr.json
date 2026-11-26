@@ -175,10 +175,12 @@
       "sansReponse": "Compléments sans réponse",
       "sansReponsePrecision": "Demandés par votre service, délai de réponse dépassé"
     },
-    "catalogue": {
-      "titre": "{nombre, plural, one {# modification du catalogue à valider} other {# modifications du catalogue à valider}}",
-      "texte": "Rien n’est publié au catalogue sans votre validation.",
-      "lien": "Voir les modifications"
+    "aValider": {
+      "titre": "{nombre, plural, one {# modification à valider} other {# modifications à valider}}",
+      "texte": "Rien ne change au catalogue, dans les workflows ni dans la règle des délais sans votre validation.",
+      "catalogue": "{n, plural, one {# fiche du catalogue} other {# fiches du catalogue}}",
+      "workflows": "{n, plural, one {# workflow} other {# workflows}}",
+      "delais": "La règle des délais"
     }
   },
   "demande": {
@@ -1560,8 +1562,8 @@
   "workflows": {
     "titre": "Workflows",
     "description": {
-      "admin": "Les 5 circuits du Ministère, un par famille de documents. Une modification s’applique tout de suite et est tracée ; les demandes en cours gardent le circuit de leur dépôt.",
-      "lecture": "Les 5 circuits du Ministère, un par famille de documents : étapes, intervenants, paiements et délais."
+      "admin": "Les 5 circuits du Ministère, un par famille de documents. Toute modification est validée par le Ministre puis appliquée à sa date d’effet ; les demandes en cours gardent le circuit de leur dépôt.",
+      "lecture": "Les 5 circuits du Ministère, un par famille de documents : étapes, intervenants, paiements et délais. Vous validez les modifications proposées par l’administrateur."
     },
     "colonnes": {
       "famille": "Famille et documents",
@@ -1577,7 +1579,7 @@
     "elements": "workflows",
     "vide": "Aucun workflow.",
     "etape": "Étape {n} sur {total}",
-    "modifier": "Modifier le workflow",
+    "modifier": "Proposer une modification",
     "enVigueur": "Circuit en vigueur (version {n})",
     "delaiAide": "Délais cibles des documents de la famille, fixés sur leur fiche et validés par le Ministre.",
     "affichage": "Ce circuit informe les usagers et les agents. Le traitement d’un dossier suit la fiche de son document (avis requis, signataire).",
@@ -1586,22 +1588,18 @@
     "par": "Modifiée le {date} par {nom}",
     "initiale": "Version initiale (schéma fourni par le Ministère).",
     "voirEtapes": "Voir les {n} étapes",
-    "enregistre": {
-      "titre": "C’est enregistré",
-      "texte": "La version v{n} est en vigueur et tracée au journal d’audit. Les demandes déjà déposées gardent leur circuit."
-    },
     "formulaire": {
-      "titre": "Modifier le workflow",
-      "description": "{libelle} — version en vigueur v{n}",
+      "titre": "Proposer une modification",
+      "description": "{libelle} — à partir de la dernière version validée (v{n})",
       "obligatoire": "obligatoire",
       "effet": {
-        "titre": "Effet immédiat",
-        "texte": "La nouvelle version s’applique dès l’enregistrement aux demandes déposées ensuite. Les demandes en cours gardent la version de leur dépôt."
+        "titre": "Validation du Ministre",
+        "texte": "Votre proposition est envoyée au Ministre. Validée, elle s’appliquera à la date d’effet choisie aux demandes déposées ensuite ; les demandes en cours gardent leur version."
       },
       "sections": {
         "famille": "Famille",
         "etapes": "Étapes et intervenants",
-        "motif": "Motif"
+        "motif": "Motif et date d’effet"
       },
       "champs": {
         "libelle": "Nom de la famille",
@@ -1627,22 +1625,28 @@
         "action": "De 2 à 150 caractères.",
         "motif": "Expliquez la modification en 10 à 2 000 caractères."
       },
-      "aucunChangement": "Rien n’a changé par rapport à la version en vigueur.",
-      "echec": "La modification n’a pas pu être enregistrée",
+      "aucunChangement": "Rien n’a changé par rapport à la dernière version validée.",
+      "echec": "La proposition n’a pas pu être envoyée",
       "indisponible": "Le service est momentanément indisponible. Réessayez dans un instant.",
       "annuler": "Annuler",
-      "enregistrer": "Enregistrer la nouvelle version"
+      "enregistrer": "Soumettre au Ministre"
     },
     "etapesNombre": "{n, plural, one {Circuit en # étape} other {Circuit en # étapes}}",
     "selonDocument": "selon le document",
     "documentsFamille": "Documents de cette famille",
-    "desactive": "désactivé"
+    "desactive": "désactivé",
+    "aValider": "Proposition {n} à valider",
+    "programmeeLe": "Version {n} le {date}",
+    "enVigueurCourt": "Version {n} en vigueur",
+    "decision": {
+      "aApprouverTitre": "{n, plural, one {# proposition de workflow à valider} other {# propositions de workflow à valider}}"
+    }
   },
   "parametres": {
     "titre": "Délais et notifications",
     "description": {
-      "admin": "Règle de calcul des délais et canaux de chaque notification. Une modification s’applique aussitôt et est tracée au journal d’audit.",
-      "lecture": "Règle de calcul des délais et canaux de chaque notification, réglés par l’administrateur."
+      "admin": "Règle de calcul des délais et canaux de chaque notification. La règle des délais est validée par le Ministre puis appliquée à sa date d’effet ; les canaux changent aussitôt. Tout est tracé au journal d’audit.",
+      "lecture": "Règle de calcul des délais et canaux de chaque notification. Vous validez les modifications de la règle des délais proposées par l’administrateur."
     },
     "provisoire": {
       "titre": "Choix à faire valider par le Ministère",
@@ -1672,13 +1676,28 @@
         "pourcentUnite": "%",
         "joursUnite": "jours"
       },
-      "enregistre": {
-        "titre": "C’est enregistré",
-        "texte": "La nouvelle règle s’applique déjà aux fiches, aux listes et aux tableaux de bord."
-      },
-      "echec": "La règle n’a pas pu être enregistrée",
+      "echec": "La proposition n’a pas pu être envoyée",
       "indisponible": "Le service est momentanément indisponible. Réessayez dans un instant.",
-      "enregistrer": "Enregistrer la règle des délais"
+      "enVigueur": "Règle en vigueur (version {n})",
+      "proposer": "Proposer une modification",
+      "proposerTitre": "Proposer une règle des délais",
+      "proposerDescription": "À partir de la dernière règle validée (v{n}). Le Ministre la validera avant qu’elle s’applique.",
+      "motif": "Motif de la modification",
+      "motifAide": "Pourquoi ce changement ? Le Ministre le lira. 10 caractères au moins.",
+      "erreursMotif": {
+        "court": "Expliquez la modification en 10 caractères au moins.",
+        "long": "Le motif dépasse 2 000 caractères : raccourcissez-le."
+      },
+      "aucunChangement": "Rien n’a changé par rapport à la dernière règle validée.",
+      "annuler": "Annuler",
+      "soumettre": "Soumettre au Ministre",
+      "resume": {
+        "depart": "Le délai commence",
+        "pauses": "Le délai est en pause",
+        "aucunePause": "Jamais",
+        "seuil": "« Proche du dépassement »",
+        "seuilValeur": "il reste au plus {pct} % du délai, et au moins {min, plural, =0 {0 jour} one {# jour} other {# jours}}"
+      }
     },
     "canaux": {
       "titre": "Canaux des notifications",
@@ -2101,5 +2120,56 @@
     "vider": "Effacer la période",
     "inverseeTitre": "Période incorrecte",
     "inversee": "La date de fin précède la date de début."
+  },
+  "gouvernance": {
+    "etats": {
+      "aValider": "À valider",
+      "enAttenteMinistre": "En attente du Ministre",
+      "enVigueur": "En vigueur",
+      "programmee": "Programmée",
+      "remplacee": "Remplacée",
+      "refusee": "Refusée",
+      "retiree": "Retirée"
+    },
+    "version": "Version {n}",
+    "proposee": "Proposée le {date} par {nom}",
+    "decision": {
+      "validee": "validée le {date} par {nom}",
+      "refusee": "refusée le {date} par {nom}",
+      "retiree": "retirée le {date} par {nom}",
+      "valideeSansNom": "validée le {date}",
+      "refuseeSansNom": "refusée le {date}",
+      "retireeSansNom": "retirée le {date}",
+      "initiale": "Version initiale (schéma fourni par le Ministère)"
+    },
+    "depuis": "applicable à partir du {date}",
+    "dateEffet": "S’appliquera aux demandes déposées à partir du {date}. Les demandes en cours gardent leur version.",
+    "proposition": {
+      "titre": "Proposition {n} à valider",
+      "aideMinistre": "Vérifiez la proposition, puis validez-la ou refusez-la. Rien ne change avant votre décision.",
+      "aideAdmin": "Le Ministre doit la valider. Vous pouvez la retirer tant qu’il n’a pas décidé.",
+      "motif": "Motif de la modification"
+    },
+    "motifRefus": "Motif du refus",
+    "historique": "Historique des versions",
+    "voirContenu": "Voir le contenu de la version {n}",
+    "champDate": {
+      "libelle": "Date d’effet",
+      "aide": "Aujourd’hui ou plus tard. À partir de cette date, les demandes déposées suivent la nouvelle version ; les demandes en cours gardent la leur.",
+      "erreur": "Choisissez aujourd’hui ou une date à venir."
+    },
+    "approbation": "La version s’appliquera à sa date d’effet (aujourd’hui au plus tôt) aux demandes déposées ensuite ; les demandes en cours gardent la leur. La validation est tracée à votre nom.",
+    "programmee": {
+      "titre": "Version {n} validée : elle s’appliquera le {date}",
+      "texte": "D’ici là, la version {actuelle} reste en vigueur."
+    },
+    "resultat": {
+      "titre": "C’est enregistré",
+      "approuver": "Version validée : elle s’applique à sa date d’effet aux demandes déposées ensuite.",
+      "refuser": "Proposition refusée : la version en vigueur ne change pas.",
+      "retirer": "Proposition retirée : la version en vigueur ne change pas.",
+      "proposee": "Proposition {n} envoyée au Ministre. Elle s’appliquera après sa validation, à la date d’effet choisie."
+    },
+    "circuit": "Toute modification est proposée par l’administrateur, validée par le Ministre puis appliquée à sa date d’effet. Tout est tracé au journal d’audit."
   }
 }

@@ -1,11 +1,24 @@
-import { lireParametresDelai, listerCanauxNotification } from "@emine/api-client";
-import { Alerte, Carte, EnTetePage } from "@emine/ui";
+import {
+  type DetailRegleDelaiDto,
+  lireParametresDelai,
+  listerCanauxNotification,
+  type VersionRegleDelaiDto,
+} from "@emine/api-client";
+import { Alerte, Bouton, Carte, EnTetePage, formaterDate } from "@emine/ui";
+import { FilePen } from "@emine/ui/icones";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { DecisionVersion } from "@/composants/catalogue/decision-version";
+import {
+  CarteProposition,
+  HistoriqueVersions,
+  type VersionGouvernee,
+} from "@/composants/gouvernance/gouvernance";
 import { FormulaireCanaux } from "@/composants/parametres/formulaire-canaux";
-import { FormulaireDelais } from "@/composants/parametres/formulaire-delais";
-import { enregistrerCanaux, enregistrerDelais } from "@/serveur/actions-parametres";
+import { ResumeRegleDelais } from "@/composants/parametres/resume-regle-delais";
+import { deciderDelais, enregistrerCanaux } from "@/serveur/actions-parametres";
 import { appelPage, chargerMoi, optionsApi } from "@/serveur/donnees";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -13,16 +26,28 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("titre") };
 }
 
+type Props = { searchParams: Promise<{ proposee?: string; resultat?: string }> };
+
+const RESULTATS = ["approuver", "refuser", "retirer"] as const;
+
+/** Dans un état donné, la version la plus récente. */
+function dans(d: DetailRegleDelaiDto, etat: string): VersionRegleDelaiDto | undefined {
+  return d.versions.find((v) => v.etat === etat);
+}
+
 /**
- * Délais et notifications (US-02.6, US-02.7) : règle des délais et canaux de chaque notification,
- * choix provisoires du porteur du projet à faire valider par le Ministère. L'administrateur modifie
- * (immédiat et tracé), le Ministre consulte.
+ * Délais et notifications (US-02.6, US-02.7, US-02.8) : règle des délais (proposée par
+ * l'administrateur, validée par le Ministre, appliquée à sa date d'effet) et canaux de chaque
+ * notification (réglés par l'administrateur, aussitôt). Choix provisoires à faire valider par le
+ * Ministère.
  */
-export default async function Parametres() {
+export default async function Parametres({ searchParams }: Props) {
   const moi = await chargerMoi();
   const admin = moi.permissions.includes("PARAMETRER");
   if (!moi.interne || (!admin && !moi.permissions.includes("VALIDER_CATALOGUE"))) notFound();
   const t = await getTranslations("parametres");
+  const tGouvernance = await getTranslations("gouvernance");
+  const { proposee, resultat } = await searchParams;
 
   const [delais, canaux] = await appelPage("/parametres", async () => {
     const options = await optionsApi();
@@ -31,6 +56,10 @@ export default async function Parametres() {
       listerCanauxNotification(options).then((r) => r.data),
     ]);
   });
+  const enVigueur = dans(delais, "en_vigueur");
+  const aValider = dans(delais, "a_valider");
+  const programmee = dans(delais, "programmee");
+  const resultatConnu = RESULTATS.find((r) => r === resultat);
 
   return (
     <div className="flex flex-col gap-6">
@@ -38,12 +67,77 @@ export default async function Parametres() {
         titre={t("titre")}
         description={t(admin ? "description.admin" : "description.lecture")}
       />
+      {proposee && /^\d{1,4}$/.test(proposee) ? (
+        <Alerte nature="succes" titre={tGouvernance("resultat.titre")}>
+          {tGouvernance("resultat.proposee", { n: Number(proposee) })}
+        </Alerte>
+      ) : null}
+      {resultatConnu ? (
+        <Alerte nature="succes" titre={tGouvernance("resultat.titre")}>
+          {tGouvernance(`resultat.${resultatConnu}`)}
+        </Alerte>
+      ) : null}
       <Alerte nature="info" titre={t("provisoire.titre")}>
         {t("provisoire.texte")}
       </Alerte>
-      <Carte titre={t("delais.titre")}>
-        <FormulaireDelais initial={delais} modifiable={admin} enregistrer={enregistrerDelais} />
+
+      {aValider ? (
+        <CarteProposition
+          v={aValider satisfies VersionGouvernee}
+          decideur={delais.peutDecider}
+          decision={
+            delais.peutDecider || admin ? (
+              <DecisionVersion
+                code="delais"
+                numero={aValider.version}
+                action={delais.peutDecider ? "DECIDER" : "ATTENDRE"}
+                changeSignataire={false}
+                desactive={false}
+                decider={deciderDelais}
+                adresseApres="/parametres"
+                texteApprobation={tGouvernance("approbation")}
+              />
+            ) : undefined
+          }
+        >
+          <ResumeRegleDelais regle={aValider.regle} />
+        </CarteProposition>
+      ) : null}
+
+      {programmee ? (
+        <Alerte
+          nature="info"
+          titre={tGouvernance("programmee.titre", {
+            n: programmee.version,
+            date: formaterDate(programmee.dateEffet),
+          })}
+        >
+          {tGouvernance("programmee.texte", { actuelle: enVigueur?.version ?? "" })}
+        </Alerte>
+      ) : null}
+
+      <Carte titre={t("delais.enVigueur", { n: enVigueur?.version ?? 1 })}>
+        <div className="flex flex-col gap-4">
+          <ResumeRegleDelais regle={delais.enVigueur} />
+          {delais.peutProposer ? (
+            <div>
+              <Bouton asChild variante="secondaire">
+                <Link href="/parametres/delais/proposer">
+                  <FilePen aria-hidden="true" className="size-5" />
+                  {t("delais.proposer")}
+                </Link>
+              </Bouton>
+            </div>
+          ) : null}
+        </div>
       </Carte>
+
+      <HistoriqueVersions
+        versions={delais.versions}
+        decideur={delais.peutDecider}
+        contenu={(v) => <ResumeRegleDelais regle={v.regle} />}
+      />
+
       <Carte titre={t("canaux.titre")}>
         <FormulaireCanaux initial={canaux} modifiable={admin} enregistrer={enregistrerCanaux} />
       </Carte>

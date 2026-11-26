@@ -23,14 +23,19 @@ export type DecisionVersionProps = {
     decision: "approuver" | "refuser" | "retirer",
     motif: string | null,
   ) => Promise<ResultatAction<null>>;
+  /** Page ouverte après la décision (défaut : la fiche du catalogue), sans « ?resultat=… ». */
+  adresseApres?: string;
+  /** Texte de la confirmation de validation (défaut : publication de la fiche). */
+  texteApprobation?: string;
 };
 
 type Choix = "approuver" | "refuser" | "retirer";
 
 /**
- * Décision sur une proposition de fiche (US-02.4) : le Ministre approuve (confirmation, rappel des
- * effets) ou refuse avec un motif ; l'administrateur peut retirer sa proposition. Aucune décision
- * n'est automatique ; l'API et la base contrôlent les droits.
+ * Décision sur une proposition (fiche du catalogue US-02.4, workflow et règle des délais US-02.8) :
+ * le Ministre valide (confirmation, rappel des effets) ou refuse avec un motif ; l'administrateur
+ * peut retirer sa proposition. Aucune décision n'est automatique ; l'API et la base contrôlent les
+ * droits.
  */
 export function DecisionVersion({
   code,
@@ -39,6 +44,8 @@ export function DecisionVersion({
   changeSignataire,
   desactive,
   decider,
+  adresseApres,
+  texteApprobation,
 }: DecisionVersionProps) {
   const t = useTranslations("catalogue.decision");
   const tMotif = useTranslations("instruction.motif");
@@ -68,7 +75,7 @@ export function DecisionVersion({
     demarrer(async () => {
       const r = await decider(code, numero, choix, choix === "refuser" ? motif : null);
       if (r.ok) {
-        router.push(`/catalogue/${code}?resultat=${choix}`);
+        router.push(`${adresseApres ?? `/catalogue/${code}`}?resultat=${choix}`);
         router.refresh();
         return;
       }
@@ -136,7 +143,13 @@ export function DecisionVersion({
         }
       >
         <div className="flex flex-col gap-4">
-          <p>{choix ? t(`confirmation.${choix}.texte`) : null}</p>
+          <p>
+            {choix === "approuver" && texteApprobation
+              ? texteApprobation
+              : choix
+                ? t(`confirmation.${choix}.texte`)
+                : null}
+          </p>
           {choix === "approuver" && changeSignataire ? (
             <Alerte nature="avertissement" titre={t("signataire.titre")}>
               {t("signataire.texte")}

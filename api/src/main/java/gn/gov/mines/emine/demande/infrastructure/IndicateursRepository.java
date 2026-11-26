@@ -3,8 +3,8 @@ package gn.gov.mines.emine.demande.infrastructure;
 import static gn.gov.mines.emine.shared.jooq.Tables.DEMANDE;
 import static gn.gov.mines.emine.shared.jooq.Tables.HISTORIQUE_STATUT_DEMANDE;
 import static gn.gov.mines.emine.shared.jooq.Tables.PAIEMENT;
-import static gn.gov.mines.emine.shared.jooq.Tables.PARAMETRE_DELAI;
 import static gn.gov.mines.emine.shared.jooq.Tables.TYPE_DOCUMENT;
+import static gn.gov.mines.emine.shared.jooq.Tables.VERSION_REGLE_DELAI;
 
 import gn.gov.mines.emine.demande.domaine.Indicateurs;
 import gn.gov.mines.emine.demande.domaine.Periode;
@@ -159,9 +159,12 @@ public class IndicateursRepository {
         parametresDelai());
   }
 
-  /** Règle des délais en vigueur (table {@code parametre_delai}, une ligne). */
+  /** Règle des délais en vigueur aujourd'hui (V27 : version approuvée dont la date est arrivée). */
   public RegleDelais.Parametres parametresDelai() {
-    var p = dsl.selectFrom(PARAMETRE_DELAI).fetchSingle();
+    var p =
+        dsl.selectFrom(VERSION_REGLE_DELAI)
+            .where(VERSION_REGLE_DELAI.VERSION.eq(ParametresDelaiRepository.EN_VIGUEUR))
+            .fetchSingle();
     return new RegleDelais.Parametres(
         p.getDepart(),
         p.getPauseComplement(),

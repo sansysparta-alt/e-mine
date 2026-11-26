@@ -8,9 +8,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import type { ResultatAction } from "@/serveur/erreurs-formulaire";
+import { aujourdhuiConakry, ChampDateEffet, dateEffetValide } from "../gouvernance/gouvernance";
 
 /** Bornes communes avec l'API et la base (V20). */
 export const ETAPES_MAX = 12;
@@ -28,6 +29,7 @@ export const schemaWorkflow = z.object({
     .min(1)
     .max(ETAPES_MAX),
   motif: z.string().trim().min(10).max(2000),
+  dateEffet: z.string().refine((d) => dateEffetValide(d)),
 });
 
 type Valeurs = z.infer<typeof schemaWorkflow>;
@@ -42,12 +44,14 @@ export type FormulaireWorkflowProps = {
 };
 
 /**
- * Modification d'un workflow (US-02.5) : libellé, règle de paiement affichée et étapes ordonnées
- * (ajouter, retirer, monter, descendre), motif obligatoire. Immédiat et tracé ; les demandes en
- * cours gardent la version de leur dépôt.
+ * Proposition de modification d'un workflow (US-02.5, US-02.8) : libellé, règle de paiement
+ * affichée et étapes ordonnées (ajouter, retirer, monter, descendre), motif et date d'effet
+ * obligatoires. Envoyée au Ministre, qui la valide ou la refuse ; les demandes en cours gardent la
+ * version de leur dépôt.
  */
 export function FormulaireWorkflow({ code, enVigueur, enregistrer }: FormulaireWorkflowProps) {
   const t = useTranslations("workflows.formulaire");
+  const tGouvernance = useTranslations("gouvernance");
   const router = useRouter();
   const [erreurApi, setErreurApi] = useState<string | null>(null);
   const [enCours, demarrer] = useTransition();
@@ -63,6 +67,7 @@ export function FormulaireWorkflow({ code, enVigueur, enregistrer }: FormulaireW
       reglePaiement: enVigueur.reglePaiement,
       etapes: enVigueur.etapes.map((e) => ({ acteur: e.acteur, libelle: e.libelle })),
       motif: "",
+      dateEffet: aujourdhuiConakry(),
     },
   });
   const { fields, append, remove, move } = useFieldArray({ control, name: "etapes" });
@@ -72,7 +77,7 @@ export function FormulaireWorkflow({ code, enVigueur, enregistrer }: FormulaireW
     demarrer(async () => {
       const r = await enregistrer(code, v);
       if (r.ok) {
-        router.push(`/workflows/${code}?version=${r.valeur.version}`);
+        router.push(`/workflows/${code}?proposee=${r.valeur.version}`);
         router.refresh();
         return;
       }
@@ -240,23 +245,37 @@ export function FormulaireWorkflow({ code, enVigueur, enregistrer }: FormulaireW
       </Carte>
 
       <Carte titre={t("sections.motif")}>
-        <div className="flex flex-col gap-1">
-          <label htmlFor="motif" className="font-semibold">
-            {t("champs.motif")}
-            {obligatoire}
-          </label>
-          <p id="motif-aide" className="text-sm text-texte-doux">
-            {t("aide.motif")}
-          </p>
-          <textarea
-            id="motif"
-            rows={3}
-            {...register("motif")}
-            aria-invalid={errors.motif ? true : undefined}
-            aria-describedby={errors.motif ? "motif-aide motif-erreur" : "motif-aide"}
-            className={classesChamp}
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-1">
+            <label htmlFor="motif" className="font-semibold">
+              {t("champs.motif")}
+              {obligatoire}
+            </label>
+            <p id="motif-aide" className="text-sm text-texte-doux">
+              {t("aide.motif")}
+            </p>
+            <textarea
+              id="motif"
+              rows={3}
+              {...register("motif")}
+              aria-invalid={errors.motif ? true : undefined}
+              aria-describedby={errors.motif ? "motif-aide motif-erreur" : "motif-aide"}
+              className={classesChamp}
+            />
+            {message("motif-erreur", !!errors.motif, t("erreurs.motif"))}
+          </div>
+          <Controller
+            control={control}
+            name="dateEffet"
+            render={({ field }) => (
+              <ChampDateEffet
+                id="dateEffet"
+                valeur={field.value}
+                surChangement={field.onChange}
+                erreur={errors.dateEffet ? tGouvernance("champDate.erreur") : undefined}
+              />
+            )}
           />
-          {message("motif-erreur", !!errors.motif, t("erreurs.motif"))}
         </div>
       </Carte>
 

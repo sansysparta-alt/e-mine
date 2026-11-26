@@ -65,52 +65,6 @@
         }
       }
     },
-    "/api/v1/parametres/delais" : {
-      "get" : {
-        "tags" : [ "Demandes" ],
-        "summary" : "Règle des délais en vigueur",
-        "operationId" : "lireParametresDelai",
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "*/*" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ParametresDelaiDto"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put" : {
-        "tags" : [ "Demandes" ],
-        "summary" : "Modifie la règle des délais (s'applique aussitôt à tous les calculs)",
-        "operationId" : "modifierParametresDelai",
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/ParametresDelaiDto"
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "*/*" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ParametresDelaiDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v1/demandes/{id}" : {
       "get" : {
         "tags" : [ "Demandes" ],
@@ -197,8 +151,8 @@
     "/api/v1/workflows/{code}/versions" : {
       "post" : {
         "tags" : [ "Catalogue" ],
-        "summary" : "Nouvelle version du workflow (immédiate, tracée ; sans effet sur les demandes en cours)",
-        "operationId" : "modifierWorkflow",
+        "summary" : "L'administrateur propose une nouvelle version, à valider par le Ministre",
+        "operationId" : "proposerWorkflow",
         "parameters" : [ {
           "name" : "code",
           "in" : "path",
@@ -225,6 +179,219 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/VersionCreeeDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/workflows/{code}/versions/{version}/retrait" : {
+      "post" : {
+        "tags" : [ "Catalogue" ],
+        "summary" : "L'administrateur retire sa proposition avant la décision du Ministre",
+        "operationId" : "retirerWorkflow",
+        "parameters" : [ {
+          "name" : "code",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "^[A-Z_]{2,30}$"
+          }
+        }, {
+          "name" : "version",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        }
+      }
+    },
+    "/api/v1/workflows/{code}/versions/{version}/refus" : {
+      "post" : {
+        "tags" : [ "Catalogue" ],
+        "summary" : "Le Ministre refuse la proposition",
+        "operationId" : "refuserWorkflow",
+        "parameters" : [ {
+          "name" : "code",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "^[A-Z_]{2,30}$"
+          }
+        }, {
+          "name" : "version",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/MotifRefusDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        }
+      }
+    },
+    "/api/v1/workflows/{code}/versions/{version}/approbation" : {
+      "post" : {
+        "tags" : [ "Catalogue" ],
+        "summary" : "Le Ministre valide : la version s'applique à sa date d'effet",
+        "operationId" : "approuverWorkflow",
+        "parameters" : [ {
+          "name" : "code",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "^[A-Z_]{2,30}$"
+          }
+        }, {
+          "name" : "version",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApprobationDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/parametres/delais/versions" : {
+      "post" : {
+        "tags" : [ "Demandes" ],
+        "summary" : "L'administrateur propose une nouvelle règle, à valider par le Ministre",
+        "operationId" : "proposerRegleDelai",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PropositionRegleDelaiDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Created",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/VersionProposeeDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/parametres/delais/versions/{version}/retrait" : {
+      "post" : {
+        "tags" : [ "Demandes" ],
+        "summary" : "L'administrateur retire sa proposition avant la décision du Ministre",
+        "operationId" : "retirerRegleDelai",
+        "parameters" : [ {
+          "name" : "version",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        }
+      }
+    },
+    "/api/v1/parametres/delais/versions/{version}/refus" : {
+      "post" : {
+        "tags" : [ "Demandes" ],
+        "summary" : "Le Ministre refuse la proposition",
+        "operationId" : "refuserRegleDelai",
+        "parameters" : [ {
+          "name" : "version",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/MotifRefusDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        }
+      }
+    },
+    "/api/v1/parametres/delais/versions/{version}/approbation" : {
+      "post" : {
+        "tags" : [ "Demandes" ],
+        "summary" : "Le Ministre valide : la règle s'applique à sa date d'effet",
+        "operationId" : "approuverRegleDelai",
+        "parameters" : [ {
+          "name" : "version",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApprobationDto"
                 }
               }
             }
@@ -1525,6 +1692,25 @@
         }
       }
     },
+    "/api/v1/parametres/delais" : {
+      "get" : {
+        "tags" : [ "Demandes" ],
+        "summary" : "Règle des délais en vigueur, propositions et historique",
+        "operationId" : "lireParametresDelai",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DetailRegleDelaiDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/paiements" : {
       "get" : {
         "tags" : [ "Paiements" ],
@@ -2412,34 +2598,6 @@
         },
         "required" : [ "email", "interne", "libelleEn", "libelleFr", "modele", "sms" ]
       },
-      "ParametresDelaiDto" : {
-        "type" : "object",
-        "properties" : {
-          "depart" : {
-            "type" : "string",
-            "pattern" : "^(paiement_frais|depot)$"
-          },
-          "pauseComplement" : {
-            "type" : "boolean"
-          },
-          "pauseDroits" : {
-            "type" : "boolean"
-          },
-          "seuilProchePourcent" : {
-            "type" : "integer",
-            "format" : "int32",
-            "maximum" : 100,
-            "minimum" : 1
-          },
-          "seuilProcheMinJours" : {
-            "type" : "integer",
-            "format" : "int32",
-            "maximum" : 30,
-            "minimum" : 0
-          }
-        },
-        "required" : [ "depart", "pauseComplement", "pauseDroits", "seuilProcheMinJours", "seuilProchePourcent" ]
-      },
       "BrouillonDto" : {
         "type" : "object",
         "properties" : {
@@ -2633,11 +2791,83 @@
             "type" : "string",
             "maxLength" : 2000,
             "minLength" : 10
+          },
+          "dateEffet" : {
+            "type" : "string",
+            "format" : "date"
           }
         },
-        "required" : [ "etapes", "libelle", "motif", "reglePaiement" ]
+        "required" : [ "dateEffet", "etapes", "libelle", "motif", "reglePaiement" ]
       },
       "VersionCreeeDto" : {
+        "type" : "object",
+        "properties" : {
+          "version" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "version" ]
+      },
+      "MotifRefusDto" : {
+        "type" : "object",
+        "properties" : {
+          "motif" : {
+            "type" : "string",
+            "maxLength" : 2000,
+            "minLength" : 10
+          }
+        },
+        "required" : [ "motif" ]
+      },
+      "ApprobationDto" : {
+        "type" : "object",
+        "properties" : {
+          "dateEffet" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        },
+        "required" : [ "dateEffet" ]
+      },
+      "PropositionRegleDelaiDto" : {
+        "type" : "object",
+        "properties" : {
+          "depart" : {
+            "type" : "string",
+            "pattern" : "^(paiement_frais|depot)$"
+          },
+          "pauseComplement" : {
+            "type" : "boolean"
+          },
+          "pauseDroits" : {
+            "type" : "boolean"
+          },
+          "seuilProchePourcent" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 100,
+            "minimum" : 1
+          },
+          "seuilProcheMinJours" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 30,
+            "minimum" : 0
+          },
+          "dateEffet" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "motif" : {
+            "type" : "string",
+            "maxLength" : 2000,
+            "minLength" : 10
+          }
+        },
+        "required" : [ "dateEffet", "depart", "motif", "pauseComplement", "pauseDroits", "seuilProcheMinJours", "seuilProchePourcent" ]
+      },
+      "VersionProposeeDto" : {
         "type" : "object",
         "properties" : {
           "version" : {
@@ -3200,9 +3430,13 @@
           "totalPages" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "aValider" : {
+            "type" : "integer",
+            "format" : "int64"
           }
         },
-        "required" : [ "elements", "page", "taille", "total", "totalPages" ]
+        "required" : [ "aValider", "elements", "page", "taille", "total", "totalPages" ]
       },
       "VersionWorkflowDto" : {
         "type" : "object",
@@ -3210,6 +3444,9 @@
           "version" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "etat" : {
+            "type" : "string"
           },
           "libelle" : {
             "type" : "string"
@@ -3227,6 +3464,20 @@
             "type" : "string",
             "format" : "date-time"
           },
+          "dateEffet" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "decideePar" : {
+            "type" : [ "string", "null" ]
+          },
+          "decideeLe" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "motifRefus" : {
+            "type" : [ "string", "null" ]
+          },
           "etapes" : {
             "type" : "array",
             "items" : {
@@ -3234,7 +3485,7 @@
             }
           }
         },
-        "required" : [ "etapes", "libelle", "modifieeLe", "modifieePar", "motif", "reglePaiement", "version" ]
+        "required" : [ "dateEffet", "decideeLe", "decideePar", "etapes", "etat", "libelle", "modifieeLe", "modifieePar", "motif", "motifRefus", "reglePaiement", "version" ]
       },
       "WorkflowDto" : {
         "type" : "object",
@@ -3258,9 +3509,23 @@
           },
           "enVigueur" : {
             "$ref" : "#/components/schemas/VersionWorkflowDto"
+          },
+          "aValider" : {
+            "oneOf" : [ {
+              "$ref" : "#/components/schemas/VersionWorkflowDto"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "programmee" : {
+            "oneOf" : [ {
+              "$ref" : "#/components/schemas/VersionWorkflowDto"
+            }, {
+              "type" : "null"
+            } ]
           }
         },
-        "required" : [ "code", "delaiMaxJours", "delaiMinJours", "documents", "enVigueur" ]
+        "required" : [ "aValider", "code", "delaiMaxJours", "delaiMinJours", "documents", "enVigueur", "programmee" ]
       },
       "DetailWorkflowDto" : {
         "type" : "object",
@@ -3274,11 +3539,14 @@
               "$ref" : "#/components/schemas/VersionWorkflowDto"
             }
           },
-          "peutModifier" : {
+          "peutProposer" : {
+            "type" : "boolean"
+          },
+          "peutDecider" : {
             "type" : "boolean"
           }
         },
-        "required" : [ "peutModifier", "versions", "workflow" ]
+        "required" : [ "peutDecider", "peutProposer", "versions", "workflow" ]
       },
       "VerificationDto" : {
         "type" : "object",
@@ -3430,6 +3698,95 @@
           }
         },
         "required" : [ "id", "nom", "region" ]
+      },
+      "DetailRegleDelaiDto" : {
+        "type" : "object",
+        "properties" : {
+          "enVigueur" : {
+            "$ref" : "#/components/schemas/ParametresDelaiDto"
+          },
+          "versions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/VersionRegleDelaiDto"
+            }
+          },
+          "peutProposer" : {
+            "type" : "boolean"
+          },
+          "peutDecider" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "enVigueur", "peutDecider", "peutProposer", "versions" ]
+      },
+      "ParametresDelaiDto" : {
+        "type" : "object",
+        "properties" : {
+          "depart" : {
+            "type" : "string",
+            "pattern" : "^(paiement_frais|depot)$"
+          },
+          "pauseComplement" : {
+            "type" : "boolean"
+          },
+          "pauseDroits" : {
+            "type" : "boolean"
+          },
+          "seuilProchePourcent" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 100,
+            "minimum" : 1
+          },
+          "seuilProcheMinJours" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 30,
+            "minimum" : 0
+          }
+        },
+        "required" : [ "depart", "pauseComplement", "pauseDroits", "seuilProcheMinJours", "seuilProchePourcent" ]
+      },
+      "VersionRegleDelaiDto" : {
+        "type" : "object",
+        "properties" : {
+          "version" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "etat" : {
+            "type" : "string"
+          },
+          "regle" : {
+            "$ref" : "#/components/schemas/ParametresDelaiDto"
+          },
+          "dateEffet" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "motif" : {
+            "type" : "string"
+          },
+          "proposeePar" : {
+            "type" : [ "string", "null" ]
+          },
+          "proposeeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "decideePar" : {
+            "type" : [ "string", "null" ]
+          },
+          "decideeLe" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "motifRefus" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "dateEffet", "decideeLe", "decideePar", "etat", "motif", "motifRefus", "proposeeLe", "proposeePar", "regle", "version" ]
       },
       "CompteursPaiementsDto" : {
         "type" : "object",

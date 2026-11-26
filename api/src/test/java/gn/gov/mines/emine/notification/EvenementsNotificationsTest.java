@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,6 +53,18 @@ class EvenementsNotificationsTest extends TestIntegration {
   @BeforeAll
   void personas() throws Exception {
     Personas.charger();
+  }
+
+  /**
+   * Canaux par défaut rétablis (V24) : les autres tests en dépendent (SMS seulement là où l'usager
+   * doit agir).
+   */
+  @AfterAll
+  void retablirLesCanaux() throws Exception {
+    executer(
+        "UPDATE notification_evenement SET email = true, interne = true, sms = modele IN"
+            + " ('COMPLEMENT_DEMANDE', 'COMPLEMENT_RELANCE', 'DECISION_DROITS',"
+            + " 'REFERENCE_EXPIRE_BIENTOT', 'DOCUMENT_DELIVRE')");
   }
 
   @BeforeEach

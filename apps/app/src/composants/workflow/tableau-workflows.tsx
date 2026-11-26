@@ -3,6 +3,7 @@ import { type ComposantLien, formaterDate, TableauDonnees } from "@emine/ui";
 import { ChevronRight } from "@emine/ui/icones";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
+import { BadgeVersion } from "../gouvernance/gouvernance";
 import { libelleDocument, libelleWorkflow } from "../referentiels";
 
 const LienNext: ComposantLien = ({ href, children, ...props }) => (
@@ -78,7 +79,16 @@ export function DocumentsFamille({
  * Les workflows (US-02.5) : famille et ses documents (code et nom), circuit compact, délais,
  * version ; la ligne entière ouvre le workflow.
  */
-export function TableauWorkflows({ lignes, legende }: { lignes: WorkflowDto[]; legende: string }) {
+export function TableauWorkflows({
+  lignes,
+  legende,
+  decideur = false,
+}: {
+  lignes: WorkflowDto[];
+  legende: string;
+  /** Le profil connecté valide les propositions (Ministre) : « À valider » en orange. */
+  decideur?: boolean;
+}) {
   const t = useTranslations("workflows");
   const tReferentiels = useTranslations("referentiels");
   const fourchette = useFourchette();
@@ -131,8 +141,21 @@ export function TableauWorkflows({ lignes, legende }: { lignes: WorkflowDto[]; l
             <span className="flex flex-col whitespace-nowrap">
               <span>{t("version", { n: w.enVigueur.version })}</span>
               <span className="text-sm text-texte-doux">
-                {t("modifieeLe", { date: formaterDate(w.enVigueur.modifieeLe) })}
+                {t("modifieeLe", { date: formaterDate(w.enVigueur.dateEffet) })}
               </span>
+              {/* Un seul badge : la proposition en attente ; sinon la version programmée. */}
+              {w.aValider ? (
+                <span className="mt-1">
+                  <BadgeVersion etat="a_valider" decideur={decideur} />
+                </span>
+              ) : w.programmee ? (
+                <span className="text-sm text-royal">
+                  {t("programmeeLe", {
+                    n: w.programmee.version,
+                    date: formaterDate(w.programmee.dateEffet),
+                  })}
+                </span>
+              ) : null}
             </span>
           ),
         },
