@@ -1316,6 +1316,7 @@
       "paiement": "Payment",
       "controle": "File check",
       "instruction": "Review",
+      "decision": "Decision",
       "paiement-droits": "Duties payment",
       "signe": "Signed document"
     },
@@ -1332,7 +1333,7 @@
     },
     "precisions": {
       "avis": "Opinions pending: {profils}",
-      "examenTechnique": "Technical review by the services, then decision: {signataire}",
+      "examenTechnique": "Technical review by the departments",
       "decision": "Decision pending: {signataire}"
     }
   },

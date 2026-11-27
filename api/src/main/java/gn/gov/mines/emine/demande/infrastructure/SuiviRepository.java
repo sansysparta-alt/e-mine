@@ -40,6 +40,9 @@ public class SuiviRepository {
    */
   public record Lecture(String typeDocumentCode, RegleSuivi.Situation situation) {}
 
+  /**
+   * @param droitsRequis le document (code) a des droits à payer (catalogue)
+   */
   public Optional<Lecture> lire(long id, java.util.function.Predicate<String> droitsRequis) {
     Field<Instant> fraisLe = paiementLe(ObjetPaiement.FRAIS_DOSSIER, ObjetPaiement.ATTESTATION);
     Field<Instant> droitsLe = paiementLe(ObjetPaiement.DROITS);
@@ -54,6 +57,7 @@ public class SuiviRepository {
             DSL.select(DSL.max(DOCUMENT_DELIVRE.DELIVRE_LE))
                 .from(DOCUMENT_DELIVRE)
                 .where(DOCUMENT_DELIVRE.DEMANDE_ID.eq(DEMANDE.ID)));
+    Field<Instant> avisRendusLe = entreeDansLeStatut(StatutDemande.avis_rendu);
     Field<Instant> rejetLe =
         DSL.field(
             DSL.select(DSL.max(HISTORIQUE_STATUT_DEMANDE.CREATED_AT))
@@ -75,6 +79,8 @@ public class SuiviRepository {
             DemandeRepository.FRAIS_PAYES,
             fraisLe,
             droitsLe,
+            avisRendusLe,
+            DemandeRepository.AVIS_REQUIS,
             decisionLe,
             delivreLe,
             rejetLe,
@@ -94,16 +100,27 @@ public class SuiviRepository {
                       r.get(DEMANDE.STATUT).getLiteral(),
                       Boolean.TRUE.equals(r.get(DemandeRepository.FRAIS_PAYES)),
                       droitsRequis.test(code),
+                      Boolean.TRUE.equals(r.get(DemandeRepository.AVIS_REQUIS)),
                       o == null ? null : o.getLiteral(),
                       new RegleSuivi.Dates(
                           r.get(DEMANDE.DATE_DEPOT),
                           r.get(fraisLe),
                           r.get(DEMANDE.DATE_RECEVABILITE),
+                          r.get(avisRendusLe),
                           r.get(decisionLe),
                           r.get(droitsLe),
                           r.get(delivreLe),
                           r.get(rejetLe))));
             });
+  }
+
+  /** Dernière entrée de la demande dans ce statut (historique tenu par la base). */
+  private static Field<Instant> entreeDansLeStatut(StatutDemande statut) {
+    return DSL.field(
+        DSL.select(DSL.max(HISTORIQUE_STATUT_DEMANDE.CREATED_AT))
+            .from(HISTORIQUE_STATUT_DEMANDE)
+            .where(HISTORIQUE_STATUT_DEMANDE.DEMANDE_ID.eq(DEMANDE.ID))
+            .and(HISTORIQUE_STATUT_DEMANDE.NOUVEAU_STATUT.eq(statut)));
   }
 
   /** Date du paiement (payé) le plus récent de ces objets pour la demande. */

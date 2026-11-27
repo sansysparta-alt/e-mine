@@ -582,15 +582,39 @@ public class DemandeRepository {
               .where(DOCUMENT_DELIVRE.DEMANDE_ID.eq(DEMANDE.ID))
               .and(DOCUMENT_DELIVRE.STATUT.eq(StatutDocument.non_valide)));
 
+  /** La fiche du dépôt demande des avis techniques (V18, {@code fn_avis_requis}). */
+  static final Field<Boolean> AVIS_REQUIS =
+      DSL.field(DSL.cardinality(Routines.fnAvisRequis(DEMANDE.ID)).gt(0)).as("avis_requis");
+
   static final Field<Boolean> DOCUMENT_REVOQUE =
       DSL.field(DOCUMENT_REVOQUE_COND).as("document_revoque");
 
-  /** Entrée dans le statut actuel : dernier changement de statut (historique tenu par la base). */
-  static final Field<java.time.Instant> ETAPE_DEPUIS_BRUT =
+  /** Dernier changement de statut (historique tenu par la base). */
+  private static final Field<java.time.Instant> DERNIER_CHANGEMENT_STATUT =
       DSL.field(
           DSL.select(DSL.max(HISTORIQUE_STATUT_DEMANDE.CREATED_AT))
               .from(HISTORIQUE_STATUT_DEMANDE)
               .where(HISTORIQUE_STATUT_DEMANDE.DEMANDE_ID.eq(DEMANDE.ID)));
+
+  /** Paiement des frais (ou de l'attestation) : date du paiement payé le plus récent. */
+  private static final Field<java.time.Instant> FRAIS_PAYES_LE =
+      DSL.field(
+          DSL.select(DSL.max(PAIEMENT.DATE_PAIEMENT))
+              .from(PAIEMENT)
+              .where(PAIEMENT.DEMANDE_ID.eq(DEMANDE.ID))
+              .and(PAIEMENT.OBJET.in(ObjetPaiement.FRAIS_DOSSIER, ObjetPaiement.ATTESTATION))
+              .and(PAIEMENT.STATUT.eq(StatutPaiement.paye)));
+
+  /**
+   * Entrée dans l'étape actuelle (US-07.6) : dernier changement de statut, ou paiement des frais
+   * d'une demande déposée — le statut ne change pas, mais la demande passe de « Paiement des frais
+   * » au contrôle du guichet (frise, file « À examiner »). Le temps d'attente repart donc à chaque
+   * changement d'étape.
+   */
+  static final Field<java.time.Instant> ETAPE_DEPUIS_BRUT =
+      DSL.greatest(
+          DERNIER_CHANGEMENT_STATUT,
+          DSL.when(DEMANDE.STATUT.eq(StatutDemande.deposee), FRAIS_PAYES_LE));
 
   static final Field<java.time.Instant> ETAPE_DEPUIS = ETAPE_DEPUIS_BRUT.as("etape_depuis");
 
@@ -675,7 +699,8 @@ public class DemandeRepository {
             proche,
             motifPause,
             demarre,
-            origine)
+            origine,
+            AVIS_REQUIS)
         .from(DEMANDE)
         .join(TYPE_DOCUMENT)
         .on(TYPE_DOCUMENT.ID.eq(DEMANDE.TYPE_DOCUMENT_ID))
@@ -723,6 +748,7 @@ public class DemandeRepository {
         r.get(MOTIF_PAUSE_COL, String.class),
         Boolean.TRUE.equals(r.get(DELAI_DEMARRE_COL, Boolean.class)),
         r.get(ORIGINE_COMPLEMENT_COL, String.class),
+        Boolean.TRUE.equals(r.get(AVIS_REQUIS)),
         Boolean.TRUE.equals(r.get(DOCUMENT_REVOQUE)),
         null);
   }

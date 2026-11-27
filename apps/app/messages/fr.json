@@ -1316,6 +1316,7 @@
       "paiement": "Paiement",
       "controle": "Contrôle du dossier",
       "instruction": "Instruction",
+      "decision": "Décision",
       "paiement-droits": "Paiement des droits",
       "signe": "Document signé"
     },
@@ -1332,7 +1333,7 @@
     },
     "precisions": {
       "avis": "Avis attendus : {profils}",
-      "examenTechnique": "Examen technique par les services, puis décision : {signataire}",
+      "examenTechnique": "Examen technique par les services",
       "decision": "Décision attendue : {signataire}"
     }
   },
