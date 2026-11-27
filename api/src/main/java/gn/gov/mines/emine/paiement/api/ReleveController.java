@@ -96,7 +96,7 @@ class ReleveController {
       summary = "Lignes d'un relevé, dans l'ordre du fichier, avec le paiement rapproché")
   PageLignesDto lignes(
       @PathVariable long id,
-      @Parameter(description = "rapprochees ou a-verifier ; absent : toutes")
+      @Parameter(description = "rapprochees, a-verifier ou traitees ; absent : toutes")
           @RequestParam(required = false)
           String resultat,
       @RequestParam(required = false) Integer page,
@@ -133,6 +133,7 @@ class ReleveController {
     return switch (valeur) {
       case "rapprochees" -> FiltreLignes.RAPPROCHEES;
       case "a-verifier" -> FiltreLignes.A_VERIFIER;
+      case "traitees" -> FiltreLignes.TRAITEES;
       default ->
           throw new ErreurMetier(
               CodeErreur.VAL_001,
@@ -143,7 +144,7 @@ class ReleveController {
                           "champ",
                           "resultat",
                           "message",
-                          "Valeur attendue : rapprochees ou a-verifier"))));
+                          "Valeur attendue : rapprochees, a-verifier ou traitees"))));
     };
   }
 
@@ -159,6 +160,7 @@ class ReleveController {
       int rapprochees,
       int ecarts,
       int inconnues,
+      int traitees,
       long totalCreditsGnf) {
 
     static ReleveDto depuis(ReleveRepository.Releve r) {
@@ -173,6 +175,7 @@ class ReleveController {
           r.rapprochees(),
           r.ecarts(),
           r.inconnues(),
+          r.traitees(),
           r.totalCreditsGnf());
     }
   }
@@ -185,6 +188,8 @@ class ReleveController {
    *     doublon}, {@code tardif} ou {@code retour}
    * @param sens {@code C} (crédit) ou {@code D} (débit)
    * @param ecartGnf montant reçu moins montant attendu (débit : négatif)
+   * @param decision décision du Responsable fiscal ({@code valide}, {@code rejete}, {@code
+   *     associe}, {@code classe}), {@code null} si la ligne n'a pas été traitée (US-04.9)
    */
   record LigneReleveDto(
       long id,
@@ -199,7 +204,9 @@ class ReleveController {
       @Schema(nullable = true) Long ecartGnf,
       @Schema(nullable = true) String referencePaiement,
       @Schema(nullable = true) Long demandeId,
-      @Schema(nullable = true) String numeroDemande) {
+      @Schema(nullable = true) String numeroDemande,
+      @Schema(nullable = true) String decision,
+      @Schema(nullable = true) String motif) {
 
     static LigneReleveDto depuis(ReleveRepository.Ligne l) {
       return new LigneReleveDto(
@@ -215,7 +222,9 @@ class ReleveController {
           l.ecartGnf(),
           l.referencePaiement(),
           l.demandeId(),
-          l.numeroDemande());
+          l.numeroDemande(),
+          l.decision(),
+          l.motif());
     }
   }
 

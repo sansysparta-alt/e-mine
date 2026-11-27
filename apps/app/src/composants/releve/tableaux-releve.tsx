@@ -20,8 +20,12 @@ const LienNext: ComposantLien = ({ href, children, ...props }) => (
   </Link>
 );
 
-/** Badge d'une ligne pour le Responsable fiscal : vert rapprochée, orange à vérifier (sa décision). */
-export function tonLigneReleve(statut: string): TonBadge {
+/**
+ * Badge d'une ligne pour le Responsable fiscal : vert rapprochée (ou validée, associée), orange à
+ * vérifier (sa décision est attendue), gris traitée sans encaissement (rejetée, classée).
+ */
+export function tonLigneReleve(statut: string, decision?: string | null): TonBadge {
+  if (decision) return decision === "valide" || decision === "associe" ? "succes" : "neutre";
   if (statut === "rapprochee") return "succes";
   if (statut === "ecart" || statut === "inconnue") return "avertissement";
   return "neutre";
@@ -138,13 +142,18 @@ export function TableauLignesReleve({ lignes }: { lignes: LigneReleveDto[] }) {
           entete: t("resultat"),
           rendu: (l) => (
             <span className="flex flex-col items-start gap-1">
-              <BadgeStatut ton={tonLigneReleve(l.statut)}>{t(`statuts.${l.statut}`)}</BadgeStatut>
+              <BadgeStatut ton={tonLigneReleve(l.statut, l.decision)}>
+                {l.decision ? t(`decisions.${l.decision}`) : t(`statuts.${l.statut}`)}
+              </BadgeStatut>
               {l.nature ? (
                 <span className="text-sm text-texte-doux">
                   {t(`natures.${l.nature}`, {
                     ecart: formaterGnf(Math.abs(l.ecartGnf ?? 0)),
                   })}
                 </span>
+              ) : null}
+              {l.decision && l.motif ? (
+                <span className="text-sm text-texte-doux">{t("motif", { motif: l.motif })}</span>
               ) : null}
             </span>
           ),

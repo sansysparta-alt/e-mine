@@ -79,6 +79,10 @@ public enum CodeErreur {
   PAY_011("PAY-011", HttpStatus.CONFLICT),
   /** Relevé bancaire introuvable (ou relevé d'exemple désactivé), US-04.8. */
   PAY_012("PAY-012", HttpStatus.NOT_FOUND),
+  /** Décision impossible sur cet élément « à vérifier » (déjà traité, ou non prévue), US-04.9. */
+  PAY_013("PAY-013", HttpStatus.CONFLICT),
+  /** Paiement à associer introuvable : pas un virement en cours du même montant, US-04.9. */
+  PAY_014("PAY-014", HttpStatus.UNPROCESSABLE_CONTENT),
   /** Format de fichier non accepté (PDF, JPG ou PNG). */
   DOC_001("DOC-001", HttpStatus.UNSUPPORTED_MEDIA_TYPE),
   /** Fichier trop volumineux (10 Mo au plus). */

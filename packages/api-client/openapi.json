@@ -10,6 +10,9 @@
     "description" : "Generated server url"
   } ],
   "tags" : [ {
+    "name" : "Encaissements",
+    "description" : "Écarts à vérifier (US-04.9)"
+  }, {
     "name" : "Relevés bancaires",
     "description" : "Import et rapprochement des virements (US-04.8)"
   } ],
@@ -752,6 +755,68 @@
             "format" : "int32"
           }
         } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        }
+      }
+    },
+    "/api/v1/encaissements/paiements/{reference}/decision" : {
+      "post" : {
+        "tags" : [ "Encaissements" ],
+        "summary" : "Décision sur un paiement en ligne au montant divergent : valider (montant reçu au moins égal) ou rejeter avec motif",
+        "operationId" : "deciderPaiementAVerifier",
+        "parameters" : [ {
+          "name" : "reference",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "^PAY-[0-9]{4}-[0-9]{6}$"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DecisionEcartDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        }
+      }
+    },
+    "/api/v1/encaissements/lignes/{id}/decision" : {
+      "post" : {
+        "tags" : [ "Encaissements" ],
+        "summary" : "Décision sur une ligne de relevé : valider, rejeter, associer (référence du paiement) ou classer ; motif obligatoire pour rejeter ou classer ; PAY-013 si la décision n'est pas possible, PAY-014 si le paiement à associer ne convient pas",
+        "operationId" : "deciderLigneReleve",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DecisionEcartDto"
+              }
+            }
+          },
+          "required" : true
+        },
         "responses" : {
           "204" : {
             "description" : "No Content"
@@ -1825,7 +1890,7 @@
         }, {
           "name" : "resultat",
           "in" : "query",
-          "description" : "rapprochees ou a-verifier ; absent : toutes",
+          "description" : "rapprochees, a-verifier ou traitees ; absent : toutes",
           "required" : false,
           "schema" : {
             "type" : "string"
@@ -2385,6 +2450,42 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/ReferencesDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/encaissements/a-verifier" : {
+      "get" : {
+        "tags" : [ "Encaissements" ],
+        "summary" : "Éléments à vérifier, les plus anciens d'abord, avec les décisions possibles pour chacun (règle unique de l'API)",
+        "operationId" : "listerAVerifier",
+        "parameters" : [ {
+          "name" : "page",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "name" : "taille",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageAVerifierDto"
                 }
               }
             }
@@ -3155,12 +3256,16 @@
             "type" : "integer",
             "format" : "int32"
           },
+          "traitees" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
           "totalCreditsGnf" : {
             "type" : "integer",
             "format" : "int64"
           }
         },
-        "required" : [ "banque", "dateReleve", "ecarts", "id", "importeLe", "importePar", "inconnues", "lignes", "nomFichier", "rapprochees", "totalCreditsGnf" ]
+        "required" : [ "banque", "dateReleve", "ecarts", "id", "importeLe", "importePar", "inconnues", "lignes", "nomFichier", "rapprochees", "totalCreditsGnf", "traitees" ]
       },
       "PropositionRegleDelaiDto" : {
         "type" : "object",
@@ -3288,6 +3393,9 @@
           "justificatif" : {
             "type" : "boolean"
           },
+          "motifRejet" : {
+            "type" : [ "string", "null" ]
+          },
           "justificatifFichier" : {
             "oneOf" : [ {
               "$ref" : "#/components/schemas/FichierDto"
@@ -3303,7 +3411,7 @@
             } ]
           }
         },
-        "required" : [ "coordonnees", "creeLe", "dateExpiration", "datePaiement", "demandeId", "justificatif", "justificatifFichier", "montantGnf", "montantRecuGnf", "moyen", "objet", "recuNumero", "reference", "statut", "virementDeclareLe" ]
+        "required" : [ "coordonnees", "creeLe", "dateExpiration", "datePaiement", "demandeId", "justificatif", "justificatifFichier", "montantGnf", "montantRecuGnf", "motifRejet", "moyen", "objet", "recuNumero", "reference", "statut", "virementDeclareLe" ]
       },
       "AccuseDto" : {
         "type" : "object",
@@ -3442,6 +3550,22 @@
           }
         },
         "required" : [ "motif" ]
+      },
+      "DecisionEcartDto" : {
+        "type" : "object",
+        "properties" : {
+          "decision" : {
+            "type" : "string",
+            "minLength" : 1
+          },
+          "motif" : {
+            "type" : [ "string", "null" ]
+          },
+          "reference" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "decision", "motif", "reference" ]
       },
       "DeclarationRecevabiliteDto" : {
         "type" : "object",
@@ -4159,9 +4283,15 @@
           },
           "numeroDemande" : {
             "type" : [ "string", "null" ]
+          },
+          "decision" : {
+            "type" : [ "string", "null" ]
+          },
+          "motif" : {
+            "type" : [ "string", "null" ]
           }
         },
-        "required" : [ "dateOperation", "demandeId", "ecartGnf", "id", "libelle", "montantGnf", "nature", "numero", "numeroDemande", "referenceLue", "referencePaiement", "sens", "statut" ]
+        "required" : [ "dateOperation", "decision", "demandeId", "ecartGnf", "id", "libelle", "montantGnf", "motif", "nature", "numero", "numeroDemande", "referenceLue", "referencePaiement", "sens", "statut" ]
       },
       "PageLignesDto" : {
         "type" : "object",
@@ -4880,6 +5010,99 @@
           }
         },
         "required" : [ "profilsAvis", "signataires" ]
+      },
+      "ElementAVerifierDto" : {
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string"
+          },
+          "ligneId" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "releveId" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "dateOperation" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "libelle" : {
+            "type" : "string"
+          },
+          "montantGnf" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "sens" : {
+            "type" : "string"
+          },
+          "nature" : {
+            "type" : "string"
+          },
+          "ecartGnf" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "referencePaiement" : {
+            "type" : [ "string", "null" ]
+          },
+          "montantAttenduGnf" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "moyen" : {
+            "type" : [ "string", "null" ]
+          },
+          "demandeId" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "numeroDemande" : {
+            "type" : [ "string", "null" ]
+          },
+          "signaleLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "decisions" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        },
+        "required" : [ "dateOperation", "decisions", "demandeId", "ecartGnf", "libelle", "ligneId", "montantAttenduGnf", "montantGnf", "moyen", "nature", "numeroDemande", "referencePaiement", "releveId", "sens", "signaleLe", "type" ]
+      },
+      "PageAVerifierDto" : {
+        "type" : "object",
+        "properties" : {
+          "elements" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ElementAVerifierDto"
+            }
+          },
+          "page" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "taille" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "total" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "elements", "page", "taille", "total", "totalPages" ]
       },
       "CompteursDto" : {
         "type" : "object",

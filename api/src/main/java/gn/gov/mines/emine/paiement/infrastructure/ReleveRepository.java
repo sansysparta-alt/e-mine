@@ -50,6 +50,7 @@ public class ReleveRepository {
       int rapprochees,
       int ecarts,
       int inconnues,
+      int traitees,
       long totalCreditsGnf) {}
 
   /** Une ligne du relevé, avec le paiement et la demande rapprochés s'il y en a. */
@@ -66,12 +67,18 @@ public class ReleveRepository {
       Long ecartGnf,
       String referencePaiement,
       Long demandeId,
-      String numeroDemande) {}
+      String numeroDemande,
+      String decision,
+      String motif) {}
 
-  /** Résultats d'une ligne proposés en filtre : tout, rapprochées, à vérifier (écart, inconnue). */
+  /**
+   * Résultats d'une ligne proposés en filtre : rapprochées, à vérifier (écart ou inconnue pas
+   * encore traitée), traitées par le Responsable fiscal (US-04.9).
+   */
   public enum FiltreLignes {
     RAPPROCHEES,
-    A_VERIFIER
+    A_VERIFIER,
+    TRAITEES
   }
 
   public boolean empreinteConnue(String empreinte) {
@@ -140,7 +147,11 @@ public class ReleveRepository {
     if (filtre == FiltreLignes.RAPPROCHEES) {
       c = c.and(LIGNE_RELEVE.STATUT.eq(StatutLigneReleve.rapprochee));
     } else if (filtre == FiltreLignes.A_VERIFIER) {
-      c = c.and(LIGNE_RELEVE.STATUT.in(StatutLigneReleve.ecart, StatutLigneReleve.inconnue));
+      c =
+          c.and(LIGNE_RELEVE.STATUT.in(StatutLigneReleve.ecart, StatutLigneReleve.inconnue))
+              .and(LIGNE_RELEVE.DECISION.isNull());
+    } else if (filtre == FiltreLignes.TRAITEES) {
+      c = c.and(LIGNE_RELEVE.DECISION.isNotNull());
     }
     long total = dsl.fetchCount(LIGNE_RELEVE, c);
     List<Ligne> elements =
@@ -189,18 +200,25 @@ public class ReleveRepository {
             .as("rapprochees");
     Field<Integer> ecarts =
         DSL.count(LIGNE_RELEVE.ID)
-            .filterWhere(LIGNE_RELEVE.STATUT.eq(StatutLigneReleve.ecart))
+            .filterWhere(
+                LIGNE_RELEVE.STATUT.eq(StatutLigneReleve.ecart).and(LIGNE_RELEVE.DECISION.isNull()))
             .as("ecarts");
     Field<Integer> inconnues =
         DSL.count(LIGNE_RELEVE.ID)
-            .filterWhere(LIGNE_RELEVE.STATUT.eq(StatutLigneReleve.inconnue))
+            .filterWhere(
+                LIGNE_RELEVE
+                    .STATUT
+                    .eq(StatutLigneReleve.inconnue)
+                    .and(LIGNE_RELEVE.DECISION.isNull()))
             .as("inconnues");
+    Field<Integer> traitees =
+        DSL.count(LIGNE_RELEVE.ID).filterWhere(LIGNE_RELEVE.DECISION.isNotNull()).as("traitees");
     Field<java.math.BigDecimal> credits =
         DSL.sum(LIGNE_RELEVE.MONTANT_GNF).filterWhere(LIGNE_RELEVE.SENS.eq("C")).as("credits");
     Field<String> importePar =
         DSL.concat(UTILISATEUR.PRENOM, DSL.inline(" "), UTILISATEUR.NOM).as("importe_par_nom");
     return dsl.select(RELEVE_BANCAIRE.fields())
-        .select(lignes, rapprochees, ecarts, inconnues, credits, importePar)
+        .select(lignes, rapprochees, ecarts, inconnues, traitees, credits, importePar)
         .from(RELEVE_BANCAIRE)
         .leftJoin(LIGNE_RELEVE)
         .on(LIGNE_RELEVE.RELEVE_ID.eq(RELEVE_BANCAIRE.ID))
@@ -223,6 +241,7 @@ public class ReleveRepository {
         r.get("rapprochees", Integer.class),
         r.get("ecarts", Integer.class),
         r.get("inconnues", Integer.class),
+        r.get("traitees", Integer.class),
         credits == null ? 0 : credits.longValueExact());
   }
 
@@ -241,6 +260,8 @@ public class ReleveRepository {
         r.get(LIGNE_RELEVE.ECART_GNF),
         r.get(PAIEMENT.REFERENCE),
         r.get(DEMANDE.ID),
-        r.get(DEMANDE.NUMERO));
+        r.get(DEMANDE.NUMERO),
+        r.get(LIGNE_RELEVE.DECISION),
+        r.get(LIGNE_RELEVE.MOTIF));
   }
 }

@@ -21,6 +21,7 @@ const paye: PaiementDto = {
   creeLe: "2026-11-21T10:00:00Z",
   virementDeclareLe: null,
   justificatif: false,
+  motifRejet: null,
   justificatifFichier: null,
   coordonnees: null,
 };

@@ -16,6 +16,7 @@ import java.util.UUID;
  * @param transactionExterneId identifiant de la transaction chez la passerelle, s'il est connu
  * @param justificatifPieceId justificatif d'un virement déclaré (US-04.7), sinon {@code null}
  * @param virementDeclareLe déclaration « J'ai effectué le virement », sinon {@code null}
+ * @param motifRejet motif du rejet par le Responsable fiscal (US-04.9), communiqué au demandeur
  */
 public record Paiement(
     UUID id,
@@ -32,7 +33,8 @@ public record Paiement(
     Instant creeLe,
     String transactionExterneId,
     Long justificatifPieceId,
-    Instant virementDeclareLe) {
+    Instant virementDeclareLe,
+    String motifRejet) {
 
   /** Paiement encore ouvert : il peut être remplacé (changement de moyen) ou confirmé. */
   public boolean ouvert() {

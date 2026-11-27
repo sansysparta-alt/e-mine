@@ -411,6 +411,7 @@ public class PaiementRepository {
         r.getCreatedAt(),
         r.getTransactionExterneId(),
         r.getJustificatifPieceId(),
-        r.getVirementDeclareLe());
+        r.getVirementDeclareLe(),
+        r.getMotifRejet());
   }
 }
