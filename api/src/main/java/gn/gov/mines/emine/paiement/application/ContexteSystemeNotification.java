@@ -48,6 +48,27 @@ class ContexteSystemeNotification implements FournisseurContexteSession {
     return ACTIF.get();
   }
 
+  /**
+   * Exécute {@code traitement} dans une nouvelle transaction en contexte système, pour la tâche
+   * planifiée d'interrogation de TrésorPay (US-04.5) : aucune requête extérieure n'y entre, les
+   * résultats viennent de nos propres requêtes signées à la passerelle. Mêmes garde-fous.
+   */
+  <T> T executerTache(Supplier<T> traitement) {
+    if (ACTIF.get() != null) {
+      throw new IllegalStateException("Contexte système déjà actif : imbrication interdite");
+    }
+    if (TransactionSynchronizationManager.isActualTransactionActive()) {
+      throw new IllegalStateException(
+          "Contexte système refusé : une transaction est déjà en cours sur ce fil");
+    }
+    ACTIF.set(new ContexteSession(null, true, "tache-interrogation"));
+    try {
+      return transaction.execute(statut -> traitement.get());
+    } finally {
+      ACTIF.remove();
+    }
+  }
+
   /** Vrai pendant l'exécution d'un traitement de notification sur ce fil. */
   static boolean actif() {
     return ACTIF.get() != null;

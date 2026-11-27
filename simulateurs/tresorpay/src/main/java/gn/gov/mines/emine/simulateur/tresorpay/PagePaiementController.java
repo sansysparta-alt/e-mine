@@ -16,7 +16,7 @@ import org.springframework.web.servlet.view.RedirectView;
 
 /**
  * Pages du simulateur : accueil (interrupteur de disponibilité, sessions récentes) et page de
- * paiement avec ses scénarios de test (contrat §5 et §6).
+ * paiement avec ses scénarios de test (contrat §6 et §7).
  */
 @Controller
 class PagePaiementController {

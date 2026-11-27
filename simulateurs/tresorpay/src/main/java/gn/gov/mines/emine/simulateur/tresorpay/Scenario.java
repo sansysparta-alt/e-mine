@@ -3,7 +3,7 @@ package gn.gov.mines.emine.simulateur.tresorpay;
 import java.util.Arrays;
 import java.util.List;
 
-/** Scénarios de test du simulateur (contrat §6), choisis sur la page ou par l'adresse. */
+/** Scénarios de test du simulateur (contrat §7), choisis sur la page ou par l'adresse. */
 public enum Scenario {
   SUCCES("succes", "Paiement accepté", "Notification « payé », montant exact."),
   REFUS(

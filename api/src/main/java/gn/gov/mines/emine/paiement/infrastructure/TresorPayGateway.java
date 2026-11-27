@@ -94,4 +94,65 @@ class TresorPayGateway implements PaiementGateway {
       throw new IllegalStateException("Réponse de TrésorPay illisible", e);
     }
   }
+
+  /**
+   * Interrogation d'une transaction (US-04.5, contrat §5) : {@code GET
+   * /api/v1/transactions/{reference}}, requête signée sur un corps vide.
+   */
+  @Override
+  public EtatTransaction interroger(String reference) {
+    if (proprietes.urlBase() == null || proprietes.urlBase().isBlank()) {
+      throw new PasserelleIndisponible("TRESORPAY_BASE_URL non configurée", null);
+    }
+    String horodatage = Long.toString(Instant.now(horloge).getEpochSecond());
+    HttpRequest requete =
+        HttpRequest.newBuilder(
+                URI.create(
+                    proprietes.urlBase().replaceAll("/$", "")
+                        + "/api/v1/transactions/"
+                        + java.net.URLEncoder.encode(
+                            reference, java.nio.charset.StandardCharsets.UTF_8)))
+            .timeout(proprietes.delaiReponse())
+            .header("X-TresorPay-Marchand", proprietes.marchandId())
+            .header("X-TresorPay-Horodatage", horodatage)
+            .header(
+                "X-TresorPay-Signature",
+                SignatureTresorPay.signer(proprietes.secretHmac(), horodatage, new byte[0]))
+            .GET()
+            .build();
+    HttpResponse<byte[]> reponse;
+    try {
+      reponse = client.send(requete, HttpResponse.BodyHandlers.ofByteArray());
+    } catch (IOException e) {
+      throw new PasserelleIndisponible("TrésorPay injoignable", e);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new PasserelleIndisponible("Appel à TrésorPay interrompu", e);
+    }
+    if (reponse.statusCode() == 404) {
+      return new EtatTransaction(StatutTransaction.INCONNUE, null, null, null);
+    }
+    if (reponse.statusCode() >= 500) {
+      throw new PasserelleIndisponible("TrésorPay indisponible", null);
+    }
+    if (reponse.statusCode() != 200) {
+      throw new IllegalStateException(
+          "TrésorPay a refusé l'interrogation (HTTP " + reponse.statusCode() + ")");
+    }
+    try {
+      JsonNode n = json.readTree(reponse.body());
+      String date = n.path("date").asString("");
+      return new EtatTransaction(
+          StatutTransaction.valueOf(n.path("statut").asString()),
+          n.path("transactionId").isMissingNode() || n.path("transactionId").isNull()
+              ? null
+              : n.path("transactionId").asString(),
+          n.path("montantGnf").isNumber() ? n.path("montantGnf").asLong() : null,
+          date.isBlank() ? null : Instant.parse(date));
+    } catch (JacksonException
+        | IllegalArgumentException
+        | java.time.format.DateTimeParseException e) {
+      throw new IllegalStateException("Réponse de TrésorPay illisible", e);
+    }
+  }
 }

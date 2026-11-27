@@ -29,6 +29,27 @@ public class PasserelleDeTest implements PaiementGateway {
         id, "http://tresorpay.test/payer/" + id, Instant.now().plusSeconds(15 * 60));
   }
 
+  private final java.util.Map<String, EtatTransaction> etats =
+      new java.util.concurrent.ConcurrentHashMap<>();
+
+  /**
+   * Interrogation (US-04.5) : l'état programmé pour la référence ({@link #programmer}), sinon «
+   * session en cours ».
+   */
+  @Override
+  public EtatTransaction interroger(String reference) {
+    if (indisponible.get()) {
+      throw new PasserelleIndisponible("indisponible (test)", null);
+    }
+    return etats.getOrDefault(
+        reference, new EtatTransaction(StatutTransaction.EN_COURS, null, null, null));
+  }
+
+  /** Réponse que donnera la passerelle à l'interrogation de cette référence. */
+  public void programmer(String reference, EtatTransaction etat) {
+    etats.put(reference, etat);
+  }
+
   public List<DemandeSession> recues() {
     return recues;
   }

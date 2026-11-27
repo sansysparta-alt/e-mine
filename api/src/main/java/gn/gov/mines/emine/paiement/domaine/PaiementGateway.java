@@ -28,6 +28,37 @@ public interface PaiementGateway {
   /** Session ouverte : le navigateur est redirigé vers {@code urlPaiement}. */
   record SessionOuverte(String sessionId, String urlPaiement, Instant expireLe) {}
 
+  /**
+   * Interroge la passerelle sur la transaction d'une référence (US-04.5), quand sa notification
+   * n'est pas arrivée. Réponse signée comme une initiation ; seule une réponse {@code PAYE} vaut
+   * paiement.
+   *
+   * @throws PasserelleIndisponible si la passerelle ne répond pas
+   */
+  EtatTransaction interroger(String reference);
+
+  /** État d'une transaction chez la passerelle. */
+  enum StatutTransaction {
+    /** Session ouverte, l'usager n'a pas encore payé. */
+    EN_COURS,
+    PAYE,
+    REFUSE,
+    ANNULE,
+    /** Session expirée sans paiement. */
+    EXPIREE,
+    /** Aucune session pour cette référence. */
+    INCONNUE
+  }
+
+  /**
+   * Réponse à une interrogation.
+   *
+   * @param transactionId identifiant de transaction, pour un paiement payé, refusé ou annulé
+   * @param montantGnf montant payé, pour un paiement payé
+   */
+  record EtatTransaction(
+      StatutTransaction statut, String transactionId, Long montantGnf, Instant date) {}
+
   /** Passerelle injoignable ou indisponible (PAY-003). */
   class PasserelleIndisponible extends RuntimeException {
     public PasserelleIndisponible(String message, Throwable cause) {
