@@ -5,6 +5,8 @@ export { BoutonCopier } from "./composants/bouton-copier";
 export { Carte, type CarteProps } from "./composants/carte";
 export { LienEvitement } from "./composants/lien-evitement";
 export {
+  accorder,
+  classesReference,
   dateDansJours,
   dateDuJour,
   formaterDate,
@@ -13,6 +15,7 @@ export {
   formaterHeure,
   formaterNombre,
   formaterSuperficie,
+  type FormesAccord,
   formaterTaille,
   FUSEAU,
   joursCalendairesDepuis,

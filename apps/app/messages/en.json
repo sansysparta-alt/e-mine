@@ -279,7 +279,7 @@
         "AUTH-001": "Your session has expired: please sign in again.",
         "autre": "The document could not be processed. Please try again."
       },
-      "avancement": "{fournies} of {total} mandatory documents provided",
+      "avancement": "{fournies} of {total, plural, one {# mandatory document provided} other {# mandatory documents provided}}",
       "avancementLibelle": "Mandatory documents provided",
       "ajouter": "Add",
       "remplacer": "Replace",
@@ -440,6 +440,7 @@
       "croissant": "ascending",
       "decroissant": "descending"
     },
+    "element": "request",
     "elements": "requests",
     "recherche": {
       "libelle": "Search a request",
@@ -1061,6 +1062,7 @@
     "autres": "{nombre, plural, one {Show 1 other change} other {Show the # other changes}}",
     "oui": "Yes",
     "non": "No",
+    "element": "entry",
     "elements": "entries",
     "vide": {
       "titre": "The log is empty",
@@ -1200,6 +1202,7 @@
       "depot": "Submitted on",
       "statut": "Status"
     },
+    "element": "file",
     "elements": "files",
     "vide": {
       "tout": "Nothing to do for now",
@@ -1253,11 +1256,11 @@
     },
     "passages": {
       "titre": "{nombre, plural, one {Skip in batch processing (#)} other {Skips in batch processing (#)}}",
-      "bloque": "Blocked file: skipped {nombre} times at this step",
+      "bloque": "Blocked file: skipped {nombre, plural, one {# time} other {# times}} at this step",
       "bloqueTexte": "Decision-makers see this file in their alerts. Process it or report the difficulty to your manager.",
       "ligne": "{date} · {auteur} · step \"{etape}\"",
       "passeNFois": "{nombre, plural, one {Skipped # time} other {Skipped # times}}",
-      "bloqueCourt": "Blocked · skipped {nombre} times"
+      "bloqueCourt": "Blocked · skipped {nombre, plural, one {# time} other {# times}}"
     }
   },
   "statutsAffiches": {
@@ -1342,6 +1345,7 @@
     "descriptionNonLues": "{nombre, plural, =1 {1 unread notification: this is the number shown on the bell.} other {# unread notifications: this is the number shown on the bell.}} Open a notification to see the file concerned.",
     "toutMarquerLu": "Mark all as read",
     "nonLue": "Unread",
+    "element": "notification",
     "elements": "notifications",
     "vide": {
       "titre": "No notifications",
@@ -1407,6 +1411,7 @@
     },
     "jours": "{n, plural, one {# day} other {# days}}",
     "version": "Version {n}",
+    "element": "document",
     "elements": "documents",
     "statuts": {
       "aApprouver": "To validate",
@@ -1633,6 +1638,7 @@
     "fourchette": "{min} to {max} days",
     "version": "Version {n}",
     "modifieeLe": "since {date}",
+    "element": "workflow",
     "elements": "workflows",
     "vide": "No workflow.",
     "etape": "Step {n} of {total}",
@@ -1644,7 +1650,7 @@
     "actuelle": "in force",
     "par": "Changed on {date} by {nom}",
     "initiale": "Initial version (schema provided by the Ministry).",
-    "voirEtapes": "Show the {n} steps",
+    "voirEtapes": "{n, plural, one {Show the step} other {Show the # steps}}",
     "formulaire": {
       "titre": "Propose a change",
       "description": "{libelle} — starting from the latest approved version (v{n})",
@@ -1678,7 +1684,7 @@
       "descendre": "Move step {n} down",
       "retirer": "Remove step {n}",
       "ajouter": "Add a step",
-      "maximum": "{n} steps at most.",
+      "maximum": "{n, plural, one {# step at most.} other {# steps at most.}}",
       "erreurs": {
         "libelle": "3 to 150 characters.",
         "reglePaiement": "3 to 300 characters.",
@@ -1870,7 +1876,7 @@
     "chargement": "Searching…",
     "erreur": "The file search failed. Please try again in a moment.",
     "brouillon": "Draft",
-    "voirTous": "See the {nombre} files found",
+    "voirTous": "{nombre, plural, one {See the file found} other {See the # files found}}",
     "aucun": {
       "titre": "No results for “{texte}”",
       "conseil": "Check the spelling, or type part of the number (for example 000009) or the document name."
@@ -2032,6 +2038,7 @@
     "utilisateurs": {
       "titre": "Users & roles",
       "description": "Platform accounts, their profile, status and last sign-in.",
+      "element": "account",
       "elements": "accounts",
       "jamais": "Never signed in",
       "keycloak": {
@@ -2078,6 +2085,7 @@
   "mesPaiements": {
     "titre": "Payments & receipts",
     "description": "All your payments, with the request concerned. A receipt can be downloaded as soon as the payment is confirmed.",
+    "element": "payment",
     "elements": "payments",
     "vide": {
       "titre": "No payment yet",
@@ -2113,6 +2121,7 @@
   "mesDocuments": {
     "titre": "Issued documents",
     "description": "Your signed documents, ready to download. Each carries a QR code that anyone can check online.",
+    "element": "document",
     "elements": "documents",
     "valide": "Valid",
     "revoque": "Revoked",
@@ -2323,6 +2332,7 @@
     "rembourse": "Refunded"
   },
   "commun": {
+    "voirDetail": "View details",
     "copier": {
       "libelle": "Copy: {quoi}",
       "fait": "Copied: {quoi}"
@@ -2331,6 +2341,7 @@
   "releves": {
     "titre": "Bank statements",
     "description": "Import the statement of the transfer account: each transfer is recognised by its reference and amount. Anything that does not match exactly is submitted to you.",
+    "element": "statement",
     "elements": "statements",
     "import": {
       "titre": "Import a statement",
@@ -2382,6 +2393,7 @@
       "filtreRapprochees": "Reconciled",
       "filtreAVerifier": "To check",
       "aucune": "No line for this filter.",
+      "element": "line",
       "elements": "lines",
       "traitees": "Processed",
       "filtreTraitees": "Processed"
@@ -2422,6 +2434,7 @@
   "aVerifier": {
     "titre": "To check",
     "description": "{nombre, plural, =0 {Nothing to check: all payments are reconciled.} one {# item awaits your decision: what automatic reconciliation could not confirm.} other {# items await your decision: what automatic reconciliation could not confirm.}}",
+    "element": "item",
     "elements": "items",
     "badge": "To check",
     "paiementEnLigne": "TrésorPay online payment",
@@ -2487,6 +2500,7 @@
   "remboursements": {
     "titre": "Refunds",
     "description": "Approve each refund request, then record the reference of the order issued by the Treasury: the money is returned outside the platform and the applicant is notified.",
+    "element": "refund",
     "elements": "refunds",
     "aucun": "No refund for this filter.",
     "demandeLe": "Requested on {date}",
@@ -2557,6 +2571,7 @@
   "journalEncaissements": {
     "titre": "Collections journal",
     "description": "Ministry revenue (amount due on accepted payments) and fees refunded after a request was rejected, for the selected period.",
+    "element": "operation",
     "elements": "operations",
     "exporter": "Export as CSV",
     "periode": "From {du} to {au}",

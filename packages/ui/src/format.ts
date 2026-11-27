@@ -73,6 +73,23 @@ export function formaterTaille(octets: number, langue = "fr"): string {
   return `${formaterNombre(octets / (1024 * 1024), langue, 1)}${INSECABLE}${m}`;
 }
 
+/** Formes d'un nom compté : « demande » / « demandes ». */
+export type FormesAccord = { un: string; plusieurs: string };
+
+/**
+ * Accord d'un nom avec un nombre (socle, US-11.8) : règle de la langue (français : 0 et 1 au
+ * singulier, « 1 élément », « 0 demande » ; anglais : 1 seul au singulier). Toute quantité
+ * affichée avec un nom passe par cette fonction ou par un message ICU `plural`.
+ */
+export function accorder(nombre: number, formes: FormesAccord, langue = "fr"): string {
+  return new Intl.PluralRules(locale(langue)).select(nombre) === "one"
+    ? formes.un
+    : formes.plusieurs;
+}
+
+/** Références (`DEM-…`, `PAY-…`, `RMB-…`) : jamais coupées sur deux lignes, chiffres alignés. */
+export const classesReference = "whitespace-nowrap tabular-nums";
+
 /** Date du jour (année, mois, jour) à l'heure de Conakry. */
 function jourConakry(valeur: string | Date): number {
   const parties = new Intl.DateTimeFormat("en-CA", {

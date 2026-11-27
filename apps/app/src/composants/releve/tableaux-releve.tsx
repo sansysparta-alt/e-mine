@@ -61,13 +61,13 @@ export function TableauReleves({ releves }: { releves: ReleveDto[] }) {
           cle: "lignes",
           entete: t("colonnes.lignes"),
           alignement: "droite",
-          rendu: (r) => <span className="tabular-nums">{r.lignes}</span>,
+          rendu: (r) => <span className="whitespace-nowrap tabular-nums">{r.lignes}</span>,
         },
         {
           cle: "rapprochees",
           entete: t("colonnes.rapprochees"),
           alignement: "droite",
-          rendu: (r) => <span className="tabular-nums">{r.rapprochees}</span>,
+          rendu: (r) => <span className="whitespace-nowrap tabular-nums">{r.rapprochees}</span>,
         },
         {
           cle: "aVerifier",
@@ -78,7 +78,7 @@ export function TableauReleves({ releves }: { releves: ReleveDto[] }) {
             return n > 0 ? (
               <BadgeStatut ton="avertissement">{n}</BadgeStatut>
             ) : (
-              <span className="tabular-nums">0</span>
+              <span className="whitespace-nowrap tabular-nums">0</span>
             );
           },
         },
@@ -112,7 +112,9 @@ export function TableauLignesReleve({ lignes }: { lignes: LigneReleveDto[] }) {
         {
           cle: "numero",
           entete: t("numero"),
-          rendu: (l) => <span className="text-texte-doux tabular-nums">{l.numero}</span>,
+          rendu: (l) => (
+            <span className="whitespace-nowrap text-texte-doux tabular-nums">{l.numero}</span>
+          ),
         },
         {
           cle: "date",
@@ -130,7 +132,9 @@ export function TableauLignesReleve({ lignes }: { lignes: LigneReleveDto[] }) {
           alignement: "droite",
           rendu: (l) => (
             <span className="flex flex-col items-end">
-              <span className="font-semibold tabular-nums">{formaterGnf(l.montantGnf)}</span>
+              <span className="font-semibold whitespace-nowrap tabular-nums">
+                {formaterGnf(l.montantGnf)}
+              </span>
               <span className="text-sm text-texte-doux">
                 {l.sens === "D" ? t("debit") : t("credit")}
               </span>
@@ -165,13 +169,13 @@ export function TableauLignesReleve({ lignes }: { lignes: LigneReleveDto[] }) {
           rendu: (l) =>
             l.referencePaiement ? (
               <span className="flex flex-col">
-                <span className="tabular-nums">{l.referencePaiement}</span>
+                <span className="whitespace-nowrap tabular-nums">{l.referencePaiement}</span>
                 {l.demandeId && l.numeroDemande ? (
                   <Link
                     href={`/demandes/${l.demandeId}`}
                     className={cn(
                       classesAuDessusDuLien,
-                      "inline-flex min-h-11 items-center text-sm font-semibold text-royal tabular-nums underline-offset-4 hover:underline",
+                      "inline-flex min-h-11 items-center text-sm font-semibold whitespace-nowrap text-royal tabular-nums underline-offset-4 hover:underline",
                     )}
                   >
                     {l.numeroDemande}

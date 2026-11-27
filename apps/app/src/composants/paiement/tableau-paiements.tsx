@@ -74,7 +74,9 @@ export function TableauPaiements({
         {
           cle: "reference",
           entete: t("colonnes.reference"),
-          rendu: (p) => <span className="tabular-nums">{surligner(p.reference)}</span>,
+          rendu: (p) => (
+            <span className="whitespace-nowrap tabular-nums">{surligner(p.reference)}</span>
+          ),
         },
         ...(demande
           ? [
@@ -90,7 +92,7 @@ export function TableauPaiements({
                         href={`/demandes/${p.demandeId}`}
                         className={cn(
                           classesAuDessusDuLien,
-                          "font-semibold text-royal tabular-nums underline-offset-4 hover:underline",
+                          "font-semibold whitespace-nowrap text-royal tabular-nums underline-offset-4 hover:underline",
                         )}
                       >
                         {surligner(d.numero)}
@@ -111,7 +113,9 @@ export function TableauPaiements({
           cle: "montant",
           entete: t("colonnes.montant"),
           alignement: "droite",
-          rendu: (p) => <span className="tabular-nums">{formaterGnf(p.montantGnf)}</span>,
+          rendu: (p) => (
+            <span className="whitespace-nowrap tabular-nums">{formaterGnf(p.montantGnf)}</span>
+          ),
         },
         {
           cle: "statut",

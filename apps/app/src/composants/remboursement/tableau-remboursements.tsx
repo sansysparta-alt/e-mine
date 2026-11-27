@@ -2,6 +2,7 @@
 
 import type { RemboursementDto } from "@emine/api-client";
 import {
+  classesReference,
   BadgeStatut,
   type ComposantLien,
   formaterDate,
@@ -11,7 +12,7 @@ import {
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { deciderRemboursement } from "@/serveur/actions-remboursements";
-import { ActionsRemboursement } from "./actions-remboursement";
+import { ActionsRemboursement, actionsRemboursement } from "./actions-remboursement";
 import { presentationStatutRemboursement } from "./statut";
 
 const LienNext: ComposantLien = ({ href, children, ...props }) => (
@@ -26,6 +27,7 @@ const LienNext: ComposantLien = ({ href, children, ...props }) => (
  */
 export function TableauRemboursements({ remboursements }: { remboursements: RemboursementDto[] }) {
   const t = useTranslations("remboursements");
+  const tCommun = useTranslations("commun");
   return (
     <TableauDonnees
       legende={t("titre")}
@@ -39,7 +41,9 @@ export function TableauRemboursements({ remboursements }: { remboursements: Remb
           entete: t("colonnes.numero"),
           rendu: (r) => (
             <span className="flex flex-col">
-              <span className="font-semibold text-navy tabular-nums">{r.numero}</span>
+              <span className="font-semibold whitespace-nowrap text-navy tabular-nums">
+                {r.numero}
+              </span>
               <span className="text-sm text-texte-doux">
                 {t("demandeLe", { date: formaterDate(r.demandeLe) })}
               </span>
@@ -52,8 +56,11 @@ export function TableauRemboursements({ remboursements }: { remboursements: Remb
           rendu: (r) => (
             <span className="flex flex-col">
               <span>{r.beneficiaire ?? "—"}</span>
-              <span className="text-sm text-texte-doux tabular-nums">
-                {r.numeroDemande ?? ""} · {r.referencePaiement}
+              <span className="flex flex-wrap gap-x-1 text-sm text-texte-doux">
+                {r.numeroDemande ? (
+                  <span className={classesReference}>{r.numeroDemande} ·</span>
+                ) : null}
+                <span className={classesReference}>{r.referencePaiement}</span>
               </span>
             </span>
           ),
@@ -75,7 +82,9 @@ export function TableauRemboursements({ remboursements }: { remboursements: Remb
           entete: t("colonnes.montant"),
           alignement: "droite",
           rendu: (r) => (
-            <span className="font-semibold tabular-nums">{formaterGnf(r.montantGnf)}</span>
+            <span className="font-semibold whitespace-nowrap tabular-nums">
+              {formaterGnf(r.montantGnf)}
+            </span>
           ),
         },
         {
@@ -104,7 +113,11 @@ export function TableauRemboursements({ remboursements }: { remboursements: Remb
           cle: "actions",
           entete: t("colonnes.actions"),
           interactive: true,
-          rendu: (r) => <ActionsRemboursement remboursement={r} decider={deciderRemboursement} />,
+          voirSiVide: tCommun("voirDetail"),
+          rendu: (r) =>
+            actionsRemboursement(r.statut).length > 0 ? (
+              <ActionsRemboursement remboursement={r} decider={deciderRemboursement} />
+            ) : null,
         },
       ]}
     />

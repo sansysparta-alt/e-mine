@@ -37,6 +37,7 @@ export function TableauAVerifier({ elements }: { elements: ElementAVerifierDto[]
   const t = useTranslations("aVerifier");
   const tNature = useTranslations("aVerifier.natures");
   const tDates = useTranslations("dates");
+  const tCommun = useTranslations("commun");
   return (
     <TableauDonnees
       legende={t("titre")}
@@ -67,7 +68,7 @@ export function TableauAVerifier({ elements }: { elements: ElementAVerifierDto[]
           alignement: "droite",
           rendu: (e) => (
             <span className="flex flex-col items-end">
-              <span className="font-semibold tabular-nums">
+              <span className="font-semibold whitespace-nowrap tabular-nums">
                 {e.sens === "D" ? "− " : ""}
                 {formaterGnf(e.montantGnf)}
               </span>
@@ -98,13 +99,13 @@ export function TableauAVerifier({ elements }: { elements: ElementAVerifierDto[]
           rendu: (e) =>
             e.referencePaiement ? (
               <span className="flex flex-col">
-                <span className="tabular-nums">{e.referencePaiement}</span>
+                <span className="whitespace-nowrap tabular-nums">{e.referencePaiement}</span>
                 {e.demandeId != null && e.numeroDemande ? (
                   <Link
                     href={`/demandes/${e.demandeId}`}
                     className={cn(
                       classesAuDessusDuLien,
-                      "inline-flex min-h-11 items-center text-sm font-semibold text-royal tabular-nums underline-offset-4 hover:underline",
+                      "inline-flex min-h-11 items-center text-sm font-semibold whitespace-nowrap text-royal tabular-nums underline-offset-4 hover:underline",
                     )}
                   >
                     {e.numeroDemande}
@@ -119,7 +120,9 @@ export function TableauAVerifier({ elements }: { elements: ElementAVerifierDto[]
           cle: "actions",
           entete: t("colonnes.actions"),
           interactive: true,
-          rendu: (e) => <DecisionsEcart element={e} decider={deciderEcart} />,
+          voirSiVide: tCommun("voirDetail"),
+          rendu: (e) =>
+            e.decisions.length > 0 ? <DecisionsEcart element={e} decider={deciderEcart} /> : null,
         },
       ]}
     />

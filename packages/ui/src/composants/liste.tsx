@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Eye } from "lucide-react";
 import type { ComponentType, ReactNode } from "react";
 import { cn } from "../cn";
 
@@ -33,7 +33,20 @@ export type ColonneTableau<T> = {
    * elle garde son comportement (règle des lignes cliquables).
    */
   interactive?: boolean;
+  /**
+   * Colonne Actions (socle, US-11.8) : jamais vide. Quand `rendu` ne propose aucune action
+   * (`null`), la cellule affiche ce libellé (« Voir le détail »), lien vers l’adresse de la ligne.
+   */
+  voirSiVide?: string;
 };
+
+/** Lien d’action d’une ligne (« Voir le détail », « Payer ») : cible de 44 px, au-dessus du lien de ligne. */
+export const classesActionLigne =
+  "relative z-10 inline-flex min-h-11 items-center gap-1 whitespace-nowrap rounded-lg px-2 text-sm font-semibold text-royal hover:bg-ice";
+
+function estVide(contenu: ReactNode): boolean {
+  return contenu === null || contenu === undefined || contenu === false || contenu === "";
+}
 
 /**
  * Lien étiré (socle) : le lien couvre toute la ligne (pseudo-élément), la ligne entière est donc
@@ -85,7 +98,9 @@ export function TableauDonnees<T>({
   lienLigne,
 }: TableauDonneesProps<T>) {
   return (
-    <div className="rounded-carte border border-bordure bg-white">
+    // Références insécables (US-11.8) : un tableau plus large que sa colonne défile dans sa carte
+    // au lieu de déborder sur le contenu voisin.
+    <div className="overflow-x-auto rounded-carte border border-bordure bg-white">
       <table className="w-full border-collapse text-left">
         <caption className="sr-only">{legende}</caption>
         <thead className="hidden border-b border-bordure bg-fond sm:table-header-group">
@@ -158,19 +173,7 @@ export function TableauDonnees<T>({
                     {c.entete}
                   </span>
                   <span className={cn("min-w-0", c.interactive && classesAuDessusDuLien)}>
-                    {i === 0 && lienLigne ? (
-                      <Lien
-                        href={lienLigne(ligne)}
-                        className={cn(
-                          "text-royal underline-offset-4 hover:underline",
-                          classesLienEtire,
-                        )}
-                      >
-                        {c.rendu(ligne)}
-                      </Lien>
-                    ) : (
-                      c.rendu(ligne)
-                    )}
+                    {celluleTableau(c, ligne, i === 0, lienLigne, Lien)}
                   </span>
                 </td>
               ))}
@@ -179,6 +182,34 @@ export function TableauDonnees<T>({
         </tbody>
       </table>
     </div>
+  );
+}
+
+function celluleTableau<T>(
+  c: ColonneTableau<T>,
+  ligne: T,
+  premiere: boolean,
+  lienLigne: ((ligne: T) => string) | undefined,
+  Lien: ComposantLien,
+): ReactNode {
+  const contenu = c.rendu(ligne);
+  if (c.voirSiVide && lienLigne && estVide(contenu)) {
+    return (
+      <Lien href={lienLigne(ligne)} className={classesActionLigne}>
+        <Eye aria-hidden="true" className="size-4" />
+        {c.voirSiVide}
+      </Lien>
+    );
+  }
+  return premiere && lienLigne ? (
+    <Lien
+      href={lienLigne(ligne)}
+      className={cn("text-royal underline-offset-4 hover:underline", classesLienEtire)}
+    >
+      {contenu}
+    </Lien>
+  ) : (
+    contenu
   );
 }
 

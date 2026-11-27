@@ -567,7 +567,8 @@ function CeQueJeDoisFaire({
                 href={`/demandes/${demande.id}`}
                 className={cn("block font-semibold text-navy", classesLienEtire)}
               >
-                {demande.numero} · {libelles[demande.typeDocumentCode] ?? demande.typeDocumentCode}
+                <span className="whitespace-nowrap tabular-nums">{demande.numero}</span> ·{" "}
+                {libelles[demande.typeDocumentCode] ?? demande.typeDocumentCode}
               </Link>
               <span className="block text-sm text-texte-doux">
                 {montantGnf != null
