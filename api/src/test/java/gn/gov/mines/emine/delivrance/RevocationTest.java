@@ -66,8 +66,9 @@ class RevocationTest extends TestIntegration {
     }
   }
 
+  /** US-06.8 : le signataire du document (Directeur national pour une carrière) l'annule. */
   @Test
-  void leDirecteurRevoqueLeDocumentQuiDevientNonValideEtTraceAuJournal() throws Exception {
+  void leSignataireAnnuleLeDocumentQuiDevientNonValideEtTraceAuJournal() throws Exception {
     long id = documentDelivre();
     revoquer(id, "  Fraude constatée sur l'étude de faisabilité.  ", directeur())
         .andExpect(status().isOk())
@@ -90,14 +91,97 @@ class RevocationTest extends TestIntegration {
     }
   }
 
+  /**
+   * US-06.8, décision V1-11 : la Brigade signale, sans effet sur le document (la vérification
+   * publique reste « authentique ») ; le signalement arrive chez le signataire, qui annule.
+   */
   @Test
-  void laBrigadePeutRevoquerEtLaRevocationEstDefinitiveDoc006() throws Exception {
+  void laBrigadeSignaleEtLeSignataireAnnuleLaRevocationEstDefinitiveDoc006() throws Exception {
     long id = documentDelivre();
-    revoquer(id, "Document présenté lors d'un contrôle frauduleux.", jeton(brigade, "BRIGADE"))
-        .andExpect(status().isOk());
+    revoquer(id, "Document présenté lors d'un contrôle frauduleux.", brigadier())
+        .andExpect(status().isForbidden())
+        .andExpect(jsonPath("$.code").value("PERM-001"));
+    mvc.perform(get("/api/v1/demandes/" + id + "/document/signalements").with(brigadier()))
+        .andExpect(jsonPath("$.peutSignaler").value(true))
+        .andExpect(jsonPath("$.peutAnnuler").value(false));
+    signaler(id, "Document présenté lors d'un contrôle frauduleux.")
+        .andExpect(status().isCreated());
+    mvc.perform(get("/api/v1/demandes/" + id + "/document").with(directeur()))
+        .andExpect(jsonPath("$.valide").value(true));
+
+    long avant = aDecider();
+    assertThat(avant).isPositive();
+    mvc.perform(get("/api/v1/demandes/" + id + "/document/signalements").with(directeur()))
+        .andExpect(jsonPath("$.peutAnnuler").value(true))
+        .andExpect(jsonPath("$.signalements[0].statut").value("ouvert"))
+        .andExpect(jsonPath("$.signalements[0].aTraiterParMoi").value(true))
+        .andExpect(
+            jsonPath("$.signalements[0].motif")
+                .value("Document présenté lors d'un contrôle frauduleux."));
+    long signalement = premierSignalement(id);
+    // Un autre profil ne décide pas à la place du signataire.
+    decider(
+            signalement,
+            "ANNULER",
+            "Fraude confirmée par le contrôle.",
+            jeton(MINISTRE, "MINISTRE"))
+        .andExpect(status().isForbidden());
+    decider(signalement, "ANNULER", "Fraude confirmée par le contrôle.", directeur())
+        .andExpect(status().isNoContent());
+    assertThat(aDecider()).isEqualTo(avant - 1);
+    mvc.perform(get("/api/v1/demandes/" + id + "/document").with(directeur()))
+        .andExpect(jsonPath("$.valide").value(false))
+        .andExpect(jsonPath("$.motifInvalidation").value("Fraude confirmée par le contrôle."));
+    mvc.perform(get("/api/v1/demandes/" + id + "/document/signalements").with(directeur()))
+        .andExpect(jsonPath("$.signalements[0].statut").value("annule"))
+        .andExpect(jsonPath("$.signalements[0].decidePar").isNotEmpty());
     revoquer(id, "Seconde révocation du même document.", directeur())
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.code").value("DOC-006"));
+  }
+
+  @Test
+  void leSignataireClasseUnSignalementEtLeDocumentResteValide() throws Exception {
+    long id = documentDelivre();
+    signaler(id, "Doute sur la signature, à confirmer.").andExpect(status().isCreated());
+    long signalement = premierSignalement(id);
+    decider(signalement, "CLASSER", "court", directeur()).andExpect(status().isBadRequest());
+    decider(signalement, "CLASSER", "Signature vérifiée auprès du registre.", directeur())
+        .andExpect(status().isNoContent());
+    mvc.perform(get("/api/v1/demandes/" + id + "/document").with(directeur()))
+        .andExpect(jsonPath("$.valide").value(true));
+    decider(signalement, "ANNULER", "Décision déjà prise sur ce signalement.", directeur())
+        .andExpect(status().isConflict());
+    // Seule la Brigade signale.
+    mvc.perform(
+            post("/api/v1/demandes/" + id + "/document/signalements")
+                .with(directeur())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"motif\":\"Le signataire ne se signale pas.\"}"))
+        .andExpect(status().isForbidden());
+  }
+
+  /** La base refuse aussi l'annulation par un autre que le signataire (V35). */
+  @Test
+  void laBaseRefuseLAnnulationParUnAutreQueLeSignataire() throws Exception {
+    long id = documentDelivre();
+    try (Connection c = BaseDeDonneesDeTest.connexionOwner()) {
+      try (PreparedStatement session =
+          c.prepareStatement(
+              "SELECT set_config('emine.user_id', id::text, false) FROM utilisateur"
+                  + " WHERE keycloak_id = ?::uuid")) {
+        session.setString(1, brigade);
+        session.executeQuery();
+      }
+      try (PreparedStatement maj =
+          c.prepareStatement(
+              "UPDATE document_delivre SET statut = 'non_valide', motif_invalidation ="
+                  + " 'Annulation hors du circuit.' WHERE demande_id = ?")) {
+        maj.setLong(1, id);
+        org.assertj.core.api.Assertions.assertThatThrownBy(maj::executeUpdate)
+            .hasMessageContaining("seul son signataire");
+      }
+    }
   }
 
   @Test
@@ -105,7 +189,9 @@ class RevocationTest extends TestIntegration {
     long id = documentDelivre();
     for (RequestPostProcessor qui :
         new RequestPostProcessor[] {
+          // Le Ministre ne signe pas une autorisation de carrière : il ne l'annule pas.
           jeton(MINISTRE, "MINISTRE"),
+          brigadier(),
           jeton(GUICHET, "GUICHET"),
           jeton(INVESTISSEUR, "INVESTISSEUR")
         }) {
@@ -215,12 +301,60 @@ class RevocationTest extends TestIntegration {
     }
   }
 
+  /** Autorisation de carrière délivrée, signée par le Directeur national (catalogue, D4). */
   private long documentDelivre() throws Exception {
-    long id = DemandesDeTest.deposee(INVESTISSEUR, "PEX");
-    DemandesDeTest.pretePourLaDelivrance(id, MINISTRE, "FRAIS_DOSSIER", 5_000_000, 15_000_000L);
-    mvc.perform(post("/api/v1/demandes/" + id + "/delivrance").with(jeton(MINISTRE, "MINISTRE")))
+    long id = DemandesDeTest.deposee(INVESTISSEUR, "CAR");
+    DemandesDeTest.pretePourLaDelivrance(id, DIRECTEUR, "FRAIS_DOSSIER", 1_000_000, null);
+    mvc.perform(post("/api/v1/demandes/" + id + "/delivrance").with(directeur()))
         .andExpect(status().isOk());
     return id;
+  }
+
+  private ResultActions signaler(long id, String motif) throws Exception {
+    return mvc.perform(
+        post("/api/v1/demandes/" + id + "/document/signalements")
+            .with(brigadier())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("{\"motif\":\"" + motif + "\"}"));
+  }
+
+  private ResultActions decider(long id, String decision, String motif, RequestPostProcessor qui)
+      throws Exception {
+    return mvc.perform(
+        post("/api/v1/signalements/" + id + "/decision")
+            .with(qui)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("{\"decision\":\"" + decision + "\",\"motif\":\"" + motif + "\"}"));
+  }
+
+  private long premierSignalement(long id) throws Exception {
+    return tools.jackson.databind.json.JsonMapper.builder()
+        .build()
+        .readTree(
+            mvc.perform(get("/api/v1/demandes/" + id + "/document/signalements").with(directeur()))
+                .andReturn()
+                .getResponse()
+                .getContentAsString())
+        .path("signalements")
+        .get(0)
+        .path("id")
+        .asLong();
+  }
+
+  private long aDecider() throws Exception {
+    return tools.jackson.databind.json.JsonMapper.builder()
+        .build()
+        .readTree(
+            mvc.perform(get("/api/v1/signalements/a-decider").with(directeur()))
+                .andReturn()
+                .getResponse()
+                .getContentAsString())
+        .path("total")
+        .asLong();
+  }
+
+  private RequestPostProcessor brigadier() {
+    return jeton(brigade, "BRIGADE");
   }
 
   private ResultActions revoquer(long id, String motif, RequestPostProcessor qui) throws Exception {

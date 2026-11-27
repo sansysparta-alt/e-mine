@@ -1,6 +1,5 @@
 package gn.gov.mines.emine.delivrance;
 
-import static gn.gov.mines.emine.support.Personas.DIRECTEUR;
 import static gn.gov.mines.emine.support.Personas.INVESTISSEUR;
 import static gn.gov.mines.emine.support.Personas.MINISTRE;
 import static gn.gov.mines.emine.support.Personas.jeton;
@@ -84,7 +83,7 @@ class VerificationPubliqueTest extends TestIntegration {
 
     mvc.perform(
             post("/api/v1/demandes/" + id + "/document/revocation")
-                .with(jeton(DIRECTEUR, "DIRECTEUR"))
+                .with(jeton(MINISTRE, "MINISTRE"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"motif\":\"Fraude constatée par la brigade de Siguiri.\"}"))
         .andExpect(status().isOk());
