@@ -11,6 +11,11 @@ expect.extend(matchers);
 // pdf.js (lecteur PDF du socle) simulé : un document d'une page, sans moteur de rendu (jsdom).
 vi.mock("pdfjs-dist", () => ({
   GlobalWorkerOptions: {},
+  // Couche texte du lecteur (lot 5) : rendue sans moteur, rien à afficher en jsdom.
+  TextLayer: vi.fn(function (this: Record<string, unknown>) {
+    this.render = () => Promise.resolve();
+    this.cancel = vi.fn();
+  }),
   getDocument: vi.fn(() => ({
     destroy: vi.fn(() => Promise.resolve()),
     promise: Promise.resolve({
@@ -23,6 +28,7 @@ vi.mock("pdfjs-dist", () => ({
             height: 842 * scale,
           }),
           render: vi.fn(() => ({ promise: Promise.resolve(), cancel: vi.fn() })),
+          streamTextContent: vi.fn(() => ({})),
         }),
       ),
     }),
