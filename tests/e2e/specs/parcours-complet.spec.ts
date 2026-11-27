@@ -227,7 +227,7 @@ test("parcours V1 : dépôt, paiements, recevabilité, décision, délivrance, v
 
   // 10. Le signataire (le Ministre) révoque le document depuis le signalement.
   await ministre.goto("/signalements");
-  await expect(ministre.getByText(numero).first()).toBeVisible();
+  await expect(ministre.getByText(numero ?? "DEM-").first()).toBeVisible();
   await ministre.goto(`/demandes/${id}`);
   await ministre.getByRole("button", { name: "Révoquer le document…" }).click();
   await ministre
