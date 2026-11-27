@@ -358,6 +358,30 @@
       ]
     },
     {
+      "id": "00000000-0000-4000-8000-000000000010",
+      "username": "a.conde@e-mine.test",
+      "email": "a.conde@e-mine.test",
+      "emailVerified": true,
+      "firstName": "Alpha",
+      "lastName": "Condé",
+      "enabled": true,
+      "attributes": {
+        "locale": [
+          "fr"
+        ]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "${DEMO_PASSWORD}",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "BRIGADE"
+      ]
+    },
+    {
       "id": "00000000-0000-4000-8000-000000000001",
       "username": "o.bah@e-mine.test",
       "email": "o.bah@e-mine.test",

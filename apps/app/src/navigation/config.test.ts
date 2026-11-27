@@ -38,13 +38,18 @@ describe("configuration unique de la navigation", () => {
   });
 
   it("montre « À traiter » aux agents internes qui instruisent ou signent (correctifs J5)", () => {
-    for (const droit of ["INSTRUIRE", "SIGNER"]) {
-      expect(cles(navigationPour({ permissions: [droit], interne: true }))).toEqual([
-        "tableauDeBord",
-        "mesDemandes",
-        "aTraiter",
-      ]);
-    }
+    expect(cles(navigationPour({ permissions: ["INSTRUIRE"], interne: true }))).toEqual([
+      "tableauDeBord",
+      "mesDemandes",
+      "aTraiter",
+    ]);
+    // Le signataire a aussi ses signalements à décider (US-06.8).
+    expect(cles(navigationPour({ permissions: ["SIGNER"], interne: true }))).toEqual([
+      "tableauDeBord",
+      "mesDemandes",
+      "aTraiter",
+      "signalements",
+    ]);
     expect(cles(navigationPour({ permissions: ["INSTRUIRE"], interne: false }))).not.toContain(
       "aTraiter",
     );

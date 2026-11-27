@@ -4,6 +4,7 @@ import {
   lireDecision,
   lireDemande,
   lireDocumentDelivre,
+  lireSignalementsDocument,
   lireAvis,
   lireComplements,
   lireSuivi,
@@ -38,7 +39,7 @@ import { StatutDemande } from "@/composants/demande/statut-demande";
 import { ListePieces } from "@/composants/documents/liste-pieces";
 import { prochaineEtape } from "@/composants/demande/prochaine-etape";
 import { DocumentDelivre } from "@/composants/delivrance/document-delivre";
-import { peutRevoquer } from "@/composants/delivrance/revocation";
+import { ListeSignalements, SignalerDocument } from "@/composants/delivrance/signalements";
 import { RevoquerDocument } from "@/composants/delivrance/revoquer-document";
 import { SignerDelivrer } from "@/composants/delivrance/signer-delivrer";
 import { ListeAvis, RendreAvis } from "@/composants/instruction/avis";
@@ -72,6 +73,8 @@ import {
   rendreDecision,
   repondreAuComplement,
   revoquer,
+  signaler,
+  deciderUnSignalement,
   signerEtDelivrer,
 } from "@/serveur/actions-instruction";
 import { FilArianeApp } from "@/composants/fil-ariane-app";
@@ -205,6 +208,16 @@ export default async function DetailDemande({ params, searchParams }: Props) {
       if (!(e instanceof ErreurApi && e.code === "DOC-005")) throw e;
     }
   }
+  // US-06.8 : droits du profil connecté sur le document (le signataire révoque, la Brigade signale)
+  // et ses signalements ; profils internes seulement.
+  const signalements =
+    documentDelivre && moi.interne
+      ? (
+          await appelPage(chemin, async () =>
+            lireSignalementsDocument(Number(id), await optionsApi()),
+          )
+        ).data
+      : null;
   const aPayer = document?.tarifs.aPayerAuDepotGnf;
   const etapeCalculee = prochaineEtape(
     demande.statut,
@@ -425,15 +438,29 @@ export default async function DetailDemande({ params, searchParams }: Props) {
         demandeId={demande.id}
         document={documentDelivre}
         actions={
-          documentDelivre.valide && peutRevoquer(moi) ? (
+          signalements?.peutAnnuler ? (
             <RevoquerDocument
               demandeId={demande.id}
               numero={documentDelivre.numero}
               revoquer={revoquer}
             />
+          ) : signalements?.peutSignaler ? (
+            <SignalerDocument
+              demandeId={demande.id}
+              numero={documentDelivre.numero}
+              signaler={signaler}
+            />
           ) : undefined
         }
       />
+      {signalements && signalements.signalements.length > 0 ? (
+        <div className="mt-6">
+          <ListeSignalements
+            signalements={signalements.signalements}
+            decider={deciderUnSignalement}
+          />
+        </div>
+      ) : null}
     </Carte>
   ) : null;
   const blocDecision =

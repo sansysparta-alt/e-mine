@@ -201,6 +201,11 @@
       "titre": "{nombre, plural, one {# refund to approve} other {# refunds to approve}}",
       "texte": "Proposed by the tax officer: the order can be requested from the Treasury only after your approval.",
       "lien": "See the refunds to approve"
+    },
+    "signalementsADecider": {
+      "titre": "{nombre, plural, one {# report to decide} other {# reports to decide}}",
+      "texte": "The anti-fraud brigade has reported documents you signed. They remain valid until you decide to revoke them or close the report.",
+      "lien": "See the reports"
     }
   },
   "demande": {
@@ -559,7 +564,8 @@
       "releves": "Bank statements",
       "aVerifier": "To check",
       "remboursements": "Refunds",
-      "journalEncaissements": "Collections journal"
+      "journalEncaissements": "Collections journal",
+      "signalements": "Reports"
     },
     "compte": {
       "menu": "User menu",
@@ -1168,6 +1174,54 @@
       "echec": "The document was not revoked",
       "indisponible": "The service is temporarily unavailable. Try again in a moment.",
       "succes": "Document {numero} is revoked: its verification shows “NOT VALID”."
+    },
+    "signalements": {
+      "titre": "{nombre, plural, one {Report from the anti-fraud brigade} other {Reports from the anti-fraud brigade (#)}}",
+      "signalePar": "Reported by {auteur} on {date}",
+      "brigade": "the anti-fraud brigade",
+      "revoquePar": "Document revoked by {auteur} on {date}:",
+      "classePar": "Report closed by {auteur} on {date}:",
+      "statuts": {
+        "aDecider": "To decide",
+        "attenteSignataire": "Awaiting the signatory",
+        "revoque": "Document revoked",
+        "classe": "Closed"
+      },
+      "fermer": "Cancel",
+      "indisponible": "The service is temporarily unavailable. Try again in a moment.",
+      "signaler": {
+        "action": "Report to the signatory…",
+        "titre": "Report document {numero}",
+        "explication": "The document’s signatory will receive your report and decide whether to revoke the document or close the report. Until then, the document remains “authentic” on public verification.",
+        "motif": "Reason for the report",
+        "aide": "Describe what was found (fraud, forgery, error…). At least 10 characters.",
+        "confirmer": "Send the report",
+        "enCours": "Sending…",
+        "echec": "The report was not sent",
+        "succes": "Document {numero} has been reported to its signatory."
+      },
+      "revoquer": {
+        "action": "Revoke the document…",
+        "titre": "Revoke document {numero}",
+        "explication": "The document will show as “NOT VALID” on the public verification page immediately, and the report will be closed. Revocation is final.",
+        "motif": "Reason for revocation (shown publicly)",
+        "aide": "State the reason (fraud, clerical error, title withdrawn…). At least 10 characters.",
+        "confirmer": "Revoke permanently",
+        "enCours": "Revoking…",
+        "echec": "The document was not revoked",
+        "succes": "Document {numero} is revoked: its verification shows “NOT VALID”."
+      },
+      "classer": {
+        "action": "Close the report…",
+        "titre": "Close the report",
+        "explication": "Document {numero} remains valid. The reason is kept and visible to the anti-fraud brigade.",
+        "motif": "Reason for closing",
+        "aide": "Explain why the document remains valid. At least 10 characters.",
+        "confirmer": "Close the report",
+        "enCours": "Closing…",
+        "echec": "The report was not closed",
+        "succes": "Report closed: the document remains valid."
+      }
     }
   },
   "travail": {
@@ -2686,5 +2740,24 @@
     },
     "ligne": "Payment {reference} rejected: {motif}",
     "refuse": "Refund {numero} was refused: {motif}"
+  },
+  "signalements": {
+    "titre": "Reports",
+    "description": "Documents you signed that the anti-fraud brigade has reported. Open each one to revoke the document or close the report, with a reason.",
+    "vide": {
+      "titre": "No report to decide",
+      "description": "When the anti-fraud brigade reports a document you signed, it appears here."
+    },
+    "colonnes": {
+      "document": "Document",
+      "signalement": "Reported by",
+      "motif": "Reason",
+      "statut": "Status",
+      "actions": "Actions"
+    },
+    "signaleLe": "on {date}",
+    "decider": "Decide",
+    "element": "report",
+    "elements": "reports"
   }
 }

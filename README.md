@@ -60,6 +60,7 @@ Mot de passe commun : la valeur de `DEMO_PASSWORD` dans votre `.env`.
 | Directeur | `s.kouyate@e-mine.test` |
 | Ministre | `i.soumah@e-mine.test` |
 | Responsable fiscal | `m.diallo@e-mine.test` |
+| Brigade anti-fraude (signale un document) | `a.conde@e-mine.test` |
 | Administrateur technique | `o.bah@e-mine.test` |
 
 Après une modification de `infra/keycloak/realm-emine.json` : `pnpm infra:keycloak:reset`.

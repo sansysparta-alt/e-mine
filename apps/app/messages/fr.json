@@ -201,6 +201,11 @@
       "titre": "{nombre, plural, one {# remboursement à valider} other {# remboursements à valider}}",
       "texte": "Proposés par le Responsable fiscal : l’ordre ne peut être demandé au Trésor qu’après votre validation.",
       "lien": "Voir les remboursements à valider"
+    },
+    "signalementsADecider": {
+      "titre": "{nombre, plural, one {# signalement à décider} other {# signalements à décider}}",
+      "texte": "La Brigade anti-fraude vous signale des documents que vous avez signés. Ils restent valides tant que vous n’avez pas décidé de les révoquer ou de classer le signalement.",
+      "lien": "Voir les signalements"
     }
   },
   "demande": {
@@ -559,7 +564,8 @@
       "releves": "Relevés bancaires",
       "aVerifier": "À vérifier",
       "remboursements": "Remboursements",
-      "journalEncaissements": "Journal des encaissements"
+      "journalEncaissements": "Journal des encaissements",
+      "signalements": "Signalements"
     },
     "compte": {
       "menu": "Menu de l’utilisateur",
@@ -1168,6 +1174,54 @@
       "echec": "Le document n’a pas été révoqué",
       "indisponible": "Le service est momentanément indisponible. Réessayez dans un instant.",
       "succes": "Le document {numero} est révoqué : sa vérification affiche « NON VALIDE »."
+    },
+    "signalements": {
+      "titre": "{nombre, plural, one {Signalement de la Brigade anti-fraude} other {Signalements de la Brigade anti-fraude (#)}}",
+      "signalePar": "Signalé par {auteur}, le {date}",
+      "brigade": "la Brigade anti-fraude",
+      "revoquePar": "Document révoqué par {auteur}, le {date} :",
+      "classePar": "Signalement classé par {auteur}, le {date} :",
+      "statuts": {
+        "aDecider": "À décider",
+        "attenteSignataire": "Attend le signataire",
+        "revoque": "Document révoqué",
+        "classe": "Classé"
+      },
+      "fermer": "Annuler",
+      "indisponible": "Le service est momentanément indisponible. Réessayez dans un instant.",
+      "signaler": {
+        "action": "Signaler au signataire…",
+        "titre": "Signaler le document {numero}",
+        "explication": "Le signataire du document recevra votre signalement et décidera de révoquer le document ou de classer le signalement. D’ici là, le document reste « authentique » à la vérification publique.",
+        "motif": "Motif du signalement",
+        "aide": "Décrivez ce qui a été constaté (fraude, falsification, erreur…). 10 caractères au moins.",
+        "confirmer": "Envoyer le signalement",
+        "enCours": "Envoi…",
+        "echec": "Le signalement n’a pas été envoyé",
+        "succes": "Le document {numero} est signalé à son signataire."
+      },
+      "revoquer": {
+        "action": "Révoquer le document…",
+        "titre": "Révoquer le document {numero}",
+        "explication": "Le document deviendra « NON VALIDE » sur la page publique de vérification, immédiatement, et le signalement sera clos. La révocation est définitive.",
+        "motif": "Motif de la révocation (affiché publiquement)",
+        "aide": "Indiquez la raison (fraude, erreur matérielle, retrait du titre…). 10 caractères au moins.",
+        "confirmer": "Révoquer définitivement",
+        "enCours": "Révocation…",
+        "echec": "Le document n’a pas été révoqué",
+        "succes": "Le document {numero} est révoqué : sa vérification affiche « NON VALIDE »."
+      },
+      "classer": {
+        "action": "Classer le signalement…",
+        "titre": "Classer le signalement",
+        "explication": "Le document {numero} reste valide. Le motif est conservé et visible par la Brigade anti-fraude.",
+        "motif": "Motif du classement",
+        "aide": "Expliquez pourquoi le document reste valide. 10 caractères au moins.",
+        "confirmer": "Classer le signalement",
+        "enCours": "Classement…",
+        "echec": "Le signalement n’a pas été classé",
+        "succes": "Signalement classé : le document reste valide."
+      }
     }
   },
   "travail": {
@@ -2686,5 +2740,24 @@
     },
     "ligne": "Paiement {reference} rejeté : {motif}",
     "refuse": "Le remboursement {numero} a été refusé : {motif}"
+  },
+  "signalements": {
+    "titre": "Signalements",
+    "description": "Documents que vous avez signés et que la Brigade anti-fraude vous signale. Ouvrez chacun pour le révoquer ou classer le signalement, avec un motif.",
+    "vide": {
+      "titre": "Aucun signalement à décider",
+      "description": "Quand la Brigade anti-fraude signale un document que vous avez signé, il apparaît ici."
+    },
+    "colonnes": {
+      "document": "Document",
+      "signalement": "Signalé par",
+      "motif": "Motif",
+      "statut": "Statut",
+      "actions": "Actions"
+    },
+    "signaleLe": "le {date}",
+    "decider": "Décider",
+    "element": "signalement",
+    "elements": "signalements"
   }
 }

@@ -2,6 +2,7 @@ import {
   compterATraiter,
   listerAVerifier,
   listerRemboursements,
+  listerSignalementsADecider,
   lireParametresDelai,
   lireRegleRemboursement,
   listerFichesDocuments,
@@ -29,6 +30,15 @@ export async function compteursNavigation(moi: MoiDto): Promise<CompteursNavigat
   }
   if (moi.interne && (droits.has("INSTRUIRE") || droits.has("SIGNER"))) {
     lectures.push(aTraiter().then((n) => ["aTraiter", n]));
+  }
+  // Signataire (US-06.8) : signalements de la Brigade sur ses documents, à décider.
+  if (moi.interne && droits.has("SIGNER")) {
+    lectures.push(
+      listerSignalementsADecider({ taille: 10 }, options).then((r) => [
+        "signalements",
+        r.data.total,
+      ]),
+    );
   }
   // Responsable fiscal (US-04.9) : éléments « À vérifier » qui attendent sa décision.
   if (moi.interne && droits.has("ENCAISSER")) {
