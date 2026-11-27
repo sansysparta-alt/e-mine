@@ -98,7 +98,9 @@ export function TableauDonnees<T>({
   lienLigne,
 }: TableauDonneesProps<T>) {
   return (
-    <div className="rounded-carte border border-bordure bg-white">
+    // Références insécables (US-11.8) : un tableau plus large que sa colonne défile dans sa carte
+    // au lieu de déborder sur le contenu voisin.
+    <div className="overflow-x-auto rounded-carte border border-bordure bg-white">
       <table className="w-full border-collapse text-left">
         <caption className="sr-only">{legende}</caption>
         <thead className="hidden border-b border-bordure bg-fond sm:table-header-group">
