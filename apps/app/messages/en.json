@@ -515,7 +515,8 @@
       "principal": "Main",
       "demarches": "Procedures",
       "instruction": "Processing",
-      "administration": "Administration"
+      "administration": "Administration",
+      "encaissements": "Collections"
     },
     "entrees": {
       "tableauDeBord": "Dashboard",
@@ -533,7 +534,8 @@
       "mentionsLegales": "Legal notice",
       "utilisateurs": "Users & roles",
       "paiements": "Payments & receipts",
-      "documents": "Issued documents"
+      "documents": "Issued documents",
+      "releves": "Bank statements"
     },
     "compte": {
       "menu": "User menu",
@@ -934,7 +936,9 @@
       "workflow_etape": "Workflow step",
       "parametre_delai": "Time limit rule",
       "notification_evenement": "Notification channels",
-      "version_regle_delai": "Deadline rule version"
+      "version_regle_delai": "Deadline rule version",
+      "releve_bancaire": "Bank statement",
+      "ligne_releve": "Statement line"
     },
     "champs": {
       "statut": "Status",
@@ -2278,6 +2282,88 @@
     "copier": {
       "libelle": "Copy: {quoi}",
       "fait": "Copied: {quoi}"
+    }
+  },
+  "releves": {
+    "titre": "Bank statements",
+    "description": "Import the statement of the transfer account: each transfer is recognised by its reference and amount. Anything that does not match exactly is submitted to you.",
+    "elements": "statements",
+    "import": {
+      "titre": "Import a statement",
+      "fichier": "Bank statement (CSV)",
+      "aideFichier": "CSV format of the contract: date_operation;libelle;montant_gnf;sens. 2 MB maximum.",
+      "banque": "Bank",
+      "aideBanque": "Optional: the bank of the transfer account by default.",
+      "date": "Statement date",
+      "aideDate": "Optional: the latest transaction date by default.",
+      "bouton": "Import and reconcile",
+      "enCours": "Importing…",
+      "obligatoire": "Choose the statement file.",
+      "format": "Format not accepted: CSV file only.",
+      "taille": "File too large: 2 MB maximum.",
+      "erreur": "The statement could not be imported",
+      "exemple": "Download a sample statement",
+      "exempleAide": "Demonstration: one matching line for each declared transfer awaiting confirmation."
+    },
+    "colonnes": {
+      "date": "Statement date",
+      "banque": "Bank",
+      "fichier": "File",
+      "lignes": "Lines",
+      "rapprochees": "Reconciled",
+      "aVerifier": "To check",
+      "importe": "Imported"
+    },
+    "importePar": "on {date} by {nom}",
+    "importeLe": "on {date}",
+    "vide": {
+      "titre": "No statement imported",
+      "description": "Import the first statement of the transfer account: transfers declared by applicants will be confirmed automatically."
+    },
+    "detail": {
+      "titreOnglet": "Statement",
+      "titre": "Statement of {date}",
+      "description": "{banque} · {fichier}",
+      "importe": "Statement imported: {rapprochees, plural, =0 {no transfer confirmed} one {# transfer confirmed} other {# transfers confirmed}}, {aVerifier, plural, =0 {nothing to check} one {# line to check} other {# lines to check}}.",
+      "importeTexte": "Confirmed payments have their receipt and the requests concerned move to the front desk. Lines to check await your decision.",
+      "periode": "This statement",
+      "lignes": "Lines",
+      "credits": "Credits {montant}",
+      "rapprochees": "Transfers confirmed",
+      "rapprocheesPrecision": "Exact reference and amount",
+      "aVerifier": "To check",
+      "aVerifierPrecision": "Differences and unknown references",
+      "filtres": "Result",
+      "toutes": "All",
+      "filtreRapprochees": "Reconciled",
+      "filtreAVerifier": "To check",
+      "aucune": "No line for this filter.",
+      "elements": "lines"
+    },
+    "ligne": {
+      "numero": "No.",
+      "date": "Transaction",
+      "libelle": "Description",
+      "montant": "Amount",
+      "resultat": "Result",
+      "paiement": "Payment",
+      "credit": "Credit",
+      "debit": "Debit",
+      "statuts": {
+        "rapprochee": "Reconciled",
+        "ecart": "To check",
+        "inconnue": "To check",
+        "non_traitee": "Not processed"
+      },
+      "natures": {
+        "conforme": "Transfer confirmed",
+        "inferieur": "Amount lower by {ecart}",
+        "superieur": "Amount higher by {ecart}",
+        "inconnue": "No transfer matches",
+        "doublon": "Already paid: duplicate payment",
+        "tardif": "Reference expired or cancelled",
+        "retour": "Debit: return or bank charges"
+      }
     }
   }
 }

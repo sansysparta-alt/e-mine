@@ -9,6 +9,10 @@
     "url" : "http://localhost",
     "description" : "Generated server url"
   } ],
+  "tags" : [ {
+    "name" : "Relevés bancaires",
+    "description" : "Import et rapprochement des virements (US-04.8)"
+  } ],
   "paths" : {
     "/api/v1/parametres/notifications" : {
       "get" : {
@@ -283,6 +287,91 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/ApprobationDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/releves" : {
+      "get" : {
+        "tags" : [ "Relevés bancaires" ],
+        "summary" : "Relevés importés, du plus récent au plus ancien, avec leurs résultats",
+        "operationId" : "listerReleves",
+        "parameters" : [ {
+          "name" : "page",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "name" : "taille",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageRelevesDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Relevés bancaires" ],
+        "summary" : "Importer un relevé CSV (contrat docs/contrats/releve-csv.md) et rapprocher ses lignes ; PAY-011 si le fichier a déjà été importé, VAL-001 si son format est invalide",
+        "operationId" : "importerReleve",
+        "parameters" : [ {
+          "name" : "banque",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "dateReleve",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "fichier" : {
+                    "type" : "string",
+                    "format" : "binary"
+                  }
+                },
+                "required" : [ "fichier" ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Created",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReleveDto"
                 }
               }
             }
@@ -1692,6 +1781,106 @@
         }
       }
     },
+    "/api/v1/releves/{id}" : {
+      "get" : {
+        "tags" : [ "Relevés bancaires" ],
+        "summary" : "Un relevé et ses nombres de lignes par résultat",
+        "operationId" : "lireReleve",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReleveDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/releves/{id}/lignes" : {
+      "get" : {
+        "tags" : [ "Relevés bancaires" ],
+        "summary" : "Lignes d'un relevé, dans l'ordre du fichier, avec le paiement rapproché",
+        "operationId" : "listerLignesReleve",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "resultat",
+          "in" : "query",
+          "description" : "rapprochees ou a-verifier ; absent : toutes",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "page",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "name" : "taille",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageLignesDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/releves/exemple" : {
+      "get" : {
+        "tags" : [ "Relevés bancaires" ],
+        "summary" : "Relevé d'exemple de démonstration : une ligne conforme par virement déclaré en attente (désactivé en recette et production)",
+        "operationId" : "telechargerReleveExemple",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "text/csv" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/referentiels/substances" : {
       "get" : {
         "tags" : [ "Catalogue" ],
@@ -2926,6 +3115,53 @@
         },
         "required" : [ "dateEffet" ]
       },
+      "ReleveDto" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "banque" : {
+            "type" : "string"
+          },
+          "dateReleve" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "nomFichier" : {
+            "type" : "string"
+          },
+          "importeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "importePar" : {
+            "type" : [ "string", "null" ]
+          },
+          "lignes" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "rapprochees" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "ecarts" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "inconnues" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "totalCreditsGnf" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "banque", "dateReleve", "ecarts", "id", "importeLe", "importePar", "inconnues", "lignes", "nomFichier", "rapprochees", "totalCreditsGnf" ]
+      },
       "PropositionRegleDelaiDto" : {
         "type" : "object",
         "properties" : {
@@ -3844,6 +4080,116 @@
           }
         },
         "required" : [ "avisRequis", "code", "delaiJours", "famille", "instruitPar", "instruitParEn", "libelleEn", "libelleFr", "piecesRequises", "piecesRequisesEn", "renouvelable", "signataire", "tarifs" ]
+      },
+      "PageRelevesDto" : {
+        "type" : "object",
+        "properties" : {
+          "elements" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ReleveDto"
+            }
+          },
+          "page" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "taille" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "total" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "exempleDisponible" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "elements", "exempleDisponible", "page", "taille", "total", "totalPages" ]
+      },
+      "LigneReleveDto" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "numero" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "dateOperation" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "libelle" : {
+            "type" : "string"
+          },
+          "montantGnf" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "sens" : {
+            "type" : "string"
+          },
+          "statut" : {
+            "type" : "string"
+          },
+          "nature" : {
+            "type" : [ "string", "null" ]
+          },
+          "referenceLue" : {
+            "type" : [ "string", "null" ]
+          },
+          "ecartGnf" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "referencePaiement" : {
+            "type" : [ "string", "null" ]
+          },
+          "demandeId" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "numeroDemande" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "dateOperation", "demandeId", "ecartGnf", "id", "libelle", "montantGnf", "nature", "numero", "numeroDemande", "referenceLue", "referencePaiement", "sens", "statut" ]
+      },
+      "PageLignesDto" : {
+        "type" : "object",
+        "properties" : {
+          "elements" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/LigneReleveDto"
+            }
+          },
+          "page" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "taille" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "total" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "elements", "page", "taille", "total", "totalPages" ]
       },
       "SubstanceDto" : {
         "type" : "object",

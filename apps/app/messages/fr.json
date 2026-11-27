@@ -515,7 +515,8 @@
       "principal": "Principal",
       "demarches": "Démarches",
       "instruction": "Instruction",
-      "administration": "Administration"
+      "administration": "Administration",
+      "encaissements": "Encaissements"
     },
     "entrees": {
       "tableauDeBord": "Tableau de bord",
@@ -533,7 +534,8 @@
       "mentionsLegales": "Mentions légales",
       "utilisateurs": "Utilisateurs & rôles",
       "paiements": "Paiements & reçus",
-      "documents": "Documents délivrés"
+      "documents": "Documents délivrés",
+      "releves": "Relevés bancaires"
     },
     "compte": {
       "menu": "Menu de l’utilisateur",
@@ -934,7 +936,9 @@
       "workflow_etape": "Étape de workflow",
       "parametre_delai": "Règle des délais",
       "notification_evenement": "Canaux de notification",
-      "version_regle_delai": "Version de la règle des délais"
+      "version_regle_delai": "Version de la règle des délais",
+      "releve_bancaire": "Relevé bancaire",
+      "ligne_releve": "Ligne de relevé"
     },
     "champs": {
       "statut": "Statut",
@@ -2278,6 +2282,88 @@
     "copier": {
       "libelle": "Copier : {quoi}",
       "fait": "Copié : {quoi}"
+    }
+  },
+  "releves": {
+    "titre": "Relevés bancaires",
+    "description": "Importez le relevé du compte des virements : chaque virement est reconnu par sa référence et son montant. Ce qui ne correspond pas exactement vous est soumis.",
+    "elements": "relevés",
+    "import": {
+      "titre": "Importer un relevé",
+      "fichier": "Relevé bancaire (CSV)",
+      "aideFichier": "Format CSV du contrat : date_operation;libelle;montant_gnf;sens. 2 Mo au plus.",
+      "banque": "Banque",
+      "aideBanque": "Facultatif : la banque du compte des virements par défaut.",
+      "date": "Date du relevé",
+      "aideDate": "Facultatif : la dernière date d’opération par défaut.",
+      "bouton": "Importer et rapprocher",
+      "enCours": "Import en cours…",
+      "obligatoire": "Choisissez le fichier du relevé.",
+      "format": "Format non accepté : fichier CSV uniquement.",
+      "taille": "Fichier trop volumineux : 2 Mo au maximum.",
+      "erreur": "Le relevé n’a pas pu être importé",
+      "exemple": "Télécharger un relevé d’exemple",
+      "exempleAide": "Démonstration : une ligne conforme pour chaque virement déclaré en attente."
+    },
+    "colonnes": {
+      "date": "Date du relevé",
+      "banque": "Banque",
+      "fichier": "Fichier",
+      "lignes": "Lignes",
+      "rapprochees": "Rapprochées",
+      "aVerifier": "À vérifier",
+      "importe": "Importé"
+    },
+    "importePar": "le {date} par {nom}",
+    "importeLe": "le {date}",
+    "vide": {
+      "titre": "Aucun relevé importé",
+      "description": "Importez le premier relevé du compte des virements : les virements déclarés par les usagers seront confirmés automatiquement."
+    },
+    "detail": {
+      "titreOnglet": "Relevé",
+      "titre": "Relevé du {date}",
+      "description": "{banque} · {fichier}",
+      "importe": "Relevé importé : {rapprochees, plural, =0 {aucun virement confirmé} one {# virement confirmé} other {# virements confirmés}}, {aVerifier, plural, =0 {rien à vérifier} one {# ligne à vérifier} other {# lignes à vérifier}}.",
+      "importeTexte": "Les paiements confirmés ont leur reçu et les demandes concernées passent au guichet. Les lignes à vérifier attendent votre décision.",
+      "periode": "Ce relevé",
+      "lignes": "Lignes",
+      "credits": "Crédits {montant}",
+      "rapprochees": "Virements confirmés",
+      "rapprocheesPrecision": "Référence et montant exacts",
+      "aVerifier": "À vérifier",
+      "aVerifierPrecision": "Écarts et références inconnues",
+      "filtres": "Résultat",
+      "toutes": "Toutes",
+      "filtreRapprochees": "Rapprochées",
+      "filtreAVerifier": "À vérifier",
+      "aucune": "Aucune ligne pour ce filtre.",
+      "elements": "lignes"
+    },
+    "ligne": {
+      "numero": "N°",
+      "date": "Opération",
+      "libelle": "Libellé",
+      "montant": "Montant",
+      "resultat": "Résultat",
+      "paiement": "Paiement",
+      "credit": "Crédit",
+      "debit": "Débit",
+      "statuts": {
+        "rapprochee": "Rapprochée",
+        "ecart": "À vérifier",
+        "inconnue": "À vérifier",
+        "non_traitee": "Non traitée"
+      },
+      "natures": {
+        "conforme": "Virement confirmé",
+        "inferieur": "Montant inférieur de {ecart}",
+        "superieur": "Montant supérieur de {ecart}",
+        "inconnue": "Aucun virement ne correspond",
+        "doublon": "Déjà payé : versement en double",
+        "tardif": "Référence expirée ou annulée",
+        "retour": "Débit : retour ou frais bancaires"
+      }
     }
   }
 }
