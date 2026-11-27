@@ -75,7 +75,7 @@ export default async function MesDocuments({ searchParams }: Props) {
       entete: t("colonnes.document"),
       rendu: (d) => (
         <span className="flex flex-col">
-          <span className="font-semibold text-navy tabular-nums">
+          <span className="font-semibold whitespace-nowrap text-navy tabular-nums">
             <TexteSurligne texte={d.numero} recherche={q ?? ""} />
           </span>
           <span className="text-sm text-texte-doux">
@@ -120,7 +120,7 @@ export default async function MesDocuments({ searchParams }: Props) {
       cle: "demande",
       entete: t("colonnes.demande"),
       rendu: (d) => (
-        <span className="tabular-nums">
+        <span className="whitespace-nowrap tabular-nums">
           <TexteSurligne texte={d.numeroDemande ?? ""} recherche={q ?? ""} />
         </span>
       ),
@@ -220,7 +220,7 @@ export default async function MesDocuments({ searchParams }: Props) {
                 page={resultat.page}
                 taille={resultat.taille}
                 total={resultat.total}
-                elements={t("elements")}
+                elements={{ un: t("element"), plusieurs: t("elements") }}
               />
             </div>
           )}

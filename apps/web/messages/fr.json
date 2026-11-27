@@ -17,7 +17,7 @@
     "titre": "Catalogue des documents",
     "presentation": "Les 15 documents délivrés par le Ministère, avec leur délai de traitement, les pièces à fournir, le signataire et les frais. Montants en francs guinéens (données de démonstration).",
     "delai": "Délai",
-    "jours": "{nombre} jours",
+    "jours": "{nombre, plural, one {# jour} other {# jours}}",
     "signataire": "Signataire",
     "fraisDossier": "Frais de dossier",
     "droits": "Droits",

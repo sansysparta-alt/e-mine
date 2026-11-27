@@ -90,6 +90,7 @@ export function ActionsRemboursement({
             key={a}
             type="button"
             variante={a === "refuser" ? "secondaire" : "primaire"}
+            taille="ligne"
             onClick={() => {
               setChoix(a);
               setTexte("");

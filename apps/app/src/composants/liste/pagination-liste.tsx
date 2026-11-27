@@ -1,8 +1,8 @@
 "use client";
 
-import { type ComposantLien, Pagination } from "@emine/ui";
+import { accorder, type ComposantLien, type FormesAccord, Pagination } from "@emine/ui";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 const LienNext: ComposantLien = ({ href, children, ...props }) => (
   <Link href={href} {...props}>
@@ -16,13 +16,14 @@ export type PaginationListeProps = {
   page: number;
   taille: number;
   total: number;
-  /** Nom des éléments au pluriel dans le résumé (« demandes »). */
-  elements: string;
+  /** Nom des éléments du résumé, accordé avec le total : « 1 demande », « 36 demandes ». */
+  elements: FormesAccord;
 };
 
 /** Pagination du socle avec les libellés de l'application et la navigation Next. */
 export function PaginationListe({ elements, ...props }: PaginationListeProps) {
   const t = useTranslations("pagination");
+  const langue = useLocale();
   return (
     <Pagination
       {...props}
@@ -31,7 +32,8 @@ export function PaginationListe({ elements, ...props }: PaginationListeProps) {
         zone: t("zone"),
         afficher: t("afficher"),
         parPage: t("parPage"),
-        resume: (debut, fin, total) => t("resume", { debut, fin, total, elements }),
+        resume: (debut, fin, total) =>
+          t("resume", { debut, fin, total, elements: accorder(props.total, elements, langue) }),
         precedente: t("precedente"),
         suivante: t("suivante"),
         page: (numero) => t("page", { numero }),
