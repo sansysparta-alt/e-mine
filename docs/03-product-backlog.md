@@ -333,6 +333,71 @@ Relevées par le porteur du projet lors des vérifications du lot 5 dans le navi
 - **US-07.5** — Un paiement rejeté puis remboursé est **expliqué avec son motif** sur la fiche de la demande et dans « Ce que je dois faire » (ce qu'il reste à faire, ou rien) ; le tableau des paiements affiche **« Rejeté · remboursé »** (un seul badge).
 - **US-06.8** — Décision V1-11. Seul le **signataire du document** (profil et titre de la fiche figée au dépôt) peut l'annuler, motif obligatoire, contrôle en base ; la **Brigade signale** (motif, pièces) sans effet sur le document : la vérification publique reste « authentique » tant que le signataire n'a pas annulé ; le signalement arrive dans « À traiter » du signataire, qui annule ou classe avec motif ; tout est tracé. Remplace la règle « directeur ou brigade » de US-06.6.
 
+### Point d'étape du lot 6 (27/11/2026, soir) — à lire pour reprendre
+
+**État des stories**
+
+| Story | État | PR | Reste à faire |
+|---|---|---|---|
+| Documentation (V1-8 à V1-14) | Fusionnée | #107 | — |
+| US-11.8 Listes | Fusionnée | #108 | — |
+| US-02.10 Écrans des règles | Fusionnée | #109 | — |
+| US-07.6 Frise et temps d'attente | Fusionnée | #110 | Corrections R1, R2 ci-dessous |
+| US-04.14 Reçus (QR, date de virement) | Fusionnée (V33) | #111 | Correction R6 |
+| US-04.18 Validation des remboursements par le Directeur | Fusionnée (V34) | #112 | — |
+| US-07.5 Paiement rejeté et remboursé | Fusionnée | #113 | — |
+| US-06.8 Annulation par le signataire, signalement par la Brigade | **Brouillon**, API faite et testée (V35) | #114 | Écrans ; compte Brigade de démonstration ; OpenAPI et client ; `verify` |
+| US-04.12 Complément d'un paiement insuffisant | **Pas commencée** (règle comptable tranchée, voir ci-dessous) | — | Tout |
+
+**PR et migrations** : #107 à #113 sont fusionnées (migrations jusqu'à **V34**). Restent :
+
+1. **#114** (US-06.8), base `main`, migration **V35** ; à passer en « prête » une fois les écrans faits.
+2. **US-04.12**, à créer après #114 : migrations **V36** (nouvelle valeur `complement_attendu` du type `statut_paiement`, seule dans son fichier car une valeur d'enum ne s'utilise pas dans la transaction qui la crée) et **V37** (paiement complémentaire lié, transitions, journal).
+3. **Corrections de recette**, une PR (V38 si une migration est nécessaire).
+
+Base de développement du porteur : V35 avait été appliquée par erreur depuis la branche de #114 ; elle en a été retirée le 27/11/2026 (table vide, aucune donnée perdue). La base est en V34 ; V35 s'appliquera à la fusion de #114. **Laisser la copie de travail sur `main` à jour en fin de session** : le porteur lance `pnpm dev` depuis ce dossier.
+
+**Décisions prises seul** (journal `docs/02` §6)
+
+- US-07.6 : frise en 7 étapes ; « Instruction » sans objet sans avis technique au catalogue (fiche du dépôt, `fn_avis_requis`) ; `etapeDepuis` repart aussi au paiement des frais ; pour un virement, la date retenue est celle du relevé.
+- US-04.18 : la séparation des tâches ne s'applique pas à une proposition créée par la règle sur rejet d'une demande (son auteur enregistré est celui qui a rejeté).
+- US-04.14 : QR et vérification publique sur **tous** les reçus, avec « somme remboursée depuis » ; `GenerateurQr` déplacé dans `shared.qr`.
+- US-02.10 : les motifs des versions initiales restent en base (immuables) ; l'écran affiche « Version initiale, à l'installation de la plateforme ».
+- US-06.8 : pas de pièces jointes au signalement dans cette version (motif seul).
+
+**Décision du porteur pour US-04.12 (27/11/2026)** : la recette est comptée **une seule fois, à la date où le complément est payé** ; le complément a **son propre reçu, qui renvoie au paiement initial**. Modèle retenu :
+
+- « Demander le complément » sur un paiement « à vérifier » au montant inférieur : le paiement initial passe à `complement_attendu` (il n'est pas rejeté) ; motif obligatoire, tracé, notifié avec le reste à payer, la référence et l'échéance (provisoire : 15 jours, paramétrable).
+- Le demandeur paie le reste par le circuit normal (« Ce que je dois faire », page de paiement au montant restant) : le paiement complémentaire porte `complement_de` (paiement initial).
+- Complément payé : le paiement initial passe « payé » (montant reçu = total) ; les frais sont alors payés.
+- Journal des encaissements : une seule recette, celle du paiement initial au montant dû, **datée du paiement du complément** ; le complément n'est pas compté une seconde fois.
+- Reçus : le complément a son reçu (« Complément du paiement PAY-… ») ; le reçu du paiement initial porte le total.
+- Échéance dépassée : rien d'automatique ; le Responsable fiscal peut alors rejeter (la somme reçue est proposée au remboursement, US-04.10).
+
+**Questions en attente** : aucune bloquante. À confirmer pendant les corrections : R7 (proposer un remboursement à la main) et R6 (en-tête sans emblème, règle « pas de logo officiel »).
+
+**Recette navigateur du 27/11/2026 : corrections à faire**
+
+| # | Constat | Cause probable et correction |
+|---|---|---|
+| R1 | Frise : « à vous d'agir » reste affiché alors que le paiement est en vérification | `RegleSuivi.actionDemandeur` ignore le paiement en vérification ; ajouter `paiementEnVerification` à `Situation` (même règle que `actionAttendue`) |
+| R2 | « À cette étape depuis » répète la même information | Fiche de la demande : la date et le temps d'attente sont dits deux fois ; n'afficher que `DateAttente` (date d'entrée dans l'étape et « en attente depuis N jours ») |
+| R3 | « À vérifier » dit « tous les versements sont rapprochés » alors qu'un virement déclaré attend le relevé | Message d'état vide à distinguer : rien à décider, mais N virements attendus sur le prochain relevé (lien vers la liste) |
+| R4 | Association manuelle : la référence se tape à la main ; pas de message clair si le paiement est déjà confirmé | Proposer la liste des virements en attente du même montant (choix dans une liste) ; `PAY-014` ou un code dédié avec un message qui dit que le paiement est déjà confirmé |
+| R5 | Relevé : lignes numérotées 2, 4, 5 au lieu de 1 à 4 ; débit écrit « 15 000 GNF Débit » ici et « − 15 000 GNF » ailleurs | Numéroter les lignes affichées (US-04.15, avancée au lot 6) ; un seul format de débit, « − 15 000 GNF », fonction commune de `packages/ui` |
+| R6 | Page publique de vérification sans en-tête officiel | En-tête texte « République de Guinée · Ministère des Mines et de la Géologie · e-mine » sur `/verifier`, `/verifier/{code}` et `/verifier/recu/{code}`, **sans emblème** (règle 3) |
+| R7 | Remboursements : aucun bouton pour proposer un remboursement | Aujourd'hui, les propositions naissent des décisions « À vérifier » et de la règle sur rejet. Proposer : « Proposer un remboursement » sur le détail d'un paiement payé (Responsable fiscal), motif et montant au plus égal au reçu, puis le circuit du Directeur |
+| R8 | Motif de RMB-2026-000001 contenant un texte d'aide | **Pas un défaut du code** : ce texte a été saisi dans le motif du rejet, que la proposition reprend. L'aperçu du motif avant confirmation (US-04.13) évitera ce cas ; l'avancer au lot 6 |
+| R9 | Cloche absente chez le Responsable fiscal | Gabarit : la cloche n'est pas affichée pour ce profil (US-04.17, avancée au lot 6) |
+
+**Plan pour finir le lot 6** (dans cet ordre, une PR par ligne)
+
+1. **US-06.8, écrans** (#114) : sur la fiche du document, « Signaler » pour la Brigade, signalements et décision (annuler ou classer) pour le signataire ; compteur du menu et alerte du tableau de bord du signataire (`/signalements/a-decider`) ; persona Brigade dans le realm et le seed ; OpenAPI, client, `verify`, recette.
+2. **US-04.12** selon le modèle ci-dessus (V36, V37) : API, écrans du Responsable fiscal et du demandeur, reçus, journal, tests.
+3. **Corrections de recette** R1 à R9 (R8 par l'aperçu du motif), avec US-04.13, US-04.15 et la cloche de US-04.17 avancées.
+
+Estimation : environ une session de travail complète pour les trois PR. La conversation du 27/11/2026 est très chargée : **reprendre dans une nouvelle conversation** (`/clear`), à partir de ce point et de `docs/08-reprise.md`.
+
 ### Lot 7 — Catalogue réel du Ministère
 
 | ID | Story | Pts | Prio |
