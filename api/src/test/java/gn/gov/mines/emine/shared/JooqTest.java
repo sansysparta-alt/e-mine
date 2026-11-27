@@ -34,7 +34,8 @@ class JooqTest extends TestIntegration {
             .getValues(0, String.class);
     assertThat(Arrays.stream(StatutDemande.values()).map(StatutDemande::getLiteral))
         .containsExactlyElementsOf(enBase);
-    assertThat(StatutPaiement.values()).hasSize(10);
+    // US-04.12 : « complement_attendu » (V36).
+    assertThat(StatutPaiement.values()).hasSize(11);
   }
 
   @Test
