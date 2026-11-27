@@ -17,6 +17,7 @@ import {
   navigationPour,
   PAGES_HORS_MENU,
   type Profil,
+  recoitNotifications,
   visible,
 } from "./config";
 
@@ -119,7 +120,7 @@ export function NavigationApplication({
         <RechercheGlobale compte={compte} pages={pagesRecherche} lienDemandes="/demandes" />
       }
       piedDePage={piedDePage}
-      actionsEntete={profil.interne ? null : <ClocheNotifications initial={nonLues} />}
+      actionsEntete={recoitNotifications(profil) ? <ClocheNotifications initial={nonLues} /> : null}
       menuUtilisateur={<MenuCompte utilisateur={utilisateur} Lien={LienNext} />}
       libelles={{
         navigation: t("titre"),

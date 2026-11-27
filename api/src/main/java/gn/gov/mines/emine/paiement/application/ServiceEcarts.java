@@ -69,6 +69,31 @@ public class ServiceEcarts {
     return ecarts.lister(pagination).map(e -> new ElementAVerifier(e, decisions(e)));
   }
 
+  /** Virements déclarés qui attendent le prochain relevé (R3). */
+  @Transactional(readOnly = true)
+  public long virementsAttendus() {
+    return ecarts.virementsAttendus();
+  }
+
+  /**
+   * Virements auxquels une ligne non traitée peut être associée (R4) : en cours, du même montant.
+   * PAY-013 si la ligne n'existe pas, est déjà traitée ou ne s'associe pas.
+   */
+  @Transactional(readOnly = true)
+  public List<EcartRepository.PaiementAssociable> associables(long ligneId) {
+    LigneADecider ligne =
+        ecarts
+            .lireLigne(ligneId)
+            .orElseThrow(() -> new ErreurMetier(CodeErreur.PAY_013, Map.of("ligne", ligneId)));
+    boolean aVerifier = "a_verifier".equals(ligne.statutPaiement());
+    if (ligne.decision() != null
+        || !RegleEcarts.pourLigne(ligne.nature(), aVerifier, ligne.complement())
+            .contains(Decision.ASSOCIER)) {
+      throw new ErreurMetier(CodeErreur.PAY_013, Map.of("ligne", ligneId));
+    }
+    return ecarts.associables(ligne.montantGnf());
+  }
+
   /** Nombre d'éléments à vérifier : compteur du menu et du tableau de bord. */
   @Transactional(readOnly = true)
   public long compter() {
@@ -155,7 +180,12 @@ public class ServiceEcarts {
         var paiement =
             ecarts
                 .virementAssociable(ref, ligne.montantGnf())
-                .orElseThrow(() -> new ErreurMetier(CodeErreur.PAY_014, Map.of("reference", ref)));
+                .orElseThrow(
+                    () ->
+                        // R4 : un paiement déjà confirmé le dit clairement (versement en double).
+                        ecarts.statut(ref).filter(s -> s == StatutPaiement.paye).isPresent()
+                            ? new ErreurMetier(CodeErreur.PAY_020, Map.of("reference", ref))
+                            : new ErreurMetier(CodeErreur.PAY_014, Map.of("reference", ref)));
         ecarts.confirmer(paiement, ligne.montantGnf(), ligne.dateOperation());
         ecarts.deciderLigne(id, decision.code(), motifNet, moi, paiement);
       }

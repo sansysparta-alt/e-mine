@@ -157,6 +157,7 @@ public class ServiceDemandes {
         new RegleSuivi.Situation(
             d.statut(),
             d.fraisPayes(),
+            d.paiementEnVerification(),
             droitsRequis,
             d.avisRequis(),
             d.origineComplement(),

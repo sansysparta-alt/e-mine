@@ -29,6 +29,12 @@ public class SuiviRepository {
 
   private final DSLContext dsl;
 
+  /**
+   * La somme attendue à ce stade est en vérification au ministère (R1, même règle que les listes).
+   */
+  private static final Field<Boolean> EN_VERIFICATION =
+      DSL.field(DemandeRepository.PAIEMENT_EN_VERIFICATION_COND).as("paiement_en_verification");
+
   public SuiviRepository(DSLContext dsl) {
     this.dsl = dsl;
   }
@@ -77,6 +83,7 @@ public class SuiviRepository {
             DEMANDE.DATE_RECEVABILITE,
             TYPE_DOCUMENT.CODE,
             DemandeRepository.FRAIS_PAYES,
+            EN_VERIFICATION,
             fraisLe,
             droitsLe,
             avisRendusLe,
@@ -99,6 +106,7 @@ public class SuiviRepository {
                   new RegleSuivi.Situation(
                       r.get(DEMANDE.STATUT).getLiteral(),
                       Boolean.TRUE.equals(r.get(DemandeRepository.FRAIS_PAYES)),
+                      Boolean.TRUE.equals(r.get(EN_VERIFICATION)),
                       droitsRequis.test(code),
                       Boolean.TRUE.equals(r.get(DemandeRepository.AVIS_REQUIS)),
                       o == null ? null : o.getLiteral(),

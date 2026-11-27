@@ -12,6 +12,7 @@ export {
   formaterDate,
   formaterDateHeure,
   formaterGnf,
+  formaterGnfSigne,
   formaterHeure,
   formaterNombre,
   formaterSuperficie,

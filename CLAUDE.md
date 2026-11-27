@@ -9,7 +9,7 @@ Langue du projet : **français** (documents, interface, commits, échanges). Int
 - **Priorité : la V1 de démonstration en une semaine — `docs/07-plan-v1-une-semaine.md`** (parcours E-DEMANDES de bout en bout avec simulateurs, un mini-sprint par jour). Pour une story de la V1, c'est sa **version allégée** dans `docs/07` qui fait foi. Le plan complet (`docs/03`, `docs/04`) reprend ensuite.
 - **Git est initialisé** et relié à `https://github.com/sansysparta-alt/e-mine` (dépôt public). Le **premier commit sera fait depuis VS Code** par le porteur du projet.
 - Démarrer chaque sprint avec **`/sprint J1`** (`.claude/commands/sprint.md`) ; voir « Méthode de travail ». Permissions : `.claude/settings.json` (commit, push de branche de story et PR autorisés ; fusion et suppressions sur accord ; push sur `main` et réécriture d'historique interdits).
-- Dernier sprint : **lot 5 V1 — paiement complet** (PR #99 → #106 : virement US-04.7, relevés et rapprochement US-04.8, écarts US-04.9, remboursements et règle V1-4 US-04.10, journal des encaissements US-04.11, interrogation TrésorPay US-04.5, documentation) ; état et suite dans `docs/08-reprise.md`. Périmètre V1 à jour : `docs/07` §9 ; décisions V1 du porteur du projet : `docs/01` §3.
+- Dernier sprint : **lot 6 V1 — circuit du Ministère et données justes** (PR #107 → #116 et corrections de recette : signalement par la Brigade US-06.8, complément d'un paiement US-04.12, R1 à R9) ; bilan dans `docs/03` §10 « Bilan du lot 6 ». Le lot 7 attend la recette et l'accord du porteur. Périmètre V1 à jour : `docs/07` §9 ; décisions V1 du porteur du projet : `docs/01` §3.
 - Là où `docs/07` (§4, §5) parle de `/clear` par story, de worktrees créés par le porteur du projet ou de fusion en fin de journée, **la méthode de ce fichier prévaut**.
 - Socle créé au sprint J1 : les commandes ci-dessous existent ; l'arborescence est la cible (dossiers ajoutés au fil des stories). Mettre ce fichier à jour dès qu'elles changent.
 
@@ -111,6 +111,8 @@ Poste de dev sous **Windows 11** : scripts multiplateformes (scripts `package.js
   - *Documents* : consultation par le visualiseur (pdf.js : pleine largeur, pages empilées, « Page X sur Y ») ; un document révoqué se « Voit » d'abord, sous l'avertissement (date, autorité, motif).
   - *Champs de recherche* : exemple de 30 caractères au plus (test `messages.test.ts`).
   - *Valeurs à recopier* (IBAN, référence de paiement) : bouton `BoutonCopier` de `packages/ui`.
+  - *Motifs* : toujours `ChampMotif` ; un motif lu par quelqu'un d'autre (demandeur, Directeur, public) a son **aperçu** avant confirmation (prop `apercu`, US-04.13).
+  - *Débits* : toujours `formaterGnfSigne` (« − 15 000 GNF »), jamais « Débit » ni un signe ajouté à la main.
   - *Colonne Actions* : jamais vide ; une ligne sans action propose « Voir le détail » (`voirSiVide` de `TableauDonnees`) ; les boutons d’une ligne en `taille="ligne"` (libellé sur une seule ligne).
   - *Références* (`DEM-…`, `PAY-…`, `RMB-…`) : jamais coupées sur deux lignes (`classesReference` ou `whitespace-nowrap`), une référence par élément quand plusieurs se suivent.
   - *Nombres et noms* : toujours accordés (« 1 élément », « 0 demande ») : message ICU `plural` ou `accorder` de `packages/ui` (résumé de pagination : clés `element` / `elements`) ; vérifié par `messages.test.ts`.

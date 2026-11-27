@@ -1,13 +1,13 @@
 "use client";
 
-import type { ElementAVerifierDto } from "@emine/api-client";
+import type { ElementAVerifierDto, PaiementAssociableDto } from "@emine/api-client";
 import {
   Alerte,
   Bouton,
   classesAuDessusDuLien,
-  classesChamp,
   cn,
   Dialogue,
+  formaterDate,
   formaterGnf,
 } from "@emine/ui";
 import { Archive, Ban, CircleCheck, Coins, Link2, Undo2 } from "@emine/ui/icones";
@@ -26,7 +26,6 @@ const ICONES = {
   REMBOURSER: Undo2,
   CLASSER: Archive,
 } as const satisfies Record<DecisionEcart, unknown>;
-const REFERENCE = /^PAY-\d{4}-\d{6}$/i;
 
 /**
  * Le motif est obligatoire pour rejeter ou demander le complément (communiqués au demandeur), ou
@@ -35,6 +34,10 @@ const REFERENCE = /^PAY-\d{4}-\d{6}$/i;
 export function motifObligatoire(decision: DecisionEcart): boolean {
   return decision === "REJETER" || decision === "CLASSER" || decision === "COMPLETER";
 }
+
+export type ChargerAssociables = (
+  ligneId: number,
+) => Promise<ResultatAction<PaiementAssociableDto[]>>;
 
 export type DeciderEcart = (
   cible: { ligneId: number } | { reference: string },
@@ -52,9 +55,12 @@ export type DeciderEcart = (
 export function DecisionsEcart({
   element,
   decider,
+  chargerAssociables,
 }: {
   element: ElementAVerifierDto;
   decider: DeciderEcart;
+  /** Virements auxquels associer une ligne (R4) : choisis dans une liste, jamais saisis. */
+  chargerAssociables?: ChargerAssociables;
 }) {
   const t = useTranslations("aVerifier.decision");
   const tMotif = useTranslations("instruction.motif");
@@ -69,6 +75,7 @@ export function DecisionsEcart({
     api?: string;
   }>({});
   const [enCours, demarrer] = useTransition();
+  const [associables, setAssociables] = useState<PaiementAssociableDto[] | null>(null);
   const decisions = element.decisions as DecisionEcart[];
 
   function ouvrir(d: DecisionEcart) {
@@ -76,12 +83,24 @@ export function DecisionsEcart({
     setMotif("");
     setReference("");
     setErreurs({});
+    setAssociables(null);
+    if (d === "ASSOCIER" && element.ligneId != null && chargerAssociables) {
+      void chargerAssociables(element.ligneId).then((r) => {
+        if (r.ok) {
+          setAssociables(r.valeur);
+          if (r.valeur.length === 1) setReference(r.valeur[0]?.reference ?? "");
+        } else {
+          setAssociables([]);
+          setErreurs({ api: r.erreur.message });
+        }
+      });
+    }
   }
 
   function envoyer() {
     if (!choix) return;
     const probleme = motifObligatoire(choix) ? erreurMotif(motif) : null;
-    const refInvalide = choix === "ASSOCIER" && !REFERENCE.test(reference.trim());
+    const refInvalide = choix === "ASSOCIER" && reference === "";
     if (probleme || refInvalide) {
       setErreurs({
         motif: probleme ? tMotif(`erreurs.${probleme}`) : undefined,
@@ -148,7 +167,11 @@ export function DecisionsEcart({
             >
               {t("annuler")}
             </Bouton>
-            <Bouton type="button" disabled={enCours} onClick={envoyer}>
+            <Bouton
+              type="button"
+              disabled={enCours || (choix === "ASSOCIER" && !associables?.length)}
+              onClick={envoyer}
+            >
               {enCours ? t("enCours") : choix ? t(`${choix}.confirmer`) : ""}
             </Bouton>
           </>
@@ -164,35 +187,69 @@ export function DecisionsEcart({
               })}
             </p>
             {choix === "ASSOCIER" ? (
-              <div className="flex flex-col gap-1">
-                <label htmlFor={`${id}-reference`} className="font-semibold">
-                  {t("reference")}
-                </label>
-                <p id={`${id}-reference-aide`} className="text-sm text-texte-doux">
-                  {t("referenceAide")}
+              <fieldset
+                className="flex flex-col gap-2"
+                aria-describedby={erreurs.reference ? `${id}-reference-erreur` : undefined}
+              >
+                <legend className="font-semibold">{t("reference")}</legend>
+                <p className="text-sm text-texte-doux">
+                  {t("referenceAide", { montant: formaterGnf(element.montantGnf) })}
                 </p>
-                <input
-                  id={`${id}-reference`}
-                  type="text"
-                  inputMode="text"
-                  autoComplete="off"
-                  value={reference}
-                  onChange={(e) => setReference(e.target.value)}
-                  placeholder="PAY-2026-000123"
-                  aria-invalid={erreurs.reference ? true : undefined}
-                  aria-describedby={
-                    erreurs.reference
-                      ? `${id}-reference-aide ${id}-reference-erreur`
-                      : `${id}-reference-aide`
-                  }
-                  className={cn(classesChamp, "max-w-xs uppercase tabular-nums")}
-                />
+                {associables === null ? (
+                  <p role="status" className="text-texte-doux">
+                    {t("chargement")}
+                  </p>
+                ) : associables.length === 0 ? (
+                  <Alerte nature="info" titre={t("aucunAssociable.titre")}>
+                    {t("aucunAssociable.texte")}
+                  </Alerte>
+                ) : (
+                  <ul className="flex flex-col gap-2">
+                    {associables.map((a) => (
+                      <li key={a.reference}>
+                        <label
+                          className={cn(
+                            "flex min-h-11 cursor-pointer items-start gap-3 rounded-lg border-2 px-3 py-2",
+                            reference === a.reference
+                              ? "border-royal bg-ice"
+                              : "border-bordure bg-white",
+                          )}
+                        >
+                          <input
+                            type="radio"
+                            name={`${id}-reference`}
+                            value={a.reference}
+                            checked={reference === a.reference}
+                            onChange={() => setReference(a.reference)}
+                            className="mt-1 size-5 shrink-0 accent-royal"
+                          />
+                          <span className="flex flex-col">
+                            <span className="font-semibold whitespace-nowrap tabular-nums">
+                              {a.reference}
+                              {a.numeroDemande ? (
+                                <span className="font-normal text-texte-doux">
+                                  {" "}
+                                  · {a.numeroDemande}
+                                </span>
+                              ) : null}
+                            </span>
+                            <span className="text-sm text-texte-doux">
+                              {a.declareLe
+                                ? t("declareLe", { date: formaterDate(a.declareLe) })
+                                : t("nonDeclare")}
+                            </span>
+                          </span>
+                        </label>
+                      </li>
+                    ))}
+                  </ul>
+                )}
                 {erreurs.reference ? (
                   <p id={`${id}-reference-erreur`} className="font-semibold text-danger">
                     {erreurs.reference}
                   </p>
                 ) : null}
-              </div>
+              </fieldset>
             ) : null}
             <ChampMotif
               id={`${id}-motif`}
@@ -208,6 +265,11 @@ export function DecisionsEcart({
               surChangement={setMotif}
               erreur={erreurs.motif}
               obligatoire={motifObligatoire(choix)}
+              apercu={
+                choix === "REJETER" || choix === "COMPLETER"
+                  ? t("apercu.demandeur")
+                  : t("apercu.journal")
+              }
             />
             {erreurs.api ? (
               <Alerte nature="erreur" titre={t("erreur")}>

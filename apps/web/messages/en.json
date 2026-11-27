@@ -121,5 +121,10 @@
       "TRESORPAY": "TrésorPay",
       "VIREMENT": "Bank transfer"
     }
+  },
+  "enTeteOfficiel": {
+    "republique": "Republic of Guinea",
+    "devise": "Work – Justice – Solidarity",
+    "ministere": "Ministry of Mines and Geology · e-mine"
   }
 }

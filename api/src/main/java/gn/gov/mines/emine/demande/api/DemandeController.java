@@ -216,7 +216,11 @@ class DemandeController {
             .map(
                 e ->
                     new EtapeSuiviDto(
-                        e.etape().cle(), e.etat().cle(), e.date(), e.actionDemandeur()))
+                        e.etape().cle(),
+                        e.etat().cle(),
+                        e.date(),
+                        e.actionDemandeur(),
+                        e.enVerification()))
             .toList());
   }
 
@@ -232,12 +236,14 @@ class DemandeController {
    *     rejetee}, {@code non-atteinte}
    * @param date date à laquelle l'étape a été franchie (ou rejetée)
    * @param actionDemandeur étape en cours dont l'action revient au demandeur
+   * @param enVerification étape de paiement en cours dont la somme est en vérification au ministère
    */
   record EtapeSuiviDto(
       String cle,
       String etat,
       @io.swagger.v3.oas.annotations.media.Schema(nullable = true) java.time.Instant date,
-      boolean actionDemandeur) {}
+      boolean actionDemandeur,
+      boolean enVerification) {}
 
   @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)

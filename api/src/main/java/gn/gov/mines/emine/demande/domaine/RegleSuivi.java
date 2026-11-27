@@ -85,12 +85,15 @@ public final class RegleSuivi {
    * @param droitsRequis le document a des droits à payer après la décision (catalogue)
    * @param avisRequis le document demande des avis techniques avant la décision (catalogue) : sans
    *     eux, l'instruction est sans objet et la décision suit le contrôle
+   * @param paiementEnVerification la somme attendue à ce stade est au ministère, en cours de
+   *     vérification (virement déclaré, montant à vérifier) : le demandeur n'a rien à faire
    * @param origineComplement étape d'où vient le complément en cours ({@code deposee} ou {@code
    *     en_instruction}), {@code null} sans complément
    */
   public record Situation(
       String statut,
       boolean fraisPayes,
+      boolean paiementEnVerification,
       boolean droitsRequis,
       boolean avisRequis,
       String origineComplement,
@@ -101,8 +104,11 @@ public final class RegleSuivi {
    *
    * @param date date à laquelle l'étape a été franchie (ou rejetée), {@code null} sinon
    * @param actionDemandeur étape en cours dont l'action revient au demandeur (payer, compléter)
+   * @param enVerification étape de paiement en cours dont la somme est en vérification au ministère
+   *     (R1 de la recette du 27/11/2026)
    */
-  public record EtapeSuivi(Etape etape, Etat etat, Instant date, boolean actionDemandeur) {}
+  public record EtapeSuivi(
+      Etape etape, Etat etat, Instant date, boolean actionDemandeur, boolean enVerification) {}
 
   /** Frise d'une demande déposée (vide pour un brouillon). */
   public static List<EtapeSuivi> suivi(Situation s) {
@@ -131,7 +137,15 @@ public final class RegleSuivi {
       }
       Instant date =
           etat == Etat.FAITE ? date(e, s.dates()) : etat == Etat.REJETEE ? s.dates().rejet() : null;
-      frise.add(new EtapeSuivi(e, etat, date, etat == Etat.EN_COURS && actionDemandeur));
+      boolean enCours = etat == Etat.EN_COURS;
+      boolean paiement = e == Etape.PAIEMENT_FRAIS || e == Etape.PAIEMENT_DROITS;
+      frise.add(
+          new EtapeSuivi(
+              e,
+              etat,
+              date,
+              enCours && actionDemandeur,
+              enCours && paiement && s.paiementEnVerification()));
     }
     return List.copyOf(frise);
   }
@@ -185,11 +199,15 @@ public final class RegleSuivi {
     return s.dates().recevabilite() == null ? Etape.CONTROLE.ordinal() : Etape.DECISION.ordinal();
   }
 
-  /** L'étape en cours attend le demandeur : frais, complément ou droits à payer. */
+  /**
+   * L'étape en cours attend le demandeur : frais, complément ou droits à payer. Une somme en
+   * vérification au ministère n'attend rien de lui (même règle que l'action attendue des listes).
+   */
   private static boolean actionDemandeur(Situation s) {
     return switch (s.statut()) {
-      case "deposee" -> !s.fraisPayes();
-      case "complement_requis", "decision" -> true;
+      case "deposee" -> !s.fraisPayes() && !s.paiementEnVerification();
+      case "decision" -> !s.paiementEnVerification();
+      case "complement_requis" -> true;
       default -> false;
     };
   }

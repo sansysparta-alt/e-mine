@@ -1,6 +1,11 @@
 "use server";
 
-import { deciderLigneReleve, deciderPaiementAVerifier } from "@emine/api-client";
+import {
+  deciderLigneReleve,
+  deciderPaiementAVerifier,
+  listerPaiementsAssociables,
+  type PaiementAssociableDto,
+} from "@emine/api-client";
 import { enTetesApi, lireSession } from "./api";
 import { type ResultatAction, versErreurFormulaire } from "./erreurs-formulaire";
 
@@ -29,6 +34,22 @@ export async function deciderEcart(
     if ("ligneId" in cible) await deciderLigneReleve(cible.ligneId, corps, options);
     else await deciderPaiementAVerifier(cible.reference, corps, options);
     return { ok: true, valeur: null };
+  } catch (e) {
+    return { ok: false, erreur: versErreurFormulaire(e) };
+  }
+}
+
+/**
+ * Virements en cours du même montant auxquels associer une ligne de relevé (R4) : le Responsable
+ * fiscal choisit dans cette liste au lieu de taper une référence.
+ */
+export async function chargerAssociables(
+  ligneId: number,
+): Promise<ResultatAction<PaiementAssociableDto[]>> {
+  try {
+    const options = { headers: await enTetesApi(await lireSession()) };
+    const r = await listerPaiementsAssociables(ligneId, options);
+    return { ok: true, valeur: r.data };
   } catch (e) {
     return { ok: false, erreur: versErreurFormulaire(e) };
   }

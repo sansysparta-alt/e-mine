@@ -156,7 +156,7 @@ public class ReleveRepository {
     long total = dsl.fetchCount(LIGNE_RELEVE, c);
     List<Ligne> elements =
         dsl.select(LIGNE_RELEVE.fields())
-            .select(PAIEMENT.REFERENCE, DEMANDE.ID, DEMANDE.NUMERO)
+            .select(PAIEMENT.REFERENCE, DEMANDE.ID, DEMANDE.NUMERO, RANG)
             .from(LIGNE_RELEVE)
             .leftJoin(PAIEMENT)
             .on(PAIEMENT.ID.eq(LIGNE_RELEVE.PAIEMENT_ID))
@@ -245,11 +245,37 @@ public class ReleveRepository {
         credits == null ? 0 : credits.longValueExact());
   }
 
+  /** Ligne de relevé, alias pour le rang. */
+  private static final gn.gov.mines.emine.shared.jooq.tables.LigneReleve AUTRE =
+      LIGNE_RELEVE.as("autre");
+
+  /**
+   * Rang de la ligne dans son relevé, de 1 à n dans l'ordre du fichier (R5) : le même quel que soit
+   * le filtre, sans les lignes vides ni l'en-tête du fichier.
+   */
+  private static final Field<Integer> RANG =
+      DSL.field(
+              DSL.selectCount()
+                  .from(AUTRE)
+                  .where(AUTRE.RELEVE_ID.eq(LIGNE_RELEVE.RELEVE_ID))
+                  .and(
+                      AUTRE
+                          .NUMERO_LIGNE
+                          .lt(LIGNE_RELEVE.NUMERO_LIGNE)
+                          .or(
+                              AUTRE
+                                  .NUMERO_LIGNE
+                                  .eq(LIGNE_RELEVE.NUMERO_LIGNE)
+                                  .and(AUTRE.ID.le(LIGNE_RELEVE.ID)))))
+          .as("rang");
+
   private static Ligne ligne(Record r) {
     String sens = r.get(LIGNE_RELEVE.SENS);
     return new Ligne(
         r.get(LIGNE_RELEVE.ID),
-        r.get(LIGNE_RELEVE.NUMERO_LIGNE) == null ? 0 : r.get(LIGNE_RELEVE.NUMERO_LIGNE),
+        r.indexOf(RANG.getName()) >= 0
+            ? r.get(RANG)
+            : r.get(LIGNE_RELEVE.NUMERO_LIGNE) == null ? 0 : r.get(LIGNE_RELEVE.NUMERO_LIGNE),
         r.get(LIGNE_RELEVE.DATE_OPERATION),
         r.get(LIGNE_RELEVE.LIBELLE),
         r.get(LIGNE_RELEVE.MONTANT_GNF),

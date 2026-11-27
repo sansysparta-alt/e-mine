@@ -20,6 +20,7 @@ function etapes(etats: string[], extra: Partial<EtapeSuiviDto>[] = []): EtapeSui
     etat: etats[i] ?? "a-venir",
     date: etats[i] === "faite" ? "2026-11-0" + (i + 1) + "T10:00:00Z" : null,
     actionDemandeur: false,
+    enVerification: false,
     ...extra[i],
   }));
 }
@@ -120,5 +121,12 @@ describe("frise de suivi (US-07.3, US-07.6)", () => {
     expect(items[4]).toHaveAttribute("aria-current", "step");
     expect(items[4]).toHaveTextContent("Décision");
     expect(items[4]).toHaveTextContent("Décision attendue : Ministre");
+  });
+
+  it("dit « en vérification » quand le paiement est au ministère, pas « à vous d'agir » (R1)", () => {
+    const liste = afficher(etapes(["faite", "en-cours"], [{}, { enVerification: true }]));
+    const frais = within(liste).getAllByRole("listitem")[1];
+    expect(frais).toHaveTextContent("en vérification");
+    expect(frais).not.toHaveTextContent("à vous d’agir");
   });
 });

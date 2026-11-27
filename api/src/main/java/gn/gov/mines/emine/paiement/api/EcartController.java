@@ -59,8 +59,35 @@ class EcartController {
         p.page(),
         p.taille(),
         p.total(),
-        p.totalPages());
+        p.totalPages(),
+        service.virementsAttendus());
   }
+
+  @GetMapping("/lignes/{id}/paiements-associables")
+  @Operation(
+      operationId = "listerPaiementsAssociables",
+      summary =
+          "Virements en cours du même montant auxquels associer une ligne de relevé (déclarés"
+              + " d'abord) ; PAY-013 si la ligne ne s'associe pas")
+  List<PaiementAssociableDto> associables(@PathVariable long id) {
+    return service.associables(id).stream()
+        .map(
+            a ->
+                new PaiementAssociableDto(
+                    a.reference(), a.montantGnf(), a.numeroDemande(), a.declareLe()))
+        .toList();
+  }
+
+  /**
+   * Virement auquel une ligne peut être associée.
+   *
+   * @param declareLe virement déclaré par le demandeur, {@code null} s'il ne l'a pas encore fait
+   */
+  record PaiementAssociableDto(
+      String reference,
+      long montantGnf,
+      @Schema(nullable = true) String numeroDemande,
+      @Schema(nullable = true) java.time.Instant declareLe) {}
 
   @PostMapping("/lignes/{id}/decision")
   @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -166,6 +193,14 @@ class EcartController {
     }
   }
 
+  /**
+   * @param virementsAttendus virements déclarés qui attendent le prochain relevé (R3)
+   */
   record PageAVerifierDto(
-      List<ElementAVerifierDto> elements, int page, int taille, long total, int totalPages) {}
+      List<ElementAVerifierDto> elements,
+      int page,
+      int taille,
+      long total,
+      int totalPages,
+      long virementsAttendus) {}
 }

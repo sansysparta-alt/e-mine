@@ -4,6 +4,7 @@ import {
   approuverRegleRemboursement,
   executerRemboursement,
   proposerRegleRemboursement,
+  proposerRemboursement,
   refuserRegleRemboursement,
   refuserRemboursement,
   retirerRegleRemboursement,
@@ -67,6 +68,27 @@ export async function deciderRegle(
     else if (decision === "retirer") await retirerRegleRemboursement(version, options);
     else await refuserRegleRemboursement(version, { motif: (motif ?? "").trim() }, options);
     return { ok: true, valeur: null };
+  } catch (e) {
+    return { ok: false, erreur: versErreurFormulaire(e) };
+  }
+}
+
+/**
+ * Le Responsable fiscal propose le remboursement d'un paiement payé (R7) : montant au plus égal à
+ * la somme reçue non encore proposée, motif obligatoire ; validation par le Directeur ensuite.
+ */
+export async function proposerUnRemboursement(
+  reference: string,
+  montantGnf: number,
+  explication: string,
+): Promise<ResultatAction<{ numero: string }>> {
+  try {
+    const r = await proposerRemboursement(
+      reference,
+      { montantGnf, explication: explication.trim() },
+      { headers: await enTetesApi(await lireSession()) },
+    );
+    return { ok: true, valeur: { numero: r.data.numero } };
   } catch (e) {
     return { ok: false, erreur: versErreurFormulaire(e) };
   }

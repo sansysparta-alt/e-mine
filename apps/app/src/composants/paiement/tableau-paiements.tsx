@@ -1,4 +1,5 @@
 import type { PaiementDto } from "@emine/api-client";
+import { BoutonProposerRemboursement, type ProposerRemboursement } from "./proposer-remboursement";
 import {
   classesAuDessusDuLien,
   cn,
@@ -15,7 +16,7 @@ import { formaterDatePaiement } from "./date-paiement";
 import { LienRecu } from "./lien-recu";
 import { adresseRecu } from "./recu";
 import { BadgeStatutPaiement } from "./badge-statut-paiement";
-import type { ProfilPaiement } from "./statut";
+import { plafondRemboursement, type ProfilPaiement } from "./statut";
 
 const LienNext: ComposantLien = ({ href, children, ...props }) => (
   <Link href={href} {...props}>
@@ -48,8 +49,11 @@ export function TableauPaiements({
   demande,
   recherche,
   profil = "usager",
+  proposerRemboursement,
 }: {
   paiements: PaiementDto[];
+  /** Responsable fiscal (R7) : « Proposer un remboursement » sur un paiement payé. */
+  proposerRemboursement?: ProposerRemboursement;
   /** Profil qui consulte : libellé du statut et page ouverte par la ligne. */
   profil?: ProfilPaiement;
   legende?: string;
@@ -166,6 +170,20 @@ export function TableauPaiements({
                   <span className="text-texte-doux">—</span>
                 ),
             },
+        ...(proposerRemboursement
+          ? [
+              {
+                cle: "actions",
+                entete: t("colonnes.actions"),
+                interactive: true,
+                voirSiVide: tActions("voir"),
+                rendu: (p: PaiementDto) =>
+                  plafondRemboursement(p) > 0 ? (
+                    <BoutonProposerRemboursement paiement={p} proposer={proposerRemboursement} />
+                  ) : null,
+              },
+            ]
+          : []),
       ]}
     />
   );

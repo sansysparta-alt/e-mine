@@ -8,6 +8,7 @@ import {
   type ComposantLien,
   formaterDate,
   formaterGnf,
+  formaterGnfSigne,
   TableauDonnees,
   type TonBadge,
 } from "@emine/ui";
@@ -133,10 +134,7 @@ export function TableauLignesReleve({ lignes }: { lignes: LigneReleveDto[] }) {
           rendu: (l) => (
             <span className="flex flex-col items-end">
               <span className="font-semibold whitespace-nowrap tabular-nums">
-                {formaterGnf(l.montantGnf)}
-              </span>
-              <span className="text-sm text-texte-doux">
-                {l.sens === "D" ? t("debit") : t("credit")}
+                {formaterGnfSigne(l.montantGnf, l.sens === "D")}
               </span>
             </span>
           ),

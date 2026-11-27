@@ -22,6 +22,7 @@ import {
   EnTetePage,
   formaterDate,
   formaterDateHeure,
+  formaterHeure,
   dateDansJours,
   formaterGnf,
   joursCalendairesDepuis,
@@ -34,7 +35,6 @@ import { notFound, redirect } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { ATTENTE_LONGUE_JOURS } from "@/composants/demande/date-attente";
 import { FriseSuivi } from "@/composants/demande/frise-suivi";
-import { cleAttente } from "@/composants/demande/statut";
 import { StatutDemande } from "@/composants/demande/statut-demande";
 import { ListePieces } from "@/composants/documents/liste-pieces";
 import { prochaineEtape } from "@/composants/demande/prochaine-etape";
@@ -55,6 +55,7 @@ import { ExamenRecevabilite } from "@/composants/instruction/examen-recevabilite
 import { PriseDecision } from "@/composants/instruction/prise-decision";
 import { profilPaiement } from "@/composants/paiement/statut";
 import { TableauPaiements } from "@/composants/paiement/tableau-paiements";
+import { proposerUnRemboursement } from "@/serveur/actions-remboursements";
 import { BarreSerie } from "@/composants/travail/barre-serie";
 import { HistoriquePassages } from "@/composants/travail/historique-passages";
 import {
@@ -315,18 +316,19 @@ export default async function DetailDemande({ params, searchParams }: Props) {
         {STATUTS_EN_COURS.has(demande.statut) ? (
           <>
             <dt className="font-semibold">{tDates("etapeDepuis")}</dt>
-            <dd>
-              {formaterDateHeure(demande.etapeDepuis)}
-              {" · "}
-              <span
-                className={
-                  attenteEtape >= ATTENTE_LONGUE_JOURS
-                    ? "font-semibold text-avertissement"
-                    : "text-texte-doux"
-                }
-              >
-                {tDates(cleAttente(demande, moi.interne), { jours: attenteEtape })}
-              </span>
+            {/* R2 : une seule formule (« Depuis aujourd'hui, 18:54 »), signalée à partir de 5 jours. */}
+            <dd
+              className={
+                attenteEtape >= ATTENTE_LONGUE_JOURS
+                  ? "font-semibold text-avertissement"
+                  : undefined
+              }
+            >
+              {tDates("depuis", {
+                jours: attenteEtape,
+                heure: formaterHeure(demande.etapeDepuis),
+                date: formaterDate(demande.etapeDepuis),
+              })}
             </dd>
           </>
         ) : null}
@@ -506,7 +508,15 @@ export default async function DetailDemande({ params, searchParams }: Props) {
   const blocPaiements =
     paiements.data.length > 0 ? (
       <Carte titre={t("paiements.titre", { nombre: paiements.data.length })}>
-        <TableauPaiements paiements={paiements.data} profil={profilPaiement(moi)} />
+        <TableauPaiements
+          paiements={paiements.data}
+          profil={profilPaiement(moi)}
+          proposerRemboursement={
+            moi.interne && moi.permissions.includes("ENCAISSER")
+              ? proposerUnRemboursement
+              : undefined
+          }
+        />
       </Carte>
     ) : null;
   // Délai prévu, dit à l'usager dans « Prochaine étape » (retours ergonomie) : durée du catalogue

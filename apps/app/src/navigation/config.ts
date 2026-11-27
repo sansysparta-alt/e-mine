@@ -258,6 +258,14 @@ export const PAGES_HORS_MENU: { cle: string; href: string }[] = [
 
 export type Profil = { permissions: string[]; interne: boolean };
 
+/**
+ * Le profil reçoit des notifications, donc a la cloche : l'usager, et parmi les agents le
+ * Responsable fiscal (décisions du Directeur sur ses remboursements, US-04.17).
+ */
+export function recoitNotifications(profil: Profil): boolean {
+  return !profil.interne || profil.permissions.includes("ENCAISSER");
+}
+
 /** Entrée visible pour ce profil ? */
 export function visible(e: EntreeConfig, profil: Profil): boolean {
   if (e.permission && !profil.permissions.includes(e.permission)) return false;

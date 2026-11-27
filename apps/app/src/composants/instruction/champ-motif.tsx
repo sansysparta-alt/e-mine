@@ -27,11 +27,16 @@ export type ChampMotifProps = {
   obligatoire?: boolean;
   /** Nombre maximal de caractères (compteur) ; celui des motifs communiqués par défaut. */
   max?: number;
+  /**
+   * Aperçu du motif tel qu'il sera lu, avant de confirmer (US-04.13) : titre de l'aperçu (« Le
+   * demandeur lira ce motif »…). Affiché dès que le motif n'est pas vide.
+   */
+  apercu?: string;
 };
 
 /**
  * Motif communiqué au demandeur (non-recevabilité, rejet) : zone de texte avec aide, compteur de
- * caractères et erreur reliée au champ.
+ * caractères, erreur reliée au champ et, si demandé, aperçu du texte tel qu'il sera lu (US-04.13).
  */
 export function ChampMotif({
   id,
@@ -42,6 +47,7 @@ export function ChampMotif({
   erreur,
   obligatoire = true,
   max = MOTIF_MAX,
+  apercu,
 }: ChampMotifProps) {
   const t = useTranslations("instruction.motif");
   const longueur = valeur.trim().length;
@@ -87,6 +93,14 @@ export function ChampMotif({
         <p id={`${id}-erreur`} className="font-semibold text-danger">
           {erreur}
         </p>
+      ) : null}
+      {apercu && valeur.trim() ? (
+        <div className="mt-2 flex flex-col gap-1">
+          <p className="text-sm font-semibold">{apercu}</p>
+          <blockquote className="rounded-lg border border-bordure bg-fond px-3 py-2 break-words whitespace-pre-line">
+            {valeur.trim()}
+          </blockquote>
+        </div>
       ) : null}
     </div>
   );

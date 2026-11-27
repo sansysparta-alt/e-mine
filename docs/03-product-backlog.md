@@ -398,6 +398,18 @@ Base de développement du porteur : V35 avait été appliquée par erreur depuis
 
 Estimation : environ une session de travail complète pour les trois PR. La conversation du 27/11/2026 est très chargée : **reprendre dans une nouvelle conversation** (`/clear`), à partir de ce point et de `docs/08-reprise.md`.
 
+### Bilan du lot 6 (27/11/2026, nuit) — terminé, en attente de la recette du porteur
+
+| Story / correction | PR | Migration |
+|---|---|---|
+| US-06.8 écrans, compte Brigade `a.conde@e-mine.test` | #114 | V35 |
+| US-04.12 complément d'un paiement insuffisant | #116 (empilée sur #114) | V36, V37 |
+| R1 à R9, US-04.13 (aperçu du motif), US-04.15 (lignes 1 à n), US-04.17 (cloche du Responsable fiscal) | #117 (empilée sur #116) | V38 |
+
+Réponses du porteur intégrées : US-04.12 (complément sans rejet, recette comptée une fois à la date du complément, reçu propre au complément) ; R6 (en-tête texte seul « République de Guinée · Travail – Justice – Solidarité · Ministère des Mines et de la Géologie · e-mine ») ; R7 (« Proposer un remboursement » pour le seul Responsable fiscal, sur la ligne du paiement de la fiche de la demande : les agents n'ont pas d'autre page de détail d'un paiement). **Ne pas commencer le lot 7 avant la recette et l'accord du porteur.**
+
+Parts de US-04.13, US-04.15 et US-04.17 non faites au lot 6 : rangées au lot 8 (ci-dessous).
+
 ### Lot 7 — Catalogue réel du Ministère
 
 | ID | Story | Pts | Prio |
@@ -415,6 +427,7 @@ Estimation : environ une session de travail complète pour les trois PR. La conv
 - **US-02.11** — Décisions V1-8 et V1-14. **PE semi-industriel** et **PE industriel** séparés ; **concession minière** ; **9 autorisations explosifs et carrières**, toutes **instruites par la DNM** : importation, transport, manutention et stockage d'explosifs, carrière permanente (signées par le Ministre) ; achat d'explosifs, construction du dépôt de stockage, carte de boutefeu, carrière temporaire (signées par le Directeur national des Mines). **Nouveaux codes**, aucun code existant renommé ; pièces, délais et frais **provisoires** et paramétrables, signalés comme tels ; signataires paramétrés (D4) ; nouvelles versions de fiches validées par le Ministre ; aucune suppression (fiches remplacées retirées avec motif, leurs demandes vont à leur terme) ; libellés FR/EN ; glossaire (`docs/06`) mis à jour.
 - **US-02.12** — Décision V1-9. PE semi-industriel, PE industriel et concession : étape **« Validation par l'Assemblée nationale »** puis **« Enregistrement du décret présidentiel »** (numéro, date, copie du décret signé hors plateforme), enregistrées par le **Directeur national des Mines** ; le Président n'a pas de compte ; le document délivré et la vérification publique renvoient au décret ; un document présidentiel n'est jamais annulé par la plateforme : le Directeur enregistre le **décret d'abrogation** (V1-11) ; tout est tracé.
 - **US-02.13** — Décision V1-9. Permis de recherche : arrêté **préparé par le guichet unique (CPDM)**, avis du **Service juridique enregistré par le Directeur national des Mines**, signé par le **Ministre** ; chaque étape est motivée et tracée ; la décision reste celle du Ministre.
+- **Commun au lot 7 (porteur, 27/11/2026)** — Restructurer le catalogue selon les signataires décidés par le Ministère : **PEX, permis semi-industriel et concession signés par le Président** après validation par l'**Assemblée nationale**, avec un **arrêté préparé par la CPDM** ; le **Directeur national** enregistre l'avis du Service juridique, le vote de l'Assemblée et le décret (numéro, date, copie). **Vérifier que l'étape « Décision » de la frise suit ce circuit** (US-07.6).
 
 ### Lot 8 — Double authentification et finitions
 
@@ -430,10 +443,12 @@ Estimation : environ une session de travail complète pour les trois PR. La conv
 **Critères d'acceptation**
 
 - **US-01.8** — Décision V1-10. Authentificateur Keycloak (SPI) qui envoie le code par e-mail (Mailpit en dev) ; code de **8 chiffres**, valable **5 minutes**, **3 essais**, nouvel envoi possible ; obligatoire pour les **profils internes seulement** ; échecs tracés ; la page de connexion l'annonce. US-01.3 (SMS) est abandonnée.
-- **US-04.13** — **Aperçu du motif** avant confirmation de toute décision ; confirmation du remboursement : « sera validé » (et non « est validé ») ; « Bénéficiaire » accentué ; bouton **copier le montant** (`BoutonCopier`).
-- **US-04.15** — Lignes du relevé **numérotées à partir de 1** ; le nom du fichier n'apparaît **qu'une fois** à l'import ; le relevé d'exemple contient un cas de **montant inférieur**.
+- **US-04.13** — ~~Aperçu du motif avant confirmation de toute décision~~ (fait au lot 6 : `ChampMotif`, prop `apercu`) ; confirmation du remboursement : « sera validé » (et non « est validé ») ; « Bénéficiaire » accentué ; bouton **copier le montant** (`BoutonCopier`).
+- **US-04.15** — ~~Lignes du relevé numérotées à partir de 1~~ (fait au lot 6) ; le nom du fichier n'apparaît **qu'une fois** à l'import ; le relevé d'exemple contient un cas de **montant inférieur**.
 - **US-04.16** — « Confirmation en attente » interroge l'API à intervalle court et passe seule au reçu dès la confirmation, sans recharger la page ; l'interrogation s'arrête à la confirmation ou en quittant la page.
-- **US-04.17** — Le journal mentionne les **remboursements de paiements rejetés** (ligne distincte, **hors recettes**, solde inchangé) ; l'export CSV a des **libellés en clair** (aucun code technique) et la **période dans le nom du fichier** ; la carte « Recettes du mois » sort de « Ce que vous avez à faire » ; la **cloche** des notifications s'affiche pour le Responsable fiscal.
+- **US-04.17** — Le journal mentionne les **remboursements de paiements rejetés** (ligne distincte, **hors recettes**, solde inchangé) ; l'export CSV a des **libellés en clair** (aucun code technique) et la **période dans le nom du fichier** ; la carte « Recettes du mois » sort de « Ce que vous avez à faire » ; ~~la cloche des notifications s'affiche pour le Responsable fiscal~~ (fait au lot 6, V38).
 - **US-07.7** — Chaque notification porte un **résumé** (motif, montant, référence de l'ordre du Trésor selon l'événement), FR/EN, dans l'application, l'e-mail et le SMS ; l'écran des canaux a une colonne **« Destinataire »** ; **SMS activé** par défaut pour « Document révoqué » (nouvelle migration, tracée).
+
+- **Recette du lot 6, restes (porteur, 27/11/2026)** — couverts par US-04.13, US-04.15, US-04.16, US-04.17, US-07.7 et US-01.8 ci-dessus : copier le montant, « sera validé », mise à jour automatique de « Confirmation en attente », nom du fichier du relevé une seule fois, relevé d'exemple avec un montant inférieur, « Bénéficiaire » accentué ; notifications avec un résumé ; remboursements hors recettes dans le journal, CSV en clair avec la période dans le nom, carte « Recettes du mois » hors des tâches ; colonne « Destinataire » ; SMS pour « Document révoqué » ; double authentification des profils internes (code de 8 chiffres par e-mail, 5 minutes, 3 essais).
 
 **Questions réglées le 27/11/2026** (V1-9 à V1-14) : profils qui enregistrent les étapes des acteurs sans compte, nouveaux codes, durée de validité du document délivré, profils de la double authentification, document présidentiel. **Restent à obtenir du Ministère** : critère semi-industriel / industriel, pièces, délais, frais et gabarits des nouveaux actes (valeurs provisoires d'ici là).

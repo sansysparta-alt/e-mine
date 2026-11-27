@@ -242,24 +242,76 @@ public class EcartRepository {
         Boolean.TRUE.equals(r.get("complement", Boolean.class)));
   }
 
+  /**
+   * Virements déclarés par les demandeurs qui attendent un relevé bancaire (R3) : rien à décider,
+   * mais le Responsable fiscal sait qu'ils arriveront avec le prochain relevé.
+   */
+  public long virementsAttendus() {
+    return dsl.fetchCount(
+        PAIEMENT,
+        PAIEMENT
+            .MOYEN
+            .eq(MoyenPaiement.VIREMENT)
+            .and(PAIEMENT.STATUT.eq(StatutPaiement.en_attente)));
+  }
+
+  /** Virement en cours auquel une ligne peut être associée (R4). */
+  public record PaiementAssociable(
+      String reference, long montantGnf, String numeroDemande, Instant declareLe) {}
+
+  /**
+   * Virements en cours (initiés ou déclarés) du même montant que la ligne : ceux auxquels elle peut
+   * être associée (R4), les déclarés d'abord, puis les plus anciens.
+   */
+  public List<PaiementAssociable> associables(long montantGnf) {
+    return dsl.select(
+            PAIEMENT.REFERENCE, PAIEMENT.MONTANT_GNF, DEMANDE.NUMERO, PAIEMENT.VIREMENT_DECLARE_LE)
+        .from(PAIEMENT)
+        .join(DEMANDE)
+        .on(DEMANDE.ID.eq(PAIEMENT.DEMANDE_ID))
+        .where(PAIEMENT.MOYEN.eq(MoyenPaiement.VIREMENT))
+        .and(PAIEMENT.STATUT.in(StatutPaiement.initie, StatutPaiement.en_attente))
+        .and(PAIEMENT.MONTANT_GNF.eq(montantGnf))
+        .orderBy(PAIEMENT.VIREMENT_DECLARE_LE.asc().nullsLast(), PAIEMENT.CREATED_AT.asc())
+        .limit(50)
+        .fetch(r -> new PaiementAssociable(r.value1(), r.value2(), r.value3(), r.value4()));
+  }
+
+  /** Statut d'un paiement par sa référence (message clair d'une association refusée, R4). */
+  public Optional<StatutPaiement> statut(String reference) {
+    return dsl.select(PAIEMENT.STATUT)
+        .from(PAIEMENT)
+        .where(PAIEMENT.REFERENCE.eq(reference))
+        .fetchOptional(PAIEMENT.STATUT);
+  }
+
   /** Ligne de relevé verrouillée (décision en cours), avec le statut du paiement rapproché. */
   public Optional<LigneADecider> verrouillerLigne(long id) {
-    return dsl.select(
-            LIGNE_RELEVE.ID,
-            LIGNE_RELEVE.DATE_OPERATION,
-            LIGNE_RELEVE.MONTANT_GNF,
-            LIGNE_RELEVE.STATUT,
-            LIGNE_RELEVE.NATURE,
-            LIGNE_RELEVE.DECISION,
-            LIGNE_RELEVE.PAIEMENT_ID,
-            PAIEMENT.STATUT,
-            PAIEMENT.COMPLEMENT_DE)
-        .from(LIGNE_RELEVE)
-        .leftJoin(PAIEMENT)
-        .on(PAIEMENT.ID.eq(LIGNE_RELEVE.PAIEMENT_ID))
-        .where(LIGNE_RELEVE.ID.eq(id))
-        .forUpdate()
-        .of(LIGNE_RELEVE)
+    return ligne(id, true);
+  }
+
+  /** Ligne de relevé lue sans verrou, avec le statut du paiement rapproché. */
+  public Optional<LigneADecider> lireLigne(long id) {
+    return ligne(id, false);
+  }
+
+  private Optional<LigneADecider> ligne(long id, boolean verrou) {
+    var requete =
+        dsl.select(
+                LIGNE_RELEVE.ID,
+                LIGNE_RELEVE.DATE_OPERATION,
+                LIGNE_RELEVE.MONTANT_GNF,
+                LIGNE_RELEVE.STATUT,
+                LIGNE_RELEVE.NATURE,
+                LIGNE_RELEVE.DECISION,
+                LIGNE_RELEVE.PAIEMENT_ID,
+                PAIEMENT.STATUT,
+                PAIEMENT.COMPLEMENT_DE)
+            .from(LIGNE_RELEVE)
+            .leftJoin(PAIEMENT)
+            .on(PAIEMENT.ID.eq(LIGNE_RELEVE.PAIEMENT_ID))
+            .where(LIGNE_RELEVE.ID.eq(id));
+    return (verrou ? requete.forUpdate().of(LIGNE_RELEVE) : requete)
         .fetchOptional(
             r ->
                 new LigneADecider(
