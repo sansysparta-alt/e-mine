@@ -102,6 +102,7 @@ export function DecisionsEcart({
             key={d}
             type="button"
             variante={d === "VALIDER" || d === "ASSOCIER" ? "primaire" : "secondaire"}
+            taille="ligne"
             onClick={() => ouvrir(d)}
           >
             <Icone aria-hidden="true" className="size-4" />

@@ -280,7 +280,7 @@
         "AUTH-001": "Votre session a expiré : reconnectez-vous.",
         "autre": "La pièce n'a pas pu être traitée. Réessayez."
       },
-      "avancement": "{fournies} sur {total} pièces obligatoires fournies",
+      "avancement": "{fournies} sur {total, plural, one {# pièce obligatoire fournie} other {# pièces obligatoires fournies}}",
       "avancementLibelle": "Pièces obligatoires fournies",
       "ajouter": "Ajouter",
       "remplacer": "Remplacer",
@@ -441,6 +441,7 @@
       "croissant": "tri croissant",
       "decroissant": "tri décroissant"
     },
+    "element": "demande",
     "elements": "demandes",
     "recherche": {
       "libelle": "Rechercher une demande",
@@ -1062,6 +1063,7 @@
     "autres": "{nombre, plural, one {Voir 1 autre changement} other {Voir les # autres changements}}",
     "oui": "Oui",
     "non": "Non",
+    "element": "entrée",
     "elements": "entrées",
     "vide": {
       "titre": "Le journal est vide",
@@ -1201,6 +1203,7 @@
       "depot": "Déposée le",
       "statut": "Statut"
     },
+    "element": "dossier",
     "elements": "dossiers",
     "vide": {
       "tout": "Rien à traiter pour le moment",
@@ -1343,6 +1346,7 @@
     "descriptionNonLues": "{nombre, plural, =1 {1 notification non lue : c’est le nombre affiché sur la cloche.} other {# notifications non lues : c’est le nombre affiché sur la cloche.}} Ouvrez une notification pour voir le dossier concerné.",
     "toutMarquerLu": "Tout marquer comme lu",
     "nonLue": "Non lue",
+    "element": "notification",
     "elements": "notifications",
     "vide": {
       "titre": "Aucune notification",
@@ -1408,6 +1412,7 @@
     },
     "jours": "{n, plural, one {# jour} other {# jours}}",
     "version": "Version {n}",
+    "element": "document",
     "elements": "documents",
     "statuts": {
       "aApprouver": "À valider",
@@ -1638,6 +1643,7 @@
     "fourchette": "{min} à {max} jours",
     "version": "Version {n}",
     "modifieeLe": "depuis le {date}",
+    "element": "workflow",
     "elements": "workflows",
     "vide": "Aucun workflow.",
     "etape": "Étape {n} sur {total}",
@@ -1649,7 +1655,7 @@
     "actuelle": "en vigueur",
     "par": "Modifiée le {date} par {nom}",
     "initiale": "Version initiale, à l’installation de la plateforme.",
-    "voirEtapes": "Voir les {n} étapes",
+    "voirEtapes": "{n, plural, one {Voir l’étape} other {Voir les # étapes}}",
     "formulaire": {
       "titre": "Proposer une modification",
       "description": "{libelle} — à partir de la dernière version validée (v{n})",
@@ -1683,7 +1689,7 @@
       "descendre": "Descendre l’étape {n}",
       "retirer": "Retirer l’étape {n}",
       "ajouter": "Ajouter une étape",
-      "maximum": "{n} étapes au plus.",
+      "maximum": "{n, plural, one {# étape au plus.} other {# étapes au plus.}}",
       "erreurs": {
         "libelle": "De 3 à 150 caractères.",
         "reglePaiement": "De 3 à 300 caractères.",
@@ -1885,7 +1891,7 @@
     "chargement": "Recherche en cours…",
     "erreur": "La recherche des dossiers n’a pas abouti. Réessayez dans un instant.",
     "brouillon": "Brouillon",
-    "voirTous": "Voir les {nombre} dossiers trouvés",
+    "voirTous": "{nombre, plural, one {Voir le dossier trouvé} other {Voir les # dossiers trouvés}}",
     "aucun": {
       "titre": "Aucun résultat pour « {texte} »",
       "conseil": "Vérifiez l’orthographe, ou saisissez une partie du numéro (par exemple 000009) ou le nom du document."
@@ -2047,6 +2053,7 @@
     "utilisateurs": {
       "titre": "Utilisateurs & rôles",
       "description": "Les comptes de la plateforme, leur profil, leur statut et leur dernière connexion.",
+      "element": "compte",
       "elements": "comptes",
       "jamais": "Jamais connecté",
       "keycloak": {
@@ -2093,6 +2100,7 @@
   "mesPaiements": {
     "titre": "Paiements & reçus",
     "description": "Tous vos paiements, avec la demande concernée. Un reçu se télécharge dès que le paiement est confirmé.",
+    "element": "paiement",
     "elements": "paiements",
     "vide": {
       "titre": "Aucun paiement pour le moment",
@@ -2128,6 +2136,7 @@
   "mesDocuments": {
     "titre": "Documents délivrés",
     "description": "Vos documents signés, à télécharger. Chacun porte un code QR que quiconque peut vérifier en ligne.",
+    "element": "document",
     "elements": "documents",
     "valide": "Valide",
     "revoque": "Révoqué",
@@ -2353,6 +2362,7 @@
     "rembourse": "Remboursé"
   },
   "commun": {
+    "voirDetail": "Voir le détail",
     "copier": {
       "libelle": "Copier : {quoi}",
       "fait": "Copié : {quoi}"
@@ -2361,6 +2371,7 @@
   "releves": {
     "titre": "Relevés bancaires",
     "description": "Importez le relevé du compte des virements : chaque virement est reconnu par sa référence et son montant. Ce qui ne correspond pas exactement vous est soumis.",
+    "element": "relevé",
     "elements": "relevés",
     "import": {
       "titre": "Importer un relevé",
@@ -2412,6 +2423,7 @@
       "filtreRapprochees": "Rapprochées",
       "filtreAVerifier": "À vérifier",
       "aucune": "Aucune ligne pour ce filtre.",
+      "element": "ligne",
       "elements": "lignes",
       "traitees": "Traitées",
       "filtreTraitees": "Traitées"
@@ -2452,6 +2464,7 @@
   "aVerifier": {
     "titre": "À vérifier",
     "description": "{nombre, plural, =0 {Rien à vérifier : tous les versements sont rapprochés.} one {# élément attend votre décision : ce que le rapprochement automatique n’a pas pu confirmer.} other {# éléments attendent votre décision : ce que le rapprochement automatique n’a pas pu confirmer.}}",
+    "element": "élément",
     "elements": "éléments",
     "badge": "À vérifier",
     "paiementEnLigne": "Paiement en ligne TrésorPay",
@@ -2517,6 +2530,7 @@
   "remboursements": {
     "titre": "Remboursements",
     "description": "Validez chaque demande de remboursement, puis enregistrez la référence de l’ordre émis par le Trésor : l’argent est rendu hors plateforme et le demandeur est informé.",
+    "element": "remboursement",
     "elements": "remboursements",
     "aucun": "Aucun remboursement pour ce filtre.",
     "demandeLe": "Demandé le {date}",
@@ -2587,6 +2601,7 @@
   "journalEncaissements": {
     "titre": "Journal des encaissements",
     "description": "Recettes du Ministère (montant dû des paiements acceptés) et frais remboursés sur rejet d’une demande, pour la période choisie.",
+    "element": "opération",
     "elements": "opérations",
     "exporter": "Exporter en CSV",
     "periode": "Du {du} au {au}",

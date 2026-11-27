@@ -79,7 +79,9 @@ export function TableauDemandes({
       triable: triables.includes("numero"),
       rendu: (d) => (
         <span className="flex flex-col">
-          <span className="font-semibold tabular-nums">{surligne(d.numero ?? t("brouillon"))}</span>
+          <span className="font-semibold whitespace-nowrap tabular-nums">
+            {surligne(d.numero ?? t("brouillon"))}
+          </span>
           {interne ? <MentionPassages passages={d.passages} bloque={d.bloque} /> : null}
         </span>
       ),

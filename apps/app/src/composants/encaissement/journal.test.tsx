@@ -55,7 +55,9 @@ describe("journal des encaissements et tableau de bord fiscal (US-04.11)", () =>
     ];
     afficher(<TableauJournalEncaissements lignes={lignes} />);
     const rangees = screen.getAllByRole("row").slice(1);
-    expect(within(rangees[0]!).getByText(/PAY-2026-000001 · REC-2026-000001/)).toBeVisible();
+    // Référence et pièce séparées, chacune insécable (US-11.8).
+    expect(within(rangees[0]!).getByText("PAY-2026-000001")).toHaveClass("whitespace-nowrap");
+    expect(within(rangees[0]!).getByText("· REC-2026-000001")).toBeVisible();
     expect(within(rangees[1]!).getByText("Remboursement de frais")).toBeVisible();
     expect(within(rangees[1]!).getByText(/^− 200\s000\sGNF$/)).toBeVisible();
     expect(within(rangees[1]!).getByText(/OR-2026-0042/)).toBeVisible();

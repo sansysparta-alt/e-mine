@@ -17,7 +17,7 @@
     "titre": "Document catalogue",
     "presentation": "The 15 documents issued by the Ministry, with processing time, required documents, signatory and fees. Amounts in Guinean francs (demonstration data).",
     "delai": "Processing time",
-    "jours": "{nombre} days",
+    "jours": "{nombre, plural, one {# day} other {# days}}",
     "signataire": "Signatory",
     "fraisDossier": "Application fee",
     "droits": "Duties",

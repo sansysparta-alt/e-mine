@@ -131,7 +131,7 @@ export default async function Catalogue({ searchParams }: Props) {
             page={data.page}
             taille={data.taille}
             total={data.total}
-            elements={t("elements")}
+            elements={{ un: t("element"), plusieurs: t("elements") }}
           />
         </div>
       )}
