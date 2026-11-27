@@ -116,6 +116,19 @@ export function CarteProposition({
   );
 }
 
+/**
+ * Motif d'une version dans une liste ou un historique, toujours précédé de son étiquette
+ * (« Motif : », « Motif du refus : »), ponctuation propre à chaque langue.
+ */
+export function LigneMotif({ texte, refus = false }: { texte: string; refus?: boolean }) {
+  const t = useTranslations("gouvernance.etiquettes");
+  return (
+    <p className="whitespace-pre-line">
+      <span className="font-semibold">{t(refus ? "motifRefus" : "motif")}</span> {texte}
+    </p>
+  );
+}
+
 /** Historique : une ligne par version (la plus récente d'abord), contenu repliable. */
 export function HistoriqueVersions<V extends VersionGouvernee>({
   versions,
@@ -151,13 +164,8 @@ export function HistoriqueVersions<V extends VersionGouvernee>({
                 </>
               ) : null}
             </p>
-            <p className="whitespace-pre-line">{v.motif}</p>
-            {v.motifRefus ? (
-              <p>
-                <span className="font-semibold">{t("motifRefus")} : </span>
-                {v.motifRefus}
-              </p>
-            ) : null}
+            <LigneMotif texte={v.motif} />
+            {v.motifRefus ? <LigneMotif texte={v.motifRefus} refus /> : null}
             <details>
               <summary className="inline-flex min-h-11 cursor-pointer items-center text-royal">
                 {t("voirContenu", { n: v.version })}
