@@ -28,6 +28,8 @@ import java.time.Instant;
  *     paramétrage, {@link RegleDelais})
  * @param enRetard dossier en cours dont le délai du catalogue est dépassé ({@link RegleDelais}) :
  *     même règle que l'indicateur et le filtre « en retard »
+ * @param avisRequis la fiche du dépôt demande des avis techniques : la frise et l'avancement
+ *     comptent l'étape « Instruction » (US-07.6)
  */
 public record DemandeDetail(
     long id,
@@ -56,6 +58,7 @@ public record DemandeDetail(
     String motifSuspension,
     boolean delaiDemarre,
     String origineComplement,
+    boolean avisRequis,
     boolean documentRevoque,
     RegleSuivi.Avancement avancement) {
 
@@ -88,6 +91,7 @@ public record DemandeDetail(
         motifSuspension,
         delaiDemarre,
         origineComplement,
+        avisRequis,
         documentRevoque,
         a);
   }

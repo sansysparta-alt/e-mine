@@ -385,20 +385,24 @@ export default async function DetailDemande({ params, searchParams }: Props) {
     etatDecision?.signataire ?? document?.signataire ?? "",
     tReferentiels,
   );
-  const precisionInstruction =
-    demande.statut === "complement_requis"
-      ? undefined
-      : avisEnAttente.length > 0
+  // Chaque précision va à son étape de la frise : avis techniques à l'instruction, signataire
+  // attendu à la décision (US-07.6).
+  const precisions: Record<string, string> = {};
+  if (demande.statut === "en_instruction") {
+    precisions.instruction =
+      avisEnAttente.length > 0
         ? tSuivi("precisions.avis", { profils: avisEnAttente.join(", ") })
-        : demande.statut === "en_instruction" && !moi.interne
-          ? tSuivi("precisions.examenTechnique", { signataire })
-          : tSuivi("precisions.decision", { signataire });
+        : tSuivi("precisions.examenTechnique");
+  }
+  if (demande.statut === "recevable" || demande.statut === "avis_rendu") {
+    precisions.decision = tSuivi("precisions.decision", { signataire });
+  }
   const blocSuivi = (
     <Carte titre={tSuivi("titre")}>
       <FriseSuivi
         etapes={suivi.data.etapes}
         interne={moi.interne}
-        precisions={precisionInstruction ? { instruction: precisionInstruction } : {}}
+        precisions={precisions}
         paiementUnique={
           document?.tarifs.fraisDossierGnf == null && document?.tarifs.attestationGnf != null
         }

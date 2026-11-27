@@ -5,15 +5,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Frise de suivi (US-07.3, point 6 de l'analyse) : les 11 statuts techniques regroupés en 6 étapes
- * visibles, dans l'<b>ordre réel</b> du circuit (choix du porteur du projet du 22/11/2026 : les
- * frais sont payés avant le contrôle du guichet, règle V8) — Dépôt, Paiement des frais, Contrôle,
- * Instruction, Paiement des droits, Document signé. Le cahier des charges les nommait « Dépôt,
- * Contrôle, Paiement 1, Instruction, Paiement 2, Signé » : écart d'ordre à signaler au Ministère.
+ * Frise de suivi (US-07.3, US-07.6, point 6 de l'analyse) : les 11 statuts techniques regroupés en
+ * 7 étapes visibles, dans l'<b>ordre réel</b> du circuit (choix du porteur du projet du 22/11/2026
+ * : les frais sont payés avant le contrôle du guichet, règle V8) — Dépôt, Paiement des frais,
+ * Contrôle, Instruction (avis techniques), Décision, Paiement des droits, Document signé. Le cahier
+ * des charges les nommait « Dépôt, Contrôle, Paiement 1, Instruction, Paiement 2, Signé » : écart
+ * d'ordre à signaler au Ministère ; la décision du signataire est une étape à part (US-07.6), car
+ * c'est elle que l'usager attend.
  *
  * <p>Une seule définition, côté API : chaque étape est faite (avec sa date), en cours (en précisant
- * si l'action revient au demandeur), à venir, sans objet (pas de droits à payer), rejetée ou non
- * atteinte (après un rejet).
+ * si l'action revient au demandeur), à venir, sans objet (aucun avis technique au catalogue, pas de
+ * droits à payer), rejetée ou non atteinte (après un rejet).
  */
 public final class RegleSuivi {
 
@@ -25,6 +27,7 @@ public final class RegleSuivi {
     PAIEMENT_FRAIS("paiement-frais"),
     CONTROLE("controle"),
     INSTRUCTION("instruction"),
+    DECISION("decision"),
     PAIEMENT_DROITS("paiement-droits"),
     SIGNE("signe");
 
@@ -62,13 +65,15 @@ public final class RegleSuivi {
   /**
    * Dates des étapes franchies (heure UTC), {@code null} si l'étape ne l'est pas.
    *
-   * @param decision décision du signataire (fin de l'instruction)
+   * @param avisRendus tous les avis techniques rendus (fin de l'instruction)
+   * @param decision décision du signataire
    * @param rejet passage au statut « rejetée »
    */
   public record Dates(
       Instant depot,
       Instant fraisPayes,
       Instant recevabilite,
+      Instant avisRendus,
       Instant decision,
       Instant droitsPayes,
       Instant delivre,
@@ -78,6 +83,8 @@ public final class RegleSuivi {
    * Situation de la demande.
    *
    * @param droitsRequis le document a des droits à payer après la décision (catalogue)
+   * @param avisRequis le document demande des avis techniques avant la décision (catalogue) : sans
+   *     eux, l'instruction est sans objet et la décision suit le contrôle
    * @param origineComplement étape d'où vient le complément en cours ({@code deposee} ou {@code
    *     en_instruction}), {@code null} sans complément
    */
@@ -85,6 +92,7 @@ public final class RegleSuivi {
       String statut,
       boolean fraisPayes,
       boolean droitsRequis,
+      boolean avisRequis,
       String origineComplement,
       Dates dates) {}
 
@@ -108,7 +116,9 @@ public final class RegleSuivi {
     List<EtapeSuivi> frise = new ArrayList<>();
     for (int i = 0; i < etapes.length; i++) {
       Etape e = etapes[i];
-      boolean sansObjet = e == Etape.PAIEMENT_DROITS && !s.droitsRequis();
+      boolean sansObjet =
+          (e == Etape.PAIEMENT_DROITS && !s.droitsRequis())
+              || (e == Etape.INSTRUCTION && !s.avisRequis());
       Etat etat;
       if (sansObjet) {
         etat = Etat.SANS_OBJET;
@@ -127,14 +137,15 @@ public final class RegleSuivi {
   }
 
   /**
-   * Avancement d'une demande en cours (« Étape 3 sur 6 ») : rang de l'étape en cours parmi les
-   * étapes qui s'appliquent (sans « Paiement des droits » pour un document sans droits).
+   * Avancement d'une demande en cours (« Étape 3 sur 7 ») : rang de l'étape en cours parmi les
+   * étapes qui s'appliquent (sans « Instruction » pour un document sans avis technique, sans «
+   * Paiement des droits » pour un document sans droits).
    */
   public record Avancement(int etape, int total) {}
 
   /**
    * Avancement déduit de la frise (même règle, une seule définition). Une demande délivrée est à la
-   * dernière étape (« Étape 6 sur 6 », homogène avec les demandes en cours) ; {@code null} pour un
+   * dernière étape (« Étape 7 sur 7 », homogène avec les demandes en cours) ; {@code null} pour un
    * brouillon, une demande rejetée ou archivée.
    */
   public static Avancement avancement(Situation s) {
@@ -151,7 +162,7 @@ public final class RegleSuivi {
     return null;
   }
 
-  /** Indice de l'étape en cours ; 6 (au-delà de la dernière) quand le document est délivré. */
+  /** Indice de l'étape en cours ; 7 (au-delà de la dernière) quand le document est délivré. */
   private static int etapeCourante(Situation s) {
     return switch (s.statut()) {
       case "deposee" -> s.fraisPayes() ? Etape.CONTROLE.ordinal() : Etape.PAIEMENT_FRAIS.ordinal();
@@ -159,18 +170,19 @@ public final class RegleSuivi {
           "en_instruction".equals(s.origineComplement())
               ? Etape.INSTRUCTION.ordinal()
               : Etape.CONTROLE.ordinal();
-      case "recevable", "en_instruction", "avis_rendu" -> Etape.INSTRUCTION.ordinal();
+      // Avis techniques en cours ; « recevable » sans avis requis et « avis rendu » attendent la
+      // décision du signataire.
+      case "en_instruction" -> Etape.INSTRUCTION.ordinal();
+      case "recevable", "avis_rendu" -> Etape.DECISION.ordinal();
       case "decision" -> Etape.PAIEMENT_DROITS.ordinal();
       case "droits_payes" -> Etape.SIGNE.ordinal();
       default -> Etape.values().length; // délivrée, archivée
     };
   }
 
-  /** Étape où la demande a été rejetée : au contrôle (non recevable) ou à l'instruction. */
+  /** Étape où la demande a été rejetée : au contrôle (non recevable) ou à la décision. */
   private static int etapeDuRejet(Situation s) {
-    return s.dates().recevabilite() == null
-        ? Etape.CONTROLE.ordinal()
-        : Etape.INSTRUCTION.ordinal();
+    return s.dates().recevabilite() == null ? Etape.CONTROLE.ordinal() : Etape.DECISION.ordinal();
   }
 
   /** L'étape en cours attend le demandeur : frais, complément ou droits à payer. */
@@ -187,7 +199,8 @@ public final class RegleSuivi {
       case DEPOT -> d.depot();
       case PAIEMENT_FRAIS -> d.fraisPayes();
       case CONTROLE -> d.recevabilite();
-      case INSTRUCTION -> d.decision();
+      case INSTRUCTION -> d.avisRendus();
+      case DECISION -> d.decision();
       case PAIEMENT_DROITS -> d.droitsPayes();
       case SIGNE -> d.delivre();
     };
