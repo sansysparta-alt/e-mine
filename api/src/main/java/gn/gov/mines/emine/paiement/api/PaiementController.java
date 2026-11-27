@@ -70,7 +70,18 @@ class PaiementController {
         a.paiementOuvert().map(Paiement::reference).orElse(null),
         a.paiementOuvert().map(p -> p.moyen().getLiteral()).orElse(null),
         a.paiementOuvert().map(Paiement::enVerification).orElse(false),
-        a.tentativesRestantes());
+        a.tentativesRestantes(),
+        a.complementDe()
+            .map(
+                c ->
+                    new ComplementAttenduDto(
+                        c.reference(),
+                        c.montantGnf(),
+                        c.montantRecuGnf(),
+                        c.resteAPayerGnf(),
+                        c.motifComplement(),
+                        c.complementEcheance()))
+            .orElse(null));
   }
 
   @GetMapping("/api/v1/demandes/{id}/paiements")
@@ -81,7 +92,7 @@ class PaiementController {
               + " (US-07.5 : un paiement rejeté dit si la somme reçue a été rendue)")
   List<PaiementDto> lister(@PathVariable long id) {
     return service.lister(id).stream()
-        .map(p -> PaiementDto.depuis(p, null, remboursementsDe(p), null))
+        .map(p -> PaiementDto.depuis(p, initial(p), null, remboursementsDe(p), null))
         .toList();
   }
 
@@ -96,7 +107,8 @@ class PaiementController {
               + " TrésorPay, ouvre la session de paiement (3 tentatives par jour)")
   InitiationDto choisir(@PathVariable long id, @Valid @RequestBody ChoixMoyenDto corps) {
     ServicePaiementEnLigne.Initiation i = enLigne.payer(id, MoyenPaiement.valueOf(corps.moyen()));
-    return new InitiationDto(PaiementDto.depuis(i.paiement()), i.urlPaiement());
+    return new InitiationDto(
+        PaiementDto.depuis(i.paiement(), initial(i.paiement())), i.urlPaiement());
   }
 
   /**
@@ -143,7 +155,7 @@ class PaiementController {
             .map(
                 l ->
                     new LignePaiementDto(
-                        PaiementDto.depuis(l.paiement()),
+                        PaiementDto.depuis(l.paiement(), initial(l.paiement())),
                         l.paiement().demandeId(),
                         l.numeroDemande(),
                         l.codeDocument()))
@@ -219,12 +231,18 @@ class PaiementController {
     Paiement p = service.lireParReference(reference);
     return PaiementDto.depuis(
         p,
+        initial(p),
         virements
             .infosJustificatif(p)
             .map(f -> new PaiementDto.FichierDto(f.nomFichier(), f.typeMime()))
             .orElse(null),
         remboursementsDe(p),
         new PaiementDto.CoordonneesVirementDto(c.beneficiaire(), c.banque(), c.iban(), c.bic()));
+  }
+
+  /** Référence du paiement initial d'un complément (US-04.12), sinon {@code null}. */
+  private String initial(Paiement p) {
+    return p.complementDe() == null ? null : service.referenceDe(p.complementDe());
   }
 
   /** Remboursements d'un paiement, tels que le demandeur les suit. */
@@ -257,8 +275,8 @@ class PaiementController {
       @PathVariable @Pattern(regexp = "^PAY-[0-9]{4}-[0-9]{6}$") String reference,
       @RequestPart("fichier") MultipartFile fichier)
       throws IOException {
-    return PaiementDto.depuis(
-        virements.declarer(reference, fichier.getOriginalFilename(), fichier.getBytes()));
+    Paiement p = virements.declarer(reference, fichier.getOriginalFilename(), fichier.getBytes());
+    return PaiementDto.depuis(p, initial(p));
   }
 
   @GetMapping("/api/v1/paiements/{reference}/justificatif")
@@ -304,5 +322,22 @@ class PaiementController {
       @Schema(nullable = true) String referenceOuverte,
       @Schema(nullable = true) String moyenOuvert,
       boolean enVerification,
-      int tentativesRestantes) {}
+      int tentativesRestantes,
+      @Schema(nullable = true) ComplementAttenduDto complement) {}
+
+  /**
+   * Complément attendu d'un paiement insuffisant (US-04.12) : le montant à payer est le reste.
+   *
+   * @param reference paiement initial
+   * @param montantGnf montant dû au total
+   * @param montantRecuGnf somme déjà reçue
+   * @param resteGnf reste à payer
+   */
+  record ComplementAttenduDto(
+      String reference,
+      long montantGnf,
+      long montantRecuGnf,
+      long resteGnf,
+      @Schema(nullable = true) String motif,
+      @Schema(nullable = true) java.time.Instant echeance) {}
 }

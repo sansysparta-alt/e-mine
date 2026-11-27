@@ -87,7 +87,8 @@ class EcartsTest extends TestIntegration {
     long demande = DemandesDeTest.deposee(INVESTISSEUR, "PEX");
     String ref = virementDeclare(demande);
     long ligne = ligneImportee("26/11/2026;VIR " + ref + ";4000000;C");
-    assertThat(decisions(element(ligne))).containsExactly("REJETER");
+    // US-04.12 : demander le complément est proposé avant le rejet.
+    assertThat(decisions(element(ligne))).containsExactly("COMPLETER", "REJETER");
     decider(ligne, "{\"decision\":\"VALIDER\"}")
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.code").value("PAY-013"));

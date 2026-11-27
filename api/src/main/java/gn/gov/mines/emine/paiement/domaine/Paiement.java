@@ -17,6 +17,10 @@ import java.util.UUID;
  * @param justificatifPieceId justificatif d'un virement déclaré (US-04.7), sinon {@code null}
  * @param virementDeclareLe déclaration « J'ai effectué le virement », sinon {@code null}
  * @param motifRejet motif du rejet par le Responsable fiscal (US-04.9), communiqué au demandeur
+ * @param complementDe paiement initial dont ce paiement règle le reste (US-04.12), sinon {@code
+ *     null}
+ * @param motifComplement motif de la demande de complément (paiement initial, US-04.12)
+ * @param complementEcheance échéance indicative du complément (paiement initial, US-04.12)
  */
 public record Paiement(
     UUID id,
@@ -34,7 +38,22 @@ public record Paiement(
     String transactionExterneId,
     Long justificatifPieceId,
     Instant virementDeclareLe,
-    String motifRejet) {
+    String motifRejet,
+    UUID complementDe,
+    String motifComplement,
+    Instant complementEcheance) {
+
+  /** Reste à payer d'un paiement en attente de complément (US-04.12), sinon {@code null}. */
+  public Long resteAPayerGnf() {
+    return statut == StatutPaiement.complement_attendu && montantRecuGnf != null
+        ? montantGnf - montantRecuGnf
+        : null;
+  }
+
+  /** Paiement complémentaire d'un paiement insuffisant (US-04.12). */
+  public boolean estComplement() {
+    return complementDe != null;
+  }
 
   /** Paiement encore ouvert : il peut être remplacé (changement de moyen) ou confirmé. */
   public boolean ouvert() {

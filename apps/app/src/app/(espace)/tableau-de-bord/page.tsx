@@ -39,6 +39,7 @@ import { type CleGroupe, groupesDepuis, parametresListe } from "@/composants/tra
 import { chargerMoi, optionsApi } from "@/serveur/donnees";
 import { profilAffiche } from "@/serveur/profil";
 import { paiementRejeteAExpliquer } from "@/composants/paiement/paiement-rejete";
+import { complementAPayer } from "@/composants/paiement/complement";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("tableauDeBord");
@@ -142,20 +143,28 @@ async function charger(moi: Profil, periode: ClePeriode): Promise<Donnees> {
         const t = tarifs[d.typeDocumentCode];
         const montantGnf =
           action === "FRAIS" ? t?.aPayerAuDepotGnf : action === "DROITS" ? t?.droitsGnf : null;
-        // Un paiement rejeté s'explique là où l'usager doit payer de nouveau (US-07.5).
-        const rejet =
+        // Un paiement rejeté s'explique là où l'usager doit payer de nouveau (US-07.5) ; un
+        // paiement incomplet, par le reste à payer (US-04.12).
+        const paiementsDemande =
           action === "COMPLEMENT"
             ? Promise.resolve(null)
             : listerPaiementsDemande(d.id, options)
-                .then((r) => paiementRejeteAExpliquer(r.data))
+                .then((r) => r.data)
                 .catch(() => null);
         return [
-          rejet.then((p) => ({
-            demande: d,
-            action,
-            montantGnf,
-            paiementRejete: p ? { reference: p.reference, motif: p.motifRejet ?? null } : null,
-          })),
+          paiementsDemande.then((liste) => {
+            const complement = liste ? complementAPayer(liste) : null;
+            const rejete = liste && !complement ? paiementRejeteAExpliquer(liste) : null;
+            return {
+              demande: d,
+              action,
+              montantGnf: complement?.resteAPayerGnf ?? montantGnf,
+              paiementRejete: rejete
+                ? { reference: rejete.reference, motif: rejete.motifRejet ?? null }
+                : null,
+              complementDe: complement?.reference ?? null,
+            };
+          }),
         ];
       }),
     );

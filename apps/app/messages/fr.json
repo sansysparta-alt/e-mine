@@ -78,7 +78,9 @@
         "COMPLEMENT": "Compléter"
       },
       "vide": "Rien à faire de votre côté pour le moment",
-      "videAide": "Vos demandes suivent leur cours. Vous serez prévenu par e-mail dès qu'une action sera attendue de vous."
+      "videAide": "Vos demandes suivent leur cours. Vous serez prévenu par e-mail dès qu'une action sera attendue de vous.",
+      "explicationComplement": "Paiement {reference} incomplet : reste à payer, {montant}.",
+      "actionComplement": "Payer le reste"
     },
     "travail": {
       "titre": "{nombre, plural, =0 {Dossiers à traiter} other {Dossiers à traiter (#)}}",
@@ -735,7 +737,16 @@
     "voirPaiement": "Voir le paiement",
     "virementOuvertTitre": "Virement à effectuer ({reference})",
     "virementOuvertTexte": "Vous avez choisi le virement : effectuez-le avant la date limite avec la référence indiquée, puis joignez votre justificatif. Vous pouvez aussi choisir un autre moyen ci-dessous : la référence actuelle sera alors annulée.",
-    "voirVirement": "Coordonnées et déclaration du virement"
+    "voirVirement": "Coordonnées et déclaration du virement",
+    "complement": {
+      "titre": "Payer le reste",
+      "alerteTitre": "Votre paiement {reference} est incomplet",
+      "alerteTexte": "Le service financier a reçu {recu} sur {du}. Votre paiement n’est pas rejeté : il reste {reste} à payer.",
+      "motif": "Motif : {motif}",
+      "echeance": "À payer de préférence avant le {date}.",
+      "objet": "Complément du paiement {reference}",
+      "recu": "Un reçu vous sera remis pour ce complément."
+    }
   },
   "statutsPaiement": {
     "initie": "Initié",
@@ -747,7 +758,8 @@
     "expire": "Expiré",
     "annule": "Annulé",
     "remboursement_demande": "Remboursement demandé",
-    "rembourse": "Remboursé"
+    "rembourse": "Remboursé",
+    "complement_attendu": "Complément attendu"
   },
   "instruction": {
     "motif": {
@@ -2325,7 +2337,10 @@
       "enCours": "{numero} · demandé le {date} : en cours de traitement par le service financier.",
       "effectue": "{numero} · remboursé le {date} par le Trésor (ordre {ordre}).",
       "refuse": "{numero} · refusé. Motif : {motif}"
-    }
+    },
+    "complementDe": "Complément du paiement",
+    "dejaRecu": "Déjà reçu",
+    "resteAPayer": "Reste à payer"
   },
   "periode": {
     "libelle": "Période",
@@ -2421,7 +2436,9 @@
     "remboursementAValider": "Remboursement à valider",
     "rembourse": "Remboursé",
     "rejeteRembourse": "Rejeté · remboursé",
-    "rejeteRemboursementEnCours": "Rejeté · remboursement en cours"
+    "rejeteRemboursementEnCours": "Rejeté · remboursement en cours",
+    "complementAPayer": "Complément à payer",
+    "complementAttendu": "Complément attendu"
   },
   "commun": {
     "voirDetail": "Voir le détail",
@@ -2547,7 +2564,8 @@
       "doublon": "Paiement déjà reçu : versement en double",
       "tardif": "Référence expirée ou annulée",
       "retour": "Débit : retour de virement ou frais",
-      "montant_divergent": "Montant notifié différent de {ecart}"
+      "montant_divergent": "Montant notifié différent de {ecart}",
+      "complement_echu": "Complément non reçu à l’échéance"
     },
     "vide": {
       "titre": "Rien à vérifier",
@@ -2586,6 +2604,19 @@
         "titre": "Classer ce versement sans suite ?",
         "effet": "La ligne sort de la file « À vérifier ». Le motif est conservé au journal.",
         "confirmer": "Classer sans suite"
+      },
+      "motifAideComplement": "Communiqué au demandeur avec le reste à payer et l’échéance.",
+      "COMPLETER": {
+        "bouton": "Demander le complément",
+        "titre": "Demander le complément ?",
+        "effet": "Le paiement n’est pas rejeté : la somme reçue est conservée et le demandeur est informé du reste à payer ({reste}), de la référence et de l’échéance (15 jours). La recette sera comptée une fois, à la réception du complément.",
+        "confirmer": "Demander le complément"
+      },
+      "REMBOURSER": {
+        "bouton": "Proposer le remboursement",
+        "titre": "Proposer le remboursement de ce versement ?",
+        "effet": "Une proposition de remboursement est créée ; elle sera soumise à la validation du Directeur avant l’ordre du Trésor.",
+        "confirmer": "Proposer le remboursement"
       }
     }
   },
@@ -2759,5 +2790,12 @@
     "decider": "Décider",
     "element": "signalement",
     "elements": "signalements"
+  },
+  "complementPaiement": {
+    "titre": "Paiement {reference} incomplet : il reste {reste} à payer",
+    "texte": "Le service financier a reçu {recu} sur {du}. Votre paiement n’est pas rejeté.",
+    "motif": "Motif : {motif}",
+    "echeance": "À payer de préférence avant le {date}.",
+    "payer": "Payer le reste"
   }
 }

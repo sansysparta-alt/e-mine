@@ -1,8 +1,16 @@
 "use client";
 
 import type { ElementAVerifierDto } from "@emine/api-client";
-import { Alerte, Bouton, classesAuDessusDuLien, classesChamp, cn, Dialogue } from "@emine/ui";
-import { Archive, Ban, CircleCheck, Link2 } from "@emine/ui/icones";
+import {
+  Alerte,
+  Bouton,
+  classesAuDessusDuLien,
+  classesChamp,
+  cn,
+  Dialogue,
+  formaterGnf,
+} from "@emine/ui";
+import { Archive, Ban, CircleCheck, Coins, Link2, Undo2 } from "@emine/ui/icones";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useId, useState, useTransition } from "react";
@@ -10,12 +18,22 @@ import type { DecisionEcart } from "@/serveur/actions-encaissements";
 import type { ResultatAction } from "@/serveur/erreurs-formulaire";
 import { ChampMotif, erreurMotif } from "../instruction/champ-motif";
 
-const ICONES = { VALIDER: CircleCheck, REJETER: Ban, ASSOCIER: Link2, CLASSER: Archive } as const;
+const ICONES = {
+  VALIDER: CircleCheck,
+  REJETER: Ban,
+  COMPLETER: Coins,
+  ASSOCIER: Link2,
+  REMBOURSER: Undo2,
+  CLASSER: Archive,
+} as const satisfies Record<DecisionEcart, unknown>;
 const REFERENCE = /^PAY-\d{4}-\d{6}$/i;
 
-/** Le motif est obligatoire pour rejeter (communiqué au demandeur) ou classer. */
+/**
+ * Le motif est obligatoire pour rejeter ou demander le complément (communiqués au demandeur), ou
+ * classer.
+ */
 export function motifObligatoire(decision: DecisionEcart): boolean {
-  return decision === "REJETER" || decision === "CLASSER";
+  return decision === "REJETER" || decision === "CLASSER" || decision === "COMPLETER";
 }
 
 export type DeciderEcart = (
@@ -101,7 +119,9 @@ export function DecisionsEcart({
           <Bouton
             key={d}
             type="button"
-            variante={d === "VALIDER" || d === "ASSOCIER" ? "primaire" : "secondaire"}
+            variante={
+              d === "VALIDER" || d === "ASSOCIER" || d === "COMPLETER" ? "primaire" : "secondaire"
+            }
             taille="ligne"
             onClick={() => ouvrir(d)}
           >
@@ -136,7 +156,13 @@ export function DecisionsEcart({
       >
         {choix ? (
           <div className="flex flex-col gap-4">
-            <p>{t(`${choix}.effet`)}</p>
+            <p>
+              {t(`${choix}.effet`, {
+                reste: formaterGnf(
+                  Math.max(0, (element.montantAttenduGnf ?? 0) - element.montantGnf),
+                ),
+              })}
+            </p>
             {choix === "ASSOCIER" ? (
               <div className="flex flex-col gap-1">
                 <label htmlFor={`${id}-reference`} className="font-semibold">
@@ -171,7 +197,13 @@ export function DecisionsEcart({
             <ChampMotif
               id={`${id}-motif`}
               libelle={t("motif")}
-              aide={choix === "REJETER" ? t("motifAideRejet") : t("motifAide")}
+              aide={
+                choix === "REJETER"
+                  ? t("motifAideRejet")
+                  : choix === "COMPLETER"
+                    ? t("motifAideComplement")
+                    : t("motifAide")
+              }
               valeur={motif}
               surChangement={setMotif}
               erreur={erreurs.motif}

@@ -35,6 +35,8 @@ class RedacteurNotificationsTest {
           Map.entry("reference", "PAY-2026-000001"),
           Map.entry("recu", "REC-2026-000001"),
           Map.entry("montant_gnf", 999_999_999_999L),
+          Map.entry("reste_gnf", 999_999_999_999L),
+          Map.entry("echeance", "12/12/2026"),
           Map.entry("moyen", "TRESORPAY"),
           Map.entry("dateLimite", "2026-11-27T10:00:00.000+00:00"),
           Map.entry("dateExpiration", "2026-11-27T10:00:00.000+00:00"),

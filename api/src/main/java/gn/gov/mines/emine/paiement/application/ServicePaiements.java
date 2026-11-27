@@ -57,17 +57,22 @@ public class ServicePaiements {
    * @param moyens moyens proposés (aucun présélectionné)
    * @param paiementOuvert paiement en cours (initié, en attente ou en vérification) pour cet objet,
    *     s'il existe
+   * @param complementDe paiement insuffisant dont le reste est attendu (US-04.12) : l'objet porte
+   *     alors le reste à payer
    */
   public record APayer(
       Optional<ObjetAPayer> objet,
       List<MoyensPaiement.MoyenPropose> moyens,
       Optional<Paiement> paiementOuvert,
-      int tentativesRestantes) {}
+      int tentativesRestantes,
+      Optional<Paiement> complementDe) {}
 
   @Transactional(readOnly = true)
   public APayer aPayer(long demandeId) {
     DemandeResume demande = demande(demandeId);
-    Optional<ObjetAPayer> objet = objetNonPaye(demande);
+    Optional<Paiement> complement =
+        objetNonPaye(demande).flatMap(o -> paiements.complementAttendu(demandeId, o.objet()));
+    Optional<ObjetAPayer> objet = objetNonPaye(demande).map(o -> resteSiComplement(o, complement));
     Optional<Paiement> ouvert =
         objet.flatMap(
             o ->
@@ -77,7 +82,21 @@ public class ServicePaiements {
                     .findFirst());
     int restantes =
         objet.map(o -> tentativesRestantes(demandeId, o)).orElse(RegleTentatives.MAX_PAR_JOUR);
-    return new APayer(objet, MoyensPaiement.proposes(), ouvert, restantes);
+    return new APayer(objet, MoyensPaiement.proposes(), ouvert, restantes, complement);
+  }
+
+  /** Objet à payer : le reste seulement quand un complément est attendu (US-04.12). */
+  private static ObjetAPayer resteSiComplement(ObjetAPayer o, Optional<Paiement> complement) {
+    return complement
+        .map(Paiement::resteAPayerGnf)
+        .map(reste -> new ObjetAPayer(o.objet(), reste))
+        .orElse(o);
+  }
+
+  /** Référence d'un paiement initial (complément, US-04.12). */
+  @Transactional(readOnly = true)
+  public String referenceDe(java.util.UUID id) {
+    return paiements.reference(id).orElse(null);
   }
 
   @Transactional(readOnly = true)
@@ -140,6 +159,13 @@ public class ServicePaiements {
       throw new ErreurMetier(CodeErreur.PAY_010, Map.of("objet", objet.objet().getLiteral()));
     }
     paiements.annulerOuverts(demandeId, objet.objet());
+    // US-04.12 : un complément attendu se règle par un paiement lié, au montant du reste.
+    Optional<Paiement> complement = paiements.complementAttendu(demandeId, objet.objet());
+    if (complement.isPresent()) {
+      Paiement initial = complement.get();
+      return paiements.creer(
+          demandeId, objet.objet(), moyen, initial.resteAPayerGnf(), moi().id(), initial.id());
+    }
     return paiements.creer(demandeId, objet.objet(), moyen, objet.montantGnf(), moi().id());
   }
 

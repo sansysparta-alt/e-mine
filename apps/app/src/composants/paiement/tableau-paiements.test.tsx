@@ -25,6 +25,10 @@ const paye: PaiementDto = {
   justificatifFichier: null,
   remboursements: null,
   coordonnees: null,
+  complementDe: null,
+  resteAPayerGnf: null,
+  motifComplement: null,
+  complementEcheance: null,
 };
 const refuse: PaiementDto = {
   ...paye,
