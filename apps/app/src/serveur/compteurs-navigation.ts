@@ -1,6 +1,7 @@
 import {
   compterATraiter,
   listerAVerifier,
+  listerRemboursements,
   lireParametresDelai,
   listerFichesDocuments,
   listerWorkflows,
@@ -32,6 +33,11 @@ export async function compteursNavigation(moi: MoiDto): Promise<CompteursNavigat
   if (moi.interne && droits.has("ENCAISSER")) {
     lectures.push(
       listerAVerifier({ taille: 10 }, options).then((r) => ["aVerifier", r.data.total]),
+      // Remboursements à valider, puis ordres du Trésor à enregistrer (US-04.10).
+      listerRemboursements({ taille: 10 }, options).then((r) => [
+        "remboursements",
+        r.data.compteurs.demande + r.data.compteurs.valide,
+      ]),
     );
   }
   if (droits.has("VALIDER_CATALOGUE")) {

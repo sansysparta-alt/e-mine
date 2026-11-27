@@ -23,6 +23,7 @@ const paye: PaiementDto = {
   justificatif: false,
   motifRejet: null,
   justificatifFichier: null,
+  remboursements: null,
   coordonnees: null,
 };
 const refuse: PaiementDto = {

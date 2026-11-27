@@ -12,12 +12,15 @@ import java.util.List;
  *   <li>montant <b>inférieur</b> : rejeter le paiement (le demandeur paie à nouveau) ;
  *   <li>ligne <b>sans référence</b> reconnue, ou versement <b>tardif</b> sur une référence expirée
  *       : l'associer au paiement en cours du même montant, ou la classer ;
- *   <li><b>doublon</b>, <b>retour</b> bancaire : classer (avec motif) ;
+ *   <li><b>doublon</b> : demander son remboursement (US-04.10) ou le classer ; versement
+ *       <b>tardif</b> : aussi remboursable ; <b>retour</b> bancaire : classer (avec motif) ;
  *   <li>paiement en ligne au montant divergent (sans ligne de relevé) : valider s'il a reçu au
  *       moins le montant attendu, sinon rejeter.
  * </ul>
  *
- * Rejeter et classer exigent un motif ; valider et associer le permettent.
+ * Rejeter et classer exigent un motif ; valider, associer et rembourser le permettent. Toute somme
+ * reçue sans contrepartie est proposée au remboursement : l'excédent d'un paiement validé, la somme
+ * reçue d'un paiement rejeté (demande créée avec la décision, validée ensuite).
  */
 public final class RegleEcarts {
 
@@ -28,7 +31,8 @@ public final class RegleEcarts {
     VALIDER("valide"),
     REJETER("rejete"),
     ASSOCIER("associe"),
-    CLASSER("classe");
+    CLASSER("classe"),
+    REMBOURSER("rembourse");
 
     private final String code;
 
@@ -72,8 +76,10 @@ public final class RegleEcarts {
               ? List.of(Decision.VALIDER, Decision.REJETER)
               : List.of(Decision.CLASSER);
       case "inferieur" -> paiementAVerifier ? List.of(Decision.REJETER) : List.of(Decision.CLASSER);
-      case "inconnue", "tardif" -> List.of(Decision.ASSOCIER, Decision.CLASSER);
-      case "doublon", "retour" -> List.of(Decision.CLASSER);
+      case "inconnue" -> List.of(Decision.ASSOCIER, Decision.CLASSER);
+      case "tardif" -> List.of(Decision.ASSOCIER, Decision.REMBOURSER, Decision.CLASSER);
+      case "doublon" -> List.of(Decision.REMBOURSER, Decision.CLASSER);
+      case "retour" -> List.of(Decision.CLASSER);
       default -> List.of();
     };
   }

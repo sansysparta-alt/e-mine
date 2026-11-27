@@ -1,5 +1,15 @@
 import { ErreurApi, lireDemande, lirePaiement, type PaiementDto } from "@emine/api-client";
-import { Alerte, Bouton, Carte, EnTetePage, formaterDateHeure, formaterGnf } from "@emine/ui";
+import {
+  Alerte,
+  BadgeStatut,
+  Bouton,
+  Carte,
+  EnTetePage,
+  formaterDate,
+  formaterDateHeure,
+  formaterGnf,
+} from "@emine/ui";
+import { presentationStatutRemboursement } from "@/composants/remboursement/statut";
 import { FolderOpen, RotateCcw } from "@emine/ui/icones";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -61,6 +71,7 @@ export default async function DetailPaiement({ params }: Props) {
     getTranslations("detailPaiement"),
     getTranslations("paiement.objet"),
   ]);
+  const tRemb = await getTranslations("remboursements");
   const document = libelleDocument(
     documents.find((d) => d.code === demande.typeDocumentCode),
     langue,
@@ -218,6 +229,39 @@ export default async function DetailPaiement({ params }: Props) {
           </div>
         </Carte>
       </div>
+      {paiement.remboursements && paiement.remboursements.length > 0 ? (
+        <Carte titre={t("remboursements.titre")}>
+          <ul className="flex flex-col divide-y divide-bordure">
+            {paiement.remboursements.map((r) => {
+              const p = presentationStatutRemboursement(r.statut, false);
+              return (
+                <li key={r.numero} className="flex flex-col gap-1 py-3 first:pt-0 last:pb-0">
+                  <span className="flex flex-wrap items-center gap-3">
+                    <span className="font-semibold tabular-nums">
+                      {formaterGnf(r.montantGnf, langue)}
+                    </span>
+                    <BadgeStatut ton={p.ton}>{tRemb(`statuts.${p.cle}`)}</BadgeStatut>
+                  </span>
+                  <span className="text-sm text-texte-doux">
+                    {r.executeLe
+                      ? t("remboursements.effectue", {
+                          numero: r.numero,
+                          date: formaterDate(r.executeLe),
+                          ordre: r.referenceOrdre ?? "",
+                        })
+                      : r.motifRefus
+                        ? t("remboursements.refuse", { numero: r.numero, motif: r.motifRefus })
+                        : t("remboursements.enCours", {
+                            numero: r.numero,
+                            date: formaterDate(r.demandeLe),
+                          })}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </Carte>
+      ) : null}
       {aEffectuer && paiement.coordonnees ? (
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
           <CoordonneesVirement

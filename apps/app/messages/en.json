@@ -528,7 +528,7 @@
       "notifications": "Notifications",
       "catalogue": "Catalogue and fees",
       "workflows": "Workflows",
-      "parametres": "Time limits and notifications",
+      "parametres": "Rules and notifications",
       "profil": "My profile",
       "aide": "Help",
       "mentionsLegales": "Legal notice",
@@ -536,7 +536,8 @@
       "paiements": "Payments & receipts",
       "documents": "Issued documents",
       "releves": "Bank statements",
-      "aVerifier": "To check"
+      "aVerifier": "To check",
+      "remboursements": "Refunds"
     },
     "compte": {
       "menu": "User menu",
@@ -1690,10 +1691,10 @@
     }
   },
   "parametres": {
-    "titre": "Time limits and notifications",
+    "titre": "Rules and notifications",
     "description": {
-      "admin": "Deadline calculation rule and channels for each notification. The deadline rule is approved by the Minister, then applied from its effective date; channels change immediately. Everything is recorded in the audit log.",
-      "lecture": "Deadline calculation rule and channels for each notification. You approve the changes to the deadline rule proposed by the administrator."
+      "admin": "Rules for computing deadlines and refunding fees, channels of each notification. Rules are approved by the Minister then applied from their effective date; channels change immediately. Everything is recorded in the audit log.",
+      "lecture": "Rules for computing deadlines and refunding fees, channels of each notification. You approve changes to the rules proposed by the administrator."
     },
     "provisoire": {
       "titre": "Choices to be validated by the Ministry",
@@ -1769,6 +1770,22 @@
         "interne": "notification in their online space (bell), always on"
       },
       "toujoursActif": "always on"
+    },
+    "remboursement": {
+      "titre": "Fee refunds",
+      "enVigueur": "Refund rule in force (version {n})",
+      "historique": "History of the refund rule",
+      "oui": "Filing fees of a rejected request are refunded.",
+      "non": "Filing fees of a rejected request are not refunded.",
+      "toujours": "A double payment or an error (excess amount, rejected payment) is always refunded, after approval by the tax officer.",
+      "proposer": "Propose a change",
+      "nouvelle": "Proposed rule:",
+      "motif": "Reason for the change",
+      "motifAide": "Why change the rule (Ministry decision, order…).",
+      "envoyer": "Propose to the Minister",
+      "enCours": "Sending…",
+      "annuler": "Cancel",
+      "erreur": "The proposal could not be sent"
     }
   },
   "profil": {
@@ -2203,6 +2220,12 @@
       "titre": "Payment rejected: a new payment is expected",
       "motif": "Reason: {motif}",
       "texte": "Pay the expected amount again so that your request can continue. Any amount received will be refunded to you."
+    },
+    "remboursements": {
+      "titre": "Refunds",
+      "enCours": "{numero} · requested on {date}: being processed by the finance department.",
+      "effectue": "{numero} · refunded on {date} by the Treasury (order {ordre}).",
+      "refuse": "{numero} · refused. Reason: {motif}"
     }
   },
   "periode": {
@@ -2443,6 +2466,76 @@
         "titre": "Close this line with no further action?",
         "effet": "The line leaves the “To check” queue. The reason is kept in the log.",
         "confirmer": "Close with no action"
+      }
+    }
+  },
+  "remboursements": {
+    "titre": "Refunds",
+    "description": "Approve each refund request, then record the reference of the order issued by the Treasury: the money is returned outside the platform and the applicant is notified.",
+    "elements": "refunds",
+    "aucun": "No refund for this filter.",
+    "demandeLe": "Requested on {date}",
+    "ordreDu": "Treasury order: {ordre}",
+    "motifRefus": "Reason for refusal: {motif}",
+    "vide": {
+      "titre": "No refunds",
+      "description": "Refunds proposed from “To check” (duplicate, excess, rejected payment) will appear here."
+    },
+    "filtres": {
+      "libelle": "Status",
+      "tous": "All",
+      "demande": "To approve",
+      "valide": "Order to record",
+      "execute": "Refunded",
+      "refuse": "Refused"
+    },
+    "colonnes": {
+      "numero": "Refund",
+      "beneficiaire": "Beneficiary",
+      "motif": "Reason",
+      "montant": "Amount",
+      "statut": "Status",
+      "actions": "Actions"
+    },
+    "motifs": {
+      "double_paiement": "Double payment",
+      "excedent": "Amount overpaid",
+      "rejet_demande": "Request rejected",
+      "autre": "Payment error"
+    },
+    "statuts": {
+      "aValider": "To approve",
+      "ordreAEnregistrer": "Order to record",
+      "enCours": "Refund in progress",
+      "rembourse": "Refunded",
+      "refuse": "Refused"
+    },
+    "actions": {
+      "annuler": "Cancel",
+      "enCours": "Saving…",
+      "erreur": "The action could not be saved",
+      "motif": "Reason for refusal",
+      "motifAide": "Kept in the log and visible to the applicant.",
+      "ordre": "Refund order reference",
+      "ordreAide": "Reference given by the Treasury for this refund.",
+      "ordreObligatoire": "Enter the reference of the Treasury refund order.",
+      "valider": {
+        "bouton": "Approve",
+        "titre": "Approve refund {numero}?",
+        "effet": "The refund of {montant} to {beneficiaire} is approved: the order can be requested from the Treasury.",
+        "confirmer": "Approve the refund"
+      },
+      "refuser": {
+        "bouton": "Refuse",
+        "titre": "Refuse refund {numero}?",
+        "effet": "The refund of {montant} will not take place. The reason is kept in the log.",
+        "confirmer": "Refuse the refund"
+      },
+      "executer": {
+        "bouton": "Record the order",
+        "titre": "Treasury order for {numero}",
+        "effet": "The Treasury has issued the refund order of {montant} to {beneficiaire}. The applicant will be notified.",
+        "confirmer": "Record and notify the applicant"
       }
     }
   }

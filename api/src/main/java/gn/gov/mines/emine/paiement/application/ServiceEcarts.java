@@ -34,12 +34,17 @@ public class ServiceEcarts {
 
   private final EcartRepository ecarts;
   private final PaiementRepository paiements;
+  private final ServiceRemboursements remboursements;
   private final UtilisateurCourant utilisateurCourant;
 
   public ServiceEcarts(
-      EcartRepository ecarts, PaiementRepository paiements, UtilisateurCourant utilisateurCourant) {
+      EcartRepository ecarts,
+      PaiementRepository paiements,
+      ServiceRemboursements remboursements,
+      UtilisateurCourant utilisateurCourant) {
     this.ecarts = ecarts;
     this.paiements = paiements;
+    this.remboursements = remboursements;
     this.utilisateurCourant = utilisateurCourant;
   }
 
@@ -80,10 +85,38 @@ public class ServiceEcarts {
       case VALIDER -> {
         ecarts.confirmer(ligne.paiementId(), ligne.montantGnf(), ligne.dateOperation());
         ecarts.deciderLigne(id, decision.code(), motifNet, moi, null);
+        long excedent = ligne.montantGnf() - montantAttendu(ligne.paiementId());
+        if (excedent > 0) {
+          remboursements.demander(
+              ligne.paiementId(),
+              ServiceRemboursements.EXCEDENT,
+              excedent,
+              id,
+              "Excédent reçu sur le paiement validé");
+        }
       }
       case REJETER -> {
         ecarts.rejeter(ligne.paiementId(), motifNet);
         ecarts.deciderLigne(id, decision.code(), motifNet, moi, null);
+        remboursements.demander(
+            ligne.paiementId(),
+            ServiceRemboursements.AUTRE,
+            ligne.montantGnf(),
+            id,
+            "Somme reçue d'un paiement rejeté : " + motifNet);
+      }
+      case REMBOURSER -> {
+        ecarts.deciderLigne(id, decision.code(), motifNet, moi, null);
+        boolean doublon = "doublon".equals(ligne.nature());
+        remboursements.demander(
+            ligne.paiementId(),
+            doublon ? ServiceRemboursements.DOUBLE_PAIEMENT : ServiceRemboursements.AUTRE,
+            ligne.montantGnf(),
+            id,
+            doublon
+                ? "Versement en double"
+                : "Versement tardif sur une référence expirée ou annulée"
+                    + (motifNet == null ? "" : " : " + motifNet));
       }
       case ASSOCIER -> {
         String ref = reference == null ? "" : reference.strip().toUpperCase();
@@ -131,9 +164,26 @@ public class ServiceEcarts {
     }
     if (decision == Decision.VALIDER) {
       ecarts.confirmer(p.id(), p.montantRecuGnf(), null);
+      long excedent = p.montantRecuGnf() - p.montantGnf();
+      if (excedent > 0) {
+        remboursements.demander(
+            p.id(), ServiceRemboursements.EXCEDENT, excedent, null, "Excédent reçu en ligne");
+      }
     } else {
       ecarts.rejeter(p.id(), motifNet);
+      if (p.montantRecuGnf() != null && p.montantRecuGnf() > 0) {
+        remboursements.demander(
+            p.id(),
+            ServiceRemboursements.AUTRE,
+            p.montantRecuGnf(),
+            null,
+            "Somme reçue d'un paiement rejeté : " + motifNet);
+      }
     }
+  }
+
+  private long montantAttendu(java.util.UUID paiementId) {
+    return paiements.lire(paiementId).map(Paiement::montantGnf).orElse(0L);
   }
 
   private static List<Decision> decisions(Element e) {

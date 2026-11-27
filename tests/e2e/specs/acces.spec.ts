@@ -38,7 +38,7 @@ test("l'administrateur et le Ministre ouvrent workflows et paramètres", async (
     ).toBeVisible();
     expect(await ouvrir(page, "/parametres")).toBe(200);
     await expect(
-      page.getByRole("heading", { level: 1, name: "Délais et notifications" }),
+      page.getByRole("heading", { level: 1, name: "Règles et notifications" }),
     ).toBeVisible();
   }
 });

@@ -15,6 +15,7 @@ import java.time.Instant;
  * @param motifRejet motif d'un paiement rejeté par le Responsable fiscal (US-04.9)
  * @param justificatifFichier nom et format du justificatif, pour un paiement lu seul ; {@code null}
  *     sinon
+ * @param remboursements remboursements de ce paiement, pour un paiement lu seul (US-04.10)
  * @param coordonnees compte à créditer, pour un virement lu seul ({@code GET
  *     /paiements/{reference}}) ; {@code null} sinon
  */
@@ -34,7 +35,22 @@ record PaiementDto(
     boolean justificatif,
     @Schema(nullable = true) String motifRejet,
     @Schema(nullable = true) FichierDto justificatifFichier,
+    @Schema(nullable = true) java.util.List<RemboursementPaiementDto> remboursements,
     @Schema(nullable = true) CoordonneesVirementDto coordonnees) {
+
+  /**
+   * Remboursement d'un paiement, tel que le demandeur le suit.
+   *
+   * @param statut {@code demande}, {@code valide}, {@code execute} ou {@code refuse}
+   */
+  record RemboursementPaiementDto(
+      String numero,
+      String statut,
+      long montantGnf,
+      Instant demandeLe,
+      @Schema(nullable = true) Instant executeLe,
+      @Schema(nullable = true) String referenceOrdre,
+      @Schema(nullable = true) String motifRefus) {}
 
   /** Fichier joint : nom et format (PDF, JPG ou PNG). */
   record FichierDto(String nomFichier, String typeMime) {}
@@ -43,11 +59,14 @@ record PaiementDto(
   record CoordonneesVirementDto(String beneficiaire, String banque, String iban, String bic) {}
 
   static PaiementDto depuis(Paiement p) {
-    return depuis(p, null, null);
+    return depuis(p, null, null, null);
   }
 
   static PaiementDto depuis(
-      Paiement p, FichierDto justificatifFichier, CoordonneesVirementDto coordonnees) {
+      Paiement p,
+      FichierDto justificatifFichier,
+      java.util.List<RemboursementPaiementDto> remboursements,
+      CoordonneesVirementDto coordonnees) {
     return new PaiementDto(
         p.reference(),
         p.demandeId(),
@@ -64,6 +83,7 @@ record PaiementDto(
         p.justificatifPieceId() != null,
         p.motifRejet(),
         justificatifFichier,
+        remboursements,
         p.moyen() == gn.gov.mines.emine.shared.jooq.enums.MoyenPaiement.VIREMENT
             ? coordonnees
             : null);

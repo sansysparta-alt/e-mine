@@ -58,9 +58,10 @@ class MigrationsTest extends TestIntegration {
       }
       ResultSet rs =
           // Compteurs créés par les autres tests de la suite (base partagée) : demandes, paiements,
-          // reçus et documents délivrés (un compteur par code du catalogue, V10).
+          // reçus, remboursements (V32) et documents délivrés (un compteur par code du catalogue,
+          // V10).
           st.executeQuery(
-              "SELECT count(*) FROM compteur WHERE cle NOT IN ('DEM', 'PAY', 'REC')"
+              "SELECT count(*) FROM compteur WHERE cle NOT IN ('DEM', 'PAY', 'REC', 'RMB')"
                   + " AND cle NOT IN (SELECT code FROM type_document)");
       rs.next();
       assertThat(rs.getInt(1)).as("compteurs amorcés").isZero();

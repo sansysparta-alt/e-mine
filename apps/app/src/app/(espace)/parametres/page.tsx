@@ -1,6 +1,7 @@
 import {
   type DetailRegleDelaiDto,
   lireParametresDelai,
+  lireRegleRemboursement,
   listerCanauxNotification,
   type VersionRegleDelaiDto,
 } from "@emine/api-client";
@@ -17,6 +18,11 @@ import {
   type VersionGouvernee,
 } from "@/composants/gouvernance/gouvernance";
 import { FormulaireCanaux } from "@/composants/parametres/formulaire-canaux";
+import {
+  FormulaireRegleRemboursement,
+  ResumeRegleRemboursement,
+} from "@/composants/parametres/regle-remboursement";
+import { deciderRegle, proposerRegle } from "@/serveur/actions-remboursements";
 import { ResumeRegleDelais } from "@/composants/parametres/resume-regle-delais";
 import { deciderDelais, enregistrerCanaux } from "@/serveur/actions-parametres";
 import { appelPage, chargerMoi, optionsApi } from "@/serveur/donnees";
@@ -49,13 +55,17 @@ export default async function Parametres({ searchParams }: Props) {
   const tGouvernance = await getTranslations("gouvernance");
   const { proposee, resultat } = await searchParams;
 
-  const [delais, canaux] = await appelPage("/parametres", async () => {
+  const [delais, canaux, remboursement] = await appelPage("/parametres", async () => {
     const options = await optionsApi();
     return Promise.all([
       lireParametresDelai(options).then((r) => r.data),
       listerCanauxNotification(options).then((r) => r.data),
+      lireRegleRemboursement(options).then((r) => r.data),
     ]);
   });
+  const rembEnVigueur = remboursement.versions.find((v) => v.etat === "en_vigueur");
+  const rembAValider = remboursement.versions.find((v) => v.etat === "a_valider");
+  const rembProgrammee = remboursement.versions.find((v) => v.etat === "programmee");
   const enVigueur = dans(delais, "en_vigueur");
   const aValider = dans(delais, "a_valider");
   const programmee = dans(delais, "programmee");
@@ -137,6 +147,62 @@ export default async function Parametres({ searchParams }: Props) {
         decideur={delais.peutDecider}
         contenu={(v) => <ResumeRegleDelais regle={v.regle} />}
       />
+
+      <section aria-labelledby="titre-remboursement" className="flex flex-col gap-6">
+        <h2 id="titre-remboursement" className="text-xl font-semibold">
+          {t("remboursement.titre")}
+        </h2>
+        {rembAValider ? (
+          <CarteProposition
+            v={rembAValider satisfies VersionGouvernee}
+            decideur={remboursement.peutDecider}
+            decision={
+              remboursement.peutDecider || admin ? (
+                <DecisionVersion
+                  code="remboursement"
+                  numero={rembAValider.version}
+                  action={remboursement.peutDecider ? "DECIDER" : "ATTENDRE"}
+                  changeSignataire={false}
+                  desactive={false}
+                  decider={deciderRegle}
+                  adresseApres="/parametres"
+                  texteApprobation={tGouvernance("approbation")}
+                />
+              ) : undefined
+            }
+          >
+            <ResumeRegleRemboursement rembourserSiRejet={rembAValider.rembourserSiRejet} />
+          </CarteProposition>
+        ) : null}
+        {rembProgrammee ? (
+          <Alerte
+            nature="info"
+            titre={tGouvernance("programmee.titre", {
+              n: rembProgrammee.version,
+              date: formaterDate(rembProgrammee.dateEffet),
+            })}
+          >
+            {tGouvernance("programmee.texte", { actuelle: rembEnVigueur?.version ?? "" })}
+          </Alerte>
+        ) : null}
+        <Carte titre={t("remboursement.enVigueur", { n: rembEnVigueur?.version ?? 1 })}>
+          <div className="flex flex-col gap-4">
+            <ResumeRegleRemboursement rembourserSiRejet={remboursement.rembourserSiRejet} />
+            {remboursement.peutProposer ? (
+              <FormulaireRegleRemboursement
+                enVigueur={remboursement.rembourserSiRejet}
+                proposer={proposerRegle}
+              />
+            ) : null}
+          </div>
+        </Carte>
+        <HistoriqueVersions
+          titre={t("remboursement.historique")}
+          versions={remboursement.versions}
+          decideur={remboursement.peutDecider}
+          contenu={(v) => <ResumeRegleRemboursement rembourserSiRejet={v.rembourserSiRejet} />}
+        />
+      </section>
 
       <Carte titre={t("canaux.titre")}>
         <FormulaireCanaux initial={canaux} modifiable={admin} enregistrer={enregistrerCanaux} />

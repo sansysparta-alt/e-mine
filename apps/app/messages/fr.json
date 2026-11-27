@@ -528,7 +528,7 @@
       "notifications": "Notifications",
       "catalogue": "Catalogue et tarifs",
       "workflows": "Workflows",
-      "parametres": "Délais et notifications",
+      "parametres": "Règles et notifications",
       "profil": "Mon profil",
       "aide": "Aide",
       "mentionsLegales": "Mentions légales",
@@ -536,7 +536,8 @@
       "paiements": "Paiements & reçus",
       "documents": "Documents délivrés",
       "releves": "Relevés bancaires",
-      "aVerifier": "À vérifier"
+      "aVerifier": "À vérifier",
+      "remboursements": "Remboursements"
     },
     "compte": {
       "menu": "Menu de l’utilisateur",
@@ -1690,10 +1691,10 @@
     }
   },
   "parametres": {
-    "titre": "Délais et notifications",
+    "titre": "Règles et notifications",
     "description": {
-      "admin": "Règle de calcul des délais et canaux de chaque notification. La règle des délais est validée par le Ministre puis appliquée à sa date d’effet ; les canaux changent aussitôt. Tout est tracé au journal d’audit.",
-      "lecture": "Règle de calcul des délais et canaux de chaque notification. Vous validez les modifications de la règle des délais proposées par l’administrateur."
+      "admin": "Règles de calcul des délais et de remboursement des frais, canaux de chaque notification. Les règles sont validées par le Ministre puis appliquées à leur date d’effet ; les canaux changent aussitôt. Tout est tracé au journal d’audit.",
+      "lecture": "Règles de calcul des délais et de remboursement des frais, canaux de chaque notification. Vous validez les modifications des règles proposées par l’administrateur."
     },
     "provisoire": {
       "titre": "Choix à faire valider par le Ministère",
@@ -1769,6 +1770,22 @@
         "interne": "notification dans son espace (cloche), toujours active"
       },
       "toujoursActif": "toujours actif"
+    },
+    "remboursement": {
+      "titre": "Remboursement des frais",
+      "enVigueur": "Règle de remboursement en vigueur (version {n})",
+      "historique": "Historique de la règle de remboursement",
+      "oui": "Les frais de dossier d’une demande rejetée sont remboursés.",
+      "non": "Les frais de dossier d’une demande rejetée ne sont pas remboursés.",
+      "toujours": "Un double paiement ou une erreur (montant en trop, paiement rejeté) est toujours remboursé, après validation du Responsable fiscal.",
+      "proposer": "Proposer une modification",
+      "nouvelle": "Règle proposée :",
+      "motif": "Motif de la modification",
+      "motifAide": "Pourquoi changer la règle (décision du Ministère, arrêté…).",
+      "envoyer": "Proposer au Ministre",
+      "enCours": "Envoi…",
+      "annuler": "Annuler",
+      "erreur": "La proposition n’a pas pu être envoyée"
     }
   },
   "profil": {
@@ -2203,6 +2220,12 @@
       "titre": "Paiement rejeté : un nouveau paiement est attendu",
       "motif": "Motif : {motif}",
       "texte": "Payez à nouveau la somme attendue pour que votre demande poursuive son traitement. Si une somme a été reçue, elle vous sera remboursée."
+    },
+    "remboursements": {
+      "titre": "Remboursements",
+      "enCours": "{numero} · demandé le {date} : en cours de traitement par le service financier.",
+      "effectue": "{numero} · remboursé le {date} par le Trésor (ordre {ordre}).",
+      "refuse": "{numero} · refusé. Motif : {motif}"
     }
   },
   "periode": {
@@ -2443,6 +2466,76 @@
         "titre": "Classer ce versement sans suite ?",
         "effet": "La ligne sort de la file « À vérifier ». Le motif est conservé au journal.",
         "confirmer": "Classer sans suite"
+      }
+    }
+  },
+  "remboursements": {
+    "titre": "Remboursements",
+    "description": "Validez chaque demande de remboursement, puis enregistrez la référence de l’ordre émis par le Trésor : l’argent est rendu hors plateforme et le demandeur est informé.",
+    "elements": "remboursements",
+    "aucun": "Aucun remboursement pour ce filtre.",
+    "demandeLe": "Demandé le {date}",
+    "ordreDu": "Ordre du Trésor : {ordre}",
+    "motifRefus": "Motif du refus : {motif}",
+    "vide": {
+      "titre": "Aucun remboursement",
+      "description": "Les remboursements proposés depuis « À vérifier » (doublon, excédent, paiement rejeté) apparaîtront ici."
+    },
+    "filtres": {
+      "libelle": "Statut",
+      "tous": "Tous",
+      "demande": "À valider",
+      "valide": "Ordre à enregistrer",
+      "execute": "Remboursés",
+      "refuse": "Refusés"
+    },
+    "colonnes": {
+      "numero": "Remboursement",
+      "beneficiaire": "Bénéficiaire",
+      "motif": "Motif",
+      "montant": "Montant",
+      "statut": "Statut",
+      "actions": "Actions"
+    },
+    "motifs": {
+      "double_paiement": "Double paiement",
+      "excedent": "Montant payé en trop",
+      "rejet_demande": "Demande rejetée",
+      "autre": "Erreur de paiement"
+    },
+    "statuts": {
+      "aValider": "À valider",
+      "ordreAEnregistrer": "Ordre à enregistrer",
+      "enCours": "Remboursement en cours",
+      "rembourse": "Remboursé",
+      "refuse": "Refusé"
+    },
+    "actions": {
+      "annuler": "Annuler",
+      "enCours": "Enregistrement…",
+      "erreur": "L’action n’a pas pu être enregistrée",
+      "motif": "Motif du refus",
+      "motifAide": "Conservé au journal et visible du demandeur.",
+      "ordre": "Référence de l’ordre de remboursement",
+      "ordreAide": "Référence donnée par le Trésor pour ce remboursement.",
+      "ordreObligatoire": "Indiquez la référence de l’ordre de remboursement du Trésor.",
+      "valider": {
+        "bouton": "Valider",
+        "titre": "Valider le remboursement {numero} ?",
+        "effet": "Le remboursement de {montant} à {beneficiaire} est validé : l’ordre peut être demandé au Trésor.",
+        "confirmer": "Valider le remboursement"
+      },
+      "refuser": {
+        "bouton": "Refuser",
+        "titre": "Refuser le remboursement {numero} ?",
+        "effet": "Le remboursement de {montant} n’aura pas lieu. Le motif est conservé au journal.",
+        "confirmer": "Refuser le remboursement"
+      },
+      "executer": {
+        "bouton": "Enregistrer l’ordre",
+        "titre": "Ordre du Trésor pour {numero}",
+        "effet": "Le Trésor a émis l’ordre de remboursement de {montant} à {beneficiaire}. Le demandeur sera informé.",
+        "confirmer": "Enregistrer et informer le demandeur"
       }
     }
   }

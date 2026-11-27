@@ -12,6 +12,7 @@ import {
   Plus,
   ScrollText,
   SearchCheck,
+  Undo2,
   SlidersHorizontal,
   Users,
   Workflow,
@@ -103,6 +104,15 @@ export const NAVIGATION: SectionConfig[] = [
         module: "paiement",
         href: "/a-verifier",
         icone: SearchCheck,
+        permission: "ENCAISSER",
+        interne: true,
+      },
+      // Remboursements (US-04.10) : validation, puis ordre du Trésor enregistré.
+      {
+        cle: "remboursements",
+        module: "paiement",
+        href: "/remboursements",
+        icone: Undo2,
         permission: "ENCAISSER",
         interne: true,
       },

@@ -143,7 +143,7 @@ class EcartsTest extends TestIntegration {
     ligneImportee("26/11/2026;VIR " + ref + ";5000000;C");
     long doublon = ligneImportee("27/11/2026;VIR " + ref + " BIS;5000000;C");
     assertThat(element(doublon).path("nature").asString()).isEqualTo("doublon");
-    assertThat(decisions(element(doublon))).containsExactly("CLASSER");
+    assertThat(decisions(element(doublon))).containsExactly("REMBOURSER", "CLASSER");
     decider(doublon, "{\"decision\":\"CLASSER\"}").andExpect(status().isBadRequest());
     decider(
             doublon,

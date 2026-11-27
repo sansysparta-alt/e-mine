@@ -134,14 +134,17 @@ export function HistoriqueVersions<V extends VersionGouvernee>({
   versions,
   decideur,
   contenu,
+  titre,
 }: {
   versions: V[];
   decideur: boolean;
   contenu: (v: V) => ReactNode;
+  /** Titre de la carte, quand plusieurs règles se partagent la page ; « Historique des versions » par défaut. */
+  titre?: string;
 }) {
   const t = useTranslations("gouvernance");
   return (
-    <Carte titre={t("historique")}>
+    <Carte titre={titre ?? t("historique")}>
       <ol className="flex flex-col">
         {versions.map((v) => (
           <li
