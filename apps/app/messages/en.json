@@ -78,7 +78,9 @@
         "COMPLEMENT": "Complete"
       },
       "vide": "Nothing for you to do at the moment",
-      "videAide": "Your requests are progressing. You will be notified by e-mail as soon as an action is expected from you."
+      "videAide": "Your requests are progressing. You will be notified by e-mail as soon as an action is expected from you.",
+      "explicationComplement": "Payment {reference} incomplete: {montant} remains to be paid.",
+      "actionComplement": "Pay the rest"
     },
     "travail": {
       "titre": "{nombre, plural, =0 {Files to process} other {Files to process (#)}}",
@@ -735,7 +737,16 @@
     "voirPaiement": "View the payment",
     "virementOuvertTitre": "Transfer to make ({reference})",
     "virementOuvertTexte": "You chose bank transfer: make it before the deadline quoting the reference shown, then attach your proof of transfer. You can also choose another method below: the current reference will then be cancelled.",
-    "voirVirement": "Transfer details and declaration"
+    "voirVirement": "Transfer details and declaration",
+    "complement": {
+      "titre": "Pay the rest",
+      "alerteTitre": "Your payment {reference} is incomplete",
+      "alerteTexte": "The finance department received {recu} out of {du}. Your payment is not rejected: {reste} remains to be paid.",
+      "motif": "Reason: {motif}",
+      "echeance": "Preferably pay before {date}.",
+      "objet": "Top-up of payment {reference}",
+      "recu": "You will receive a receipt for this top-up."
+    }
   },
   "statutsPaiement": {
     "initie": "Initiated",
@@ -747,7 +758,8 @@
     "expire": "Expired",
     "annule": "Cancelled",
     "remboursement_demande": "Refund requested",
-    "rembourse": "Refunded"
+    "rembourse": "Refunded",
+    "complement_attendu": "Top-up expected"
   },
   "instruction": {
     "motif": {
@@ -2325,7 +2337,10 @@
       "enCours": "{numero} · requested on {date}: being processed by the finance department.",
       "effectue": "{numero} · refunded on {date} by the Treasury (order {ordre}).",
       "refuse": "{numero} · refused. Reason: {motif}"
-    }
+    },
+    "complementDe": "Top-up of payment",
+    "dejaRecu": "Already received",
+    "resteAPayer": "Remaining to pay"
   },
   "periode": {
     "libelle": "Period",
@@ -2421,7 +2436,9 @@
     "remboursementAValider": "Refund to approve",
     "rembourse": "Refunded",
     "rejeteRembourse": "Rejected · refunded",
-    "rejeteRemboursementEnCours": "Rejected · refund in progress"
+    "rejeteRemboursementEnCours": "Rejected · refund in progress",
+    "complementAPayer": "Top-up to pay",
+    "complementAttendu": "Top-up expected"
   },
   "commun": {
     "voirDetail": "View details",
@@ -2547,7 +2564,8 @@
       "doublon": "Payment already received: duplicate",
       "tardif": "Reference expired or cancelled",
       "retour": "Debit: returned transfer or charges",
-      "montant_divergent": "Notified amount differs by {ecart}"
+      "montant_divergent": "Notified amount differs by {ecart}",
+      "complement_echu": "Top-up not received by the due date"
     },
     "vide": {
       "titre": "Nothing to check",
@@ -2586,6 +2604,19 @@
         "titre": "Close this line with no further action?",
         "effet": "The line leaves the “To check” queue. The reason is kept in the log.",
         "confirmer": "Close with no action"
+      },
+      "motifAideComplement": "Sent to the applicant with the remaining amount and the due date.",
+      "COMPLETER": {
+        "bouton": "Request the top-up",
+        "titre": "Request the top-up?",
+        "effet": "The payment is not rejected: the amount received is kept and the applicant is told the remaining amount ({reste}), the reference and the due date (15 days). The revenue will be counted once, when the top-up is received.",
+        "confirmer": "Request the top-up"
+      },
+      "REMBOURSER": {
+        "bouton": "Propose a refund",
+        "titre": "Propose a refund of this transfer?",
+        "effet": "A refund proposal is created; it will be submitted to the Director for approval before the Treasury order.",
+        "confirmer": "Propose the refund"
       }
     }
   },
@@ -2759,5 +2790,12 @@
     "decider": "Decide",
     "element": "report",
     "elements": "reports"
+  },
+  "complementPaiement": {
+    "titre": "Payment {reference} incomplete: {reste} remains to be paid",
+    "texte": "The finance department received {recu} out of {du}. Your payment is not rejected.",
+    "motif": "Reason: {motif}",
+    "echeance": "Preferably pay before {date}.",
+    "payer": "Pay the rest"
   }
 }

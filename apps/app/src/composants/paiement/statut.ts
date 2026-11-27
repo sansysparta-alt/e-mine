@@ -9,6 +9,7 @@ export const TON_PAR_STATUT_PAIEMENT: Record<string, TonBadge> = {
   en_attente: "info",
   paye: "succes",
   a_verifier: "avertissement",
+  complement_attendu: "avertissement",
   echoue: "danger",
   rejete: "danger",
   expire: "neutre",
@@ -55,6 +56,7 @@ export function etatRemboursementDuRejet(
  * - Virement déclaré : l'usager attend (gris « En cours de vérification ») ; le fiscal l'attend
  *   sur son prochain relevé (bleu).
  * - Montant à vérifier : action du fiscal (orange) ; l'usager et les autres agents attendent.
+ * - Complément attendu (US-04.12) : l'usager doit payer le reste (orange) ; les agents l'attendent.
  */
 export function presentationStatutPaiement(
   p: PaiementAffiche,
@@ -79,6 +81,10 @@ export function presentationStatutPaiement(
       return profil === "fiscal"
         ? { cle: "aVerifier", ton: "avertissement" }
         : { cle: "enVerification", ton: "neutre" };
+    case "complement_attendu":
+      return usager
+        ? { cle: "complementAPayer", ton: "avertissement" }
+        : { cle: "complementAttendu", ton: "neutre" };
     case "paye":
       return { cle: "paye", ton: "succes" };
     case "echoue":

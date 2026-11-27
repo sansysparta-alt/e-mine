@@ -56,10 +56,16 @@ public class EcartRepository {
       String moyen,
       Long demandeId,
       String numeroDemande,
-      Instant signaleLe) {
+      Instant signaleLe,
+      boolean complement) {
 
     public boolean paiementAVerifier() {
       return "a_verifier".equals(statutPaiement);
+    }
+
+    /** Complément attendu dont l'échéance est dépassée (US-04.12). */
+    public boolean complementEchu() {
+      return "complement_attendu".equals(statutPaiement);
     }
   }
 
@@ -72,7 +78,8 @@ public class EcartRepository {
       String nature,
       String decision,
       UUID paiementId,
-      String statutPaiement) {}
+      String statutPaiement,
+      boolean complement) {}
 
   /** Ligne en écart ou inconnue, pas encore traitée. */
   static final Condition LIGNE_A_VERIFIER =
@@ -81,7 +88,29 @@ public class EcartRepository {
           .in(StatutLigneReleve.ecart, StatutLigneReleve.inconnue)
           .and(LIGNE_RELEVE.DECISION.isNull());
 
-  /** Paiement « à vérifier » qu'aucune ligne non traitée ne porte (paiement en ligne). */
+  /** Paiement complémentaire, alias pour les sous-requêtes. */
+  private static final gn.gov.mines.emine.shared.jooq.tables.Paiement CPL = PAIEMENT.as("cpl");
+
+  /** Complément attendu, échéance dépassée, sans paiement complémentaire en cours (US-04.12). */
+  static final Condition COMPLEMENT_ECHU =
+      PAIEMENT
+          .STATUT
+          .eq(StatutPaiement.complement_attendu)
+          .and(PAIEMENT.COMPLEMENT_ECHEANCE.lt(DSL.currentInstant()))
+          .andNotExists(
+              DSL.selectOne()
+                  .from(CPL)
+                  .where(CPL.COMPLEMENT_DE.eq(PAIEMENT.ID))
+                  .and(
+                      CPL.STATUT.in(
+                          StatutPaiement.initie,
+                          StatutPaiement.en_attente,
+                          StatutPaiement.a_verifier)));
+
+  /**
+   * Paiement « à vérifier » qu'aucune ligne non traitée ne porte (paiement en ligne), ou complément
+   * attendu dont l'échéance est dépassée.
+   */
   static final Condition PAIEMENT_SEUL_A_VERIFIER =
       PAIEMENT
           .STATUT
@@ -90,7 +119,16 @@ public class EcartRepository {
               DSL.selectOne()
                   .from(LIGNE_RELEVE)
                   .where(LIGNE_RELEVE.PAIEMENT_ID.eq(PAIEMENT.ID))
-                  .and(LIGNE_A_VERIFIER));
+                  .and(LIGNE_A_VERIFIER))
+          .or(COMPLEMENT_ECHU);
+
+  /**
+   * Le paiement se décide seul : en ligne « à vérifier » sans ligne de relevé, ou complément
+   * attendu dont l'échéance est dépassée (US-04.12).
+   */
+  public boolean seulADecider(UUID paiementId) {
+    return dsl.fetchExists(PAIEMENT, PAIEMENT.ID.eq(paiementId).and(PAIEMENT_SEUL_A_VERIFIER));
+  }
 
   /** Le paiement porte une ligne de relevé non traitée (sa décision passe par elle). */
   public boolean aUneLigneATraiter(UUID paiementId) {
@@ -139,7 +177,9 @@ public class EcartRepository {
                 moyen,
                 DEMANDE.ID.as("demande_id"),
                 DEMANDE.NUMERO.as("numero_demande"),
-                LIGNE_RELEVE.CREATED_AT.as("signale_le"))
+                LIGNE_RELEVE.CREATED_AT.as("signale_le"),
+                DSL.coalesce(DSL.field(PAIEMENT.COMPLEMENT_DE.isNotNull()), DSL.inline(false))
+                    .as("complement"))
             .from(LIGNE_RELEVE)
             .leftJoin(PAIEMENT)
             .on(PAIEMENT.ID.eq(LIGNE_RELEVE.PAIEMENT_ID))
@@ -156,7 +196,11 @@ public class EcartRepository {
                 DSL.inline("").as("libelle"),
                 DSL.coalesce(PAIEMENT.MONTANT_RECU_GNF, PAIEMENT.MONTANT_GNF).as("montant_gnf"),
                 DSL.inline("C").as("sens"),
-                DSL.inline("montant_divergent").as("nature"),
+                DSL.when(
+                        PAIEMENT.STATUT.eq(StatutPaiement.complement_attendu),
+                        DSL.inline("complement_echu"))
+                    .otherwise(DSL.inline("montant_divergent"))
+                    .as("nature"),
                 DSL.coalesce(PAIEMENT.MONTANT_RECU_GNF, PAIEMENT.MONTANT_GNF)
                     .minus(PAIEMENT.MONTANT_GNF)
                     .as("ecart_gnf"),
@@ -167,7 +211,8 @@ public class EcartRepository {
                 moyen,
                 DEMANDE.ID.as("demande_id"),
                 DEMANDE.NUMERO.as("numero_demande"),
-                PAIEMENT.UPDATED_AT.as("signale_le"))
+                PAIEMENT.UPDATED_AT.as("signale_le"),
+                DSL.field(PAIEMENT.COMPLEMENT_DE.isNotNull()).as("complement"))
             .from(PAIEMENT)
             .join(DEMANDE)
             .on(DEMANDE.ID.eq(PAIEMENT.DEMANDE_ID))
@@ -193,7 +238,8 @@ public class EcartRepository {
         r.get("moyen", String.class),
         r.get("demande_id", Long.class),
         r.get("numero_demande", String.class),
-        r.get("signale_le", Instant.class));
+        r.get("signale_le", Instant.class),
+        Boolean.TRUE.equals(r.get("complement", Boolean.class)));
   }
 
   /** Ligne de relevé verrouillée (décision en cours), avec le statut du paiement rapproché. */
@@ -206,7 +252,8 @@ public class EcartRepository {
             LIGNE_RELEVE.NATURE,
             LIGNE_RELEVE.DECISION,
             LIGNE_RELEVE.PAIEMENT_ID,
-            PAIEMENT.STATUT)
+            PAIEMENT.STATUT,
+            PAIEMENT.COMPLEMENT_DE)
         .from(LIGNE_RELEVE)
         .leftJoin(PAIEMENT)
         .on(PAIEMENT.ID.eq(LIGNE_RELEVE.PAIEMENT_ID))
@@ -223,7 +270,8 @@ public class EcartRepository {
                     r.value5(),
                     r.value6(),
                     r.value7(),
-                    r.value8() == null ? null : r.value8().getLiteral()));
+                    r.value8() == null ? null : r.value8().getLiteral(),
+                    r.value9() != null));
   }
 
   /** Enregistre la décision sur une ligne (et le paiement associé, le cas échéant). */
@@ -279,11 +327,30 @@ public class EcartRepository {
     maj.where(PAIEMENT.ID.eq(paiementId)).execute();
   }
 
-  /** Rejette un paiement « à vérifier » : motif communiqué au demandeur (notification). */
+  /**
+   * Rejette un paiement « à vérifier », ou en attente d'un complément (US-04.12) : motif communiqué
+   * au demandeur (notification).
+   */
   public int rejeter(UUID paiementId, String motif) {
     return dsl.update(PAIEMENT)
         .set(PAIEMENT.STATUT, StatutPaiement.rejete)
         .set(PAIEMENT.MOTIF_REJET, motif)
+        .where(PAIEMENT.ID.eq(paiementId))
+        .and(PAIEMENT.STATUT.in(StatutPaiement.a_verifier, StatutPaiement.complement_attendu))
+        .execute();
+  }
+
+  /**
+   * Demande le complément d'un paiement « à vérifier » au montant inférieur (US-04.12) : il n'est
+   * pas rejeté ; la somme reçue est enregistrée ; motif et échéance sont communiqués au demandeur.
+   */
+  public int demanderComplement(
+      UUID paiementId, long montantRecuGnf, String motif, Instant echeance) {
+    return dsl.update(PAIEMENT)
+        .set(PAIEMENT.STATUT, StatutPaiement.complement_attendu)
+        .set(PAIEMENT.MONTANT_RECU_GNF, montantRecuGnf)
+        .set(PAIEMENT.MOTIF_COMPLEMENT, motif)
+        .set(PAIEMENT.COMPLEMENT_ECHEANCE, echeance)
         .where(PAIEMENT.ID.eq(paiementId))
         .and(PAIEMENT.STATUT.eq(StatutPaiement.a_verifier))
         .execute();

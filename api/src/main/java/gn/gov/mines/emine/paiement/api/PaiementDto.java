@@ -18,6 +18,10 @@ import java.time.Instant;
  * @param remboursements remboursements de ce paiement, pour un paiement lu seul (US-04.10)
  * @param coordonnees compte à créditer, pour un virement lu seul ({@code GET
  *     /paiements/{reference}}) ; {@code null} sinon
+ * @param complementDe référence du paiement initial dont ce paiement règle le reste (US-04.12)
+ * @param resteAPayerGnf reste à payer d'un paiement en attente de complément (US-04.12)
+ * @param motifComplement motif de la demande de complément (US-04.12)
+ * @param complementEcheance échéance indicative du complément (US-04.12)
  */
 record PaiementDto(
     String reference,
@@ -36,7 +40,11 @@ record PaiementDto(
     @Schema(nullable = true) String motifRejet,
     @Schema(nullable = true) FichierDto justificatifFichier,
     @Schema(nullable = true) java.util.List<RemboursementPaiementDto> remboursements,
-    @Schema(nullable = true) CoordonneesVirementDto coordonnees) {
+    @Schema(nullable = true) CoordonneesVirementDto coordonnees,
+    @Schema(nullable = true) String complementDe,
+    @Schema(nullable = true) Long resteAPayerGnf,
+    @Schema(nullable = true) String motifComplement,
+    @Schema(nullable = true) Instant complementEcheance) {
 
   /**
    * Remboursement d'un paiement, tel que le demandeur le suit.
@@ -58,12 +66,13 @@ record PaiementDto(
   /** Compte à créditer par virement (valeurs de la configuration, fictives en démonstration). */
   record CoordonneesVirementDto(String beneficiaire, String banque, String iban, String bic) {}
 
-  static PaiementDto depuis(Paiement p) {
-    return depuis(p, null, null, null);
+  static PaiementDto depuis(Paiement p, String complementDe) {
+    return depuis(p, complementDe, null, null, null);
   }
 
   static PaiementDto depuis(
       Paiement p,
+      String complementDe,
       FichierDto justificatifFichier,
       java.util.List<RemboursementPaiementDto> remboursements,
       CoordonneesVirementDto coordonnees) {
@@ -86,6 +95,10 @@ record PaiementDto(
         remboursements,
         p.moyen() == gn.gov.mines.emine.shared.jooq.enums.MoyenPaiement.VIREMENT
             ? coordonnees
-            : null);
+            : null,
+        complementDe,
+        p.resteAPayerGnf(),
+        p.motifComplement(),
+        p.complementEcheance());
   }
 }

@@ -13,6 +13,7 @@ import { presentationStatutRemboursement } from "@/composants/remboursement/stat
 import { FolderOpen, RotateCcw } from "@emine/ui/icones";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ExplicationComplement } from "@/composants/paiement/complement";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { FilArianeApp } from "@/composants/fil-ariane-app";
@@ -120,6 +121,8 @@ export default async function DetailPaiement({ params }: Props) {
         <Alerte nature="info" titre={t("attente.titre")}>
           {t("attente.texte")}
         </Alerte>
+      ) : paiement.statut === "complement_attendu" && paiement.resteAPayerGnf ? (
+        <ExplicationComplement paiement={paiement} demandeId={paiement.demandeId} />
       ) : paiement.statut === "a_verifier" ? (
         <Alerte nature="info" titre={t("aVerifier.titre")}>
           {t("aVerifier.texte")}
@@ -171,6 +174,29 @@ export default async function DetailPaiement({ params }: Props) {
             <dd>{virement ? t("virement") : "TrésorPay"}</dd>
             <dt className="font-semibold">{t("reference")}</dt>
             <dd className="tabular-nums">{paiement.reference}</dd>
+            {paiement.complementDe ? (
+              <>
+                <dt className="font-semibold">{t("complementDe")}</dt>
+                <dd>
+                  <Link
+                    href={`/paiements/${paiement.complementDe}`}
+                    className="font-semibold whitespace-nowrap text-royal tabular-nums underline"
+                  >
+                    {paiement.complementDe}
+                  </Link>
+                </dd>
+              </>
+            ) : null}
+            {paiement.statut === "complement_attendu" && paiement.montantRecuGnf != null ? (
+              <>
+                <dt className="font-semibold">{t("dejaRecu")}</dt>
+                <dd className="tabular-nums">{formaterGnf(paiement.montantRecuGnf, langue)}</dd>
+                <dt className="font-semibold">{t("resteAPayer")}</dt>
+                <dd className="font-semibold tabular-nums">
+                  {formaterGnf(paiement.resteAPayerGnf ?? 0, langue)}
+                </dd>
+              </>
+            ) : null}
             <dt className="font-semibold">{t("initieLe")}</dt>
             <dd>{formaterDateHeure(paiement.creeLe, langue)}</dd>
             {aEffectuer && paiement.dateExpiration ? (

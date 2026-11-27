@@ -145,3 +145,45 @@ describe("décisions sur un écart (US-04.9)", () => {
     expect(motifObligatoire("VALIDER")).toBe(false);
   });
 });
+
+describe("complément d'un paiement insuffisant (US-04.12)", () => {
+  beforeEach(() => refresh.mockReset());
+
+  it("propose « Demander le complément » avec le reste, motif obligatoire", async () => {
+    const decider = vi.fn().mockResolvedValue({ ok: true, valeur: null });
+    afficher(
+      <DecisionsEcart
+        element={element({ decisions: ["COMPLETER", "REJETER"] })}
+        decider={decider}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: /Demander le complément/ }));
+    const boite = screen.getByRole("dialog", { name: "Demander le complément ?" });
+    expect(within(boite).getByText(/n’est pas rejeté/)).toHaveTextContent("1 000 000 GNF");
+    fireEvent.click(within(boite).getByRole("button", { name: "Demander le complément" }));
+    expect(decider).not.toHaveBeenCalled();
+    fireEvent.change(within(boite).getByLabelText(/Motif/), {
+      target: { value: "Il manque une partie des frais de dossier." },
+    });
+    fireEvent.click(within(boite).getByRole("button", { name: "Demander le complément" }));
+    await waitFor(() =>
+      expect(decider).toHaveBeenCalledWith(
+        { ligneId: 12 },
+        "COMPLETER",
+        "Il manque une partie des frais de dossier.",
+        "",
+      ),
+    );
+    expect(motifObligatoire("COMPLETER")).toBe(true);
+  });
+
+  it("affiche aussi « Proposer le remboursement » (doublon) sans erreur", () => {
+    afficher(
+      <DecisionsEcart
+        element={element({ nature: "doublon", decisions: ["REMBOURSER", "CLASSER"] })}
+        decider={vi.fn()}
+      />,
+    );
+    expect(screen.getByRole("button", { name: /Proposer le remboursement/ })).toBeVisible();
+  });
+});

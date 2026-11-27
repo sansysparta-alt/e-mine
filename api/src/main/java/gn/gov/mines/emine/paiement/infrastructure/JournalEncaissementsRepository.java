@@ -122,6 +122,9 @@ public class JournalEncaissementsRepository {
         PAIEMENT
             .STATUT
             .in(StatutPaiement.paye, StatutPaiement.remboursement_demande, StatutPaiement.rembourse)
+            // US-04.12 : une seule recette, celle du paiement initial au montant dû, datée du
+            // complément ; le complément n'est pas compté une seconde fois.
+            .and(PAIEMENT.COMPLEMENT_DE.isNull())
             .and(periode(datePaiement, c))
             .and(filtres(c));
     Condition remboursements =

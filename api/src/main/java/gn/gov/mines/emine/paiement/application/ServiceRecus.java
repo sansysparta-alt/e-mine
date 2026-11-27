@@ -81,7 +81,7 @@ public class ServiceRecus {
             p.datePaiement(),
             montant,
             MontantEnLettres.gnf(montant),
-            libelleObjet(p),
+            libelle(p),
             tresorPay ? "TrésorPay" : "Virement bancaire",
             p.transactionExterneId(),
             demande.numero(),
@@ -91,6 +91,22 @@ public class ServiceRecus {
             tresorPay,
             proprietes.urlVerification(code));
     return new RecuPdf(p.recuNumero(), pdf.generer(recu));
+  }
+
+  /**
+   * Objet du reçu ; un complément renvoie au paiement initial, et le reçu du paiement initial au
+   * complément qui l'a soldé (US-04.12).
+   */
+  private String libelle(Paiement p) {
+    if (p.complementDe() != null) {
+      return libelleObjet(p)
+          + " — complément du paiement "
+          + paiements.reference(p.complementDe()).orElse("");
+    }
+    return paiements
+        .complementPaye(p.id())
+        .map(c -> libelleObjet(p) + " — montant total, soldé par le complément " + c)
+        .orElse(libelleObjet(p));
   }
 
   private static String libelleObjet(Paiement p) {

@@ -45,6 +45,20 @@ public class PaiementRepository {
   /** Crée un paiement au statut {@code initie} ; la base attribue la référence PAY-AAAA-NNNNNN. */
   public Paiement creer(
       long demandeId, ObjetPaiement objet, MoyenPaiement moyen, long montantGnf, long payeurId) {
+    return creer(demandeId, objet, moyen, montantGnf, payeurId, null);
+  }
+
+  /**
+   * Crée un paiement, complémentaire d'un paiement insuffisant si {@code complementDe} est donné
+   * (US-04.12) : la base vérifie qu'il règle exactement le reste attendu ({@code PAY-019}).
+   */
+  public Paiement creer(
+      long demandeId,
+      ObjetPaiement objet,
+      MoyenPaiement moyen,
+      long montantGnf,
+      long payeurId,
+      UUID complementDe) {
     PaiementRecord r =
         dsl.insertInto(PAIEMENT)
             .set(PAIEMENT.DEMANDE_ID, demandeId)
@@ -52,9 +66,36 @@ public class PaiementRepository {
             .set(PAIEMENT.MOYEN, moyen)
             .set(PAIEMENT.MONTANT_GNF, montantGnf)
             .set(PAIEMENT.PAYEUR_ID, payeurId)
+            .set(PAIEMENT.COMPLEMENT_DE, complementDe)
             .returning()
             .fetchOne();
     return versDomaine(r);
+  }
+
+  /** Paiement de cet objet en attente de complément (US-04.12), s'il y en a un. */
+  public Optional<Paiement> complementAttendu(long demandeId, ObjetPaiement objet) {
+    return dsl.selectFrom(PAIEMENT)
+        .where(PAIEMENT.DEMANDE_ID.eq(demandeId))
+        .and(PAIEMENT.OBJET.eq(objet))
+        .and(PAIEMENT.STATUT.eq(StatutPaiement.complement_attendu))
+        .fetchOptional(PaiementRepository::versDomaine);
+  }
+
+  /** Référence du complément payé d'un paiement initial (US-04.12), s'il y en a un. */
+  public Optional<String> complementPaye(UUID initial) {
+    return dsl.select(PAIEMENT.REFERENCE)
+        .from(PAIEMENT)
+        .where(PAIEMENT.COMPLEMENT_DE.eq(initial))
+        .and(PAIEMENT.STATUT.eq(StatutPaiement.paye))
+        .fetchOptional(PAIEMENT.REFERENCE);
+  }
+
+  /** Référence d'un paiement (paiement initial d'un complément), sous la RLS. */
+  public Optional<String> reference(UUID id) {
+    return dsl.select(PAIEMENT.REFERENCE)
+        .from(PAIEMENT)
+        .where(PAIEMENT.ID.eq(id))
+        .fetchOptional(PAIEMENT.REFERENCE);
   }
 
   /**
@@ -292,7 +333,11 @@ public class PaiementRepository {
   /** Groupes de statuts de la liste « Paiements & reçus » (filtres de l'usager). */
   public enum GroupeStatut {
     PAYES(StatutPaiement.paye),
-    EN_COURS(StatutPaiement.initie, StatutPaiement.en_attente, StatutPaiement.a_verifier),
+    EN_COURS(
+        StatutPaiement.initie,
+        StatutPaiement.en_attente,
+        StatutPaiement.a_verifier,
+        StatutPaiement.complement_attendu),
     ECHOUES(StatutPaiement.echoue, StatutPaiement.rejete, StatutPaiement.expire),
     REMBOURSES(StatutPaiement.remboursement_demande, StatutPaiement.rembourse);
 
@@ -339,7 +384,11 @@ public class PaiementRepository {
                 DSL.count().filterWhere(GroupeStatut.EN_COURS.condition()),
                 DSL.count().filterWhere(GroupeStatut.ECHOUES.condition()),
                 DSL.count().filterWhere(GroupeStatut.REMBOURSES.condition()),
-                DSL.sum(PAIEMENT.MONTANT_GNF).filterWhere(GroupeStatut.PAYES.condition()))
+                // Un complément payé n'est pas une somme de plus : le paiement initial porte le
+                // total (US-04.12).
+                DSL.sum(PAIEMENT.MONTANT_GNF)
+                    .filterWhere(
+                        GroupeStatut.PAYES.condition().and(PAIEMENT.COMPLEMENT_DE.isNull())))
             .from(PAIEMENT)
             .join(demande)
             .on(demande.ID.eq(PAIEMENT.DEMANDE_ID))
@@ -471,6 +520,9 @@ public class PaiementRepository {
         r.getTransactionExterneId(),
         r.getJustificatifPieceId(),
         r.getVirementDeclareLe(),
-        r.getMotifRejet());
+        r.getMotifRejet(),
+        r.getComplementDe(),
+        r.getMotifComplement(),
+        r.getComplementEcheance());
   }
 }

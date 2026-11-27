@@ -102,6 +102,8 @@ public class IndicateursRepository {
         .join(TYPE_DOCUMENT)
         .on(TYPE_DOCUMENT.ID.eq(DEMANDE.TYPE_DOCUMENT_ID))
         .where(PAIEMENT.STATUT.eq(StatutPaiement.paye))
+        // Un complément payé n'est pas une recette de plus : le paiement initial porte le total.
+        .and(PAIEMENT.COMPLEMENT_DE.isNull())
         .and(PAIEMENT.DATE_PAIEMENT.ge(debut))
         .groupBy(TYPE_DOCUMENT.CODE)
         .fetch()

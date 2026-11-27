@@ -62,6 +62,8 @@ export type ActionAFaire = {
   montantGnf?: number | null;
   /** Le paiement précédent a été rejeté (US-07.5) : sa référence et son motif. */
   paiementRejete?: { reference: string; motif: string | null } | null;
+  /** Paiement incomplet dont le reste est à payer (US-04.12) : sa référence. */
+  complementDe?: string | null;
 };
 
 /** Vues exclusives de la liste (API) : leur somme est le total. */
@@ -603,7 +605,7 @@ function CeQueJeDoisFaire({
   return (
     <Carte titre={t("titre", { nombre: aFaire.length })}>
       <ul className="-mx-2 flex flex-col divide-y divide-bordure">
-        {aFaire.map(({ demande, action, montantGnf, paiementRejete }) => (
+        {aFaire.map(({ demande, action, montantGnf, paiementRejete, complementDe }) => (
           <li
             key={demande.id}
             className={cn(
@@ -620,9 +622,14 @@ function CeQueJeDoisFaire({
                 {libelles[demande.typeDocumentCode] ?? demande.typeDocumentCode}
               </Link>
               <span className="block text-sm text-texte-doux">
-                {montantGnf != null
-                  ? t(`explication.${action}`, { montant: formaterGnf(montantGnf) })
-                  : t(`explicationSansMontant.${action}`)}
+                {complementDe && montantGnf != null
+                  ? t("explicationComplement", {
+                      reference: complementDe,
+                      montant: formaterGnf(montantGnf),
+                    })
+                  : montantGnf != null
+                    ? t(`explication.${action}`, { montant: formaterGnf(montantGnf) })
+                    : t(`explicationSansMontant.${action}`)}
               </span>
               {paiementRejete ? (
                 <span className="block text-sm font-semibold text-danger">
@@ -647,7 +654,8 @@ function CeQueJeDoisFaire({
                 {action === "COMPLEMENT" ? null : (
                   <CreditCard aria-hidden="true" className="size-4" />
                 )}
-                {t(`action.${action}`)} <span className="sr-only">· {demande.numero}</span>
+                {complementDe ? t("actionComplement") : t(`action.${action}`)}{" "}
+                <span className="sr-only">· {demande.numero}</span>
               </Link>
             </Bouton>
           </li>

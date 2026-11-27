@@ -1,5 +1,5 @@
 import { ErreurApi, lireDemande, lirePaiementAttendu } from "@emine/api-client";
-import { Alerte, Bouton, Carte, EnTetePage, formaterGnf } from "@emine/ui";
+import { Alerte, Bouton, Carte, EnTetePage, formaterDate, formaterGnf } from "@emine/ui";
 import { Eye, Landmark, ShieldCheck } from "@emine/ui/icones";
 import type { Metadata } from "next";
 import { libelleDocument } from "@/composants/referentiels";
@@ -106,16 +106,46 @@ export default async function PaiementDemande({ params }: Props) {
 
   const montant = formaterGnf(attendu.montantGnf);
   const virementOuvert = attendu.referenceOuverte != null && attendu.moyenOuvert === "VIREMENT";
+  // US-04.12 : complément d'un paiement insuffisant ; seul le reste est à payer.
+  const complement = attendu.complement;
   return (
     <div className="flex flex-col gap-6">
-      <EnTetePage titre={t(`titre.${attendu.objet}`)} description={description} retour={retour} />
+      <EnTetePage
+        titre={complement ? t("complement.titre") : t(`titre.${attendu.objet}`)}
+        description={description}
+        retour={retour}
+      />
+      {complement ? (
+        <Alerte
+          nature="avertissement"
+          titre={t("complement.alerteTitre", { reference: complement.reference })}
+        >
+          <div className="flex flex-col gap-2">
+            <p>
+              {t("complement.alerteTexte", {
+                recu: formaterGnf(complement.montantRecuGnf),
+                du: formaterGnf(complement.montantGnf),
+                reste: formaterGnf(complement.resteGnf),
+              })}
+            </p>
+            {complement.motif ? <p>{t("complement.motif", { motif: complement.motif })}</p> : null}
+            {complement.echeance ? (
+              <p>{t("complement.echeance", { date: formaterDate(complement.echeance) })}</p>
+            ) : null}
+          </div>
+        </Alerte>
+      ) : null}
       <div className="grid gap-6 lg:grid-cols-[1fr_2fr]">
         <Carte titre={t("montantTitre")} className="h-fit">
           <p className="text-3xl font-semibold text-navy tabular-nums">{montant}</p>
-          <p className="mt-2 text-texte-doux">{t(`objet.${attendu.objet}`)}</p>
+          <p className="mt-2 text-texte-doux">
+            {complement
+              ? t("complement.objet", { reference: complement.reference })
+              : t(`objet.${attendu.objet}`)}
+          </p>
           <p className="mt-4 flex items-start gap-2 text-sm text-texte-doux">
             <ShieldCheck aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-succes" />
-            {t("montantBareme")}
+            {complement ? t("complement.recu") : t("montantBareme")}
           </p>
         </Carte>
         <Carte titre={t("moyenTitre")}>

@@ -100,14 +100,16 @@ class EcartController {
                                 "champ",
                                 "decision",
                                 "message",
-                                "Valeur attendue : VALIDER, REJETER, ASSOCIER ou CLASSER")))));
+                                "Valeur attendue : VALIDER, REJETER, COMPLETER, ASSOCIER, REMBOURSER ou CLASSER")))));
   }
 
   /**
    * Décision du Responsable fiscal.
    *
-   * @param decision {@code VALIDER}, {@code REJETER}, {@code ASSOCIER} ou {@code CLASSER}
-   * @param motif obligatoire pour rejeter (communiqué au demandeur) ou classer
+   * @param decision {@code VALIDER}, {@code REJETER}, {@code COMPLETER} (US-04.12), {@code
+   *     ASSOCIER}, {@code REMBOURSER} ou {@code CLASSER}
+   * @param motif obligatoire pour rejeter ou demander le complément (communiqué au demandeur), ou
+   *     classer
    * @param reference paiement à associer ({@code PAY-AAAA-NNNNNN}), pour {@code ASSOCIER}
    */
   record DecisionEcartDto(
@@ -120,7 +122,8 @@ class EcartController {
    *
    * @param type {@code ligne} (ligne de relevé) ou {@code paiement} (paiement en ligne)
    * @param nature {@code inferieur}, {@code superieur}, {@code inconnue}, {@code doublon}, {@code
-   *     tardif}, {@code retour} ou {@code montant_divergent}
+   *     tardif}, {@code retour}, {@code montant_divergent} ou {@code complement_echu} (complément
+   *     attendu dont l'échéance est dépassée, US-04.12)
    * @param decisions décisions possibles, dans l'ordre d'affichage
    */
   record ElementAVerifierDto(

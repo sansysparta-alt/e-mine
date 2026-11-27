@@ -9,7 +9,11 @@ import java.util.List;
  * <ul>
  *   <li>montant <b>supérieur</b> au montant attendu : valider le paiement (l'excédent pourra être
  *       remboursé, US-04.10) ou le rejeter ;
- *   <li>montant <b>inférieur</b> : rejeter le paiement (le demandeur paie à nouveau) ;
+ *   <li>montant <b>inférieur</b> : demander le complément (US-04.12 : le paiement n'est pas rejeté,
+ *       le demandeur paie le reste) ou rejeter le paiement (le demandeur paie à nouveau) ; un
+ *       paiement qui est lui-même un complément peut seulement être rejeté ;
+ *   <li>complément attendu dont l'<b>échéance est dépassée</b> (sans complément en cours) :
+ *       rejeter, rien n'étant automatique ;
  *   <li>ligne <b>sans référence</b> reconnue, ou versement <b>tardif</b> sur une référence expirée
  *       : l'associer au paiement en cours du même montant, ou la classer ;
  *   <li><b>doublon</b> : demander son remboursement (US-04.10) ou le classer ; versement
@@ -18,9 +22,10 @@ import java.util.List;
  *       moins le montant attendu, sinon rejeter.
  * </ul>
  *
- * Rejeter et classer exigent un motif ; valider, associer et rembourser le permettent. Toute somme
- * reçue sans contrepartie est proposée au remboursement : l'excédent d'un paiement validé, la somme
- * reçue d'un paiement rejeté (demande créée avec la décision, validée ensuite).
+ * Rejeter, classer et demander le complément exigent un motif ; valider, associer et rembourser le
+ * permettent. Toute somme reçue sans contrepartie est proposée au remboursement : l'excédent d'un
+ * paiement validé, la somme reçue d'un paiement rejeté (demande créée avec la décision, validée
+ * ensuite).
  */
 public final class RegleEcarts {
 
@@ -32,7 +37,8 @@ public final class RegleEcarts {
     REJETER("rejete"),
     ASSOCIER("associe"),
     CLASSER("classe"),
-    REMBOURSER("rembourse");
+    REMBOURSER("rembourse"),
+    COMPLETER("complement");
 
     private final String code;
 
@@ -45,9 +51,12 @@ public final class RegleEcarts {
       return code;
     }
 
-    /** Le motif est obligatoire (rejet communiqué au demandeur, classement sans suite). */
+    /**
+     * Le motif est obligatoire (rejet ou complément communiqués au demandeur, classement sans
+     * suite).
+     */
     public boolean motifObligatoire() {
-      return this == REJETER || this == CLASSER;
+      return this == REJETER || this == CLASSER || this == COMPLETER;
     }
 
     public static java.util.Optional<Decision> depuis(String valeur) {
@@ -65,8 +74,10 @@ public final class RegleEcarts {
    *
    * @param nature résultat du rapprochement ({@code inferieur}, {@code inconnue}…)
    * @param paiementAVerifier le paiement rapproché attend la décision ({@code a_verifier})
+   * @param complement le paiement rapproché est lui-même un complément (US-04.12)
    */
-  public static List<Decision> pourLigne(String nature, boolean paiementAVerifier) {
+  public static List<Decision> pourLigne(
+      String nature, boolean paiementAVerifier, boolean complement) {
     if (nature == null) {
       return List.of();
     }
@@ -75,7 +86,12 @@ public final class RegleEcarts {
           paiementAVerifier
               ? List.of(Decision.VALIDER, Decision.REJETER)
               : List.of(Decision.CLASSER);
-      case "inferieur" -> paiementAVerifier ? List.of(Decision.REJETER) : List.of(Decision.CLASSER);
+      case "inferieur" ->
+          !paiementAVerifier
+              ? List.of(Decision.CLASSER)
+              : complement
+                  ? List.of(Decision.REJETER)
+                  : List.of(Decision.COMPLETER, Decision.REJETER);
       case "inconnue" -> List.of(Decision.ASSOCIER, Decision.CLASSER);
       case "tardif" -> List.of(Decision.ASSOCIER, Decision.REMBOURSER, Decision.CLASSER);
       case "doublon" -> List.of(Decision.REMBOURSER, Decision.CLASSER);
@@ -84,10 +100,24 @@ public final class RegleEcarts {
     };
   }
 
-  /** Décisions possibles sur un paiement en ligne « à vérifier » sans ligne de relevé. */
-  public static List<Decision> pourPaiement(long montantGnf, Long montantRecuGnf) {
-    return montantRecuGnf != null && montantRecuGnf >= montantGnf
-        ? List.of(Decision.VALIDER, Decision.REJETER)
+  /**
+   * Décisions possibles sur un paiement « à vérifier » sans ligne de relevé (paiement en ligne au
+   * montant divergent), ou sur un complément attendu dont l'échéance est dépassée.
+   *
+   * @param complementEchu paiement en attente de complément, échéance dépassée (US-04.12)
+   * @param complement le paiement est lui-même un complément (US-04.12)
+   */
+  public static List<Decision> pourPaiement(
+      long montantGnf, Long montantRecuGnf, boolean complementEchu, boolean complement) {
+    if (complementEchu) {
+      return List.of(Decision.REJETER);
+    }
+    if (montantRecuGnf != null && montantRecuGnf >= montantGnf) {
+      return List.of(Decision.VALIDER, Decision.REJETER);
+    }
+    boolean recuPartiel = montantRecuGnf != null && montantRecuGnf > 0;
+    return recuPartiel && !complement
+        ? List.of(Decision.COMPLETER, Decision.REJETER)
         : List.of(Decision.REJETER);
   }
 }

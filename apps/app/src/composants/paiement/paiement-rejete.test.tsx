@@ -24,6 +24,10 @@ function paiement(partiel: Partial<PaiementDto>): PaiementDto {
     justificatifFichier: null,
     remboursements: [],
     coordonnees: null,
+    complementDe: null,
+    resteAPayerGnf: null,
+    motifComplement: null,
+    complementEcheance: null,
     ...partiel,
   };
 }

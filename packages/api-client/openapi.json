@@ -4064,9 +4064,23 @@
             }, {
               "type" : "null"
             } ]
+          },
+          "complementDe" : {
+            "type" : [ "string", "null" ]
+          },
+          "resteAPayerGnf" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "motifComplement" : {
+            "type" : [ "string", "null" ]
+          },
+          "complementEcheance" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
           }
         },
-        "required" : [ "coordonnees", "creeLe", "dateExpiration", "datePaiement", "demandeId", "justificatif", "justificatifFichier", "montantGnf", "montantRecuGnf", "motifRejet", "moyen", "objet", "recuNumero", "reference", "remboursements", "statut", "virementDeclareLe" ]
+        "required" : [ "complementDe", "complementEcheance", "coordonnees", "creeLe", "dateExpiration", "datePaiement", "demandeId", "justificatif", "justificatifFichier", "montantGnf", "montantRecuGnf", "motifComplement", "motifRejet", "moyen", "objet", "recuNumero", "reference", "remboursements", "resteAPayerGnf", "statut", "virementDeclareLe" ]
       },
       "RemboursementPaiementDto" : {
         "type" : "object",
@@ -6432,9 +6446,44 @@
           "tentativesRestantes" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "complement" : {
+            "oneOf" : [ {
+              "$ref" : "#/components/schemas/ComplementAttenduDto"
+            }, {
+              "type" : "null"
+            } ]
           }
         },
-        "required" : [ "enVerification", "montantGnf", "moyenOuvert", "moyens", "objet", "referenceOuverte", "tentativesRestantes" ]
+        "required" : [ "complement", "enVerification", "montantGnf", "moyenOuvert", "moyens", "objet", "referenceOuverte", "tentativesRestantes" ]
+      },
+      "ComplementAttenduDto" : {
+        "type" : "object",
+        "properties" : {
+          "reference" : {
+            "type" : "string"
+          },
+          "montantGnf" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "montantRecuGnf" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "resteGnf" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "motif" : {
+            "type" : [ "string", "null" ]
+          },
+          "echeance" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "echeance", "montantGnf", "montantRecuGnf", "motif", "reference", "resteGnf" ]
       },
       "MoyenDto" : {
         "type" : "object",

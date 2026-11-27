@@ -83,6 +83,7 @@ import {
   ExplicationPaiementRejete,
   paiementRejeteAExpliquer,
 } from "@/composants/paiement/paiement-rejete";
+import { complementAPayer, ExplicationComplement } from "@/composants/paiement/complement";
 import { appelPage, chargerMoi, chargerReferentiels, optionsApi } from "@/serveur/donnees";
 
 /** Statuts d'une demande en cours : le temps d'attente à l'étape s'affiche. */
@@ -494,7 +495,12 @@ export default async function DetailDemande({ params, searchParams }: Props) {
       !demande.fraisPayes &&
       (rejete?.objet === "FRAIS_DOSSIER" || rejete?.objet === "ATTESTATION")) ||
       (demande.statut === "decision" && rejete?.objet === "DROITS"));
-  const blocPaiementRejete = rejete ? (
+  // US-04.12 : paiement incomplet, le reste est attendu (rien tant qu'un complément est vérifié).
+  const complement =
+    moi.interne || demande.paiementEnVerification ? null : complementAPayer(paiements.data);
+  const blocPaiementRejete = complement ? (
+    <ExplicationComplement paiement={complement} demandeId={demande.id} />
+  ) : rejete ? (
     <ExplicationPaiementRejete paiement={rejete} demandeId={demande.id} resteAPayer={sommeDue} />
   ) : null;
   const blocPaiements =

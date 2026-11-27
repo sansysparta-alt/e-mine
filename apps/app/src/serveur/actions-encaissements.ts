@@ -5,7 +5,8 @@ import { enTetesApi, lireSession } from "./api";
 import { type ResultatAction, versErreurFormulaire } from "./erreurs-formulaire";
 
 /** Décision du Responsable fiscal sur un élément « À vérifier » (US-04.9). */
-export type DecisionEcart = "VALIDER" | "REJETER" | "ASSOCIER" | "CLASSER";
+export type DecisionEcart =
+  "VALIDER" | "REJETER" | "COMPLETER" | "ASSOCIER" | "REMBOURSER" | "CLASSER";
 
 /**
  * Décision sur un élément « À vérifier » (US-04.9) : ligne de relevé (identifiant) ou paiement en

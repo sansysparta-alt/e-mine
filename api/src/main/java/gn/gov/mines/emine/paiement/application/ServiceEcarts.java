@@ -36,16 +36,29 @@ public class ServiceEcarts {
   private final PaiementRepository paiements;
   private final ServiceRemboursements remboursements;
   private final UtilisateurCourant utilisateurCourant;
+  private final java.time.Clock horloge;
+  private final int delaiComplementJours;
 
   public ServiceEcarts(
       EcartRepository ecarts,
       PaiementRepository paiements,
       ServiceRemboursements remboursements,
-      UtilisateurCourant utilisateurCourant) {
+      UtilisateurCourant utilisateurCourant,
+      java.time.Clock horloge,
+      @org.springframework.beans.factory.annotation.Value(
+              "${emine.paiement.complement-delai-jours:15}")
+          int delaiComplementJours) {
     this.ecarts = ecarts;
     this.paiements = paiements;
     this.remboursements = remboursements;
     this.utilisateurCourant = utilisateurCourant;
+    this.horloge = horloge;
+    this.delaiComplementJours = delaiComplementJours;
+  }
+
+  /** Échéance indicative d'un complément demandé maintenant (provisoire : 15 jours). */
+  private java.time.Instant echeanceComplement() {
+    return horloge.instant().plus(java.time.Duration.ofDays(delaiComplementJours));
   }
 
   /** Élément de la file et décisions possibles (règle unique {@link RegleEcarts}). */
@@ -76,7 +89,8 @@ public class ServiceEcarts {
             .orElseThrow(() -> new ErreurMetier(CodeErreur.PAY_013, Map.of("ligne", id)));
     boolean paiementAVerifier = "a_verifier".equals(ligne.statutPaiement());
     if (ligne.decision() != null
-        || !RegleEcarts.pourLigne(ligne.nature(), paiementAVerifier).contains(decision)) {
+        || !RegleEcarts.pourLigne(ligne.nature(), paiementAVerifier, ligne.complement())
+            .contains(decision)) {
       throw new ErreurMetier(
           CodeErreur.PAY_013, Map.of("ligne", id, "decision", decision.name().toLowerCase()));
     }
@@ -104,6 +118,12 @@ public class ServiceEcarts {
             ligne.montantGnf(),
             id,
             "Somme reçue d'un paiement rejeté : " + motifNet);
+      }
+      case COMPLETER -> {
+        // US-04.12 : le paiement n'est pas rejeté ; la somme reçue est gardée, le reste est dû.
+        ecarts.demanderComplement(
+            ligne.paiementId(), ligne.montantGnf(), motifNet, echeanceComplement());
+        ecarts.deciderLigne(id, decision.code(), motifNet, moi, null);
       }
       case REMBOURSER -> {
         ecarts.deciderLigne(id, decision.code(), motifNet, moi, null);
@@ -155,14 +175,20 @@ public class ServiceEcarts {
             .verrouillerParReference(reference)
             .orElseThrow(
                 () -> new ErreurMetier(CodeErreur.PAY_005, Map.of("reference", reference)));
-    // Un virement « à vérifier » se décide par sa ligne de relevé, jamais à part.
-    boolean seul = p.statut() == StatutPaiement.a_verifier && !ecarts.aUneLigneATraiter(p.id());
-    if (!seul || !RegleEcarts.pourPaiement(p.montantGnf(), p.montantRecuGnf()).contains(decision)) {
+    // Un virement « à vérifier » se décide par sa ligne de relevé, jamais à part ; un complément
+    // attendu se décide seulement une fois son échéance dépassée (US-04.12).
+    boolean seul = ecarts.seulADecider(p.id());
+    boolean echu = p.statut() == StatutPaiement.complement_attendu;
+    if (!seul
+        || !RegleEcarts.pourPaiement(p.montantGnf(), p.montantRecuGnf(), echu, p.estComplement())
+            .contains(decision)) {
       throw new ErreurMetier(
           CodeErreur.PAY_013,
           Map.of("reference", reference, "decision", decision.name().toLowerCase()));
     }
-    if (decision == Decision.VALIDER) {
+    if (decision == Decision.COMPLETER) {
+      ecarts.demanderComplement(p.id(), p.montantRecuGnf(), motifNet, echeanceComplement());
+    } else if (decision == Decision.VALIDER) {
       ecarts.confirmer(p.id(), p.montantRecuGnf(), null);
       long excedent = p.montantRecuGnf() - p.montantGnf();
       if (excedent > 0) {
@@ -188,9 +214,12 @@ public class ServiceEcarts {
 
   private static List<Decision> decisions(Element e) {
     return "ligne".equals(e.type())
-        ? RegleEcarts.pourLigne(e.nature(), e.paiementAVerifier())
+        ? RegleEcarts.pourLigne(e.nature(), e.paiementAVerifier(), e.complement())
         : RegleEcarts.pourPaiement(
-            e.montantAttenduGnf() == null ? 0 : e.montantAttenduGnf(), e.montantRecuGnf());
+            e.montantAttenduGnf() == null ? 0 : e.montantAttenduGnf(),
+            e.montantRecuGnf(),
+            e.complementEchu(),
+            e.complement());
   }
 
   /** Motif nettoyé ; obligatoire (10 à 2 000 caractères) pour un rejet ou un classement. */
