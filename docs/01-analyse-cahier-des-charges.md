@@ -99,13 +99,13 @@ Classées par impact sur le développement.
 
 ### 🟠 Règles métier contradictoires
 
-4. **Signataire Ministre** : le catalogue (diapo 14) fait signer PRC, PRE, PEX, CES par le Ministre ; la diapo 33 dit « seuls PEX et cessions remontent au Ministre ».
+4. **Signataire Ministre** : le catalogue (diapo 14) fait signer PRC, PRE, PEX, CES par le Ministre ; la diapo 33 dit « seuls PEX et cessions remontent au Ministre ». → **Tranché par le Ministère le 27/11/2026** (V1-8).
 5. **Ordre contrôle / paiement** : le site place « Contrôle de recevabilité » *avant* le paiement des frais ; l'application fait des frais payés la *condition* de recevabilité (et le schéma suit l'application).
 6. **Nombre de statuts** : « 9 statuts » partout, le schéma en a 11 (`complement_requis`, `rejetee` en plus), la frise de suivi du site en montre 6. → Clarifier ce qu'on affiche à l'usager (6 étapes) vs les statuts techniques (11).
 7. **Formulaire de demande** : 4 sections (diapo 20) vs 6 sections (diapo 49).
 8. **Devise** : « montants entiers en GNF, devise fixe » pour les paiements, mais les redevances FISCA-MINE sont en **USD** (diapo 47). → Redevances = multi-devise, hors E-DEMANDES. **Retenu** : GNF entiers pour E-DEMANDES ; redevances multi-devises (USD/GNF) traitées au lot 5 (E13).
 9. **Statut titre** : le site affiche « Valide », le schéma utilise `actif`.
-10. **2FA** : « double authentification SMS » pour tous (site) vs « des agents » (application).
+10. **2FA** : « double authentification SMS » pour tous (site) vs « des agents » (application). → **Tranché le 27/11/2026** (V1-10) : code par e-mail, profils internes.
 11. **Academy** : réservée aux cadres du Ministère (profil Apprenant) ou ouverte aux titulaires et jeunes talents (site) ?
 
 ### 🟡 Mineurs
@@ -128,7 +128,7 @@ Le cahier des charges ne fixe que des « délais cibles » de 2 à 60 jours par 
 
 23. **Catalogue administrable.** Le cahier des charges fait approuver « catalogue, pièces, tarifs et délais » par le Ministère, sans dire si l'approbation électronique du Ministre dans e-mine **vaut arrêté** ou si elle suit un arrêté signé à part. Retenu : le Ministre approuve chaque version de fiche dans l'application (motif et date tracés) ; l'arrêté éventuel reste hors plateforme. Une demande garde la **fiche en vigueur à son dépôt** (délai, avis requis, signataire) ; un document **retiré du catalogue** (motif obligatoire, aucune suppression) ne se dépose plus, ses demandes en cours vont à leur terme. À valider.
 
-24. **Double authentification par SMS à la connexion.** Le cahier des charges l'affiche sur l'écran de connexion (site, diapo 38 : « Code SMS à 6 chiffres », « Double authentification par SMS ») et la demande pour les agents (diapo « Sécurité »). Elle n'est pas encore en place (SPI Keycloak prévu, D8) : la page de connexion ne l'annonce donc pas (« Connexion sécurisée · Journal des connexions »). À planifier : profils concernés (agents seulement ou tous, point 10) et opérateur SMS.
+24. **Double authentification par SMS à la connexion.** Le cahier des charges l'affiche sur l'écran de connexion (site, diapo 38 : « Code SMS à 6 chiffres », « Double authentification par SMS ») et la demande pour les agents (diapo « Sécurité »). Elle n'est pas encore en place (SPI Keycloak prévu, D8) : la page de connexion ne l'annonce donc pas (« Connexion sécurisée · Journal des connexions »). → **Tranché le 27/11/2026** (V1-10) : code à 8 chiffres par e-mail pour les profils internes, sans opérateur SMS.
 
 ### 🔐 Sécurité du schéma fourni (à remonter au Ministère)
 
@@ -158,7 +158,23 @@ Choix proposés par défaut et acceptés par le porteur du projet ; ils fixent l
 | V1-6 | **Géologue et Inspecteur en V1 pour l'avis technique seulement** | Leurs rubriques métier (cadastre, inspection) arrivent avec leurs lots |
 | V1-7 | **Certificats CEX et KIM désactivés au catalogue pour la V1** : ils sont instruits par le BNE, dont le profil arrive en V2 | Migration V26 : nouvelle version de chaque fiche, « non disponible à la demande », motif tracé ; les demandes déjà déposées vont à leur terme |
 
-Restent ouverts : points 5 à 15, et 17 à 24 (choix provisoires appliqués et paramétrables). Point 16 : corrigé de notre côté (V4), à porter à la connaissance du Ministère. Décisions D6 à D10 (stack, forge, Keycloak, hébergement, méthode) : voir [02-stack-technique.md §5](02-stack-technique.md).
+### Décisions du Ministère (27/11/2026)
+
+Transmises par le porteur du projet après la recette du lot 5. Les modalités d'application (lignes « Retenu ») sont des choix du porteur du projet, acceptés le même jour. Planification : [03 §10](03-product-backlog.md), lots 6 à 8.
+
+| # | Décision | Conséquence |
+|---|---|---|
+| V1-8 | **Signataires par acte.** Le **Président de la République**, après validation par l'**Assemblée nationale** : PE semi-industriel, PE industriel, concession minière. Le **Ministre** : permis de recherche (arrêté préparé par la CPDM, validé par le Service juridique) ; importation, transport, manutention et stockage d'explosifs ; carrières permanentes. Le **Directeur national des Mines** : achat d'explosifs, construction du dépôt de stockage, carte de boutefeu, carrières temporaires. Toutes les autorisations explosifs et carrières sont **instruites par la DNM** | Règle le point 4. Catalogue restructuré au lot 7 (US-02.11 à 02.13) ; signataire toujours paramétré dans la fiche (D4) |
+| V1-9 | **Acteurs sans compte.** Retenu : le **guichet unique (CPDM)** prépare l'arrêté du permis de recherche ; le **Directeur national des Mines** enregistre l'avis du Service juridique, le vote de l'Assemblée nationale et le décret présidentiel (numéro, date, copie du décret signé). Le Président, l'Assemblée et le Service juridique n'ont pas de compte | Les 16 profils (D2) sont conservés ; chaque enregistrement est motivé et tracé |
+| V1-10 | **Double authentification par code à 8 chiffres envoyé par e-mail.** Retenu : **profils internes seulement**, code valable **5 minutes**, **3 essais** | Règle les points 10 et 24 ; remplace la 2FA SMS (US-01.3 abandonnée, US-01.8 au lot 8) |
+| V1-11 | **Annulation d'un document : seul son signataire peut l'annuler** ; la Brigade signale seulement. Retenu : un document signé par le Président (hors plateforme) n'est jamais annulé par la plateforme, qui **enregistre le décret d'abrogation** | Remplace la règle « directeur ou brigade » de US-06.6 (US-06.8, lot 6) |
+| V1-12 | **Durées de validité provisoires, modifiables** : **6 mois** pour les documents signés par le Ministre ou le Directeur, **2 ans** pour ceux signés par le Président. Retenu : il s'agit de la durée du **document délivré** (date de fin portée sur le document, « expiré » à la vérification publique), pas de celle du titre minier | Paramètre de la fiche, soumis à la gouvernance du catalogue (US-02.14, lot 7) |
+| V1-13 | **Remboursements proposés par le Responsable fiscal, validés par le Directeur** | Ferme le point ouvert du lot 5 (séparation des tâches) : US-04.18, lot 6 |
+| V1-14 | **Nouveaux actes, nouveaux codes.** Retenu : les nouveaux actes reçoivent de **nouveaux codes** ; les codes existants ne sont jamais renommés | **Écart au cahier des charges** (« 15 documents ») : le catalogue en comptera davantage. D2 reste valable pour les libellés existants |
+
+**Encore inconnus** (valeurs provisoires paramétrables, à confirmer par le Ministère) : critère qui distingue le PE semi-industriel du PE industriel, pièces requises, délais et frais des nouveaux actes.
+
+Restent ouverts : points 5 à 9, 11 à 15, et 17 à 23 (choix provisoires appliqués et paramétrables). Point 16 : corrigé de notre côté (V4), à porter à la connaissance du Ministère. Décisions D6 à D10 (stack, forge, Keycloak, hébergement, méthode) : voir [02-stack-technique.md §5](02-stack-technique.md).
 
 ## 4. Risques
 
