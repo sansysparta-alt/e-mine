@@ -430,6 +430,24 @@ public class PaiementRepository {
         .fetchOptional(PaiementRepository::versDomaine);
   }
 
+  /** Code du QR du reçu (V33), sous la RLS du paiement. */
+  public Optional<String> codeVerification(String reference) {
+    return dsl.select(PAIEMENT.CODE_VERIFICATION)
+        .from(PAIEMENT)
+        .where(PAIEMENT.REFERENCE.eq(reference))
+        .fetchOptional(PAIEMENT.CODE_VERIFICATION);
+  }
+
+  /**
+   * Reçu vérifié publiquement par le code de son QR (US-04.14), sans connexion : fonction de la
+   * base qui ne renvoie aucune donnée personnelle.
+   */
+  public Optional<gn.gov.mines.emine.shared.jooq.tables.records.FnVerifierRecuRecord> parCodeRecu(
+      String code) {
+    return dsl.selectFrom(gn.gov.mines.emine.shared.jooq.Tables.FN_VERIFIER_RECU.call(code))
+        .fetchOptional();
+  }
+
   public Optional<Paiement> lire(UUID id) {
     return dsl.selectFrom(PAIEMENT)
         .where(PAIEMENT.ID.eq(id))

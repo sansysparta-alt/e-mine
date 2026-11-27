@@ -1,8 +1,9 @@
-import { ErreurApi, verifierDocument, type VerificationDto } from "@emine/api-client";
+import { ErreurApi, verifierDocument, verifierRecu, type VerificationDto } from "@emine/api-client";
 import { Alerte, Bouton, Carte, formaterDateHeure } from "@emine/ui";
 import { ShieldCheck, ShieldX } from "@emine/ui/icones";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { extraireCode } from "@/composants/verification";
 import { VerifierFichier } from "@/composants/verifier-fichier";
@@ -31,6 +32,16 @@ async function verifier(code: string | null): Promise<Issue> {
   }
 }
 
+/** Le code est-il celui d'un reçu ? Une erreur laisse le message « aucun document ». */
+async function estUnRecu(code: string): Promise<boolean> {
+  try {
+    await verifierRecu(code);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Vérification publique d'un document délivré (US-06.5) : ouverte par le QR, sans connexion,
  * sans donnée personnelle ; « Document authentique » ou « NON VALIDE » (révoqué), puis
@@ -39,7 +50,10 @@ async function verifier(code: string | null): Promise<Issue> {
 export default async function PageVerification({ params }: Props) {
   const { code } = await params;
   const t = await getTranslations("verification");
-  const issue = await verifier(extraireCode(code));
+  const lu = extraireCode(code);
+  const issue = await verifier(lu);
+  // Code saisi ou scanné ici mais qui est celui d'un reçu (US-04.14) : page de vérification du reçu.
+  if (issue.cas === "inconnu" && lu && (await estUnRecu(lu))) redirect(`/verifier/recu/${lu}`);
   const autre = (
     <Bouton asChild variante="secondaire">
       <Link href="/verifier">{t("autre")}</Link>
