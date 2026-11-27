@@ -19,6 +19,7 @@ describe("configuration unique de la navigation", () => {
       "aVerifier",
       "remboursements",
       "releves",
+      "journalEncaissements",
     ]);
     // Sections vides retirées ; « Encaissements » pour le Responsable fiscal (lot 5).
     expect(fiscal.map((s) => s.cle)).toEqual(["principal", "encaissements"]);

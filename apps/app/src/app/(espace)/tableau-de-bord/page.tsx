@@ -1,4 +1,5 @@
 import {
+  lireIndicateursEncaissements,
   compterATraiter,
   compterVues,
   consulterJournal,
@@ -14,6 +15,7 @@ import {
 } from "@emine/api-client";
 import { EnTetePage, EtatErreur, tailleDePagePour } from "@emine/ui";
 import { VueAdministration } from "@/composants/administration/vue-administration";
+import { VueFiscal } from "@/composants/encaissement/vue-fiscal";
 import type { Metadata } from "next";
 import { libelleDocument } from "@/composants/referentiels";
 import { unstable_rethrow } from "next/navigation";
@@ -195,6 +197,14 @@ export default async function TableauDeBord({ searchParams }: Props) {
       <TableauAdministration prenom={moi.prenom} nom={moi.nom} profil={await profilAffiche(moi)} />
     );
   }
+  // Responsable fiscal (encaisser, sans instruire ni signer) : ses files et ses recettes (lot 5).
+  if (
+    moi.interne &&
+    moi.permissions.includes("ENCAISSER") &&
+    !moi.permissions.some((d) => d === "INSTRUIRE" || d === "SIGNER")
+  ) {
+    return <TableauFiscal prenom={moi.prenom} nom={moi.nom} profil={await profilAffiche(moi)} />;
+  }
   const donnees = await charger(moi, periode);
   return (
     <VueTableauDeBord
@@ -205,6 +215,39 @@ export default async function TableauDeBord({ searchParams }: Props) {
       periode={periode}
       {...donnees}
     />
+  );
+}
+
+/** Tableau de bord du Responsable fiscal (US-04.11) ; les données indisponibles sont annoncées. */
+async function TableauFiscal({
+  prenom,
+  nom,
+  profil,
+}: {
+  prenom: string;
+  nom: string;
+  profil: string;
+}) {
+  const t = await getTranslations("tableauDeBord");
+  const indicateurs = await lireIndicateursEncaissements(await optionsApi())
+    .then((r) => r.data)
+    .catch((e: unknown) => {
+      unstable_rethrow(e);
+      console.error("Tableau de bord fiscal : données indisponibles", e);
+      return null;
+    });
+  return (
+    <div className="flex flex-col gap-6">
+      <EnTetePage
+        titre={t("bonjour", { prenom, nom })}
+        description={t("profil", { libelle: profil })}
+      />
+      {indicateurs ? (
+        <VueFiscal indicateurs={indicateurs} />
+      ) : (
+        <EtatErreur titre={t("indisponible.titre")} description={t("fiscal.indisponible")} />
+      )}
+    </div>
   );
 }
 
