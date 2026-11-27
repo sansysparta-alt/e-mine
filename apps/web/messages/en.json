@@ -109,7 +109,7 @@
       "montant": "Amount",
       "payeLe": "Paid on",
       "moyen": "Payment method",
-      "demande": "Application"
+      "demande": "Request"
     },
     "objets": {
       "FRAIS_DOSSIER": "Filing fees",
