@@ -46,3 +46,7 @@ _demo/
 # Consignes générées automatiquement par `next dev` (Next 16)
 apps/web/AGENTS.md
 apps/app/AGENTS.md
+
+# Journaux de plantage de la JVM (chemins et infos du poste)
+hs_err_pid*.log
+replay_pid*.log
