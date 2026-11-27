@@ -1,5 +1,5 @@
 import type { CanauxDto, ParametresDelaiDto } from "@emine/api-client";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import fr from "../../../messages/fr.json";
 import { FormulaireCanaux } from "./formulaire-canaux";
@@ -76,7 +76,26 @@ describe("proposition d'une règle des délais (US-02.6, US-02.8)", () => {
         }),
       ),
     );
-    expect(push).toHaveBeenCalledWith("/parametres?proposee=2");
+    expect(push).toHaveBeenCalledWith("/parametres?proposee=2&regle=delais");
+  });
+
+  it("affiche chaque changement « de … à … », seulement pour les valeurs modifiées (US-02.10)", () => {
+    avecTraductions(<FormulaireDelais initial={delais} proposer={vi.fn()} />);
+    const zone = () => screen.getByRole("heading", { name: "Vos changements" }).parentElement!;
+    expect(
+      within(zone()).getByText("Aucun changement par rapport à la dernière règle validée."),
+    ).toBeVisible();
+    fireEvent.click(screen.getByLabelText(/Au dépôt de la demande/));
+    expect(zone()).toHaveTextContent(
+      "Le délai commence : de « Au paiement des frais de dossier » à « Au dépôt de la demande »",
+    );
+    // Les critères inchangés ne sont pas listés.
+    expect(zone()).not.toHaveTextContent("Le délai est en pause");
+    // Saisie en cours non valide : pas de « NaN » dans la comparaison.
+    fireEvent.change(screen.getByLabelText("Part du délai restant, en %"), {
+      target: { value: "" },
+    });
+    expect(zone()).not.toHaveTextContent("NaN");
   });
 
   it("une date d'effet passée ou un seuil hors bornes est signalé et rien n'est envoyé", () => {
@@ -134,5 +153,25 @@ describe("canaux des notifications (US-02.7)", () => {
     const interne = screen.getByLabelText("Espace en ligne — Demande rejetée (toujours actif)");
     expect(interne).toBeChecked();
     expect(interne).toBeDisabled();
+  });
+});
+
+describe("proposition d'une règle de remboursement (US-02.10)", () => {
+  it("montre le changement « de … à … » et renvoie vers la règle nommée", async () => {
+    const { FormulaireRegleRemboursement } = await import("./regle-remboursement");
+    const proposer = vi.fn().mockResolvedValue({ ok: true, valeur: { version: 3 } });
+    avecTraductions(<FormulaireRegleRemboursement enVigueur={false} proposer={proposer} />);
+    fireEvent.click(screen.getByRole("button", { name: "Proposer une modification" }));
+    const zone = screen.getByRole("heading", { name: "Vos changements" }).parentElement!;
+    expect(zone).toHaveTextContent(
+      "Frais de dossier d’une demande rejetée : de « non remboursés » à « remboursés »",
+    );
+    fireEvent.change(screen.getByLabelText(/Motif de la modification/), {
+      target: { value: "Décision du Ministère (test)" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Proposer au Ministre" }));
+    await waitFor(() =>
+      expect(push).toHaveBeenCalledWith("/parametres?proposee=3&regle=remboursement"),
+    );
   });
 });

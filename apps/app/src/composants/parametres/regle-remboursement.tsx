@@ -1,12 +1,17 @@
 "use client";
 
-import { Alerte, Bouton, cn } from "@emine/ui";
+import { Alerte, Bouton } from "@emine/ui";
 import { FilePen } from "@emine/ui/icones";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useId, useState, useTransition } from "react";
 import type { ResultatAction } from "@/serveur/erreurs-formulaire";
-import { ChampDateEffet, aujourdhuiConakry, dateEffetValide } from "../gouvernance/gouvernance";
+import {
+  ChampDateEffet,
+  ChangementsProposes,
+  aujourdhuiConakry,
+  dateEffetValide,
+} from "../gouvernance/gouvernance";
 import { ChampMotif, erreurMotif } from "../instruction/champ-motif";
 
 /** La règle en une phrase (règle en vigueur, proposition, historique). */
@@ -17,6 +22,26 @@ export function ResumeRegleRemboursement({ rembourserSiRejet }: { rembourserSiRe
       <p className="font-semibold">{t(rembourserSiRejet ? "oui" : "non")}</p>
       <p className="text-sm text-texte-doux">{t("toujours")}</p>
     </div>
+  );
+}
+
+/** Changement « de … à … » de la règle de remboursement (US-02.10). */
+export function ChangementsRegleRemboursement({
+  avant,
+  apres,
+  formulaire = false,
+}: {
+  avant: boolean;
+  apres: boolean;
+  formulaire?: boolean;
+}) {
+  const t = useTranslations("parametres.remboursement");
+  const valeur = (oui: boolean) => t(oui ? "valeurOui" : "valeurNon");
+  return (
+    <ChangementsProposes
+      formulaire={formulaire}
+      lignes={[{ libelle: t("critere"), avant: valeur(avant), apres: valeur(apres) }]}
+    />
   );
 }
 
@@ -75,7 +100,7 @@ export function FormulaireRegleRemboursement({
         setErreurs({ api: r.erreur.message });
         return;
       }
-      router.push(`/parametres?proposee=${r.valeur.version}`);
+      router.push(`/parametres?proposee=${r.valeur.version}&regle=remboursement`);
       router.refresh();
     });
   }
@@ -87,9 +112,7 @@ export function FormulaireRegleRemboursement({
       noValidate
     >
       <h3 className="font-semibold text-navy">{t("proposer")}</h3>
-      <p className={cn("rounded-lg bg-ice p-3")}>
-        {t("nouvelle")} <strong>{t(!enVigueur ? "oui" : "non")}</strong>
-      </p>
+      <ChangementsRegleRemboursement formulaire avant={enVigueur} apres={!enVigueur} />
       <ChampDateEffet
         id={`${id}-date`}
         valeur={dateEffet}

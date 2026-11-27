@@ -177,10 +177,11 @@
     },
     "aValider": {
       "titre": "{nombre, plural, one {# modification à valider} other {# modifications à valider}}",
-      "texte": "Rien ne change au catalogue, dans les workflows ni dans la règle des délais sans votre validation.",
+      "texte": "Rien ne change au catalogue, dans les workflows ni dans les règles des délais et de remboursement sans votre validation.",
       "catalogue": "{n, plural, one {# fiche du catalogue} other {# fiches du catalogue}}",
       "workflows": "{n, plural, one {# workflow} other {# workflows}}",
-      "delais": "La règle des délais"
+      "delais": "La règle des délais",
+      "remboursement": "La règle de remboursement des frais"
     },
     "fiscal": {
       "aFaire": "Ce que vous avez à faire",
@@ -1431,7 +1432,7 @@
       "vide": "Non renseigné",
       "aucunAvis": "Aucun avis technique requis",
       "jours": "{n, plural, one {# jour} other {# jours}}",
-      "versionInitiale": "Version initiale du catalogue (schéma fourni par le Ministère).",
+      "versionInitiale": "Version initiale du catalogue, à l’installation de la plateforme.",
       "actif": {
         "oui": "Oui",
         "non": "Non, retiré du catalogue"
@@ -1524,7 +1525,7 @@
       "retirer": "Retirer la proposition",
       "annuler": "Annuler",
       "motif": "Motif du refus",
-      "motifAide": "L’administrateur le verra sur la fiche. 10 caractères au moins.",
+      "motifAide": "L’administrateur le verra avec sa proposition. 10 caractères au moins.",
       "echec": "La décision n’a pas pu être enregistrée",
       "indisponible": "Le service est momentanément indisponible. Réessayez dans un instant.",
       "signataire": {
@@ -1539,17 +1540,21 @@
         "approuver": {
           "titre": "Valider la version {numero} ?",
           "texte": "La fiche sera publiée dès maintenant. La validation est tracée à votre nom.",
-          "bouton": "Confirmer la validation"
+          "bouton": "Confirmer la validation",
+          "titreObjet": "Valider la version {numero} de {objet} ?"
         },
         "refuser": {
           "titre": "Refuser la version {numero} ?",
           "texte": "La fiche en vigueur ne change pas.",
-          "bouton": "Confirmer le refus"
+          "bouton": "Confirmer le refus",
+          "titreObjet": "Refuser la version {numero} de {objet} ?",
+          "texteRegle": "La règle en vigueur ne change pas."
         },
         "retirer": {
           "titre": "Retirer la version {numero} ?",
           "texte": "La proposition ne sera pas soumise au Ministre. Vous pourrez en proposer une autre.",
-          "bouton": "Retirer"
+          "bouton": "Retirer",
+          "titreObjet": "Retirer la version {numero} de {objet} ?"
         }
       }
     },
@@ -1643,7 +1648,7 @@
     "historique": "Historique des versions",
     "actuelle": "en vigueur",
     "par": "Modifiée le {date} par {nom}",
-    "initiale": "Version initiale (schéma fourni par le Ministère).",
+    "initiale": "Version initiale, à l’installation de la plateforme.",
     "voirEtapes": "Voir les {n} étapes",
     "formulaire": {
       "titre": "Proposer une modification",
@@ -1703,7 +1708,8 @@
     "enVigueurCourt": "Version {n} en vigueur",
     "decision": {
       "aApprouverTitre": "{n, plural, one {# proposition de workflow à valider} other {# propositions de workflow à valider}}"
-    }
+    },
+    "refusInchange": "Le workflow en vigueur ne change pas."
   },
   "parametres": {
     "titre": "Règles et notifications",
@@ -1712,8 +1718,8 @@
       "lecture": "Règles de calcul des délais et de remboursement des frais, canaux de chaque notification. Vous validez les modifications des règles proposées par l’administrateur."
     },
     "provisoire": {
-      "titre": "Choix à faire valider par le Ministère",
-      "texte": "Le cahier des charges ne fixe pas ces règles : les valeurs actuelles sont des choix provisoires (analyse, § 3, points 17 à 22)."
+      "titre": "Valeurs provisoires",
+      "texte": "Le cahier des charges ne fixe pas ces règles : les valeurs actuelles sont des choix provisoires de l’équipe projet, à confirmer par le Ministère. Elles se modifient ici, par proposition de l’administrateur et validation du Ministre."
     },
     "delais": {
       "titre": "Règle des délais",
@@ -1741,7 +1747,7 @@
       },
       "echec": "La proposition n’a pas pu être envoyée",
       "indisponible": "Le service est momentanément indisponible. Réessayez dans un instant.",
-      "enVigueur": "Règle en vigueur (version {n})",
+      "enVigueur": "Règle des délais · version {n} en vigueur",
       "proposer": "Proposer une modification",
       "proposerTitre": "Proposer une règle des délais",
       "proposerDescription": "À partir de la dernière règle validée (v{n}). Le Ministre la validera avant qu’elle s’applique.",
@@ -1760,7 +1766,8 @@
         "aucunePause": "Jamais",
         "seuil": "« Proche du dépassement »",
         "seuilValeur": "il reste au plus {pct} % du délai, et au moins {min, plural, =0 {0 jour} one {# jour} other {# jours}}"
-      }
+      },
+      "historique": "Historique de la règle des délais"
     },
     "canaux": {
       "titre": "Canaux des notifications",
@@ -1788,19 +1795,27 @@
     },
     "remboursement": {
       "titre": "Remboursement des frais",
-      "enVigueur": "Règle de remboursement en vigueur (version {n})",
+      "enVigueur": "Règle de remboursement des frais · version {n} en vigueur",
       "historique": "Historique de la règle de remboursement",
       "oui": "Les frais de dossier d’une demande rejetée sont remboursés.",
       "non": "Les frais de dossier d’une demande rejetée ne sont pas remboursés.",
       "toujours": "Un double paiement ou une erreur (montant en trop, paiement rejeté) est toujours remboursé, après validation du Responsable fiscal.",
       "proposer": "Proposer une modification",
-      "nouvelle": "Règle proposée :",
       "motif": "Motif de la modification",
       "motifAide": "Pourquoi changer la règle (décision du Ministère, arrêté…).",
       "envoyer": "Proposer au Ministre",
       "enCours": "Envoi…",
       "annuler": "Annuler",
-      "erreur": "La proposition n’a pas pu être envoyée"
+      "erreur": "La proposition n’a pas pu être envoyée",
+      "critere": "Frais de dossier d’une demande rejetée",
+      "valeurOui": "remboursés",
+      "valeurNon": "non remboursés"
+    },
+    "regles": {
+      "delais": "Règle des délais",
+      "remboursement": "Règle de remboursement des frais",
+      "objetDelais": "la règle des délais",
+      "objetRemboursement": "la règle de remboursement des frais"
     }
   },
   "profil": {
@@ -2270,7 +2285,7 @@
       "valideeSansNom": "validée le {date}",
       "refuseeSansNom": "refusée le {date}",
       "retireeSansNom": "retirée le {date}",
-      "initiale": "Version initiale (schéma fourni par le Ministère)"
+      "initiale": "Version initiale, à l’installation de la plateforme"
     },
     "depuis": "applicable à partir du {date}",
     "dateEffet": "S’appliquera aux demandes déposées à partir du {date}. Les demandes en cours gardent leur version.",
@@ -2278,7 +2293,8 @@
       "titre": "Proposition {n} à valider",
       "aideMinistre": "Vérifiez la proposition, puis validez-la ou refusez-la. Rien ne change avant votre décision.",
       "aideAdmin": "Le Ministre doit la valider. Vous pouvez la retirer tant qu’il n’a pas décidé.",
-      "motif": "Motif de la modification"
+      "motif": "Motif de la modification",
+      "titreObjet": "{objet} · proposition {n} à valider"
     },
     "historique": "Historique des versions",
     "voirContenu": "Voir le contenu de la version {n}",
@@ -2303,6 +2319,20 @@
     "etiquettes": {
       "motif": "Motif :",
       "motifRefus": "Motif du refus :"
+    },
+    "resultatRegle": {
+      "approuver": "{regle} : la version validée s’appliquera à sa date d’effet aux demandes déposées ensuite.",
+      "refuser": "{regle} : proposition refusée. La règle en vigueur ne change pas.",
+      "retirer": "{regle} : proposition retirée. La règle en vigueur ne change pas.",
+      "proposee": "{regle} : proposition {n} envoyée au Ministre. Elle s’appliquera après sa validation, à la date d’effet choisie."
+    },
+    "changements": {
+      "titre": "Changements proposés",
+      "titreFormulaire": "Vos changements",
+      "deA": "de « {avant} » à « {apres} »",
+      "aucun": "Aucun changement par rapport à la dernière règle validée.",
+      "aucunPropose": "Aucun changement par rapport à la règle en vigueur.",
+      "libelle": "{libelle} :"
     }
   },
   "statutsPaiementAffiches": {

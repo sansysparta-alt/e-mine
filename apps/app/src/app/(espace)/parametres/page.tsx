@@ -19,11 +19,15 @@ import {
 } from "@/composants/gouvernance/gouvernance";
 import { FormulaireCanaux } from "@/composants/parametres/formulaire-canaux";
 import {
+  ChangementsRegleRemboursement,
   FormulaireRegleRemboursement,
   ResumeRegleRemboursement,
 } from "@/composants/parametres/regle-remboursement";
 import { deciderRegle, proposerRegle } from "@/serveur/actions-remboursements";
-import { ResumeRegleDelais } from "@/composants/parametres/resume-regle-delais";
+import {
+  ChangementsRegleDelais,
+  ResumeRegleDelais,
+} from "@/composants/parametres/resume-regle-delais";
 import { deciderDelais, enregistrerCanaux } from "@/serveur/actions-parametres";
 import { appelPage, chargerMoi, optionsApi } from "@/serveur/donnees";
 
@@ -32,9 +36,13 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("titre") };
 }
 
-type Props = { searchParams: Promise<{ proposee?: string; resultat?: string }> };
+type Props = {
+  searchParams: Promise<{ proposee?: string; resultat?: string; regle?: string }>;
+};
 
 const RESULTATS = ["approuver", "refuser", "retirer"] as const;
+/** Règle concernée par le message de résultat : il la nomme (US-02.10). */
+const REGLES = ["delais", "remboursement"] as const;
 
 /** Dans un état donné, la version la plus récente. */
 function dans(d: DetailRegleDelaiDto, etat: string): VersionRegleDelaiDto | undefined {
@@ -53,7 +61,10 @@ export default async function Parametres({ searchParams }: Props) {
   if (!moi.interne || (!admin && !moi.permissions.includes("VALIDER_CATALOGUE"))) notFound();
   const t = await getTranslations("parametres");
   const tGouvernance = await getTranslations("gouvernance");
-  const { proposee, resultat } = await searchParams;
+  const tDecision = await getTranslations("catalogue.decision");
+  const { proposee, resultat, regle } = await searchParams;
+  const regleConnue = REGLES.find((r) => r === regle);
+  const nomRegle = regleConnue ? t(`regles.${regleConnue}`) : null;
 
   const [delais, canaux, remboursement] = await appelPage("/parametres", async () => {
     const options = await optionsApi();
@@ -79,12 +90,16 @@ export default async function Parametres({ searchParams }: Props) {
       />
       {proposee && /^\d{1,4}$/.test(proposee) ? (
         <Alerte nature="succes" titre={tGouvernance("resultat.titre")}>
-          {tGouvernance("resultat.proposee", { n: Number(proposee) })}
+          {nomRegle
+            ? tGouvernance("resultatRegle.proposee", { n: Number(proposee), regle: nomRegle })
+            : tGouvernance("resultat.proposee", { n: Number(proposee) })}
         </Alerte>
       ) : null}
       {resultatConnu ? (
         <Alerte nature="succes" titre={tGouvernance("resultat.titre")}>
-          {tGouvernance(`resultat.${resultatConnu}`)}
+          {nomRegle
+            ? tGouvernance(`resultatRegle.${resultatConnu}`, { regle: nomRegle })
+            : tGouvernance(`resultat.${resultatConnu}`)}
         </Alerte>
       ) : null}
       <Alerte nature="info" titre={t("provisoire.titre")}>
@@ -95,6 +110,7 @@ export default async function Parametres({ searchParams }: Props) {
         <CarteProposition
           v={aValider satisfies VersionGouvernee}
           decideur={delais.peutDecider}
+          objet={t("regles.delais")}
           decision={
             delais.peutDecider || admin ? (
               <DecisionVersion
@@ -104,13 +120,18 @@ export default async function Parametres({ searchParams }: Props) {
                 changeSignataire={false}
                 desactive={false}
                 decider={deciderDelais}
-                adresseApres="/parametres"
+                adresseApres="/parametres?regle=delais"
                 texteApprobation={tGouvernance("approbation")}
+                objet={t("regles.objetDelais")}
+                texteRefus={tDecision("confirmation.refuser.texteRegle")}
               />
             ) : undefined
           }
         >
-          <ResumeRegleDelais regle={aValider.regle} />
+          <div className="flex flex-col gap-4">
+            <ChangementsRegleDelais avant={delais.enVigueur} apres={aValider.regle} />
+            <ResumeRegleDelais regle={aValider.regle} />
+          </div>
         </CarteProposition>
       ) : null}
 
@@ -143,6 +164,7 @@ export default async function Parametres({ searchParams }: Props) {
       </Carte>
 
       <HistoriqueVersions
+        titre={t("delais.historique")}
         versions={delais.versions}
         decideur={delais.peutDecider}
         contenu={(v) => <ResumeRegleDelais regle={v.regle} />}
@@ -156,6 +178,7 @@ export default async function Parametres({ searchParams }: Props) {
           <CarteProposition
             v={rembAValider satisfies VersionGouvernee}
             decideur={remboursement.peutDecider}
+            objet={t("regles.remboursement")}
             decision={
               remboursement.peutDecider || admin ? (
                 <DecisionVersion
@@ -165,13 +188,21 @@ export default async function Parametres({ searchParams }: Props) {
                   changeSignataire={false}
                   desactive={false}
                   decider={deciderRegle}
-                  adresseApres="/parametres"
+                  adresseApres="/parametres?regle=remboursement"
                   texteApprobation={tGouvernance("approbation")}
+                  objet={t("regles.objetRemboursement")}
+                  texteRefus={tDecision("confirmation.refuser.texteRegle")}
                 />
               ) : undefined
             }
           >
-            <ResumeRegleRemboursement rembourserSiRejet={rembAValider.rembourserSiRejet} />
+            <div className="flex flex-col gap-4">
+              <ChangementsRegleRemboursement
+                avant={remboursement.rembourserSiRejet}
+                apres={rembAValider.rembourserSiRejet}
+              />
+              <ResumeRegleRemboursement rembourserSiRejet={rembAValider.rembourserSiRejet} />
+            </div>
           </CarteProposition>
         ) : null}
         {rembProgrammee ? (
