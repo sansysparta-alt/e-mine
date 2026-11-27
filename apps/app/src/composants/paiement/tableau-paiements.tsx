@@ -11,6 +11,7 @@ import {
 import { Download, Eye } from "@emine/ui/icones";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { formaterDatePaiement } from "./date-paiement";
 import { LienRecu } from "./lien-recu";
 import { adresseRecu } from "./recu";
 import { BadgeStatutPaiement } from "./badge-statut-paiement";
@@ -121,7 +122,7 @@ export function TableauPaiements({
         {
           cle: "date",
           entete: t("colonnes.date"),
-          rendu: (p) => formaterDateHeure(p.datePaiement ?? p.creeLe),
+          rendu: (p) => (p.datePaiement ? formaterDatePaiement(p) : formaterDateHeure(p.creeLe)),
         },
         historique
           ? {

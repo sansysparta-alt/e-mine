@@ -8,10 +8,12 @@ import gn.gov.mines.emine.paiement.domaine.Paiement;
 import gn.gov.mines.emine.paiement.domaine.Recu;
 import gn.gov.mines.emine.paiement.infrastructure.GenerateurRecuPdf;
 import gn.gov.mines.emine.paiement.infrastructure.PaiementRepository;
+import gn.gov.mines.emine.paiement.infrastructure.ProprietesRecus;
 import gn.gov.mines.emine.shared.erreur.CodeErreur;
 import gn.gov.mines.emine.shared.erreur.ErreurMetier;
 import gn.gov.mines.emine.shared.jooq.enums.StatutPaiement;
 import java.util.Map;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,19 +22,26 @@ import org.springframework.transaction.annotation.Transactional;
  * confirmé par la notification signée. La RLS limite le reçu au demandeur et aux agents.
  */
 @Service
+@EnableConfigurationProperties(ProprietesRecus.class)
 public class ServiceRecus {
 
   private final PaiementRepository paiements;
   private final Demandes demandes;
   private final Catalogue catalogue;
   private final GenerateurRecuPdf pdf;
+  private final ProprietesRecus proprietes;
 
   public ServiceRecus(
-      PaiementRepository paiements, Demandes demandes, Catalogue catalogue, GenerateurRecuPdf pdf) {
+      PaiementRepository paiements,
+      Demandes demandes,
+      Catalogue catalogue,
+      GenerateurRecuPdf pdf,
+      ProprietesRecus proprietes) {
     this.paiements = paiements;
     this.demandes = demandes;
     this.catalogue = catalogue;
     this.pdf = pdf;
+    this.proprietes = proprietes;
   }
 
   /** Reçu prêt à télécharger : numéro (nom du fichier) et contenu PDF. */
@@ -59,6 +68,12 @@ public class ServiceRecus {
             .map(t -> t.libelleFr() + " (" + t.code() + ")")
             .orElse(demande.typeDocumentCode());
     long montant = p.montantRecuGnf() != null ? p.montantRecuGnf() : p.montantGnf();
+    boolean tresorPay = p.moyen().getLiteral().equals("TRESORPAY");
+    String code =
+        paiements
+            .codeVerification(reference)
+            .orElseThrow(
+                () -> new ErreurMetier(CodeErreur.PAY_005, Map.of("reference", reference)));
     Recu recu =
         new Recu(
             p.recuNumero(),
@@ -67,12 +82,14 @@ public class ServiceRecus {
             montant,
             MontantEnLettres.gnf(montant),
             libelleObjet(p),
-            p.moyen().getLiteral().equals("TRESORPAY") ? "TrésorPay" : "Virement bancaire",
+            tresorPay ? "TrésorPay" : "Virement bancaire",
             p.transactionExterneId(),
             demande.numero(),
             document,
             demande.demandeurNom(),
-            demande.organisation());
+            demande.organisation(),
+            tresorPay,
+            proprietes.urlVerification(code));
     return new RecuPdf(p.recuNumero(), pdf.generer(recu));
   }
 

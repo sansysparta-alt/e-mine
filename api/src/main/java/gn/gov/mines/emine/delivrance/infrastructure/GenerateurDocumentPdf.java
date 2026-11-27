@@ -4,6 +4,7 @@ import com.openhtmltopdf.outputdevice.helper.BaseRendererBuilder.FontStyle;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder.PdfAConformance;
 import gn.gov.mines.emine.delivrance.domaine.ContenuDocument;
+import gn.gov.mines.emine.shared.qr.GenerateurQr;
 import java.awt.color.ColorSpace;
 import java.awt.color.ICC_Profile;
 import java.io.ByteArrayInputStream;
