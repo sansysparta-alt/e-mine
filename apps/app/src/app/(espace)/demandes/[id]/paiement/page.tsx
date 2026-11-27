@@ -1,6 +1,6 @@
 import { ErreurApi, lireDemande, lirePaiementAttendu } from "@emine/api-client";
 import { Alerte, Bouton, Carte, EnTetePage, formaterGnf } from "@emine/ui";
-import { ShieldCheck } from "@emine/ui/icones";
+import { Eye, Landmark, ShieldCheck } from "@emine/ui/icones";
 import type { Metadata } from "next";
 import { libelleDocument } from "@/composants/referentiels";
 import Link from "next/link";
@@ -20,7 +20,8 @@ type Props = { params: Promise<{ id: string }> };
 
 /**
  * Paiement d'une demande (US-04.2) : montant fixé par le barème, choix du moyen sans
- * présélection. Si rien n'est à payer (déjà payé, ou pas à ce stade), la page le dit et ramène à
+ * présélection. Un virement choisi mais pas encore déclaré renvoie à ses coordonnées ; un paiement
+ * en cours de vérification (virement déclaré, US-04.7) ne se remplace pas. Si rien n'est à payer (déjà payé, ou pas à ce stade), la page le dit et ramène à
  * la demande.
  */
 export default async function PaiementDemande({ params }: Props) {
@@ -76,7 +77,35 @@ export default async function PaiementDemande({ params }: Props) {
     );
   }
 
+  // Paiement en cours de vérification (virement déclaré, US-04.7) : rien à payer pour l'instant,
+  // le moyen ne peut plus être changé.
+  if (attendu.enVerification && attendu.referenceOuverte) {
+    return (
+      <div className="flex flex-col gap-6">
+        <EnTetePage titre={t(`titre.${attendu.objet}`)} description={description} retour={retour} />
+        <Alerte
+          nature="info"
+          titre={t("enVerificationTitre", { reference: attendu.referenceOuverte })}
+        >
+          {t("enVerificationTexte")}
+        </Alerte>
+        <div className="flex flex-wrap gap-3">
+          <Bouton asChild>
+            <Link href={`/paiements/${attendu.referenceOuverte}`}>
+              <Eye aria-hidden="true" className="size-4" />
+              {t("voirPaiement")}
+            </Link>
+          </Bouton>
+          <Bouton asChild variante="secondaire">
+            <Link href={`/demandes/${id}`}>{t("retourDemande")}</Link>
+          </Bouton>
+        </div>
+      </div>
+    );
+  }
+
   const montant = formaterGnf(attendu.montantGnf);
+  const virementOuvert = attendu.referenceOuverte != null && attendu.moyenOuvert === "VIREMENT";
   return (
     <div className="flex flex-col gap-6">
       <EnTetePage titre={t(`titre.${attendu.objet}`)} description={description} retour={retour} />
@@ -90,7 +119,23 @@ export default async function PaiementDemande({ params }: Props) {
           </p>
         </Carte>
         <Carte titre={t("moyenTitre")}>
-          {attendu.referenceOuverte ? (
+          {virementOuvert ? (
+            <Alerte
+              nature="avertissement"
+              titre={t("virementOuvertTitre", { reference: attendu.referenceOuverte ?? "" })}
+              className="mb-4"
+            >
+              <p>{t("virementOuvertTexte")}</p>
+              <div className="mt-3">
+                <Bouton asChild>
+                  <Link href={`/paiements/${attendu.referenceOuverte}`}>
+                    <Landmark aria-hidden="true" className="size-4" />
+                    {t("voirVirement")}
+                  </Link>
+                </Bouton>
+              </div>
+            </Alerte>
+          ) : attendu.referenceOuverte ? (
             <Alerte
               nature="info"
               titre={t("enCoursTitre", { reference: attendu.referenceOuverte })}

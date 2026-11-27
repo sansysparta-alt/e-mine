@@ -67,6 +67,8 @@ export type VuesTableau = { total: number; vues: { cle: string; nombre: number }
 
 /** Déduit l'action attendue du demandeur d'après le statut (et les frais payés). */
 export function actionAttendue(d: DemandeDto): ActionAFaire["action"] | null {
+  // Paiement déclaré en cours de vérification (virement, US-04.7) : rien à payer pour l'instant.
+  if (d.paiementEnVerification && (d.statut === "deposee" || d.statut === "decision")) return null;
   if (d.statut === "deposee" && !d.fraisPayes) return "FRAIS";
   if (d.statut === "decision") return "DROITS";
   if (d.statut === "complement_requis") return "COMPLEMENT";

@@ -362,7 +362,10 @@
         "pauseComplement": "Délai prévu : {delai, plural, one {# jour} other {# jours}}. Il est en pause jusqu’à votre réponse au complément.",
         "pauseDroits": "Délai prévu : {delai, plural, one {# jour} other {# jours}}. Il est en pause jusqu’au paiement des droits.",
         "depasse": "Le délai prévu ({delai, plural, one {# jour} other {# jours}}) est dépassé de {jours, plural, one {# jour} other {# jours}}. Le service concerné en est informé."
-      }
+      },
+      "demandeurPaiementVerification": "Votre paiement est en cours de vérification par le service financier. Un virement est confirmé à réception du relevé bancaire ; vous serez informé par message. Vous n’avez rien à faire pour l’instant.",
+      "agentPaiementVerification": "Le demandeur a déclaré le paiement des frais : il est en cours de vérification par le service financier. Vous pourrez déclarer la demande recevable dès sa confirmation.",
+      "agentDroitsVerification": "Le demandeur a déclaré le paiement des droits : il est en cours de vérification par le service financier."
     },
     "fraisPayes": "Frais payés",
     "paiements": {
@@ -603,7 +606,6 @@
     "choix": {
       "legende": "Choisissez votre moyen de paiement",
       "obligatoire": "Choisissez un moyen de paiement pour continuer.",
-      "bientot": "Bientôt disponible",
       "moyens": {
         "TRESORPAY": {
           "titre": "TrésorPay",
@@ -611,7 +613,7 @@
         },
         "VIREMENT": {
           "titre": "Virement bancaire",
-          "aide": "Virement depuis votre banque avec la référence du paiement. Bientôt proposé sur e-mine."
+          "aide": "Virement depuis votre banque, avec la référence du paiement. Vous joignez ensuite votre justificatif ; le paiement est confirmé à réception du relevé bancaire (quelques jours ouvrés)."
         }
       },
       "continuer": "Payer {montant}",
@@ -628,12 +630,15 @@
         "PAY-003": "TrésorPay est momentanément indisponible",
         "PAY-007": "Aucun paiement n’est attendu à cette étape",
         "autre": "Le paiement n’a pas pu être préparé",
-        "reessayer": "Réessayez dans quelques instants. Si le problème persiste, contactez le guichet unique."
+        "reessayer": "Réessayez dans quelques instants. Si le problème persiste, contactez le guichet unique.",
+        "PAY-010": "Un paiement est déjà en cours de vérification"
       },
       "redirection": "Vous serez dirigé vers la page sécurisée de TrésorPay.",
       "tentatives": "{nombre, plural, one {Il vous reste # tentative aujourd’hui.} other {Il vous reste # tentatives aujourd’hui.}}",
       "tentativesEpuisees": "Vous avez fait 3 tentatives de paiement en ligne aujourd’hui. Vous pourrez réessayer demain à partir de minuit.",
-      "indisponibleTexte": "Aucun montant n’a été prélevé et aucune tentative n’a été décomptée. Réessayez dans quelques minutes."
+      "indisponibleTexte": "Aucun montant n’a été prélevé et aucune tentative n’a été décomptée. Réessayez dans quelques minutes.",
+      "redirectionVirement": "Vous obtiendrez les coordonnées du compte et une référence valable 7 jours.",
+      "indisponible": "Non disponible"
     },
     "retour": {
       "titreOnglet": "Résultat du paiement",
@@ -692,7 +697,13 @@
       "voir": "voir le reçu",
       "voirNumero": "Voir le reçu {numero}"
     },
-    "filAriane": "Paiement"
+    "filAriane": "Paiement",
+    "enVerificationTitre": "Paiement en cours de vérification ({reference})",
+    "enVerificationTexte": "Le service financier vérifie votre paiement. Il est confirmé à réception du relevé bancaire ; vous serez informé par message. Vous n’avez rien à payer pour l’instant.",
+    "voirPaiement": "Voir le paiement",
+    "virementOuvertTitre": "Virement à effectuer ({reference})",
+    "virementOuvertTexte": "Vous avez choisi le virement : effectuez-le avant la date limite avec la référence indiquée, puis joignez votre justificatif. Vous pouvez aussi choisir un autre moyen ci-dessous : la référence actuelle sera alors annulée.",
+    "voirVirement": "Coordonnées et déclaration du virement"
   },
   "statutsPaiement": {
     "initie": "Initié",
@@ -1240,7 +1251,8 @@
       "delivre": "Document délivré",
       "rejetee": "Rejetée",
       "archivee": "Archivée",
-      "documentRevoque": "Document révoqué"
+      "documentRevoque": "Document révoqué",
+      "paiementEnVerification": "Paiement en vérification"
     },
     "agent": {
       "fraisAttendus": "Frais attendus",
@@ -1258,7 +1270,8 @@
       "archivee": "Archivée",
       "sansReponse": "Sans réponse",
       "avisARendre": "Avis à rendre",
-      "documentRevoque": "Document révoqué"
+      "documentRevoque": "Document révoqué",
+      "paiementEnVerification": "Paiement en vérification"
     }
   },
   "dates": {
@@ -2140,6 +2153,46 @@
       "titre": "Ce paiement n’a pas abouti",
       "texte": "Aucun montant n’a été prélevé. La somme est toujours attendue pour la demande liée.",
       "payer": "Payer à nouveau"
+    },
+    "dateLimite": "À effectuer avant le",
+    "declareLe": "Virement déclaré le",
+    "justificatif": "Justificatif",
+    "voirJustificatif": "Voir le justificatif",
+    "virementAEffectuer": {
+      "titre": "Virement à effectuer avant le {date}",
+      "texte": "Effectuez le virement depuis votre banque avec les coordonnées ci-dessous, en indiquant la référence {reference} dans le libellé. Joignez ensuite votre justificatif."
+    },
+    "virementExpire": {
+      "titre": "La référence de ce virement a expiré",
+      "texte": "Elle n’est plus valable. Si vous n’avez pas encore payé, choisissez à nouveau un moyen de paiement pour obtenir une nouvelle référence."
+    },
+    "virementDeclare": {
+      "titre": "Virement en cours de vérification",
+      "texte": "Vous avez déclaré ce virement le {date}. Le service financier le confirme à réception du relevé bancaire, en général sous quelques jours ouvrés ; vous serez informé par message. Vous n’avez rien à faire."
+    },
+    "coordonnees": {
+      "titre": "Coordonnées du virement",
+      "beneficiaire": "Bénéficiaire",
+      "banque": "Banque",
+      "iban": "IBAN",
+      "bic": "BIC",
+      "montant": "Montant exact",
+      "libelle": "Libellé à indiquer",
+      "aide": "Indiquez la référence exacte dans le libellé du virement et payez le montant exact : c’est ce qui permet au Ministère de reconnaître votre paiement sur son relevé."
+    },
+    "declaration": {
+      "titre": "Déclarer le virement",
+      "champ": "Justificatif du virement",
+      "aide": "Ordre de virement ou avis de débit de votre banque : PDF, JPG ou PNG, 5 Mo au plus.",
+      "choisir": "Choisir un fichier",
+      "choisi": "Fichier choisi : {nom}",
+      "bouton": "J’ai effectué le virement",
+      "enCours": "Envoi en cours…",
+      "obligatoire": "Joignez votre justificatif pour déclarer le virement.",
+      "format": "Format non accepté : PDF, JPG ou PNG uniquement.",
+      "taille": "Fichier trop volumineux : 5 Mo au maximum.",
+      "rappel": "Le justificatif ne vaut pas paiement : le paiement est confirmé à réception du relevé bancaire.",
+      "erreur": "Le virement n’a pas pu être déclaré"
     }
   },
   "periode": {
@@ -2202,6 +2255,29 @@
     "etiquettes": {
       "motif": "Motif :",
       "motifRefus": "Motif du refus :"
+    }
+  },
+  "statutsPaiementAffiches": {
+    "enCours": "En cours",
+    "attenteConfirmation": "En attente de confirmation",
+    "virementAEffectuer": "Virement à effectuer",
+    "virementAttendu": "Virement attendu",
+    "enVerification": "En cours de vérification",
+    "attenduSurReleve": "Attendu sur relevé",
+    "aVerifier": "À vérifier",
+    "paye": "Payé",
+    "refuse": "Refusé",
+    "rejete": "Rejeté",
+    "expire": "Expiré",
+    "annule": "Annulé",
+    "remboursementEnCours": "Remboursement en cours",
+    "remboursementAValider": "Remboursement à valider",
+    "rembourse": "Remboursé"
+  },
+  "commun": {
+    "copier": {
+      "libelle": "Copier : {quoi}",
+      "fait": "Copié : {quoi}"
     }
   }
 }

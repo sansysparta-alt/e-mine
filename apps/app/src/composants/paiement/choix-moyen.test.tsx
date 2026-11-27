@@ -27,7 +27,7 @@ function afficher(choisir = vi.fn(), tentativesRestantes = 3) {
 }
 
 describe("ChoixMoyen (US-04.2)", () => {
-  it("n'a aucun moyen présélectionné et garde le virement visible mais désactivé", () => {
+  it("n'a aucun moyen présélectionné et garde un moyen désactivé visible, avec sa raison", () => {
     afficher();
     const tresorpay = screen.getByRole("radio", { name: /TrésorPay/ });
     const virement = screen.getByRole("radio", { name: /Virement bancaire/ });
@@ -35,7 +35,35 @@ describe("ChoixMoyen (US-04.2)", () => {
     expect(virement).not.toBeChecked();
     expect(tresorpay).toBeEnabled();
     expect(virement).toBeDisabled();
-    expect(screen.getByText("Bientôt disponible")).toBeInTheDocument();
+    expect(screen.getByText("Non disponible")).toBeInTheDocument();
+  });
+
+  it("propose le virement, même quand les paiements en ligne du jour sont épuisés (US-04.7)", () => {
+    const choisir = vi.fn().mockResolvedValue({ ok: true, valeur: {} });
+    render(
+      <NextIntlClientProvider locale="fr" messages={fr}>
+        <ChoixMoyen
+          demandeId={7}
+          moyens={[
+            { moyen: "TRESORPAY", disponible: true },
+            { moyen: "VIREMENT", disponible: true },
+          ]}
+          montant="5 000 000 GNF"
+          tentativesRestantes={0}
+          choisir={choisir}
+        />
+      </NextIntlClientProvider>,
+    );
+    fireEvent.click(screen.getByRole("radio", { name: /Virement bancaire/ }));
+    const bouton = screen.getByRole("button", { name: "Payer 5 000 000 GNF par virement" });
+    expect(bouton).toBeEnabled();
+    expect(
+      screen.getByText(
+        "Vous obtiendrez les coordonnées du compte et une référence valable 7 jours.",
+      ),
+    ).toBeVisible();
+    fireEvent.click(bouton);
+    expect(choisir).toHaveBeenCalledWith(7, "VIREMENT");
   });
 
   it("demande de choisir un moyen avant de continuer, sans appeler l'API", () => {

@@ -5,29 +5,22 @@ import {
   lirePaiementAttendu,
   type PaiementDto,
 } from "@emine/api-client";
-import {
-  Alerte,
-  BadgeStatut,
-  Bouton,
-  Carte,
-  EnTetePage,
-  formaterDateHeure,
-  formaterGnf,
-} from "@emine/ui";
+import { Alerte, Bouton, Carte, EnTetePage, formaterDateHeure, formaterGnf } from "@emine/ui";
 import { RotateCcw } from "@emine/ui/icones";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { AttenteConfirmation } from "@/composants/paiement/attente-confirmation";
+import { BadgeStatutPaiement } from "@/composants/paiement/badge-statut-paiement";
 import { LienRecu } from "@/composants/paiement/lien-recu";
 import {
   enAttenteDeConfirmation,
   peutReessayer,
-  tonStatutPaiement,
+  profilPaiement,
 } from "@/composants/paiement/statut";
 import { FilArianeApp } from "@/composants/fil-ariane-app";
-import { appelPage, optionsApi } from "@/serveur/donnees";
+import { appelPage, chargerMoi, optionsApi } from "@/serveur/donnees";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("paiement.retour");
@@ -61,7 +54,7 @@ export default async function RetourPaiement({ params, searchParams }: Props) {
   if (String(paiement.demandeId) !== id) notFound();
 
   const t = await getTranslations("paiement.retour");
-  const tStatut = await getTranslations("statutsPaiement");
+  const moi = await chargerMoi();
   const tObjet = await getTranslations("paiement.objet");
   const lienDemande = `/demandes/${id}`;
   const lienPayer = `/demandes/${id}/paiement`;
@@ -87,7 +80,7 @@ export default async function RetourPaiement({ params, searchParams }: Props) {
       />
 
       <Carte>
-        {enAttenteDeConfirmation(paiement.statut) ? (
+        {enAttenteDeConfirmation(paiement) ? (
           <AttenteConfirmation lienDemande={lienDemande} />
         ) : (
           <Issue
@@ -106,9 +99,7 @@ export default async function RetourPaiement({ params, searchParams }: Props) {
         <dl className="grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-[auto_1fr]">
           <dt className="font-semibold">{t("statut")}</dt>
           <dd>
-            <BadgeStatut ton={tonStatutPaiement(paiement.statut)}>
-              {tStatut.has(paiement.statut) ? tStatut(paiement.statut) : paiement.statut}
-            </BadgeStatut>
+            <BadgeStatutPaiement paiement={paiement} profil={profilPaiement(moi)} />
           </dd>
           <dt className="font-semibold">{t("reference")}</dt>
           <dd className="tabular-nums">{paiement.reference}</dd>

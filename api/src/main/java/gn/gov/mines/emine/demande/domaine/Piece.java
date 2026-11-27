@@ -24,6 +24,15 @@ public record Piece(
     Instant remplaceeLe,
     Long remplaceeParId) {
 
+  /**
+   * Type réservé au justificatif d'un virement (US-04.7) : pièce de la demande rattachée au
+   * paiement, jamais listée parmi les pièces du dossier.
+   */
+  public static final String JUSTIFICATIF_VIREMENT = "JUSTIFICATIF_VIREMENT";
+
+  /** Taille maximale d'un justificatif de virement (5 Mo, cahier des charges). */
+  public static final long TAILLE_MAX_JUSTIFICATIF = 5L * 1024 * 1024;
+
   /** Version en vigueur (pas remplacée). */
   public boolean enVigueur() {
     return remplaceeLe == null;

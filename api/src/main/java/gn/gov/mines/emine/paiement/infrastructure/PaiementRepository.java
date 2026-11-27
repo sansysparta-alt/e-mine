@@ -34,6 +34,10 @@ public class PaiementRepository {
 
   private final DSLContext dsl;
 
+  /** Instant courant de la base (transaction). */
+  private static final Field<Instant> MAINTENANT =
+      DSL.field("now()", PAIEMENT.DATE_EXPIRATION.getDataType());
+
   public PaiementRepository(DSLContext dsl) {
     this.dsl = dsl;
   }
@@ -67,6 +71,42 @@ public class PaiementRepository {
   }
 
   /** Vrai si cet objet est déjà payé pour la demande. */
+  /**
+   * Déclaration d'un virement (US-04.7) : justificatif rattaché, passage à {@code en_attente}
+   * (transition contrôlée par la base). Seulement un virement {@code initie} dont la référence n'a
+   * pas expiré ; renvoie le nombre de lignes modifiées (0 sinon).
+   */
+  public int declarerVirement(UUID id, long justificatifPieceId) {
+    return dsl.update(PAIEMENT)
+        .set(PAIEMENT.STATUT, StatutPaiement.en_attente)
+        .set(PAIEMENT.JUSTIFICATIF_PIECE_ID, justificatifPieceId)
+        .set(PAIEMENT.VIREMENT_DECLARE_LE, MAINTENANT)
+        .where(PAIEMENT.ID.eq(id))
+        .and(PAIEMENT.MOYEN.eq(MoyenPaiement.VIREMENT))
+        .and(PAIEMENT.STATUT.eq(StatutPaiement.initie))
+        .and(PAIEMENT.DATE_EXPIRATION.gt(MAINTENANT))
+        .execute();
+  }
+
+  /**
+   * Un paiement de cet objet est en cours de vérification (virement déclaré, ou « à vérifier ») :
+   * le demandeur ne peut pas en ouvrir un autre.
+   */
+  public boolean estEnVerification(long demandeId, ObjetPaiement objet) {
+    return dsl.fetchExists(
+        PAIEMENT,
+        PAIEMENT
+            .DEMANDE_ID
+            .eq(demandeId)
+            .and(PAIEMENT.OBJET.eq(objet))
+            .and(
+                PAIEMENT
+                    .MOYEN
+                    .eq(MoyenPaiement.VIREMENT)
+                    .and(PAIEMENT.STATUT.eq(StatutPaiement.en_attente))
+                    .or(PAIEMENT.STATUT.eq(StatutPaiement.a_verifier))));
+  }
+
   public boolean estPaye(long demandeId, ObjetPaiement objet) {
     return dsl.fetchExists(
         PAIEMENT,
@@ -369,6 +409,8 @@ public class PaiementRepository {
         r.getDatePaiement(),
         r.getRecuNumero(),
         r.getCreatedAt(),
-        r.getTransactionExterneId());
+        r.getTransactionExterneId(),
+        r.getJustificatifPieceId(),
+        r.getVirementDeclareLe());
   }
 }

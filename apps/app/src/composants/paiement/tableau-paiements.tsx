@@ -1,6 +1,5 @@
 import type { PaiementDto } from "@emine/api-client";
 import {
-  BadgeStatut,
   classesAuDessusDuLien,
   cn,
   type ComposantLien,
@@ -14,7 +13,8 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { LienRecu } from "./lien-recu";
 import { adresseRecu } from "./recu";
-import { tonStatutPaiement } from "./statut";
+import { BadgeStatutPaiement } from "./badge-statut-paiement";
+import type { ProfilPaiement } from "./statut";
 
 const LienNext: ComposantLien = ({ href, children, ...props }) => (
   <Link href={href} {...props}>
@@ -46,8 +46,11 @@ export function TableauPaiements({
   legende,
   demande,
   recherche,
+  profil = "usager",
 }: {
   paiements: PaiementDto[];
+  /** Profil qui consulte : libellé du statut et page ouverte par la ligne. */
+  profil?: ProfilPaiement;
   legende?: string;
   /** Liste de tous les paiements (« Paiements & reçus ») : demande et document de chaque ligne. */
   demande?: (p: PaiementDto) => { numero: string; document: string } | null;
@@ -60,14 +63,13 @@ export function TableauPaiements({
   const surligner = (texte: string) =>
     recherche ? <TexteSurligne texte={texte} recherche={recherche} /> : texte;
   const tObjet = useTranslations("paiement.objet");
-  const tStatut = useTranslations("statutsPaiement");
   return (
     <TableauDonnees
       legende={legende ?? t("legende")}
       lignes={paiements}
       cleLigne={(p) => p.reference}
       Lien={LienNext}
-      lienLigne={historique ? lienDetailPaiement : lienPaiement}
+      lienLigne={historique || profil === "usager" ? lienDetailPaiement : lienPaiement}
       colonnes={[
         {
           cle: "reference",
@@ -114,11 +116,7 @@ export function TableauPaiements({
         {
           cle: "statut",
           entete: t("colonnes.statut"),
-          rendu: (p) => (
-            <BadgeStatut ton={tonStatutPaiement(p.statut)}>
-              {tStatut.has(p.statut) ? tStatut(p.statut) : p.statut}
-            </BadgeStatut>
-          ),
+          rendu: (p) => <BadgeStatutPaiement paiement={p} profil={profil} />,
         },
         {
           cle: "date",

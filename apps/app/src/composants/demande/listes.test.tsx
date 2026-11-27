@@ -43,6 +43,7 @@ function demande(id: number, statut: string, numero: string | null): DemandeDto 
     creeLe: "2026-11-20T10:00:00Z",
     deposeLe: numero ? "2026-11-20T10:00:00Z" : null,
     fraisPayes: true,
+    paiementEnVerification: false,
     motifRejet: null,
     etapeDepuis: "2026-11-20T10:00:00Z",
     aTraiterParMoi: false,

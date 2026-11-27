@@ -105,7 +105,7 @@ export function ChoixMoyen({
                     {t(`moyens.${code}.titre`)}
                     {!m.disponible ? (
                       <span className="rounded-full bg-white px-2 py-0.5 text-sm font-normal text-texte-doux ring-1 ring-bordure">
-                        {t("bientot")}
+                        {t("indisponible")}
                       </span>
                     ) : null}
                   </span>
@@ -152,7 +152,7 @@ export function ChoixMoyen({
           type="button"
           taille="grande"
           onClick={valider}
-          disabled={enCours || epuisees}
+          disabled={enCours || (epuisees && moyen !== "VIREMENT")}
           className="self-start"
         >
           {enCours
@@ -161,7 +161,9 @@ export function ChoixMoyen({
               ? t(`payerAvec.${moyen}`, { montant })
               : t("continuer", { montant })}
         </Bouton>
-        {!epuisees ? (
+        {moyen === "VIREMENT" ? (
+          <p className="text-sm text-texte-doux">{t("redirectionVirement")}</p>
+        ) : !epuisees ? (
           <p className="text-sm text-texte-doux">
             {t("redirection")} {t("tentatives", { nombre: tentativesRestantes })}
           </p>
@@ -173,5 +175,5 @@ export function ChoixMoyen({
 
 /** Titre d'erreur connu, ou générique. */
 function titreErreur(code: string): string {
-  return ["PAY-001", "PAY-002", "PAY-003", "PAY-007"].includes(code) ? code : "autre";
+  return ["PAY-001", "PAY-002", "PAY-003", "PAY-007", "PAY-010"].includes(code) ? code : "autre";
 }

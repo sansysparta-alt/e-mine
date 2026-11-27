@@ -362,7 +362,10 @@
         "pauseComplement": "Expected time limit: {delai, plural, one {# day} other {# days}}. It is paused until you answer the request for additional information.",
         "pauseDroits": "Expected time limit: {delai, plural, one {# day} other {# days}}. It is paused until the fees are paid.",
         "depasse": "The expected time limit ({delai, plural, one {# day} other {# days}}) has been exceeded by {jours, plural, one {# day} other {# days}}. The department concerned has been informed."
-      }
+      },
+      "demandeurPaiementVerification": "Your payment is being checked by the finance department. A transfer is confirmed once the bank statement is received; you will be notified. There is nothing for you to do for now.",
+      "agentPaiementVerification": "The applicant has declared payment of the filing fee: it is being checked by the finance department. You can declare the request admissible once it is confirmed.",
+      "agentDroitsVerification": "The applicant has declared payment of the duties: it is being checked by the finance department."
     },
     "fraisPayes": "Fee paid",
     "paiements": {
@@ -603,7 +606,6 @@
     "choix": {
       "legende": "Choose your payment method",
       "obligatoire": "Choose a payment method to continue.",
-      "bientot": "Coming soon",
       "moyens": {
         "TRESORPAY": {
           "titre": "TrésorPay",
@@ -611,7 +613,7 @@
         },
         "VIREMENT": {
           "titre": "Bank transfer",
-          "aide": "Transfer from your bank with the payment reference. Coming soon on e-mine."
+          "aide": "Transfer from your bank, quoting the payment reference. You then attach your proof of transfer; the payment is confirmed once the bank statement is received (a few working days)."
         }
       },
       "continuer": "Pay {montant}",
@@ -621,19 +623,22 @@
       },
       "enCours": "Preparing the payment…",
       "cree": "Payment {reference} created",
-      "creeSuite": "You will be taken to TrésorPay to complete it.",
+      "creeSuite": "You will be taken to TrésorPay to pay.",
       "erreurs": {
         "PAY-001": "This payment has already been made",
         "PAY-002": "Attempt limit reached for today",
         "PAY-003": "TrésorPay is temporarily unavailable",
         "PAY-007": "No payment is expected at this stage",
         "autre": "The payment could not be prepared",
-        "reessayer": "Please try again in a moment. If the problem persists, contact the one-stop shop."
+        "reessayer": "Please try again in a moment. If the problem persists, contact the one-stop shop.",
+        "PAY-010": "A payment is already being checked"
       },
       "redirection": "You will be taken to the secure TrésorPay page.",
       "tentatives": "{nombre, plural, one {You have # attempt left today.} other {You have # attempts left today.}}",
       "tentativesEpuisees": "You have made 3 online payment attempts today. You can try again tomorrow from midnight.",
-      "indisponibleTexte": "No amount has been charged and no attempt has been counted. Please try again in a few minutes."
+      "indisponibleTexte": "No amount has been charged and no attempt has been counted. Please try again in a few minutes.",
+      "redirectionVirement": "You will get the account details and a reference valid for 7 days.",
+      "indisponible": "Not available"
     },
     "retour": {
       "titreOnglet": "Payment result",
@@ -692,7 +697,13 @@
       "voir": "view the receipt",
       "voirNumero": "View receipt {numero}"
     },
-    "filAriane": "Payment"
+    "filAriane": "Payment",
+    "enVerificationTitre": "Payment being checked ({reference})",
+    "enVerificationTexte": "The finance department is checking your payment. It is confirmed once the bank statement is received; you will be notified. There is nothing to pay for now.",
+    "voirPaiement": "View the payment",
+    "virementOuvertTitre": "Transfer to make ({reference})",
+    "virementOuvertTexte": "You chose bank transfer: make it before the deadline quoting the reference shown, then attach your proof of transfer. You can also choose another method below: the current reference will then be cancelled.",
+    "voirVirement": "Transfer details and declaration"
   },
   "statutsPaiement": {
     "initie": "Initiated",
@@ -1240,7 +1251,8 @@
       "delivre": "Document issued",
       "rejetee": "Rejected",
       "archivee": "Archived",
-      "documentRevoque": "Document revoked"
+      "documentRevoque": "Document revoked",
+      "paiementEnVerification": "Payment being checked"
     },
     "agent": {
       "fraisAttendus": "Fee pending",
@@ -1258,7 +1270,8 @@
       "archivee": "Archived",
       "sansReponse": "No answer",
       "avisARendre": "Opinion to give",
-      "documentRevoque": "Document revoked"
+      "documentRevoque": "Document revoked",
+      "paiementEnVerification": "Payment being checked"
     }
   },
   "dates": {
@@ -2140,6 +2153,46 @@
       "titre": "This payment did not go through",
       "texte": "No amount was charged. The sum is still due for the related request.",
       "payer": "Pay again"
+    },
+    "dateLimite": "To be made before",
+    "declareLe": "Transfer declared on",
+    "justificatif": "Proof of transfer",
+    "voirJustificatif": "View the proof of transfer",
+    "virementAEffectuer": {
+      "titre": "Transfer to make before {date}",
+      "texte": "Make the transfer from your bank using the details below, quoting the reference {reference} in the payment description. Then attach your proof of transfer."
+    },
+    "virementExpire": {
+      "titre": "The reference of this transfer has expired",
+      "texte": "It is no longer valid. If you have not paid yet, choose a payment method again to get a new reference."
+    },
+    "virementDeclare": {
+      "titre": "Transfer being checked",
+      "texte": "You declared this transfer on {date}. The finance department confirms it once the bank statement is received, usually within a few working days; you will be notified. There is nothing for you to do."
+    },
+    "coordonnees": {
+      "titre": "Transfer details",
+      "beneficiaire": "Beneficiary",
+      "banque": "Bank",
+      "iban": "IBAN",
+      "bic": "BIC",
+      "montant": "Exact amount",
+      "libelle": "Payment description",
+      "aide": "Quote the exact reference in the payment description and pay the exact amount: this is how the Ministry recognises your payment on its bank statement."
+    },
+    "declaration": {
+      "titre": "Declare the transfer",
+      "champ": "Proof of transfer",
+      "aide": "Transfer order or debit advice from your bank: PDF, JPG or PNG, 5 MB maximum.",
+      "choisir": "Choose a file",
+      "choisi": "Selected file: {nom}",
+      "bouton": "I have made the transfer",
+      "enCours": "Sending…",
+      "obligatoire": "Attach your proof to declare the transfer.",
+      "format": "Format not accepted: PDF, JPG or PNG only.",
+      "taille": "File too large: 5 MB maximum.",
+      "rappel": "The proof is not a payment: the payment is confirmed once the bank statement is received.",
+      "erreur": "The transfer could not be declared"
     }
   },
   "periode": {
@@ -2202,6 +2255,29 @@
     "etiquettes": {
       "motif": "Reason:",
       "motifRefus": "Reason for refusal:"
+    }
+  },
+  "statutsPaiementAffiches": {
+    "enCours": "In progress",
+    "attenteConfirmation": "Awaiting confirmation",
+    "virementAEffectuer": "Transfer to make",
+    "virementAttendu": "Transfer expected",
+    "enVerification": "Being checked",
+    "attenduSurReleve": "Expected on statement",
+    "aVerifier": "To check",
+    "paye": "Paid",
+    "refuse": "Declined",
+    "rejete": "Rejected",
+    "expire": "Expired",
+    "annule": "Cancelled",
+    "remboursementEnCours": "Refund in progress",
+    "remboursementAValider": "Refund to approve",
+    "rembourse": "Refunded"
+  },
+  "commun": {
+    "copier": {
+      "libelle": "Copy: {quoi}",
+      "fait": "Copied: {quoi}"
     }
   }
 }
