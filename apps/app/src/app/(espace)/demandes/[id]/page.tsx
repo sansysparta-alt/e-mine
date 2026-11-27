@@ -76,6 +76,10 @@ import {
 } from "@/serveur/actions-instruction";
 import { FilArianeApp } from "@/composants/fil-ariane-app";
 import { MemoriserDossier } from "@/composants/recherche/memoriser-dossier";
+import {
+  ExplicationPaiementRejete,
+  paiementRejeteAExpliquer,
+} from "@/composants/paiement/paiement-rejete";
 import { appelPage, chargerMoi, chargerReferentiels, optionsApi } from "@/serveur/donnees";
 
 /** Statuts d'une demande en cours : le temps d'attente à l'étape s'affiche. */
@@ -450,6 +454,18 @@ export default async function DetailDemande({ params, searchParams }: Props) {
         <HistoriqueComplements complements={complementsTraites} interne={moi.interne} />
       </Carte>
     ) : null;
+  // Paiement rejeté expliqué à l'usager (US-07.5) : motif, somme rendue, ce qu'il reste à faire.
+  const rejete = moi.interne ? null : paiementRejeteAExpliquer(paiements.data);
+  // Même règle que l'action attendue de la liste : frais (déposée) ou droits (décision) dus.
+  const sommeDue =
+    !demande.paiementEnVerification &&
+    ((demande.statut === "deposee" &&
+      !demande.fraisPayes &&
+      (rejete?.objet === "FRAIS_DOSSIER" || rejete?.objet === "ATTESTATION")) ||
+      (demande.statut === "decision" && rejete?.objet === "DROITS"));
+  const blocPaiementRejete = rejete ? (
+    <ExplicationPaiementRejete paiement={rejete} demandeId={demande.id} resteAPayer={sommeDue} />
+  ) : null;
   const blocPaiements =
     paiements.data.length > 0 ? (
       <Carte titre={t("paiements.titre", { nombre: paiements.data.length })}>
@@ -651,6 +667,7 @@ export default async function DetailDemande({ params, searchParams }: Props) {
           {blocInfos}
           {blocPassages}
           {blocDocument}
+          {blocPaiementRejete}
           {blocEtape}
           {blocAvis}
           {blocDecision}

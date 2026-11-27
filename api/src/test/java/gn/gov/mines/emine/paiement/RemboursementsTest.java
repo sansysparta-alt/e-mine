@@ -113,7 +113,8 @@ class RemboursementsTest extends TestIntegration {
         .andExpect(jsonPath("$.motif").value("excedent"))
         .andExpect(jsonPath("$.montantGnf").value(1_000_000));
 
-    String inferieur = virementDeclare(DemandesDeTest.deposee(INVESTISSEUR, "PEX"));
+    long demandeInf = DemandesDeTest.deposee(INVESTISSEUR, "PEX");
+    String inferieur = virementDeclare(demandeInf);
     long ligneInf = ligneImportee("26/11/2026;VIR " + inferieur + ";4000000;C");
     decider(
             ligneInf,
@@ -122,6 +123,15 @@ class RemboursementsTest extends TestIntegration {
     mvc.perform(get("/api/v1/remboursements/" + remboursementDeLaLigne(ligneInf)).with(fiscal()))
         .andExpect(jsonPath("$.motif").value("autre"))
         .andExpect(jsonPath("$.montantGnf").value(4_000_000));
+    // US-07.5 : le demandeur voit, dans la liste des paiements de sa demande, le paiement rejeté,
+    // son motif et le remboursement de la somme reçue.
+    mvc.perform(
+            get("/api/v1/demandes/" + demandeInf + "/paiements")
+                .with(jeton(INVESTISSEUR, "INVESTISSEUR")))
+        .andExpect(jsonPath("$[0].statut").value("rejete"))
+        .andExpect(jsonPath("$[0].motifRejet").value("Montant reçu incomplet, à reprendre."))
+        .andExpect(jsonPath("$[0].remboursements[0].statut").value("demande"))
+        .andExpect(jsonPath("$[0].remboursements[0].montantGnf").value(4_000_000));
   }
 
   @Test

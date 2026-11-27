@@ -7,6 +7,7 @@ import {
   type IndicateursDto,
   lireIndicateurs,
   listerDemandes,
+  listerPaiementsDemande,
   lireParametresDelai,
   listerFichesDocuments,
   listerWorkflows,
@@ -34,6 +35,7 @@ import {
 import { type CleGroupe, groupesDepuis, parametresListe } from "@/composants/travail/file-travail";
 import { chargerMoi, optionsApi } from "@/serveur/donnees";
 import { profilAffiche } from "@/serveur/profil";
+import { paiementRejeteAExpliquer } from "@/composants/paiement/paiement-rejete";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("tableauDeBord");
@@ -117,16 +119,30 @@ async function charger(moi: Profil, periode: ClePeriode): Promise<Donnees> {
       moi.permissions.includes("VALIDER_CATALOGUE") ? propositionsAValider(options) : undefined,
     ]);
     const tarifs = Object.fromEntries(documents.map((d) => [d.code, d.tarifs]));
-    const aFaire: ActionAFaire[] = (aTraiter?.elements ?? [])
-      .slice(0, COURTE_LISTE)
-      .flatMap((d) => {
+    const aFaire: ActionAFaire[] = await Promise.all(
+      (aTraiter?.elements ?? []).slice(0, COURTE_LISTE).flatMap((d) => {
         const action = actionAttendue(d);
         if (!action) return [];
         const t = tarifs[d.typeDocumentCode];
         const montantGnf =
           action === "FRAIS" ? t?.aPayerAuDepotGnf : action === "DROITS" ? t?.droitsGnf : null;
-        return [{ demande: d, action, montantGnf }];
-      });
+        // Un paiement rejeté s'explique là où l'usager doit payer de nouveau (US-07.5).
+        const rejet =
+          action === "COMPLEMENT"
+            ? Promise.resolve(null)
+            : listerPaiementsDemande(d.id, options)
+                .then((r) => paiementRejeteAExpliquer(r.data))
+                .catch(() => null);
+        return [
+          rejet.then((p) => ({
+            demande: d,
+            action,
+            montantGnf,
+            paiementRejete: p ? { reference: p.reference, motif: p.motifRejet ?? null } : null,
+          })),
+        ];
+      }),
+    );
     return {
       profil,
       demandes: recentes?.elements ?? [],

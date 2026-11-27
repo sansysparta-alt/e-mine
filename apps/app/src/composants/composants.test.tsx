@@ -123,12 +123,19 @@ describe("tableau de bord du demandeur (correctifs ergonomie)", () => {
         vues={vuesDemandeur}
         aFaire={[
           { demande: decidee, action: "DROITS", montantGnf: 15_000_000 },
-          { demande: deposee, action: "FRAIS", montantGnf: 5_000_000 },
+          {
+            demande: deposee,
+            action: "FRAIS",
+            montantGnf: 5_000_000,
+            paiementRejete: { reference: "PAY-2026-000009", motif: "Montant incomplet." },
+          },
         ]}
       />,
     );
     const titres = screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent);
     expect(titres[0]).toBe("Ce que je dois faire (2)");
+    // US-07.5 : le paiement précédent, rejeté, est expliqué avec son motif.
+    expect(screen.getByText("Paiement PAY-2026-000009 rejeté : Montant incomplet.")).toBeVisible();
     expect(screen.getByText(/droits à payer, 15\s000\s000\sGNF/)).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: /Payer les droits · DEM-2026-000005/ }),
