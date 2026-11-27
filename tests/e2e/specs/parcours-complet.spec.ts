@@ -5,8 +5,9 @@ import { type APIRequestContext, type Browser, expect, type Page, test } from "@
  * l'investisseur dépose un PEX et paie les frais (TrésorPay simulé) ; le guichet le déclare
  * recevable ; le DNM et l'Inspection rendent leur avis motivé (requis par le catalogue, US-05.3) ;
  * le Ministre (signataire du catalogue) décide au vu des avis ; l'investisseur paie les droits ; le
- * Ministre signe et délivre ; n'importe qui vérifie le QR (« Document authentique ») ; après
- * révocation par le Directeur, la vérification affiche « NON VALIDE ». À chaque étape,
+ * Ministre signe et délivre ; n'importe qui vérifie le QR (« Document authentique ») ; la Brigade
+ * anti-fraude signale le document, qui reste authentique ; son signataire (le Ministre) le révoque
+ * (US-06.8) et la vérification affiche « NON VALIDE ». À chaque étape,
  * l'investisseur est prévenu par e-mail et par SMS (Mailpit, SMS simulés) et retrouve ses
  * notifications dans l'application (US-07.2).
  */
@@ -34,7 +35,7 @@ const COMPTES = {
   dnm: "n.sow@e-mine.test",
   inspecteur: "f.barry@e-mine.test",
   ministre: "i.soumah@e-mine.test",
-  directeur: "s.kouyate@e-mine.test",
+  brigade: "a.conde@e-mine.test",
 } as const;
 
 /** PDF minimal : l'API reconnaît le format par la signature « %PDF- » du fichier. */
@@ -211,16 +212,29 @@ test("parcours V1 : dépôt, paiements, recevabilité, décision, délivrance, v
   await notification.click();
   await expect(investisseur).toHaveURL(new RegExp(`/demandes/${id}$`));
 
-  // 9. Le Directeur révoque le document : la vérification affiche « NON VALIDE ».
-  const directeur = await connecter(browser, COMPTES.directeur);
-  await directeur.goto(`/demandes/${id}`);
-  await directeur.getByRole("button", { name: "Révoquer…" }).click();
-  await directeur
+  // 9. La Brigade signale le document à son signataire : il reste authentique (US-06.8).
+  const brigade = await connecter(browser, COMPTES.brigade);
+  await brigade.goto(`/demandes/${id}`);
+  await expect(brigade.getByRole("button", { name: "Révoquer…" })).toHaveCount(0);
+  await brigade.getByRole("button", { name: "Signaler au signataire…" }).click();
+  await brigade
+    .getByLabel(/Motif du signalement/)
+    .fill("Copie falsifiée présentée lors de la démonstration de bout en bout.");
+  await brigade.getByRole("button", { name: "Envoyer le signalement" }).click();
+  await expect(brigade.getByText(/est signalé à son signataire/)).toBeVisible();
+  await visiteur.reload();
+  await expect(visiteur.getByRole("heading", { name: "Document authentique" })).toBeVisible();
+
+  // 10. Le signataire (le Ministre) révoque le document depuis le signalement.
+  await ministre.goto("/signalements");
+  await expect(ministre.getByText(numero ?? "DEM-").first()).toBeVisible();
+  await ministre.goto(`/demandes/${id}`);
+  await ministre.getByRole("button", { name: "Révoquer le document…" }).click();
+  await ministre
     .getByLabel(/Motif de la révocation/)
     .fill("Document retiré lors de la démonstration de bout en bout.");
-  await directeur.getByRole("button", { name: "Révoquer définitivement" }).click();
-  // Attendre la confirmation de la révocation : le dialogue contient déjà « NON VALIDE ».
-  await expect(directeur.getByText(/est révoqué : sa vérification affiche/)).toBeVisible();
+  await ministre.getByRole("button", { name: "Révoquer définitivement" }).click();
+  await expect(ministre.getByText(/est révoqué : sa vérification affiche/)).toBeVisible();
 
   await visiteur.reload();
   await expect(visiteur.getByRole("heading", { name: "NON VALIDE" })).toBeVisible();
