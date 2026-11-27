@@ -156,12 +156,28 @@ class RegleSuiviTest {
     }
   }
 
+  @Test
+  void unPaiementEnVerificationNAttendRienDuDemandeur() {
+    // R1 (recette du 27/11/2026) : frais déclarés par virement, en vérification au ministère.
+    Dates d = new Dates(J1, null, null, null, null, null, null, null);
+    var frise = RegleSuivi.suivi(new Situation("deposee", false, true, true, true, null, d));
+    var frais = frise.get(1);
+    assertThat(frais.etape().cle()).isEqualTo("paiement-frais");
+    assertThat(frais.actionDemandeur()).isFalse();
+    assertThat(frais.enVerification()).isTrue();
+    // Sans paiement en vérification, l'action revient au demandeur.
+    var attendu = RegleSuivi.suivi(new Situation("deposee", false, false, true, true, null, d));
+    assertThat(attendu.get(1).actionDemandeur()).isTrue();
+    assertThat(attendu.get(1).enVerification()).isFalse();
+  }
+
   private static RegleSuivi.Avancement avancement(
       String statut, boolean frais, boolean droits, boolean avis, String origine) {
     return RegleSuivi.avancement(
         new Situation(
             statut,
             frais,
+            false,
             droits,
             avis,
             origine,
@@ -170,7 +186,7 @@ class RegleSuiviTest {
 
   private static List<EtapeSuivi> suivi(
       String statut, boolean frais, boolean droits, boolean avis, String origine, Dates dates) {
-    return RegleSuivi.suivi(new Situation(statut, frais, droits, avis, origine, dates));
+    return RegleSuivi.suivi(new Situation(statut, frais, false, droits, avis, origine, dates));
   }
 
   private static List<String> cles(List<EtapeSuivi> f) {

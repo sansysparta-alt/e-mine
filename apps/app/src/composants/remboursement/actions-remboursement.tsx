@@ -147,6 +147,7 @@ export function ActionsRemboursement({
                 valeur={texte}
                 surChangement={setTexte}
                 erreur={erreur.champ}
+                apercu={t("apercuRefus")}
               />
             ) : null}
             {choix === "executer" ? (

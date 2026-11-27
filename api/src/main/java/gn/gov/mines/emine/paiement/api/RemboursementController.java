@@ -98,6 +98,34 @@ class RemboursementController {
     return RemboursementDto.depuis(r, service.aTraiterParMoi(r));
   }
 
+  @PostMapping("/api/v1/paiements/{reference}/remboursements")
+  @ResponseStatus(HttpStatus.CREATED)
+  @PreAuthorize("hasAuthority('PERM_ENCAISSER')")
+  @Operation(
+      operationId = "proposerRemboursement",
+      summary =
+          "Le Responsable fiscal propose le remboursement d'un paiement payé (montant au plus égal"
+              + " à la somme reçue non encore proposée, motif obligatoire) ; validation par le"
+              + " Directeur ensuite")
+  PropositionRemboursementCreeeDto proposer(
+      @PathVariable @jakarta.validation.constraints.Pattern(regexp = "^PAY-[0-9]{4}-[0-9]{6}$")
+          String reference,
+      @Valid @RequestBody PropositionRemboursementDto corps) {
+    long id = service.proposer(reference, corps.montantGnf(), corps.explication());
+    return new PropositionRemboursementCreeeDto(id, service.lire(id).numero());
+  }
+
+  /**
+   * Proposition de remboursement saisie par le Responsable fiscal (R7).
+   *
+   * @param explication motif, 10 à 2 000 caractères, visible du Directeur et du demandeur
+   */
+  record PropositionRemboursementDto(
+      @NotNull Long montantGnf, @Schema(nullable = true) String explication) {}
+
+  /** Proposition créée : son numéro {@code RMB-AAAA-NNNNNN}. */
+  record PropositionRemboursementCreeeDto(long id, String numero) {}
+
   @PostMapping("/api/v1/remboursements/{id}/validation")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @PreAuthorize("hasAuthority('PERM_VALIDER_REMBOURSEMENT')")

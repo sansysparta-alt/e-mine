@@ -38,14 +38,17 @@ public class ServiceRemboursements {
   private final RemboursementRepository remboursements;
   private final RegleRemboursementRepository regle;
   private final UtilisateurCourant utilisateurCourant;
+  private final gn.gov.mines.emine.paiement.infrastructure.PaiementRepository paiements;
 
   public ServiceRemboursements(
       RemboursementRepository remboursements,
       RegleRemboursementRepository regle,
-      UtilisateurCourant utilisateurCourant) {
+      UtilisateurCourant utilisateurCourant,
+      gn.gov.mines.emine.paiement.infrastructure.PaiementRepository paiements) {
     this.remboursements = remboursements;
     this.regle = regle;
     this.utilisateurCourant = utilisateurCourant;
+    this.paiements = paiements;
   }
 
   /** Une page de remboursements et le nombre par statut. */
@@ -111,6 +114,48 @@ public class ServiceRemboursements {
     }
     return remboursements.creer(
         paiementId, motif, montantGnf, moi().id(), ligneReleveId, explication);
+  }
+
+  /**
+   * Proposition de remboursement faite à la main par le Responsable fiscal sur un paiement payé
+   * (R7) : montant au plus égal à la somme reçue, moins ce qui est déjà proposé ou rendu ; motif
+   * obligatoire. Elle suit ensuite le circuit commun (validation du Directeur, ordre du Trésor).
+   */
+  @Transactional
+  public long proposer(String reference, long montantGnf, String explication) {
+    var p =
+        paiements
+            .lireParReference(reference)
+            .orElseThrow(
+                () -> new ErreurMetier(CodeErreur.PAY_005, Map.of("reference", reference)));
+    if (p.statut() != gn.gov.mines.emine.shared.jooq.enums.StatutPaiement.paye) {
+      throw new ErreurMetier(
+          CodeErreur.PAY_009, Map.of("reference", reference, "statut", p.statut().getLiteral()));
+    }
+    String net = explication == null ? "" : explication.strip();
+    if (net.length() < 10 || net.length() > 2000) {
+      throw champ("explication", "Expliquez le motif en 10 à 2 000 caractères.");
+    }
+    long recu = p.montantRecuGnf() == null ? p.montantGnf() : p.montantRecuGnf();
+    long dejaPropose =
+        remboursements.duPaiement(p.id()).stream()
+            .filter(r -> !"refuse".equals(r.statut()))
+            .mapToLong(Remboursement::montantGnf)
+            .sum();
+    long plafond = recu - dejaPropose;
+    if (montantGnf <= 0 || montantGnf > plafond) {
+      throw champ(
+          "montantGnf",
+          plafond <= 0
+              ? "La somme reçue est déjà entièrement proposée au remboursement."
+              : "Le montant doit être compris entre 1 et " + plafond + " GNF.");
+    }
+    return demander(p.id(), AUTRE, montantGnf, null, net);
+  }
+
+  private static ErreurMetier champ(String champ, String message) {
+    return new ErreurMetier(
+        CodeErreur.VAL_001, Map.of("champs", List.of(Map.of("champ", champ, "message", message))));
   }
 
   /** Validation par le Directeur : le Responsable fiscal peut demander l'ordre au Trésor. */

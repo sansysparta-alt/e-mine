@@ -148,3 +148,22 @@ export function referenceVirementExpiree(
 export function peutReessayer(statut: string): boolean {
   return statut === "echoue" || statut === "annule" || statut === "expire";
 }
+
+/**
+ * Somme d'un paiement payé qui peut encore être proposée au remboursement : le reçu, moins les
+ * remboursements déjà proposés, validés ou effectués (un refus libère la somme). L'API refait le
+ * contrôle.
+ */
+export function plafondRemboursement(p: {
+  statut: string;
+  montantGnf: number;
+  montantRecuGnf?: number | null;
+  remboursements?: { statut: string; montantGnf: number }[] | null;
+}): number {
+  if (p.statut !== "paye") return 0;
+  const recu = p.montantRecuGnf ?? p.montantGnf;
+  const deja = (p.remboursements ?? [])
+    .filter((r) => r.statut !== "refuse")
+    .reduce((somme, r) => somme + r.montantGnf, 0);
+  return Math.max(0, recu - deja);
+}

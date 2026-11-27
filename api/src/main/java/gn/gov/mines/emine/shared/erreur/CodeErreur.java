@@ -92,6 +92,7 @@ public enum CodeErreur {
   /** Séparation des tâches : celui qui propose un remboursement ne le décide pas, US-04.18. */
   PAY_018("PAY-018", HttpStatus.CONFLICT),
   PAY_019("PAY-019", HttpStatus.CONFLICT),
+  PAY_020("PAY-020", HttpStatus.CONFLICT),
   /** Format de fichier non accepté (PDF, JPG ou PNG). */
   DOC_001("DOC-001", HttpStatus.UNSUPPORTED_MEDIA_TYPE),
   /** Fichier trop volumineux (10 Mo au plus). */

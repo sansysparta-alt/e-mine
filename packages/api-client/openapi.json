@@ -761,6 +761,44 @@
         }
       }
     },
+    "/api/v1/paiements/{reference}/remboursements" : {
+      "post" : {
+        "tags" : [ "Remboursements" ],
+        "summary" : "Le Responsable fiscal propose le remboursement d'un paiement payé (montant au plus égal à la somme reçue non encore proposée, motif obligatoire) ; validation par le Directeur ensuite",
+        "operationId" : "proposerRemboursement",
+        "parameters" : [ {
+          "name" : "reference",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "^PAY-[0-9]{4}-[0-9]{6}$"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PropositionRemboursementDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Created",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PropositionRemboursementCreeeDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/paiements/notifications/tresorpay" : {
       "post" : {
         "tags" : [ "Paiements" ],
@@ -2894,6 +2932,37 @@
         }
       }
     },
+    "/api/v1/encaissements/lignes/{id}/paiements-associables" : {
+      "get" : {
+        "tags" : [ "Encaissements" ],
+        "summary" : "Virements en cours du même montant auxquels associer une ligne de relevé (déclarés d'abord) ; PAY-013 si la ligne ne s'associe pas",
+        "operationId" : "listerPaiementsAssociables",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/PaiementAssociableDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/encaissements/journal" : {
       "get" : {
         "tags" : [ "Encaissements" ],
@@ -4111,6 +4180,32 @@
           }
         },
         "required" : [ "demandeLe", "executeLe", "montantGnf", "motifRefus", "numero", "referenceOrdre", "statut" ]
+      },
+      "PropositionRemboursementDto" : {
+        "type" : "object",
+        "properties" : {
+          "montantGnf" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "explication" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "explication", "montantGnf" ]
+      },
+      "PropositionRemboursementCreeeDto" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "numero" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "id", "numero" ]
       },
       "AccuseDto" : {
         "type" : "object",
@@ -6022,6 +6117,26 @@
         },
         "required" : [ "profilsAvis", "signataires" ]
       },
+      "PaiementAssociableDto" : {
+        "type" : "object",
+        "properties" : {
+          "reference" : {
+            "type" : "string"
+          },
+          "montantGnf" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "numeroDemande" : {
+            "type" : [ "string", "null" ]
+          },
+          "declareLe" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "declareLe", "montantGnf", "numeroDemande", "reference" ]
+      },
       "LigneJournalEncaissementsDto" : {
         "type" : "object",
         "properties" : {
@@ -6243,9 +6358,13 @@
           "totalPages" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "virementsAttendus" : {
+            "type" : "integer",
+            "format" : "int64"
           }
         },
-        "required" : [ "elements", "page", "taille", "total", "totalPages" ]
+        "required" : [ "elements", "page", "taille", "total", "totalPages", "virementsAttendus" ]
       },
       "CompteursDto" : {
         "type" : "object",
@@ -6381,9 +6500,12 @@
           },
           "actionDemandeur" : {
             "type" : "boolean"
+          },
+          "enVerification" : {
+            "type" : "boolean"
           }
         },
-        "required" : [ "actionDemandeur", "cle", "date", "etat" ]
+        "required" : [ "actionDemandeur", "cle", "date", "enVerification", "etat" ]
       },
       "SuiviDto" : {
         "type" : "object",

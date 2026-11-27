@@ -23,6 +23,8 @@ type ActionMotifProps = {
   echec: string;
   succes: string;
   executer: (motif: string) => Promise<ResultatAction<unknown>>;
+  /** Titre de l'aperçu du motif (US-04.13). */
+  apercu: string;
 };
 
 /**
@@ -125,6 +127,7 @@ function ActionMotif(p: ActionMotifProps) {
               if (erreurChamp && !erreurMotif(v)) setErreurChamp(undefined);
             }}
             erreur={erreurChamp}
+            apercu={p.apercu}
           />
         </div>
       </Dialogue>
@@ -160,6 +163,7 @@ export function SignalerDocument({ demandeId, numero, signaler }: SignalerDocume
       enCours={t("enCours")}
       echec={t("echec")}
       succes={t("succes", { numero })}
+      apercu={t("apercu")}
       executer={(motif) => signaler(demandeId, motif)}
     />
   );
@@ -249,6 +253,7 @@ export function ListeSignalements({ signalements, decider }: ListeSignalementsPr
                     enCours={t("revoquer.enCours")}
                     echec={t("revoquer.echec")}
                     succes={t("revoquer.succes", { numero: s.numeroDocument })}
+                    apercu={t("revoquer.apercu")}
                     executer={(motif) => decider(s.id, "ANNULER", motif)}
                   />
                   <ActionMotif
@@ -266,6 +271,7 @@ export function ListeSignalements({ signalements, decider }: ListeSignalementsPr
                     enCours={t("classer.enCours")}
                     echec={t("classer.echec")}
                     succes={t("classer.succes")}
+                    apercu={t("classer.apercu")}
                     executer={(motif) => decider(s.id, "CLASSER", motif)}
                   />
                 </div>

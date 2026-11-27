@@ -219,7 +219,8 @@ class RapprochementTest extends TestIntegration {
                 .getContentAsString());
     Map<Integer, JsonNode> parNumero = new HashMap<>();
     for (JsonNode l : page.path("elements")) {
-      parNumero.put(l.path("numero").asInt(), l);
+      // « numero » est le rang dans le relevé (R5) ; +1 donne la ligne du fichier (en-tête).
+      parNumero.put(l.path("numero").asInt() + 1, l);
     }
     return parNumero;
   }

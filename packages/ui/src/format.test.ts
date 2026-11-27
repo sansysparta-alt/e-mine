@@ -2,6 +2,7 @@ import {
   formaterDate,
   formaterDateHeure,
   formaterGnf,
+  formaterGnfSigne,
   formaterNombre,
   formaterSuperficie,
   formaterTaille,
@@ -73,5 +74,13 @@ describe("accord d'un nom avec un nombre (US-11.8)", () => {
     expect(accorder(1, en, "en")).toBe("item");
     expect(accorder(0, en, "en")).toBe("items");
     expect(accorder(2, en, "en")).toBe("items");
+  });
+});
+
+describe("montant signé (R5)", () => {
+  it("écrit toujours un débit « − 15 000 GNF » et un crédit sans signe", () => {
+    expect(n(formaterGnfSigne(15_000, true))).toBe("− 15 000 GNF");
+    expect(n(formaterGnfSigne(-15_000, true))).toBe("− 15 000 GNF");
+    expect(n(formaterGnfSigne(15_000, false))).toBe("15 000 GNF");
   });
 });

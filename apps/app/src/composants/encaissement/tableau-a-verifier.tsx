@@ -8,12 +8,13 @@ import {
   type ComposantLien,
   formaterDate,
   formaterGnf,
+  formaterGnfSigne,
   joursCalendairesDepuis,
   TableauDonnees,
 } from "@emine/ui";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { deciderEcart } from "@/serveur/actions-encaissements";
+import { chargerAssociables, deciderEcart } from "@/serveur/actions-encaissements";
 import { DecisionsEcart } from "./decision-ecart";
 
 const LienNext: ComposantLien = ({ href, children, ...props }) => (
@@ -69,8 +70,7 @@ export function TableauAVerifier({ elements }: { elements: ElementAVerifierDto[]
           rendu: (e) => (
             <span className="flex flex-col items-end">
               <span className="font-semibold whitespace-nowrap tabular-nums">
-                {e.sens === "D" ? "− " : ""}
-                {formaterGnf(e.montantGnf)}
+                {formaterGnfSigne(e.montantGnf, e.sens === "D")}
               </span>
               {e.montantAttenduGnf != null && e.nature !== "doublon" && e.nature !== "tardif" ? (
                 <span className="text-sm text-texte-doux">
@@ -122,7 +122,13 @@ export function TableauAVerifier({ elements }: { elements: ElementAVerifierDto[]
           interactive: true,
           voirSiVide: tCommun("voirDetail"),
           rendu: (e) =>
-            e.decisions.length > 0 ? <DecisionsEcart element={e} decider={deciderEcart} /> : null,
+            e.decisions.length > 0 ? (
+              <DecisionsEcart
+                element={e}
+                decider={deciderEcart}
+                chargerAssociables={chargerAssociables}
+              />
+            ) : null,
         },
       ]}
     />

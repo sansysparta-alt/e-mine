@@ -70,49 +70,105 @@ describe("décisions sur un écart (US-04.9)", () => {
     );
   });
 
-  it("demande une référence au bon format pour associer", async () => {
+  it("associe au virement choisi dans la liste des virements du même montant (R4)", async () => {
     const decider = vi.fn().mockResolvedValue({ ok: true, valeur: null });
+    const charger = vi.fn().mockResolvedValue({
+      ok: true,
+      valeur: [
+        {
+          reference: "PAY-2026-000777",
+          montantGnf: 4_000_000,
+          numeroDemande: "DEM-2026-000042",
+          declareLe: "2026-11-25T10:00:00Z",
+        },
+        {
+          reference: "PAY-2026-000778",
+          montantGnf: 4_000_000,
+          numeroDemande: null,
+          declareLe: null,
+        },
+      ],
+    });
     afficher(
       <DecisionsEcart
         element={element({ nature: "inconnue", decisions: ["ASSOCIER", "CLASSER"] })}
         decider={decider}
+        chargerAssociables={charger}
       />,
     );
     fireEvent.click(screen.getByRole("button", { name: /Associer/ }));
     const boite = screen.getByRole("dialog");
-    fireEvent.change(within(boite).getByLabelText("Référence du paiement"), {
-      target: { value: "PAY-2026" },
-    });
+    await within(boite).findByText("PAY-2026-000777");
+    expect(charger).toHaveBeenCalledWith(12);
+    expect(within(boite).getByText("Virement déclaré le 25/11/2026")).toBeVisible();
+    // Aucune saisie de référence : on choisit.
+    expect(within(boite).queryByRole("textbox", { name: /Référence/ })).toBeNull();
     fireEvent.click(within(boite).getByRole("button", { name: "Associer et confirmer" }));
-    expect(within(boite).getByText(/PAY-AAAA-NNNNNN\./)).toBeVisible();
-    fireEvent.change(within(boite).getByLabelText("Référence du paiement"), {
-      target: { value: "pay-2026-000777" },
-    });
+    expect(within(boite).getByText("Choisissez le virement à confirmer.")).toBeVisible();
+    fireEvent.click(within(boite).getByRole("radio", { name: /PAY-2026-000777/ }));
     fireEvent.click(within(boite).getByRole("button", { name: "Associer et confirmer" }));
     await waitFor(() =>
-      expect(decider).toHaveBeenCalledWith({ ligneId: 12 }, "ASSOCIER", "", "pay-2026-000777"),
+      expect(decider).toHaveBeenCalledWith({ ligneId: 12 }, "ASSOCIER", "", "PAY-2026-000777"),
     );
   });
 
-  it("affiche le refus de l'API dans la boîte, sans recharger", async () => {
+  it("dit clairement quand aucun virement de ce montant n'est en cours, et l'erreur de l'API", async () => {
     const decider = vi.fn().mockResolvedValue({
       ok: false,
-      erreur: { code: "PAY-014", message: "Aucun virement en cours de ce montant.", champs: [] },
+      erreur: { code: "PAY-020", message: "Ce paiement est déjà confirmé.", champs: [] },
+    });
+    const vide = vi.fn().mockResolvedValue({ ok: true, valeur: [] });
+    const { unmount } = afficher(
+      <DecisionsEcart
+        element={element({ nature: "inconnue", decisions: ["ASSOCIER"] })}
+        decider={decider}
+        chargerAssociables={vide}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: /Associer/ }));
+    expect(await screen.findByText("Aucun virement en cours de ce montant")).toBeVisible();
+    expect(screen.getByRole("button", { name: "Associer et confirmer" })).toBeDisabled();
+    unmount();
+
+    const un = vi.fn().mockResolvedValue({
+      ok: true,
+      valeur: [
+        {
+          reference: "PAY-2026-000777",
+          montantGnf: 4_000_000,
+          numeroDemande: null,
+          declareLe: null,
+        },
+      ],
     });
     afficher(
       <DecisionsEcart
         element={element({ nature: "inconnue", decisions: ["ASSOCIER"] })}
         decider={decider}
+        chargerAssociables={un}
       />,
     );
     fireEvent.click(screen.getByRole("button", { name: /Associer/ }));
     const boite = screen.getByRole("dialog");
-    fireEvent.change(within(boite).getByLabelText("Référence du paiement"), {
-      target: { value: "PAY-2026-000777" },
-    });
+    await within(boite).findByText("PAY-2026-000777");
+    // Un seul virement possible : il est présélectionné.
     fireEvent.click(within(boite).getByRole("button", { name: "Associer et confirmer" }));
-    expect(await within(boite).findByText("Aucun virement en cours de ce montant.")).toBeVisible();
+    expect(await within(boite).findByText("Ce paiement est déjà confirmé.")).toBeVisible();
     expect(refresh).not.toHaveBeenCalled();
+  });
+
+  it("montre l'aperçu du motif avant de confirmer (US-04.13)", () => {
+    afficher(<DecisionsEcart element={element({})} decider={vi.fn()} />);
+    fireEvent.click(screen.getByRole("button", { name: /Rejeter/ }));
+    const boite = screen.getByRole("dialog");
+    expect(within(boite).queryByText(/Aperçu/)).toBeNull();
+    fireEvent.change(within(boite).getByLabelText(/Motif/), {
+      target: { value: "Montant reçu inférieur au montant dû." },
+    });
+    expect(within(boite).getByText("Aperçu : le demandeur lira ce motif")).toBeVisible();
+    expect(within(boite).getByRole("blockquote")).toHaveTextContent(
+      "Montant reçu inférieur au montant dû.",
+    );
   });
 
   it("vise un paiement en ligne par sa référence", async () => {

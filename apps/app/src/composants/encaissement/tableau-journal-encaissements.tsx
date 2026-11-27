@@ -7,7 +7,7 @@ import {
   cn,
   type ComposantLien,
   formaterDate,
-  formaterGnf,
+  formaterGnfSigne,
   TableauDonnees,
 } from "@emine/ui";
 import Link from "next/link";
@@ -98,8 +98,7 @@ export function TableauJournalEncaissements({
                 l.montantGnf < 0 ? "text-danger" : "text-texte",
               )}
             >
-              {l.montantGnf < 0 ? "− " : ""}
-              {formaterGnf(Math.abs(l.montantGnf))}
+              {formaterGnfSigne(l.montantGnf, l.montantGnf < 0)}
             </span>
           ),
         },

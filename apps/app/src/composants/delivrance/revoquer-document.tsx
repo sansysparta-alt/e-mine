@@ -115,6 +115,7 @@ export function RevoquerDocument({ demandeId, numero, revoquer }: RevoquerDocume
               if (erreurChamp && !erreurMotif(v)) setErreurChamp(undefined);
             }}
             erreur={erreurChamp}
+            apercu={t("apercu")}
           />
         </div>
       </Dialogue>

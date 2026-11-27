@@ -1185,7 +1185,8 @@
       "enCours": "Revoking…",
       "echec": "The document was not revoked",
       "indisponible": "The service is temporarily unavailable. Try again in a moment.",
-      "succes": "Document {numero} is revoked: its verification shows “NOT VALID”."
+      "succes": "Document {numero} is revoked: its verification shows “NOT VALID”.",
+      "apercu": "Preview: this reason will be shown on public verification"
     },
     "signalements": {
       "titre": "{nombre, plural, one {Report from the anti-fraud brigade} other {Reports from the anti-fraud brigade (#)}}",
@@ -1210,7 +1211,8 @@
         "confirmer": "Send the report",
         "enCours": "Sending…",
         "echec": "The report was not sent",
-        "succes": "Document {numero} has been reported to its signatory."
+        "succes": "Document {numero} has been reported to its signatory.",
+        "apercu": "Preview: the signatory will read this reason"
       },
       "revoquer": {
         "action": "Revoke the document…",
@@ -1221,7 +1223,8 @@
         "confirmer": "Revoke permanently",
         "enCours": "Revoking…",
         "echec": "The document was not revoked",
-        "succes": "Document {numero} is revoked: its verification shows “NOT VALID”."
+        "succes": "Document {numero} is revoked: its verification shows “NOT VALID”.",
+        "apercu": "Preview: this reason will be shown on public verification"
       },
       "classer": {
         "action": "Close the report…",
@@ -1232,7 +1235,8 @@
         "confirmer": "Close the report",
         "enCours": "Closing…",
         "echec": "The report was not closed",
-        "succes": "Report closed: the document remains valid."
+        "succes": "Report closed: the document remains valid.",
+        "apercu": "Preview: the anti-fraud brigade will read this reason"
       }
     }
   },
@@ -1381,7 +1385,8 @@
     "delaiSuspenduDroits": "Time limit paused (fees due)",
     "attenteMinistere": "{jours, plural, =0 {With the Ministry since today} one {With the Ministry for # day} other {With the Ministry for # days}}",
     "attenteVous": "{jours, plural, =0 {Awaiting your action since today} one {Awaiting your action for # day} other {Awaiting your action for # days}}",
-    "attenteDemandeur": "{jours, plural, =0 {With the applicant since today} one {With the applicant for # day} other {With the applicant for # days}}"
+    "attenteDemandeur": "{jours, plural, =0 {With the applicant since today} one {With the applicant for # day} other {With the applicant for # days}}",
+    "depuis": "{jours, plural, =0 {Since today, {heure}} =1 {Since yesterday, {heure}} other {Since {date} (# days)}}"
   },
   "suivi": {
     "titre": "Request tracking",
@@ -1404,7 +1409,8 @@
       "sans-objet": "not applicable",
       "non-atteinte": "not reached",
       "aVous": "your action is needed",
-      "attenteDemandeur": "awaiting the applicant"
+      "attenteDemandeur": "awaiting the applicant",
+      "enVerification": "under review"
     },
     "precisions": {
       "avis": "Opinions pending: {profils}",
@@ -2542,7 +2548,7 @@
   },
   "aVerifier": {
     "titre": "To check",
-    "description": "{nombre, plural, =0 {Nothing to check: all payments are reconciled.} one {# item awaits your decision: what automatic reconciliation could not confirm.} other {# items await your decision: what automatic reconciliation could not confirm.}}",
+    "description": "{nombre, plural, =0 {Nothing to decide.} one {# item awaits your decision: what automatic reconciliation could not confirm.} other {# items await your decision: what automatic reconciliation could not confirm.}}",
     "element": "item",
     "elements": "items",
     "badge": "To check",
@@ -2578,9 +2584,8 @@
       "motif": "Reason",
       "motifAide": "What you found or did, for traceability.",
       "motifAideRejet": "Sent to the applicant, who will have to pay again.",
-      "reference": "Payment reference",
-      "referenceAide": "Pending transfer of the same amount (PAY-YYYY-NNNNNN).",
-      "referenceInvalide": "Enter a reference in the format PAY-YYYY-NNNNNN.",
+      "reference": "Transfer to confirm with this payment",
+      "referenceAide": "Pending transfers of {montant}, declared ones first.",
       "VALIDER": {
         "bouton": "Approve the payment",
         "titre": "Approve this payment?",
@@ -2617,8 +2622,26 @@
         "titre": "Propose a refund of this transfer?",
         "effet": "A refund proposal is created; it will be submitted to the Director for approval before the Treasury order.",
         "confirmer": "Propose the refund"
+      },
+      "referenceInvalide": "Choose the transfer to confirm.",
+      "chargement": "Looking for pending transfers…",
+      "aucunAssociable": {
+        "titre": "No pending transfer of this amount",
+        "texte": "No applicant is waiting for confirmation of a transfer of this amount. Close the line with a reason, or propose a refund if it belongs to no file."
+      },
+      "declareLe": "Transfer declared on {date}",
+      "nonDeclare": "Transfer chosen, not yet declared by the applicant",
+      "apercu": {
+        "demandeur": "Preview: the applicant will read this reason",
+        "journal": "Preview: this reason will be kept in the log"
       }
-    }
+    },
+    "videVirements": {
+      "titre": "Nothing to decide for now",
+      "description": "{nombre, plural, one {# declared transfer is waiting for the next bank statement: import it to reconcile it.} other {# declared transfers are waiting for the next bank statement: import it to reconcile them.}}",
+      "lien": "Import a statement"
+    },
+    "virementsAttendus": "{nombre, plural, one {# declared transfer is also waiting for the next statement.} other {# declared transfers are also waiting for the next statement.}}"
   },
   "remboursements": {
     "titre": "Refunds",
@@ -2705,7 +2728,8 @@
         "titre": "Treasury order for {numero}",
         "effet": "The Treasury has issued the refund order of {montant} to {beneficiaire}. The applicant will be notified.",
         "confirmer": "Record and notify the applicant"
-      }
+      },
+      "apercuRefus": "Preview: the tax officer will read this reason"
     }
   },
   "journalEncaissements": {
@@ -2797,5 +2821,21 @@
     "motif": "Reason: {motif}",
     "echeance": "Preferably pay before {date}.",
     "payer": "Pay the rest"
+  },
+  "proposerRemboursement": {
+    "bouton": "Propose a refund",
+    "titre": "Propose a refund of payment {reference}",
+    "effet": "The proposal will be submitted to the Director for approval; the Treasury order will be requested afterwards. The payment remains paid.",
+    "montant": "Amount to refund",
+    "montantAide": "In GNF, at most {plafond} (amount received not yet proposed).",
+    "montantInvalide": "Enter an amount between 1 GNF and {plafond}.",
+    "motif": "Reason",
+    "motifAide": "Read by the Director, then by the applicant. At least 10 characters.",
+    "apercu": "Preview: the Director and the applicant will read this reason",
+    "annuler": "Cancel",
+    "confirmer": "Propose the refund",
+    "enCours": "Sending…",
+    "erreur": "The proposal could not be saved",
+    "succes": "Proposal {numero} sent to the Director."
   }
 }

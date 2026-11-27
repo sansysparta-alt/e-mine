@@ -29,6 +29,14 @@ export function formaterGnf(montant: number, langue = "fr"): string {
   return `${formaterNombre(Math.round(montant), langue, 0)}${INSECABLE}GNF`;
 }
 
+/**
+ * Montant signé d'une opération : un débit s'écrit toujours « − 15 000 GNF » (signe moins
+ * typographique et espace insécable), un crédit sans signe. Seule écriture des débits (R5).
+ */
+export function formaterGnfSigne(montant: number, debit: boolean, langue = "fr"): string {
+  return `${debit ? `−${INSECABLE}` : ""}${formaterGnf(Math.abs(montant), langue)}`;
+}
+
 /** Superficie en hectares, toujours deux décimales : « 125,50 ha ». */
 export function formaterSuperficie(hectares: number, langue = "fr"): string {
   return `${formaterNombre(hectares, langue, 2)}${INSECABLE}ha`;

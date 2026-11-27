@@ -121,5 +121,10 @@
       "TRESORPAY": "TrésorPay",
       "VIREMENT": "Virement bancaire"
     }
+  },
+  "enTeteOfficiel": {
+    "republique": "République de Guinée",
+    "devise": "Travail – Justice – Solidarité",
+    "ministere": "Ministère des Mines et de la Géologie · e-mine"
   }
 }

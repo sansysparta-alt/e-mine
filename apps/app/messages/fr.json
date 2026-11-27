@@ -1185,7 +1185,8 @@
       "enCours": "Révocation…",
       "echec": "Le document n’a pas été révoqué",
       "indisponible": "Le service est momentanément indisponible. Réessayez dans un instant.",
-      "succes": "Le document {numero} est révoqué : sa vérification affiche « NON VALIDE »."
+      "succes": "Le document {numero} est révoqué : sa vérification affiche « NON VALIDE ».",
+      "apercu": "Aperçu : ce motif sera affiché à la vérification publique"
     },
     "signalements": {
       "titre": "{nombre, plural, one {Signalement de la Brigade anti-fraude} other {Signalements de la Brigade anti-fraude (#)}}",
@@ -1210,7 +1211,8 @@
         "confirmer": "Envoyer le signalement",
         "enCours": "Envoi…",
         "echec": "Le signalement n’a pas été envoyé",
-        "succes": "Le document {numero} est signalé à son signataire."
+        "succes": "Le document {numero} est signalé à son signataire.",
+        "apercu": "Aperçu : le signataire lira ce motif"
       },
       "revoquer": {
         "action": "Révoquer le document…",
@@ -1221,7 +1223,8 @@
         "confirmer": "Révoquer définitivement",
         "enCours": "Révocation…",
         "echec": "Le document n’a pas été révoqué",
-        "succes": "Le document {numero} est révoqué : sa vérification affiche « NON VALIDE »."
+        "succes": "Le document {numero} est révoqué : sa vérification affiche « NON VALIDE ».",
+        "apercu": "Aperçu : ce motif sera affiché à la vérification publique"
       },
       "classer": {
         "action": "Classer le signalement…",
@@ -1232,7 +1235,8 @@
         "confirmer": "Classer le signalement",
         "enCours": "Classement…",
         "echec": "Le signalement n’a pas été classé",
-        "succes": "Signalement classé : le document reste valide."
+        "succes": "Signalement classé : le document reste valide.",
+        "apercu": "Aperçu : la Brigade anti-fraude lira ce motif"
       }
     }
   },
@@ -1381,7 +1385,8 @@
     "delaiSuspenduDroits": "Délai en pause (droits attendus)",
     "attenteMinistere": "{jours, plural, =0 {Au ministère depuis aujourd’hui} one {Au ministère depuis # jour} other {Au ministère depuis # jours}}",
     "attenteVous": "{jours, plural, =0 {À vous d’agir depuis aujourd’hui} one {À vous d’agir depuis # jour} other {À vous d’agir depuis # jours}}",
-    "attenteDemandeur": "{jours, plural, =0 {Chez le demandeur depuis aujourd’hui} one {Chez le demandeur depuis # jour} other {Chez le demandeur depuis # jours}}"
+    "attenteDemandeur": "{jours, plural, =0 {Chez le demandeur depuis aujourd’hui} one {Chez le demandeur depuis # jour} other {Chez le demandeur depuis # jours}}",
+    "depuis": "{jours, plural, =0 {Depuis aujourd’hui, {heure}} =1 {Depuis hier, {heure}} other {Depuis le {date} (# jours)}}"
   },
   "suivi": {
     "titre": "Suivi de la demande",
@@ -1404,7 +1409,8 @@
       "sans-objet": "sans objet",
       "non-atteinte": "non atteinte",
       "aVous": "à vous d’agir",
-      "attenteDemandeur": "en attente du demandeur"
+      "attenteDemandeur": "en attente du demandeur",
+      "enVerification": "en vérification"
     },
     "precisions": {
       "avis": "Avis attendus : {profils}",
@@ -2542,7 +2548,7 @@
   },
   "aVerifier": {
     "titre": "À vérifier",
-    "description": "{nombre, plural, =0 {Rien à vérifier : tous les versements sont rapprochés.} one {# élément attend votre décision : ce que le rapprochement automatique n’a pas pu confirmer.} other {# éléments attendent votre décision : ce que le rapprochement automatique n’a pas pu confirmer.}}",
+    "description": "{nombre, plural, =0 {Rien à décider.} one {# élément attend votre décision : ce que le rapprochement automatique n’a pas pu confirmer.} other {# éléments attendent votre décision : ce que le rapprochement automatique n’a pas pu confirmer.}}",
     "element": "élément",
     "elements": "éléments",
     "badge": "À vérifier",
@@ -2578,9 +2584,8 @@
       "motif": "Motif",
       "motifAide": "Ce que vous avez constaté ou fait, pour la traçabilité.",
       "motifAideRejet": "Communiqué au demandeur, qui devra payer à nouveau.",
-      "reference": "Référence du paiement",
-      "referenceAide": "Virement en cours du même montant (PAY-AAAA-NNNNNN).",
-      "referenceInvalide": "Indiquez une référence au format PAY-AAAA-NNNNNN.",
+      "reference": "Virement à confirmer avec ce versement",
+      "referenceAide": "Virements en cours de {montant}, les déclarés d’abord.",
       "VALIDER": {
         "bouton": "Valider le paiement",
         "titre": "Valider ce paiement ?",
@@ -2617,8 +2622,26 @@
         "titre": "Proposer le remboursement de ce versement ?",
         "effet": "Une proposition de remboursement est créée ; elle sera soumise à la validation du Directeur avant l’ordre du Trésor.",
         "confirmer": "Proposer le remboursement"
+      },
+      "referenceInvalide": "Choisissez le virement à confirmer.",
+      "chargement": "Recherche des virements en cours…",
+      "aucunAssociable": {
+        "titre": "Aucun virement en cours de ce montant",
+        "texte": "Aucun demandeur n’attend la confirmation d’un virement de ce montant. Classez la ligne avec un motif, ou proposez son remboursement si elle n’appartient à aucun dossier."
+      },
+      "declareLe": "Virement déclaré le {date}",
+      "nonDeclare": "Virement choisi, pas encore déclaré par le demandeur",
+      "apercu": {
+        "demandeur": "Aperçu : le demandeur lira ce motif",
+        "journal": "Aperçu : ce motif sera conservé au journal"
       }
-    }
+    },
+    "videVirements": {
+      "titre": "Rien à décider pour le moment",
+      "description": "{nombre, plural, one {# virement déclaré attend le prochain relevé bancaire : importez-le pour le rapprocher.} other {# virements déclarés attendent le prochain relevé bancaire : importez-le pour les rapprocher.}}",
+      "lien": "Importer un relevé"
+    },
+    "virementsAttendus": "{nombre, plural, one {# virement déclaré attend aussi le prochain relevé.} other {# virements déclarés attendent aussi le prochain relevé.}}"
   },
   "remboursements": {
     "titre": "Remboursements",
@@ -2705,7 +2728,8 @@
         "titre": "Ordre du Trésor pour {numero}",
         "effet": "Le Trésor a émis l’ordre de remboursement de {montant} à {beneficiaire}. Le demandeur sera informé.",
         "confirmer": "Enregistrer et informer le demandeur"
-      }
+      },
+      "apercuRefus": "Aperçu : le Responsable fiscal lira ce motif"
     }
   },
   "journalEncaissements": {
@@ -2797,5 +2821,21 @@
     "motif": "Motif : {motif}",
     "echeance": "À payer de préférence avant le {date}.",
     "payer": "Payer le reste"
+  },
+  "proposerRemboursement": {
+    "bouton": "Proposer un remboursement",
+    "titre": "Proposer le remboursement du paiement {reference}",
+    "effet": "La proposition sera soumise à la validation du Directeur ; l’ordre du Trésor sera demandé ensuite. Le paiement reste payé.",
+    "montant": "Montant à rembourser",
+    "montantAide": "En GNF, au plus {plafond} (somme reçue non encore proposée).",
+    "montantInvalide": "Indiquez un montant entre 1 GNF et {plafond}.",
+    "motif": "Motif",
+    "motifAide": "Lu par le Directeur, puis par le demandeur. 10 caractères au moins.",
+    "apercu": "Aperçu : le Directeur et le demandeur liront ce motif",
+    "annuler": "Annuler",
+    "confirmer": "Proposer le remboursement",
+    "enCours": "Envoi…",
+    "erreur": "La proposition n’a pas pu être enregistrée",
+    "succes": "Proposition {numero} envoyée au Directeur."
   }
 }

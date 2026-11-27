@@ -33,6 +33,7 @@ class RedacteurNotificationsTest {
   static final Map<String, Object> CONTENU_MAX =
       Map.ofEntries(
           Map.entry("reference", "PAY-2026-000001"),
+          Map.entry("numero", "RMB-2026-000001"),
           Map.entry("recu", "REC-2026-000001"),
           Map.entry("montant_gnf", 999_999_999_999L),
           Map.entry("reste_gnf", 999_999_999_999L),

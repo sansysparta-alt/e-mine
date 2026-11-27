@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import { PiedDePage } from "@/composants/gabarit/pied-de-page";
 import { NavigationApplication } from "@/navigation/navigation-application";
 import { compteursNavigation } from "@/serveur/compteurs-navigation";
+import { recoitNotifications } from "@/navigation/config";
 import { chargerMoi, optionsApi } from "@/serveur/donnees";
 import { profilAffiche } from "@/serveur/profil";
 
@@ -35,9 +36,9 @@ export default async function DispositionEspace({ children }: { children: ReactN
     );
   }
   // Pastille de la cloche au premier affichage ; sans réponse de l'API, la cloche reste sans pastille.
-  // Les agents ne reçoivent pas de notification (US-07.2) : pas d'appel inutile.
+  // Seuls les profils qui reçoivent des notifications ont la cloche (US-07.2, US-04.17).
   const [nonLues, compteurs] = await Promise.all([
-    moi.interne
+    !recoitNotifications(moi)
       ? 0
       : compterNotificationsNonLues(await optionsApi())
           .then((r) => r.data.nombre)

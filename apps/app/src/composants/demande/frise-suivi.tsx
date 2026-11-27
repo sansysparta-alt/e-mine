@@ -107,7 +107,9 @@ export function FriseSuivi({
                     ? t("etats.rejeteeLe", { date: formaterDate(e.date) })
                     : attendDemandeur
                       ? t(interne ? "etats.attenteDemandeur" : "etats.aVous")
-                      : t(`etats.${e.etat}`)}
+                      : e.etat === "en-cours" && e.enVerification
+                        ? t("etats.enVerification")
+                        : t(`etats.${e.etat}`)}
               </span>
               {e.etat === "en-cours" && precisions[e.cle] ? (
                 <span className="text-sm text-texte-doux">{precisions[e.cle]}</span>
