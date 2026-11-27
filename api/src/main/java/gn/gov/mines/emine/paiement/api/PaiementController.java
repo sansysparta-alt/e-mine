@@ -76,9 +76,13 @@ class PaiementController {
   @GetMapping("/api/v1/demandes/{id}/paiements")
   @Operation(
       operationId = "listerPaiementsDemande",
-      summary = "Paiements de la demande, du plus récent au plus ancien")
+      summary =
+          "Paiements de la demande, du plus récent au plus ancien, avec leurs remboursements"
+              + " (US-07.5 : un paiement rejeté dit si la somme reçue a été rendue)")
   List<PaiementDto> lister(@PathVariable long id) {
-    return service.lister(id).stream().map(PaiementDto::depuis).toList();
+    return service.lister(id).stream()
+        .map(p -> PaiementDto.depuis(p, null, remboursementsDe(p), null))
+        .toList();
   }
 
   @PostMapping("/api/v1/demandes/{id}/paiements")
@@ -219,19 +223,24 @@ class PaiementController {
             .infosJustificatif(p)
             .map(f -> new PaiementDto.FichierDto(f.nomFichier(), f.typeMime()))
             .orElse(null),
-        remboursements.duPaiement(p.id()).stream()
-            .map(
-                r ->
-                    new PaiementDto.RemboursementPaiementDto(
-                        r.numero(),
-                        r.statut(),
-                        r.montantGnf(),
-                        r.demandeLe(),
-                        r.executeLe(),
-                        r.referenceOrdre(),
-                        r.motifRefus()))
-            .toList(),
+        remboursementsDe(p),
         new PaiementDto.CoordonneesVirementDto(c.beneficiaire(), c.banque(), c.iban(), c.bic()));
+  }
+
+  /** Remboursements d'un paiement, tels que le demandeur les suit. */
+  private List<PaiementDto.RemboursementPaiementDto> remboursementsDe(Paiement p) {
+    return remboursements.duPaiement(p.id()).stream()
+        .map(
+            r ->
+                new PaiementDto.RemboursementPaiementDto(
+                    r.numero(),
+                    r.statut(),
+                    r.montantGnf(),
+                    r.demandeLe(),
+                    r.executeLe(),
+                    r.referenceOrdre(),
+                    r.motifRefus()))
+        .toList();
   }
 
   @PostMapping(

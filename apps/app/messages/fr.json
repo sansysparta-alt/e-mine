@@ -2365,7 +2365,9 @@
     "annule": "Annulé",
     "remboursementEnCours": "Remboursement en cours",
     "remboursementAValider": "Remboursement à valider",
-    "rembourse": "Remboursé"
+    "rembourse": "Remboursé",
+    "rejeteRembourse": "Rejeté · remboursé",
+    "rejeteRemboursementEnCours": "Rejeté · remboursement en cours"
   },
   "commun": {
     "voirDetail": "Voir le détail",
@@ -2665,5 +2667,24 @@
       "titre": "Aucune opération sur cette période",
       "description": "Choisissez une autre période ou un autre moyen de paiement."
     }
+  },
+  "paiementRejete": {
+    "titre": "Paiement {reference} rejeté",
+    "motif": "Motif : {motif}",
+    "sansMotif": "La somme reçue ne correspondait pas au paiement attendu.",
+    "effectue": "La somme reçue vous a été remboursée par le Trésor (ordre {ordre}).",
+    "enCours": "La somme reçue va vous être remboursée : le remboursement {numero} est en cours.",
+    "aucun": "Aucune somme n’a été encaissée pour ce paiement.",
+    "resteAPayer": "Il vous reste à payer {objet}.",
+    "rienAFaire": "Vous n’avez rien d’autre à faire pour ce paiement.",
+    "payer": "Payer {objet}",
+    "objets": {
+      "FRAIS_DOSSIER": "les frais de dossier",
+      "DROITS": "les droits",
+      "ATTESTATION": "l’attestation",
+      "FORMATION": "la formation"
+    },
+    "ligne": "Paiement {reference} rejeté : {motif}",
+    "refuse": "Le remboursement {numero} a été refusé : {motif}"
   }
 }

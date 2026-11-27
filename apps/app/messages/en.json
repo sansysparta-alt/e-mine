@@ -2365,7 +2365,9 @@
     "annule": "Cancelled",
     "remboursementEnCours": "Refund in progress",
     "remboursementAValider": "Refund to approve",
-    "rembourse": "Refunded"
+    "rembourse": "Refunded",
+    "rejeteRembourse": "Rejected · refunded",
+    "rejeteRemboursementEnCours": "Rejected · refund in progress"
   },
   "commun": {
     "voirDetail": "View details",
@@ -2665,5 +2667,24 @@
       "titre": "No operation in this period",
       "description": "Choose another period or payment method."
     }
+  },
+  "paiementRejete": {
+    "titre": "Payment {reference} rejected",
+    "motif": "Reason: {motif}",
+    "sansMotif": "The amount received did not match the expected payment.",
+    "effectue": "The amount received was refunded to you by the Treasury (order {ordre}).",
+    "enCours": "The amount received will be refunded to you: refund {numero} is in progress.",
+    "aucun": "No amount was collected for this payment.",
+    "resteAPayer": "You still need to pay {objet}.",
+    "rienAFaire": "You have nothing else to do for this payment.",
+    "payer": "Pay {objet}",
+    "objets": {
+      "FRAIS_DOSSIER": "the filing fees",
+      "DROITS": "the duties",
+      "ATTESTATION": "the certificate",
+      "FORMATION": "the training"
+    },
+    "ligne": "Payment {reference} rejected: {motif}",
+    "refuse": "Refund {numero} was refused: {motif}"
   }
 }

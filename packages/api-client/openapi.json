@@ -1331,7 +1331,7 @@
     "/api/v1/demandes/{id}/paiements" : {
       "get" : {
         "tags" : [ "Paiements" ],
-        "summary" : "Paiements de la demande, du plus récent au plus ancien",
+        "summary" : "Paiements de la demande, du plus récent au plus ancien, avec leurs remboursements (US-07.5 : un paiement rejeté dit si la somme reçue a été rendue)",
         "operationId" : "listerPaiementsDemande",
         "parameters" : [ {
           "name" : "id",

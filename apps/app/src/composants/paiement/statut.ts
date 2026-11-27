@@ -27,7 +27,22 @@ export function tonStatutPaiement(statut: string): TonBadge {
  */
 export type ProfilPaiement = "usager" | "fiscal" | "agent";
 
-export type PaiementAffiche = { statut: string; moyen: string };
+export type PaiementAffiche = {
+  statut: string;
+  moyen: string;
+  /** Remboursements du paiement (US-07.5) : un paiement rejeté dit si la somme a été rendue. */
+  remboursements?: { statut: string }[] | null;
+};
+
+/** Ce qu'il est advenu de la somme reçue d'un paiement rejeté (US-07.5). */
+export function etatRemboursementDuRejet(
+  p: Pick<PaiementAffiche, "remboursements">,
+): "effectue" | "enCours" | null {
+  const r = p.remboursements ?? [];
+  if (r.some((x) => x.statut === "execute")) return "effectue";
+  if (r.some((x) => x.statut === "demande" || x.statut === "valide")) return "enCours";
+  return null;
+}
 
 /**
  * Libellé et ton du statut d'un paiement **selon le profil qui consulte** (lot 5, même règle que
@@ -68,8 +83,19 @@ export function presentationStatutPaiement(
       return { cle: "paye", ton: "succes" };
     case "echoue":
       return { cle: "refuse", ton: "danger" };
-    case "rejete":
-      return { cle: "rejete", ton: "danger" };
+    case "rejete": {
+      // Un seul badge : « Rejeté · remboursé », « Rejeté · remboursement en cours » ou « Rejeté ».
+      const remb = etatRemboursementDuRejet(p);
+      return {
+        cle:
+          remb === "effectue"
+            ? "rejeteRembourse"
+            : remb === "enCours"
+              ? "rejeteRemboursementEnCours"
+              : "rejete",
+        ton: "danger",
+      };
+    }
     case "expire":
       return { cle: "expire", ton: "neutre" };
     case "annule":

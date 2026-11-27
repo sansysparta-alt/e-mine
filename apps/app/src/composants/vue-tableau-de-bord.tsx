@@ -60,6 +60,8 @@ export type ActionAFaire = {
   action: "FRAIS" | "DROITS" | "COMPLEMENT";
   /** Montant à payer en GNF, s'il est connu. */
   montantGnf?: number | null;
+  /** Le paiement précédent a été rejeté (US-07.5) : sa référence et son motif. */
+  paiementRejete?: { reference: string; motif: string | null } | null;
 };
 
 /** Vues exclusives de la liste (API) : leur somme est le total. */
@@ -572,6 +574,7 @@ function CeQueJeDoisFaire({
   libelles: Record<string, string>;
 }) {
   const t = useTranslations("tableauDeBord.aFaire");
+  const tRejet = useTranslations("paiementRejete");
   if (aFaire.length === 0) {
     return (
       <Alerte nature="succes" titre={t("vide")}>
@@ -582,7 +585,7 @@ function CeQueJeDoisFaire({
   return (
     <Carte titre={t("titre", { nombre: aFaire.length })}>
       <ul className="-mx-2 flex flex-col divide-y divide-bordure">
-        {aFaire.map(({ demande, action, montantGnf }) => (
+        {aFaire.map(({ demande, action, montantGnf, paiementRejete }) => (
           <li
             key={demande.id}
             className={cn(
@@ -603,6 +606,14 @@ function CeQueJeDoisFaire({
                   ? t(`explication.${action}`, { montant: formaterGnf(montantGnf) })
                   : t(`explicationSansMontant.${action}`)}
               </span>
+              {paiementRejete ? (
+                <span className="block text-sm font-semibold text-danger">
+                  {tRejet("ligne", {
+                    reference: paiementRejete.reference,
+                    motif: paiementRejete.motif ?? tRejet("sansMotif"),
+                  })}
+                </span>
+              ) : null}
             </span>
             <Bouton
               asChild
