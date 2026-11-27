@@ -8,6 +8,7 @@ import {
   lireIndicateurs,
   listerDemandes,
   lireParametresDelai,
+  listerRemboursements,
   listerFichesDocuments,
   listerWorkflows,
   listerTypesDocuments,
@@ -57,6 +58,8 @@ type Donnees = {
   travail?: { groupe: CleGroupe; dossiers: DemandeDto[]; total: number };
   /** Ministre : propositions à valider (catalogue, workflows, règle des délais ; US-02.4, US-02.8). */
   aValider?: AValider;
+  /** Directeur : remboursements proposés qu'il doit valider ou refuser (US-04.18). */
+  remboursementsAValider?: number;
   /** Données indisponibles : on le dit, plutôt qu'un état vide trompeur (revue B). */
   indisponible?: boolean;
 };
@@ -95,7 +98,7 @@ async function charger(moi: Profil, periode: ClePeriode): Promise<Donnees> {
     const libelles = Object.fromEntries(documents.map((d) => [d.code, libelleDocument(d, langue)]));
     const groupeTravail = groupesDepuis(compteur, moi)[0];
     const pilote = profil === "guichet" || profil === "instruction" || profil === "decideur";
-    const [recentes, aTraiter, indicateurs, file, catalogue] = await Promise.all([
+    const [recentes, aTraiter, indicateurs, file, catalogue, remboursements] = await Promise.all([
       pilote
         ? null
         : listerDemandes({ taille: tailleDePagePour(DEMANDES_RECENTES) }, options).then(
@@ -115,6 +118,10 @@ async function charger(moi: Profil, periode: ClePeriode): Promise<Donnees> {
         : null,
       // Mêmes nombres que les listes « À valider » (compteurs de l'API).
       moi.permissions.includes("VALIDER_CATALOGUE") ? propositionsAValider(options) : undefined,
+      // Règle « À traiter » des remboursements (API) : même nombre que le compteur du menu.
+      moi.permissions.includes("VALIDER_REMBOURSEMENT")
+        ? listerRemboursements({ taille: 10 }, options).then((r) => r.data.compteurs.aTraiter)
+        : undefined,
     ]);
     const tarifs = Object.fromEntries(documents.map((d) => [d.code, d.tarifs]));
     const aFaire: ActionAFaire[] = (aTraiter?.elements ?? [])
@@ -137,6 +144,7 @@ async function charger(moi: Profil, periode: ClePeriode): Promise<Donnees> {
       vues,
       indicateurs,
       aValider: catalogue,
+      remboursementsAValider: remboursements,
       ...(groupeTravail && file
         ? {
             travail: {

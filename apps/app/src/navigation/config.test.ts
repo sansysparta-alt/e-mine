@@ -25,6 +25,16 @@ describe("configuration unique de la navigation", () => {
     expect(fiscal.map((s) => s.cle)).toEqual(["principal", "encaissements"]);
     const guichet = navigationPour({ permissions: ["INSTRUIRE"], interne: true });
     expect(cles(guichet)).not.toContain("releves");
+    // Le Directeur valide les remboursements (US-04.18) : la rubrique, sans le reste des encaissements.
+    const directeur = cles(
+      navigationPour({
+        permissions: ["SIGNER", "VERIFIER", "VALIDER_REMBOURSEMENT"],
+        interne: true,
+      }),
+    );
+    expect(directeur).toContain("remboursements");
+    expect(directeur).not.toContain("releves");
+    expect(directeur).not.toContain("aVerifier");
   });
 
   it("montre « À traiter » aux agents internes qui instruisent ou signent (correctifs J5)", () => {

@@ -56,11 +56,34 @@ public class ServiceRemboursements {
     return new Page(remboursements.lister(statut, pagination), remboursements.compter());
   }
 
-  /** Ce que le Responsable fiscal doit faire : valider les demandes, enregistrer les ordres. */
+  /**
+   * Règle « À traiter » des remboursements (US-04.18, décision V1-13) : le Directeur valide ou
+   * refuse les propositions (sauf les siennes : séparation des tâches) ; le Responsable fiscal
+   * enregistre l'ordre du Trésor d'un remboursement validé. Une seule définition, côté API.
+   */
   @Transactional(readOnly = true)
   public long aTraiter() {
-    Map<String, Long> n = remboursements.compter();
-    return n.get("demande") + n.get("valide");
+    UtilisateurConnecte moi = moi();
+    return remboursements.compterATraiter(
+        moi.peut(Permission.VALIDER_REMBOURSEMENT), moi.peut(Permission.ENCAISSER), moi.id());
+  }
+
+  public boolean aTraiterParMoi(Remboursement r) {
+    UtilisateurConnecte moi = moi();
+    return switch (r.statut()) {
+      case "demande" -> moi.peut(Permission.VALIDER_REMBOURSEMENT) && peutDecider(r, moi);
+      case "valide" -> moi.peut(Permission.ENCAISSER);
+      default -> false;
+    };
+  }
+
+  /**
+   * Séparation des tâches : celui qui a proposé ne décide pas. Une proposition de la règle
+   * elle-même (frais d'une demande rejetée) a pour auteur enregistré celui qui a rejeté la demande
+   * : elle n'est pas concernée.
+   */
+  private static boolean peutDecider(Remboursement r, UtilisateurConnecte moi) {
+    return REJET_DEMANDE.equals(r.motif()) || r.demandeParId() != moi.id();
   }
 
   @Transactional(readOnly = true)
@@ -90,17 +113,27 @@ public class ServiceRemboursements {
         paiementId, motif, montantGnf, moi().id(), ligneReleveId, explication);
   }
 
-  /** Validation par le Responsable fiscal : l'ordre peut être demandé au Trésor. */
+  /** Validation par le Directeur : le Responsable fiscal peut demander l'ordre au Trésor. */
   @Transactional
   public void valider(long id) {
     verrouiller(id, "demande");
+    exigerSeparation(id);
     remboursements.valider(id, moi().id());
+  }
+
+  /** PAY-018 si le profil connecté a lui-même proposé ce remboursement. */
+  private void exigerSeparation(long id) {
+    Remboursement r = lire(id);
+    if (!peutDecider(r, moi())) {
+      throw new ErreurMetier(CodeErreur.PAY_018, Map.of("id", id));
+    }
   }
 
   /** Refus motivé ; le remboursement d'un paiement entier rend au paiement son état « payé ». */
   @Transactional
   public void refuser(long id, String motif) {
     var r = verrouiller(id, "demande");
+    exigerSeparation(id);
     String net = motif == null ? "" : motif.strip();
     if (net.length() < ServiceEcarts.MOTIF_MIN || net.length() > ServiceEcarts.MOTIF_MAX) {
       throw new ErreurMetier(

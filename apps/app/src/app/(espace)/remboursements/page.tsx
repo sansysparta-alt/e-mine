@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { PaginationListe } from "@/composants/liste/pagination-liste";
-import { FILTRES_REMBOURSEMENTS } from "@/composants/remboursement/statut";
+import { FILTRES_REMBOURSEMENTS, profilRemboursement } from "@/composants/remboursement/statut";
 import { TableauRemboursements } from "@/composants/remboursement/tableau-remboursements";
 import { appelPage, chargerMoi, optionsApi } from "@/serveur/donnees";
 
@@ -17,14 +17,16 @@ export async function generateMetadata(): Promise<Metadata> {
 type Props = { searchParams: Promise<{ statut?: string; page?: string; taille?: string }> };
 
 /**
- * « Remboursements » du Responsable fiscal (US-04.10) : valider ou refuser chaque demande, puis
- * enregistrer l'ordre de remboursement du Trésor (l'argent est rendu hors plateforme). Filtres par
- * statut avec leur nombre, calculé par l'API.
+ * « Remboursements » (US-04.10, US-04.18) : le Directeur valide ou refuse chaque proposition du
+ * Responsable fiscal ; le Responsable fiscal enregistre ensuite l'ordre de remboursement du Trésor
+ * (l'argent est rendu hors plateforme). Filtres par statut avec leur nombre, calculé par l'API,
+ * libellés propres au profil.
  */
 export default async function Remboursements({ searchParams }: Props) {
   const p = await searchParams;
   const moi = await chargerMoi();
-  if (!moi.interne || !moi.permissions.includes("ENCAISSER")) notFound();
+  const profil = profilRemboursement(moi.permissions);
+  if (!moi.interne || profil === "usager") notFound();
   const t = await getTranslations("remboursements");
   const statut = FILTRES_REMBOURSEMENTS.find((s) => s === p.statut);
   const page = Math.max(1, Number.parseInt(p.page ?? "1", 10) || 1);
@@ -39,9 +41,13 @@ export default async function Remboursements({ searchParams }: Props) {
 
   return (
     <div className="flex flex-col gap-6">
-      <EnTetePage titre={t("titre")} description={t("description")} />
+      <EnTetePage titre={t("titre")} description={t(`description.${profil}`)} />
       {c.tous === 0 ? (
-        <EtatVide icone={Undo2} titre={t("vide.titre")} description={t("vide.description")} />
+        <EtatVide
+          icone={Undo2}
+          titre={t("vide.titre")}
+          description={t(`vide.description.${profil}`)}
+        />
       ) : (
         <>
           <FiltresPastilles
@@ -56,7 +62,7 @@ export default async function Remboursements({ searchParams }: Props) {
               },
               ...FILTRES_REMBOURSEMENTS.map((s) => ({
                 valeur: s,
-                libelle: t(`filtres.${s}`),
+                libelle: t(`filtres.${profil}.${s}`),
                 href: adresse(s),
                 actif: statut === s,
                 nombre: c[s],
@@ -67,7 +73,7 @@ export default async function Remboursements({ searchParams }: Props) {
             <EtatVide icone={Undo2} titre={t("aucun")} />
           ) : (
             <div className="flex flex-col gap-4">
-              <TableauRemboursements remboursements={resultat.elements} />
+              <TableauRemboursements remboursements={resultat.elements} profil={profil} />
               <PaginationListe
                 chemin="/remboursements"
                 parametres={{ statut }}

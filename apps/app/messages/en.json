@@ -186,8 +186,8 @@
       "aFaire": "What you have to do",
       "aVerifier": "To check",
       "aVerifierPrecision": "Differences and unrecognised credits",
-      "remboursementsAValider": "Refunds to approve",
-      "remboursementsAValiderPrecision": "Duplicates, excess amounts, rejected payments",
+      "remboursementsAValider": "Refunds awaiting the Director",
+      "remboursementsAValiderPrecision": "Your proposals, to be approved by the Director",
       "ordresAEnregistrer": "Orders to record",
       "ordresAEnregistrerPrecision": "Approved refunds awaiting the Treasury",
       "recettesMois": "Revenue this month",
@@ -195,6 +195,11 @@
       "recettesMoisPrecision": "{nombre, plural, one {# operation} other {# operations}}, refunded fees deducted",
       "importer": "Import a bank statement",
       "indisponible": "Collection figures cannot be read at the moment. Try again in a few moments."
+    },
+    "remboursementsAValider": {
+      "titre": "{nombre, plural, one {# refund to approve} other {# refunds to approve}}",
+      "texte": "Proposed by the tax officer: the order can be requested from the Treasury only after your approval.",
+      "lien": "See the refunds to approve"
     }
   },
   "demande": {
@@ -2499,7 +2504,10 @@
   },
   "remboursements": {
     "titre": "Refunds",
-    "description": "Approve each refund request, then record the reference of the order issued by the Treasury: the money is returned outside the platform and the applicant is notified.",
+    "description": {
+      "directeur": "Approve or refuse each refund proposed by the tax officer. Once approved, the tax officer records the order issued by the Treasury: the money is returned outside the platform and the applicant is notified.",
+      "fiscal": "The refunds you propose are approved by the Director. Once approved, record the reference of the order issued by the Treasury: the money is returned outside the platform and the applicant is notified."
+    },
     "element": "refund",
     "elements": "refunds",
     "aucun": "No refund for this filter.",
@@ -2508,15 +2516,26 @@
     "motifRefus": "Reason for refusal: {motif}",
     "vide": {
       "titre": "No refunds",
-      "description": "Refunds proposed from “To check” (duplicate, excess, rejected payment) will appear here."
+      "description": {
+        "directeur": "Refunds proposed by the tax officer (duplicate, excess, rejected payment) will appear here for approval.",
+        "fiscal": "Refunds proposed from “To check” (duplicate, excess, rejected payment) will appear here."
+      }
     },
     "filtres": {
       "libelle": "Status",
       "tous": "All",
-      "demande": "To approve",
-      "valide": "Order to record",
-      "execute": "Refunded",
-      "refuse": "Refused"
+      "directeur": {
+        "demande": "To approve",
+        "valide": "Treasury order pending",
+        "execute": "Refunded",
+        "refuse": "Refused"
+      },
+      "fiscal": {
+        "demande": "Awaiting the Director",
+        "valide": "Order to record",
+        "execute": "Refunded",
+        "refuse": "Refused"
+      }
     },
     "colonnes": {
       "numero": "Refund",
@@ -2537,7 +2556,10 @@
       "ordreAEnregistrer": "Order to record",
       "enCours": "Refund in progress",
       "rembourse": "Refunded",
-      "refuse": "Refused"
+      "refuse": "Refused",
+      "attenteDirecteur": "Awaiting the Director",
+      "ordreAttendu": "Treasury order pending",
+      "proposeParVous": "Proposed by you"
     },
     "actions": {
       "annuler": "Cancel",
@@ -2551,7 +2573,7 @@
       "valider": {
         "bouton": "Approve",
         "titre": "Approve refund {numero}?",
-        "effet": "The refund of {montant} to {beneficiaire} is approved: the order can be requested from the Treasury.",
+        "effet": "The refund of {montant} to {beneficiaire} will be approved: the tax officer can then request the order from the Treasury.",
         "confirmer": "Approve the refund"
       },
       "refuser": {

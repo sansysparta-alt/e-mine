@@ -75,7 +75,7 @@ describe("journal des encaissements et tableau de bord fiscal (US-04.11)", () =>
     afficher(<VueFiscal indicateurs={indicateurs} />);
     const lien = (nom: RegExp) => screen.getByRole("link", { name: nom });
     expect(lien(/^À vérifier/)).toHaveAttribute("href", "/a-verifier");
-    expect(lien(/Remboursements à valider/)).toHaveAttribute(
+    expect(lien(/Remboursements en attente du Directeur/)).toHaveAttribute(
       "href",
       "/remboursements?statut=demande",
     );

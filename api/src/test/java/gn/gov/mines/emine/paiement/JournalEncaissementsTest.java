@@ -1,5 +1,6 @@
 package gn.gov.mines.emine.paiement;
 
+import static gn.gov.mines.emine.support.Personas.DIRECTEUR;
 import static gn.gov.mines.emine.support.Personas.FISCAL;
 import static gn.gov.mines.emine.support.Personas.GUICHET;
 import static gn.gov.mines.emine.support.Personas.INVESTISSEUR;
@@ -191,23 +192,40 @@ class JournalEncaissementsTest extends TestIntegration {
         ResultSet rs = ps.executeQuery();
         rs.next();
         long id = rs.getLong(1);
+        // Validation par le Directeur, puis ordre enregistré par le Responsable fiscal (V34 : la
+        // base contrôle le droit de chacun, sous sa session).
+        long directeur = agir(c, DIRECTEUR);
         try (PreparedStatement maj =
             c.prepareStatement(
                 "UPDATE remboursement SET statut = 'valide', valide_par = ?, date_validation = now()"
                     + " WHERE id = ?")) {
-          maj.setLong(1, auteur);
+          maj.setLong(1, directeur);
           maj.setLong(2, id);
           maj.executeUpdate();
         }
+        long fiscal = agir(c, FISCAL);
         try (PreparedStatement maj =
             c.prepareStatement(
                 "UPDATE remboursement SET statut = 'execute', reference_ordre = 'OR-TEST-1',"
                     + " execute_par = ?, execute_le = now() WHERE id = ?")) {
-          maj.setLong(1, auteur);
+          maj.setLong(1, fiscal);
           maj.setLong(2, id);
           maj.executeUpdate();
         }
       }
+    }
+  }
+
+  /** Agit sous la session de cette persona (`emine.user_id`) ; renvoie son identifiant. */
+  private static long agir(Connection c, String keycloakId) throws Exception {
+    try (PreparedStatement ps =
+        c.prepareStatement(
+            "SELECT set_config('emine.user_id', id::text, false), id FROM utilisateur"
+                + " WHERE keycloak_id = ?::uuid")) {
+      ps.setString(1, keycloakId);
+      ResultSet rs = ps.executeQuery();
+      rs.next();
+      return rs.getLong(2);
     }
   }
 

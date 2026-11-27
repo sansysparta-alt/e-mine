@@ -33,10 +33,15 @@ export async function compteursNavigation(moi: MoiDto): Promise<CompteursNavigat
   if (moi.interne && droits.has("ENCAISSER")) {
     lectures.push(
       listerAVerifier({ taille: 10 }, options).then((r) => ["aVerifier", r.data.total]),
-      // Remboursements à valider, puis ordres du Trésor à enregistrer (US-04.10).
+    );
+  }
+  // Remboursements (US-04.18) : propositions à valider (Directeur), ordres du Trésor à enregistrer
+  // (Responsable fiscal) ; règle « À traiter » de l'API.
+  if (moi.interne && (droits.has("ENCAISSER") || droits.has("VALIDER_REMBOURSEMENT"))) {
+    lectures.push(
       listerRemboursements({ taille: 10 }, options).then((r) => [
         "remboursements",
-        r.data.compteurs.demande + r.data.compteurs.valide,
+        r.data.compteurs.aTraiter,
       ]),
     );
   }
