@@ -177,10 +177,11 @@
     },
     "aValider": {
       "titre": "{nombre, plural, one {# change to approve} other {# changes to approve}}",
-      "texte": "Nothing changes in the catalogue, the workflows or the deadline rule without your approval.",
+      "texte": "Nothing changes in the catalogue, the workflows, the deadline rule or the refund rule without your approval.",
       "catalogue": "{n, plural, one {# catalogue record} other {# catalogue records}}",
       "workflows": "{n, plural, one {# workflow} other {# workflows}}",
-      "delais": "The deadline rule"
+      "delais": "The deadline rule",
+      "remboursement": "The fee refund rule"
     },
     "fiscal": {
       "aFaire": "What you have to do",
@@ -1436,7 +1437,7 @@
       "vide": "Not provided",
       "aucunAvis": "No technical opinion required",
       "jours": "{n, plural, one {# day} other {# days}}",
-      "versionInitiale": "Initial catalogue version (schema provided by the Ministry).",
+      "versionInitiale": "Initial catalogue version, when the platform was installed.",
       "actif": {
         "oui": "Yes",
         "non": "No, withdrawn from the catalogue"
@@ -1529,7 +1530,7 @@
       "retirer": "Withdraw the proposal",
       "annuler": "Cancel",
       "motif": "Reason for rejection",
-      "motifAide": "The administrator will see it on the record. At least 10 characters.",
+      "motifAide": "The administrator will see it with their proposal. At least 10 characters.",
       "echec": "The decision could not be saved",
       "indisponible": "The service is temporarily unavailable. Please try again shortly.",
       "signataire": {
@@ -1544,17 +1545,21 @@
         "approuver": {
           "titre": "Validate version {numero}?",
           "texte": "The record will be published now. The validation is recorded in your name.",
-          "bouton": "Confirm validation"
+          "bouton": "Confirm validation",
+          "titreObjet": "Validate version {numero} of {objet}?"
         },
         "refuser": {
           "titre": "Reject version {numero}?",
           "texte": "The record in force does not change.",
-          "bouton": "Confirm rejection"
+          "bouton": "Confirm rejection",
+          "titreObjet": "Reject version {numero} of {objet}?",
+          "texteRegle": "The rule in force does not change."
         },
         "retirer": {
           "titre": "Withdraw version {numero}?",
           "texte": "The proposal will not be submitted to the Minister. You can propose another one.",
-          "bouton": "Withdraw"
+          "bouton": "Withdraw",
+          "titreObjet": "Withdraw version {numero} of {objet}?"
         }
       }
     },
@@ -1649,7 +1654,7 @@
     "historique": "Version history",
     "actuelle": "in force",
     "par": "Changed on {date} by {nom}",
-    "initiale": "Initial version (schema provided by the Ministry).",
+    "initiale": "Initial version, when the platform was installed.",
     "voirEtapes": "{n, plural, one {Show the step} other {Show the # steps}}",
     "formulaire": {
       "titre": "Propose a change",
@@ -1709,7 +1714,8 @@
     "enVigueurCourt": "Version {n} in force",
     "decision": {
       "aApprouverTitre": "{n, plural, one {# workflow proposal to approve} other {# workflow proposals to approve}}"
-    }
+    },
+    "refusInchange": "The workflow in force does not change."
   },
   "parametres": {
     "titre": "Rules and notifications",
@@ -1718,8 +1724,8 @@
       "lecture": "Rules for computing deadlines and refunding fees, channels of each notification. You approve changes to the rules proposed by the administrator."
     },
     "provisoire": {
-      "titre": "Choices to be validated by the Ministry",
-      "texte": "The specifications do not set these rules: current values are provisional choices (analysis, § 3, points 17 to 22)."
+      "titre": "Provisional values",
+      "texte": "The specifications do not set these rules: current values are provisional choices of the project team, to be confirmed by the Ministry. They are changed here, proposed by the administrator and approved by the Minister."
     },
     "delais": {
       "titre": "Time limit rule",
@@ -1747,7 +1753,7 @@
       },
       "echec": "The proposal could not be sent",
       "indisponible": "The service is temporarily unavailable. Please try again shortly.",
-      "enVigueur": "Rule in force (version {n})",
+      "enVigueur": "Deadline rule · version {n} in force",
       "proposer": "Propose a change",
       "proposerTitre": "Propose a deadline rule",
       "proposerDescription": "Starting from the latest approved rule (v{n}). The Minister will approve it before it applies.",
@@ -1766,7 +1772,8 @@
         "aucunePause": "Never",
         "seuil": "“Close to the deadline”",
         "seuilValeur": "at most {pct}% of the deadline remains, and at least {min, plural, =0 {0 days} one {# day} other {# days}}"
-      }
+      },
+      "historique": "History of the deadline rule"
     },
     "canaux": {
       "titre": "Notification channels",
@@ -1794,19 +1801,27 @@
     },
     "remboursement": {
       "titre": "Fee refunds",
-      "enVigueur": "Refund rule in force (version {n})",
+      "enVigueur": "Fee refund rule · version {n} in force",
       "historique": "History of the refund rule",
       "oui": "Filing fees of a rejected request are refunded.",
       "non": "Filing fees of a rejected request are not refunded.",
       "toujours": "A double payment or an error (excess amount, rejected payment) is always refunded, after approval by the tax officer.",
       "proposer": "Propose a change",
-      "nouvelle": "Proposed rule:",
       "motif": "Reason for the change",
       "motifAide": "Why change the rule (Ministry decision, order…).",
       "envoyer": "Propose to the Minister",
       "enCours": "Sending…",
       "annuler": "Cancel",
-      "erreur": "The proposal could not be sent"
+      "erreur": "The proposal could not be sent",
+      "critere": "Filing fees of a rejected request",
+      "valeurOui": "refunded",
+      "valeurNon": "not refunded"
+    },
+    "regles": {
+      "delais": "Deadline rule",
+      "remboursement": "Fee refund rule",
+      "objetDelais": "the deadline rule",
+      "objetRemboursement": "the fee refund rule"
     }
   },
   "profil": {
@@ -2279,7 +2294,7 @@
       "valideeSansNom": "approved on {date}",
       "refuseeSansNom": "refused on {date}",
       "retireeSansNom": "withdrawn on {date}",
-      "initiale": "Initial version (schema supplied by the Ministry)"
+      "initiale": "Initial version, when the platform was installed"
     },
     "depuis": "applies from {date}",
     "dateEffet": "Will apply to requests submitted from {date}. Requests in progress keep their version.",
@@ -2287,7 +2302,8 @@
       "titre": "Proposal {n} to approve",
       "aideMinistre": "Review the proposal, then approve or refuse it. Nothing changes before your decision.",
       "aideAdmin": "The Minister must approve it. You can withdraw it until the Minister decides.",
-      "motif": "Reason for the change"
+      "motif": "Reason for the change",
+      "titreObjet": "{objet} · proposal {n} to approve"
     },
     "historique": "Version history",
     "voirContenu": "Show the content of version {n}",
@@ -2312,6 +2328,20 @@
     "etiquettes": {
       "motif": "Reason:",
       "motifRefus": "Reason for refusal:"
+    },
+    "resultatRegle": {
+      "approuver": "{regle}: the approved version will apply from its effective date to requests submitted afterwards.",
+      "refuser": "{regle}: proposal refused. The rule in force does not change.",
+      "retirer": "{regle}: proposal withdrawn. The rule in force does not change.",
+      "proposee": "{regle}: proposal {n} sent to the Minister. It will apply after approval, from the chosen effective date."
+    },
+    "changements": {
+      "titre": "Proposed changes",
+      "titreFormulaire": "Your changes",
+      "deA": "from “{avant}” to “{apres}”",
+      "aucun": "No change from the last approved rule.",
+      "aucunPropose": "No change from the rule in force.",
+      "libelle": "{libelle}:"
     }
   },
   "statutsPaiementAffiches": {
