@@ -105,6 +105,9 @@ emine:
     banque: ${VIREMENT_BANQUE:Banque de démonstration}
     iban: ${VIREMENT_IBAN:GN00 0000 0000 0000 0000 0000 000}
     bic: ${VIREMENT_BIC:DEMOGNGNXXX}
+  # Reçus (US-04.14) : le QR du reçu mène à sa page publique de vérification sur le site.
+  recus:
+    url-publique: ${PUBLIC_WEB_URL:http://localhost:3000}
   # Relevés bancaires (US-04.8) : relevé d'exemple de démonstration, À DÉSACTIVER en recette et
   # production (RELEVE_EXEMPLE_ACTIF=false).
   releves:

@@ -85,15 +85,24 @@ export function CarteProposition({
   decideur,
   children,
   decision,
+  objet,
 }: {
   v: VersionGouvernee;
   decideur: boolean;
   children: ReactNode;
   decision?: ReactNode;
+  /** Ce qui est proposé, quand la page en montre plusieurs (« Règle des délais »). */
+  objet?: string;
 }) {
   const t = useTranslations("gouvernance");
   return (
-    <Carte titre={t("proposition.titre", { n: v.version })}>
+    <Carte
+      titre={
+        objet
+          ? t("proposition.titreObjet", { n: v.version, objet })
+          : t("proposition.titre", { n: v.version })
+      }
+    >
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
           <BadgeVersion etat={v.etat} decideur={decideur} />
@@ -126,6 +135,48 @@ export function LigneMotif({ texte, refus = false }: { texte: string; refus?: bo
     <p className="whitespace-pre-line">
       <span className="font-semibold">{t(refus ? "motifRefus" : "motif")}</span> {texte}
     </p>
+  );
+}
+
+/** Un critère modifié : sa valeur actuelle et la valeur proposée, en clair. */
+export type LigneChangement = { libelle: string; avant: string; apres: string };
+
+/** Critères dont la valeur change entre deux versions (les autres ne sont pas listés). */
+export function lignesChangees(lignes: LigneChangement[]): LigneChangement[] {
+  return lignes.filter((l) => l.avant !== l.apres);
+}
+
+/**
+ * Changements d'une proposition (US-02.10), chacun « de … à … » : dans le formulaire de
+ * l'administrateur (au fil de la saisie) et sur la proposition que lit le Ministre. Seuls les
+ * critères modifiés sont listés ; sans changement, une phrase le dit.
+ */
+export function ChangementsProposes({
+  lignes,
+  formulaire = false,
+}: {
+  lignes: LigneChangement[];
+  /** Formulaire de proposition : « Vos changements », comparés à la dernière règle validée. */
+  formulaire?: boolean;
+}) {
+  const t = useTranslations("gouvernance.changements");
+  const changees = lignesChangees(lignes);
+  return (
+    <section aria-live={formulaire ? "polite" : undefined} className="rounded-lg bg-ice p-3">
+      <h3 className="font-semibold text-navy">{t(formulaire ? "titreFormulaire" : "titre")}</h3>
+      {changees.length === 0 ? (
+        <p className="text-texte-doux">{t(formulaire ? "aucun" : "aucunPropose")}</p>
+      ) : (
+        <ul className="mt-1 flex flex-col gap-1">
+          {changees.map((l) => (
+            <li key={l.libelle}>
+              <span className="font-semibold">{t("libelle", { libelle: l.libelle })}</span>{" "}
+              {t("deA", { avant: l.avant, apres: l.apres })}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }
 
@@ -167,7 +218,9 @@ export function HistoriqueVersions<V extends VersionGouvernee>({
                 </>
               ) : null}
             </p>
-            <LigneMotif texte={v.motif} />
+            {/* Version installée avec la plateforme (sans auteur) : la trace le dit, le motif
+                technique de la migration n'est pas montré (US-02.10). */}
+            {v.proposeePar ? <LigneMotif texte={v.motif} /> : null}
             {v.motifRefus ? <LigneMotif texte={v.motifRefus} refus /> : null}
             <details>
               <summary className="inline-flex min-h-11 cursor-pointer items-center text-royal">

@@ -28,6 +28,7 @@ import {
 } from "@/composants/paiement/statut";
 import { libelleDocument } from "@/composants/referentiels";
 import { appelPage, chargerMoi, chargerReferentiels, optionsApi } from "@/serveur/donnees";
+import { formaterDatePaiement } from "@/composants/paiement/date-paiement";
 
 const REFERENCE = /^PAY-\d{4}-\d{6}$/;
 
@@ -198,7 +199,7 @@ export default async function DetailPaiement({ params }: Props) {
             {paiement.datePaiement ? (
               <>
                 <dt className="font-semibold">{t("payeLe")}</dt>
-                <dd>{formaterDateHeure(paiement.datePaiement, langue)}</dd>
+                <dd>{formaterDatePaiement(paiement, langue)}</dd>
               </>
             ) : null}
             {paiement.recuNumero ? (

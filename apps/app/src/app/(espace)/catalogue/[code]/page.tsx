@@ -207,7 +207,8 @@ export default async function FicheDocument({ params, searchParams }: Props) {
                   {h.proposeePar && h.statut !== "a_valider" ? " · " : null}
                   {h.statut !== "a_valider" ? <LigneDecision version={h} /> : null}
                 </p>
-                <LigneMotif texte={h.motif} />
+                {/* Version initiale (sans auteur) : motif technique de la migration non montré. */}
+                {h.proposeePar ? <LigneMotif texte={h.motif} /> : null}
                 {h.motifRefus ? <LigneMotif texte={h.motifRefus} refus /> : null}
                 {h.changements.length ? (
                   <details className="group">

@@ -115,11 +115,17 @@ export type VueTableauDeBordProps = {
 };
 
 /** Propositions à valider par le Ministre, par objet (nombres de l'API). */
-export type AValider = { catalogue: number; workflows: number; delais: number };
+export type AValider = {
+  catalogue: number;
+  workflows: number;
+  delais: number;
+  /** Règle de remboursement des frais (V1-4), même circuit que la règle des délais. */
+  remboursement: number;
+};
 
-/** Total des propositions à valider : les trois listes ensemble. */
+/** Total des propositions à valider : les quatre objets ensemble. */
 export function totalAValider(a: AValider): number {
-  return a.catalogue + a.workflows + a.delais;
+  return a.catalogue + a.workflows + a.delais + a.remboursement;
 }
 
 /** Adresse de la liste des demandes filtrée (cartes cliquables). */
@@ -227,6 +233,7 @@ export function VueTableauDeBord({
                 ["catalogue", aValider.catalogue, "/catalogue?filtre=A_VALIDER"],
                 ["workflows", aValider.workflows, "/workflows"],
                 ["delais", aValider.delais, "/parametres"],
+                ["remboursement", aValider.remboursement, "/parametres#titre-remboursement"],
               ] as const
             )
               .filter(([, n]) => n > 0)

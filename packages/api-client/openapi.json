@@ -1992,6 +1992,33 @@
         }
       }
     },
+    "/api/v1/verification/recus/{code}" : {
+      "get" : {
+        "tags" : [ "Vérification" ],
+        "summary" : "Reçu authentique, par le code de son QR",
+        "operationId" : "verifierRecu",
+        "parameters" : [ {
+          "name" : "code",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/VerificationRecuDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/types-documents" : {
       "get" : {
         "tags" : [ "Catalogue" ],
@@ -4623,6 +4650,40 @@
           }
         },
         "required" : [ "codeType", "delivreLe", "document", "empreinteSha256", "numero", "signataire", "statut" ]
+      },
+      "VerificationRecuDto" : {
+        "type" : "object",
+        "properties" : {
+          "numero" : {
+            "type" : "string"
+          },
+          "objet" : {
+            "type" : "string",
+            "enum" : [ "FRAIS_DOSSIER", "DROITS", "ATTESTATION", "FORMATION" ]
+          },
+          "moyen" : {
+            "type" : "string",
+            "enum" : [ "TRESORPAY", "VIREMENT" ]
+          },
+          "montantGnf" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "payeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "heureConnue" : {
+            "type" : "boolean"
+          },
+          "demandeNumero" : {
+            "type" : "string"
+          },
+          "rembourse" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "demandeNumero", "heureConnue", "montantGnf", "moyen", "numero", "objet", "payeLe", "rembourse" ]
       },
       "AvisRequis" : {
         "type" : "object",

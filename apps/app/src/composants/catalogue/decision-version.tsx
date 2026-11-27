@@ -27,6 +27,13 @@ export type DecisionVersionProps = {
   adresseApres?: string;
   /** Texte de la confirmation de validation (défaut : publication de la fiche). */
   texteApprobation?: string;
+  /**
+   * Ce qui est décidé, nommé dans le titre de la confirmation (« la règle des délais ») : sans lui,
+   * le titre dit seulement « la version N » (fiche du catalogue).
+   */
+  objet?: string;
+  /** Effet d’un refus (défaut : « La fiche en vigueur ne change pas. »). */
+  texteRefus?: string;
 };
 
 type Choix = "approuver" | "refuser" | "retirer";
@@ -46,6 +53,8 @@ export function DecisionVersion({
   decider,
   adresseApres,
   texteApprobation,
+  objet,
+  texteRefus,
 }: DecisionVersionProps) {
   const t = useTranslations("catalogue.decision");
   const tMotif = useTranslations("instruction.motif");
@@ -75,7 +84,8 @@ export function DecisionVersion({
     demarrer(async () => {
       const r = await decider(code, numero, choix, choix === "refuser" ? motif : null);
       if (r.ok) {
-        router.push(`${adresseApres ?? `/catalogue/${code}`}?resultat=${choix}`);
+        const adresse = adresseApres ?? `/catalogue/${code}`;
+        router.push(`${adresse}${adresse.includes("?") ? "&" : "?"}resultat=${choix}`);
         router.refresh();
         return;
       }
@@ -124,7 +134,13 @@ export function DecisionVersion({
 
       <Dialogue
         ouvert={choix !== null}
-        titre={choix ? t(`confirmation.${choix}.titre`, { numero }) : ""}
+        titre={
+          choix
+            ? objet
+              ? t(`confirmation.${choix}.titreObjet`, { numero, objet })
+              : t(`confirmation.${choix}.titre`, { numero })
+            : ""
+        }
         surFermeture={enCours ? undefined : () => setChoix(null)}
         actions={
           <>
@@ -146,9 +162,11 @@ export function DecisionVersion({
           <p>
             {choix === "approuver" && texteApprobation
               ? texteApprobation
-              : choix
-                ? t(`confirmation.${choix}.texte`)
-                : null}
+              : choix === "refuser" && texteRefus
+                ? texteRefus
+                : choix
+                  ? t(`confirmation.${choix}.texte`)
+                  : null}
           </p>
           {choix === "approuver" && changeSignataire ? (
             <Alerte nature="avertissement" titre={t("signataire.titre")}>

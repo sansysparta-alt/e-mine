@@ -8,6 +8,7 @@ import {
   lireIndicateurs,
   listerDemandes,
   lireParametresDelai,
+  lireRegleRemboursement,
   listerRemboursements,
   listerFichesDocuments,
   listerWorkflows,
@@ -177,7 +178,7 @@ type Props = { searchParams: Promise<{ periode?: string }> };
 async function propositionsAValider(
   options: Awaited<ReturnType<typeof optionsApi>>,
 ): Promise<AValider> {
-  const [catalogue, workflows, delais] = await Promise.allSettled([
+  const [catalogue, workflows, delais, remboursement] = await Promise.allSettled([
     listerFichesDocuments({ filtre: "A_VALIDER", taille: 10 }, options).then(
       (r) => r.data.compteurs["A_VALIDER"] ?? 0,
     ),
@@ -185,9 +186,17 @@ async function propositionsAValider(
     lireParametresDelai(options).then(
       (r) => r.data.versions.filter((v) => v.etat === "a_valider").length,
     ),
+    lireRegleRemboursement(options).then(
+      (r) => r.data.versions.filter((v) => v.etat === "a_valider").length,
+    ),
   ]);
   const n = (r: PromiseSettledResult<number>) => (r.status === "fulfilled" ? r.value : 0);
-  return { catalogue: n(catalogue), workflows: n(workflows), delais: n(delais) };
+  return {
+    catalogue: n(catalogue),
+    workflows: n(workflows),
+    delais: n(delais),
+    remboursement: n(remboursement),
+  };
 }
 
 export default async function TableauDeBord({ searchParams }: Props) {

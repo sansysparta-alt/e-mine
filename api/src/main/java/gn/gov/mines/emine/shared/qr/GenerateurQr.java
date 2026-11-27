@@ -1,4 +1,4 @@
-package gn.gov.mines.emine.delivrance.infrastructure;
+package gn.gov.mines.emine.shared.qr;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
@@ -14,8 +14,9 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 
 /**
- * QR du document délivré (US-06.1/06.3, ZXing) : image PNG noir et blanc, sans transparence
- * (compatible PDF/A), correction d'erreur moyenne pour rester lisible après impression.
+ * QR des documents délivrés et des reçus (US-06.1/06.3, US-04.14, ZXing) : image PNG noir et blanc,
+ * sans transparence (compatible PDF/A), correction d'erreur moyenne pour rester lisible après
+ * impression.
  */
 public final class GenerateurQr {
 

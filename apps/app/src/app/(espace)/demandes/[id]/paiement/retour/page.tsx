@@ -5,7 +5,7 @@ import {
   lirePaiementAttendu,
   type PaiementDto,
 } from "@emine/api-client";
-import { Alerte, Bouton, Carte, EnTetePage, formaterDateHeure, formaterGnf } from "@emine/ui";
+import { Alerte, Bouton, Carte, EnTetePage, formaterGnf } from "@emine/ui";
 import { RotateCcw } from "@emine/ui/icones";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -21,6 +21,7 @@ import {
 } from "@/composants/paiement/statut";
 import { FilArianeApp } from "@/composants/fil-ariane-app";
 import { appelPage, chargerMoi, optionsApi } from "@/serveur/donnees";
+import { formaterDatePaiement } from "@/composants/paiement/date-paiement";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("paiement.retour");
@@ -110,7 +111,7 @@ export default async function RetourPaiement({ params, searchParams }: Props) {
           {paiement.datePaiement ? (
             <>
               <dt className="font-semibold">{t("payeLe")}</dt>
-              <dd>{formaterDateHeure(paiement.datePaiement)}</dd>
+              <dd>{formaterDatePaiement(paiement)}</dd>
             </>
           ) : null}
           {paiement.recuNumero ? (

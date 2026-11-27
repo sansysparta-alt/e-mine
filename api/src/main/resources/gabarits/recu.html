@@ -95,6 +95,32 @@
       .mention {
         font-size: 9.5pt;
       }
+      table.verification {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 18px;
+        border: 1px solid #c3d3ea;
+      }
+      table.verification td {
+        padding: 10px 12px;
+        vertical-align: middle;
+      }
+      table.verification td.qr {
+        width: 33mm;
+      }
+      table.verification img {
+        width: 30mm;
+        height: 30mm;
+      }
+      .verification .titre-verif {
+        font-weight: bold;
+        margin-bottom: 4px;
+      }
+      .verification .adresse {
+        font-size: 8.5pt;
+        color: #3b4a66;
+        word-wrap: break-word;
+      }
     </style>
   </head>
   <body>
@@ -160,5 +186,21 @@
       Le Trésor public a confirmé l’encaissement de ce montant au titre de la demande ci-dessus.
       Conservez ce reçu : il peut vous être demandé pendant l’instruction de votre dossier.
     </p>
+
+    <table class="verification">
+      <tr>
+        <td class="qr"><img th:src="${qr}" alt="QR de vérification du reçu" /></td>
+        <td>
+          <div class="titre-verif">Vérifier ce reçu</div>
+          <div>
+            Scannez ce code ou ouvrez l’adresse ci-dessous : la page publique confirme que le reçu
+            est authentique, sans afficher de donnée personnelle.
+          </div>
+          <div class="adresse" th:text="${recu.urlVerification}">
+            http://localhost:3000/verifier/recu/…
+          </div>
+        </td>
+      </tr>
+    </table>
   </body>
 </html>
