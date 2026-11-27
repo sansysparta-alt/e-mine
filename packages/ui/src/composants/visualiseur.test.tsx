@@ -4,8 +4,15 @@ import { echellePage, LARGEUR_PAGE_MAX, pageCourante } from "./lecteur-pdf";
 import { type DocumentAffiche, VisualiseurDocument, zoomVoisin } from "./visualiseur";
 
 // pdf.js simulé : un document de 3 pages A4 (595 × 842 points).
+const couchesTexte = vi.hoisted(() => [] as { container: HTMLElement }[]);
+
 vi.mock("pdfjs-dist", () => ({
   GlobalWorkerOptions: {},
+  TextLayer: vi.fn(function (this: { render: () => Promise<void> }, options) {
+    couchesTexte.push(options);
+    this.render = () => Promise.resolve();
+    Object.assign(this, { cancel: vi.fn() });
+  }),
   getDocument: vi.fn(() => ({
     destroy: vi.fn(() => Promise.resolve()),
     promise: Promise.resolve({
@@ -18,6 +25,7 @@ vi.mock("pdfjs-dist", () => ({
             height: 842 * scale,
           }),
           render: vi.fn(() => ({ promise: Promise.resolve(), cancel: vi.fn() })),
+          streamTextContent: vi.fn(() => ({})),
         }),
       ),
     }),
@@ -77,6 +85,12 @@ describe("visualiseur de documents", () => {
       "Page 2 sur 3",
       "Page 3 sur 3",
     ]);
+    // Texte sélectionnable : une couche texte pdf.js posée sur chaque page rendue.
+    await vi.waitFor(() => expect(couchesTexte.length).toBeGreaterThanOrEqual(2));
+    for (const c of couchesTexte) {
+      expect(c.container).toHaveClass("textLayer");
+      expect(c.container.closest("[data-page]")).not.toBeNull();
+    }
     // Une seule barre d'outils : un seul « Télécharger ».
     expect(screen.getAllByRole("link", { name: "Télécharger" })).toHaveLength(1);
     expect(screen.getByRole("link", { name: "Télécharger" })).toHaveAttribute(

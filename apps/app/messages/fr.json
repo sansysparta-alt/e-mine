@@ -1428,7 +1428,6 @@
       "retour": "Catalogue et tarifs",
       "proposer": "Proposer une modification",
       "motif": "Objet de la modification",
-      "motifRefus": "Motif du refus",
       "vide": "Non renseigné",
       "aucunAvis": "Aucun avis technique requis",
       "jours": "{n, plural, one {# jour} other {# jours}}",
@@ -2281,7 +2280,6 @@
       "aideAdmin": "Le Ministre doit la valider. Vous pouvez la retirer tant qu’il n’a pas décidé.",
       "motif": "Motif de la modification"
     },
-    "motifRefus": "Motif du refus",
     "historique": "Historique des versions",
     "voirContenu": "Voir le contenu de la version {n}",
     "champDate": {
@@ -2301,7 +2299,11 @@
       "retirer": "Proposition retirée : la version en vigueur ne change pas.",
       "proposee": "Proposition {n} envoyée au Ministre. Elle s’appliquera après sa validation, à la date d’effet choisie."
     },
-    "circuit": "Toute modification est proposée par l’administrateur, validée par le Ministre puis appliquée à sa date d’effet. Tout est tracé au journal d’audit."
+    "circuit": "Toute modification est proposée par l’administrateur, validée par le Ministre puis appliquée à sa date d’effet. Tout est tracé au journal d’audit.",
+    "etiquettes": {
+      "motif": "Motif :",
+      "motifRefus": "Motif du refus :"
+    }
   },
   "statutsPaiementAffiches": {
     "enCours": "En cours",
