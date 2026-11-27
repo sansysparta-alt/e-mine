@@ -18,7 +18,9 @@ public enum Permission {
   CADASTRE_ECRITURE,
   PUBLIER,
   /** Approuver les versions du catalogue et des tarifs (Ministre, V18). */
-  VALIDER_CATALOGUE;
+  VALIDER_CATALOGUE,
+  /** Valider ou refuser un remboursement proposé (Directeur, V34, décision V1-13). */
+  VALIDER_REMBOURSEMENT;
 
   /** Préfixe des autorités Spring Security issues de la matrice. */
   public static final String PREFIXE = "PERM_";

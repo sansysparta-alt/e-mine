@@ -39,37 +39,58 @@ function remboursement(partiel: Partial<RemboursementDto>): RemboursementDto {
     demandeId: 42,
     numeroDemande: "DEM-2026-000042",
     beneficiaire: "Fodé Bangoura",
+    aTraiterParMoi: true,
     ...partiel,
   };
 }
 
-describe("remboursements (US-04.10)", () => {
+describe("remboursements (US-04.10, US-04.18)", () => {
   beforeEach(() => refresh.mockReset());
 
-  it("colore en orange ce que le Responsable fiscal doit faire, pas l'usager", () => {
-    expect(presentationStatutRemboursement("demande", true)).toEqual({
+  it("dit à chaque profil ce qui le concerne ; l'orange suit ce que l'API lui attribue", () => {
+    // Le Directeur valide les propositions ; le Responsable fiscal attend sa décision.
+    expect(presentationStatutRemboursement("demande", "directeur", true)).toEqual({
       cle: "aValider",
       ton: "avertissement",
     });
-    expect(presentationStatutRemboursement("valide", true).cle).toBe("ordreAEnregistrer");
-    expect(presentationStatutRemboursement("valide", false)).toEqual({
+    expect(presentationStatutRemboursement("demande", "fiscal")).toEqual({
+      cle: "attenteDirecteur",
+      ton: "neutre",
+    });
+    // Puis le Responsable fiscal enregistre l'ordre du Trésor ; le Directeur n'a plus rien à faire.
+    expect(presentationStatutRemboursement("valide", "fiscal", true)).toEqual({
+      cle: "ordreAEnregistrer",
+      ton: "avertissement",
+    });
+    expect(presentationStatutRemboursement("valide", "directeur")).toEqual({
+      cle: "ordreAttendu",
+      ton: "neutre",
+    });
+    expect(presentationStatutRemboursement("valide", "usager")).toEqual({
       cle: "enCours",
       ton: "info",
     });
-    expect(presentationStatutRemboursement("execute", false).ton).toBe("succes");
+    expect(presentationStatutRemboursement("execute", "usager").ton).toBe("succes");
     for (const s of ["demande", "valide", "execute", "refuse"]) {
-      for (const fiscal of [true, false]) {
-        const { cle } = presentationStatutRemboursement(s, fiscal);
-        expect(fr.remboursements.statuts).toHaveProperty(cle);
-        expect(en.remboursements.statuts).toHaveProperty(cle);
+      for (const profil of ["directeur", "fiscal", "usager"] as const) {
+        for (const aMoi of [true, false]) {
+          const { cle } = presentationStatutRemboursement(s, profil, aMoi);
+          expect(fr.remboursements.statuts).toHaveProperty(cle);
+          expect(en.remboursements.statuts).toHaveProperty(cle);
+        }
       }
     }
   });
 
-  it("propose les actions du circuit : valider ou refuser, puis enregistrer l'ordre", () => {
-    expect(actionsRemboursement("demande")).toEqual(["valider", "refuser"]);
-    expect(actionsRemboursement("valide")).toEqual(["executer"]);
-    expect(actionsRemboursement("execute")).toEqual([]);
+  it("propose seulement les actions que l'API attribue au profil connecté", () => {
+    expect(actionsRemboursement({ statut: "demande", aTraiterParMoi: true })).toEqual([
+      "valider",
+      "refuser",
+    ]);
+    expect(actionsRemboursement({ statut: "valide", aTraiterParMoi: true })).toEqual(["executer"]);
+    // Séparation des tâches : l'auteur de la proposition ne la décide pas.
+    expect(actionsRemboursement({ statut: "demande", aTraiterParMoi: false })).toEqual([]);
+    expect(actionsRemboursement({ statut: "execute", aTraiterParMoi: true })).toEqual([]);
   });
 
   it("exige la référence de l'ordre du Trésor avant d'informer le demandeur", async () => {
@@ -121,5 +142,23 @@ describe("remboursements (US-04.10)", () => {
       />,
     );
     expect(container).toBeEmptyDOMElement();
+  });
+
+  it("le tableau de bord du Directeur annonce les remboursements à valider (US-04.18)", async () => {
+    const { VueTableauDeBord } = await import("../vue-tableau-de-bord");
+    afficher(
+      <VueTableauDeBord
+        prenom="Awa"
+        nom="Test"
+        profilLibelle="Directeur"
+        profil="decideur"
+        remboursementsAValider={2}
+      />,
+    );
+    expect(screen.getByText("2 remboursements à valider")).toBeVisible();
+    expect(screen.getByRole("link", { name: "Voir les remboursements à valider" })).toHaveAttribute(
+      "href",
+      "/remboursements?statut=demande",
+    );
   });
 });

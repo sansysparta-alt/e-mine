@@ -234,7 +234,7 @@ export default async function DetailPaiement({ params }: Props) {
         <Carte titre={t("remboursements.titre")}>
           <ul className="flex flex-col divide-y divide-bordure">
             {paiement.remboursements.map((r) => {
-              const p = presentationStatutRemboursement(r.statut, false);
+              const p = presentationStatutRemboursement(r.statut, "usager");
               return (
                 <li key={r.numero} className="flex flex-col gap-1 py-3 first:pt-0 last:pb-0">
                   <span className="flex flex-wrap items-center gap-3">

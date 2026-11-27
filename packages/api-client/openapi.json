@@ -303,7 +303,7 @@
     "/api/v1/remboursements/{id}/validation" : {
       "post" : {
         "tags" : [ "Remboursements" ],
-        "summary" : "Le Responsable fiscal valide : l'ordre peut être demandé au Trésor",
+        "summary" : "Le Directeur valide la proposition : le Responsable fiscal peut demander l'ordre au Trésor (PAY-018 pour son auteur)",
         "operationId" : "validerRemboursement",
         "parameters" : [ {
           "name" : "id",
@@ -324,7 +324,7 @@
     "/api/v1/remboursements/{id}/refus" : {
       "post" : {
         "tags" : [ "Remboursements" ],
-        "summary" : "Refus motivé d'un remboursement",
+        "summary" : "Refus motivé d'un remboursement par le Directeur (PAY-018 pour son auteur)",
         "operationId" : "refuserRemboursement",
         "parameters" : [ {
           "name" : "id",
@@ -4793,6 +4793,10 @@
             "type" : "integer",
             "format" : "int64"
           },
+          "aTraiter" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
           "demande" : {
             "type" : "integer",
             "format" : "int64"
@@ -4810,7 +4814,7 @@
             "format" : "int64"
           }
         },
-        "required" : [ "demande", "execute", "refuse", "tous", "valide" ]
+        "required" : [ "aTraiter", "demande", "execute", "refuse", "tous", "valide" ]
       },
       "PageRemboursementsDto" : {
         "type" : "object",
@@ -4908,9 +4912,12 @@
           },
           "beneficiaire" : {
             "type" : [ "string", "null" ]
+          },
+          "aTraiterParMoi" : {
+            "type" : "boolean"
           }
         },
-        "required" : [ "beneficiaire", "decideLe", "decidePar", "demandeId", "demandeLe", "demandePar", "executeLe", "explication", "id", "montantGnf", "motif", "motifRefus", "moyenPaiement", "numero", "numeroDemande", "objetPaiement", "referenceOrdre", "referencePaiement", "statut" ]
+        "required" : [ "aTraiterParMoi", "beneficiaire", "decideLe", "decidePar", "demandeId", "demandeLe", "demandePar", "executeLe", "explication", "id", "montantGnf", "motif", "motifRefus", "moyenPaiement", "numero", "numeroDemande", "objetPaiement", "referenceOrdre", "referencePaiement", "statut" ]
       },
       "PageRelevesDto" : {
         "type" : "object",

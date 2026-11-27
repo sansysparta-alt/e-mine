@@ -45,7 +45,7 @@ class RemboursementController {
   }
 
   @GetMapping("/api/v1/remboursements")
-  @PreAuthorize("hasAuthority('PERM_ENCAISSER')")
+  @PreAuthorize("hasAnyAuthority('PERM_ENCAISSER', 'PERM_VALIDER_REMBOURSEMENT')")
   @Operation(
       operationId = "listerRemboursements",
       summary =
@@ -74,13 +74,16 @@ class RemboursementController {
     var p = r.page();
     var c = r.compteurs();
     return new PageRemboursementsDto(
-        p.elements().stream().map(RemboursementDto::depuis).toList(),
+        p.elements().stream()
+            .map(e -> RemboursementDto.depuis(e, service.aTraiterParMoi(e)))
+            .toList(),
         p.page(),
         p.taille(),
         p.total(),
         p.totalPages(),
         new CompteursRemboursementsDto(
             c.values().stream().mapToLong(Long::longValue).sum(),
+            service.aTraiter(),
             c.get("demande"),
             c.get("valide"),
             c.get("execute"),
@@ -88,26 +91,31 @@ class RemboursementController {
   }
 
   @GetMapping("/api/v1/remboursements/{id}")
-  @PreAuthorize("hasAuthority('PERM_ENCAISSER')")
+  @PreAuthorize("hasAnyAuthority('PERM_ENCAISSER', 'PERM_VALIDER_REMBOURSEMENT')")
   @Operation(operationId = "lireRemboursement", summary = "Un remboursement")
   RemboursementDto lire(@PathVariable long id) {
-    return RemboursementDto.depuis(service.lire(id));
+    var r = service.lire(id);
+    return RemboursementDto.depuis(r, service.aTraiterParMoi(r));
   }
 
   @PostMapping("/api/v1/remboursements/{id}/validation")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @PreAuthorize("hasAuthority('PERM_ENCAISSER')")
+  @PreAuthorize("hasAuthority('PERM_VALIDER_REMBOURSEMENT')")
   @Operation(
       operationId = "validerRemboursement",
-      summary = "Le Responsable fiscal valide : l'ordre peut être demandé au Trésor")
+      summary =
+          "Le Directeur valide la proposition : le Responsable fiscal peut demander l'ordre au"
+              + " Trésor (PAY-018 pour son auteur)")
   void valider(@PathVariable long id) {
     service.valider(id);
   }
 
   @PostMapping("/api/v1/remboursements/{id}/refus")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @PreAuthorize("hasAuthority('PERM_ENCAISSER')")
-  @Operation(operationId = "refuserRemboursement", summary = "Refus motivé d'un remboursement")
+  @PreAuthorize("hasAuthority('PERM_VALIDER_REMBOURSEMENT')")
+  @Operation(
+      operationId = "refuserRemboursement",
+      summary = "Refus motivé d'un remboursement par le Directeur (PAY-018 pour son auteur)")
   void refuser(@PathVariable long id, @Valid @RequestBody MotifRemboursementDto corps) {
     service.refuser(id, corps.motif());
   }
@@ -187,6 +195,8 @@ class RemboursementController {
    * @param statut {@code demande}, {@code valide}, {@code execute} ou {@code refuse}
    * @param motif {@code double_paiement}, {@code excedent}, {@code rejet_demande} ou {@code autre}
    * @param referenceOrdre référence de l'ordre de remboursement du Trésor, une fois exécuté
+   * @param aTraiterParMoi action attendue du profil connecté : décider (Directeur) ou enregistrer
+   *     l'ordre du Trésor (Responsable fiscal)
    */
   record RemboursementDto(
       long id,
@@ -207,9 +217,10 @@ class RemboursementController {
       String moyenPaiement,
       @Schema(nullable = true) Long demandeId,
       @Schema(nullable = true) String numeroDemande,
-      @Schema(nullable = true) String beneficiaire) {
+      @Schema(nullable = true) String beneficiaire,
+      boolean aTraiterParMoi) {
 
-    static RemboursementDto depuis(RemboursementRepository.Remboursement r) {
+    static RemboursementDto depuis(RemboursementRepository.Remboursement r, boolean aTraiter) {
       return new RemboursementDto(
           r.id(),
           r.numero(),
@@ -229,13 +240,19 @@ class RemboursementController {
           r.moyenPaiement(),
           r.demandeId(),
           r.numeroDemande(),
-          r.beneficiaire());
+          r.beneficiaire(),
+          aTraiter);
     }
   }
 
   /** Nombre de remboursements par statut. */
+  /**
+   * Nombre par statut.
+   *
+   * @param aTraiter ce que le profil connecté doit faire (règle « À traiter », US-04.18)
+   */
   record CompteursRemboursementsDto(
-      long tous, long demande, long valide, long execute, long refuse) {}
+      long tous, long aTraiter, long demande, long valide, long execute, long refuse) {}
 
   record PageRemboursementsDto(
       List<RemboursementDto> elements,

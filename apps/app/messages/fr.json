@@ -187,8 +187,8 @@
       "aFaire": "Ce que vous avez à faire",
       "aVerifier": "À vérifier",
       "aVerifierPrecision": "Écarts et versements non reconnus",
-      "remboursementsAValider": "Remboursements à valider",
-      "remboursementsAValiderPrecision": "Doublons, excédents, paiements rejetés",
+      "remboursementsAValider": "Remboursements en attente du Directeur",
+      "remboursementsAValiderPrecision": "Vos propositions, à valider par le Directeur",
       "ordresAEnregistrer": "Ordres à enregistrer",
       "ordresAEnregistrerPrecision": "Remboursements validés, en attente du Trésor",
       "recettesMois": "Recettes du mois",
@@ -196,6 +196,11 @@
       "recettesMoisPrecision": "{nombre, plural, one {# opération} other {# opérations}}, frais remboursés déduits",
       "importer": "Importer un relevé bancaire",
       "indisponible": "Les chiffres des encaissements ne peuvent pas être lus pour le moment. Réessayez dans quelques instants."
+    },
+    "remboursementsAValider": {
+      "titre": "{nombre, plural, one {# remboursement à valider} other {# remboursements à valider}}",
+      "texte": "Proposés par le Responsable fiscal : l’ordre ne peut être demandé au Trésor qu’après votre validation.",
+      "lien": "Voir les remboursements à valider"
     }
   },
   "demande": {
@@ -2530,7 +2535,10 @@
   },
   "remboursements": {
     "titre": "Remboursements",
-    "description": "Validez chaque demande de remboursement, puis enregistrez la référence de l’ordre émis par le Trésor : l’argent est rendu hors plateforme et le demandeur est informé.",
+    "description": {
+      "directeur": "Validez ou refusez chaque remboursement proposé par le Responsable fiscal. Une fois validé, il enregistre l’ordre émis par le Trésor : l’argent est rendu hors plateforme et le demandeur est informé.",
+      "fiscal": "Les remboursements que vous proposez sont validés par le Directeur. Une fois validés, enregistrez la référence de l’ordre émis par le Trésor : l’argent est rendu hors plateforme et le demandeur est informé."
+    },
     "element": "remboursement",
     "elements": "remboursements",
     "aucun": "Aucun remboursement pour ce filtre.",
@@ -2539,15 +2547,26 @@
     "motifRefus": "Motif du refus : {motif}",
     "vide": {
       "titre": "Aucun remboursement",
-      "description": "Les remboursements proposés depuis « À vérifier » (doublon, excédent, paiement rejeté) apparaîtront ici."
+      "description": {
+        "directeur": "Les remboursements proposés par le Responsable fiscal (doublon, excédent, paiement rejeté) apparaîtront ici pour validation.",
+        "fiscal": "Les remboursements proposés depuis « À vérifier » (doublon, excédent, paiement rejeté) apparaîtront ici."
+      }
     },
     "filtres": {
       "libelle": "Statut",
       "tous": "Tous",
-      "demande": "À valider",
-      "valide": "Ordre à enregistrer",
-      "execute": "Remboursés",
-      "refuse": "Refusés"
+      "directeur": {
+        "demande": "À valider",
+        "valide": "Ordre du Trésor attendu",
+        "execute": "Remboursés",
+        "refuse": "Refusés"
+      },
+      "fiscal": {
+        "demande": "En attente du Directeur",
+        "valide": "Ordre à enregistrer",
+        "execute": "Remboursés",
+        "refuse": "Refusés"
+      }
     },
     "colonnes": {
       "numero": "Remboursement",
@@ -2568,7 +2587,10 @@
       "ordreAEnregistrer": "Ordre à enregistrer",
       "enCours": "Remboursement en cours",
       "rembourse": "Remboursé",
-      "refuse": "Refusé"
+      "refuse": "Refusé",
+      "attenteDirecteur": "En attente du Directeur",
+      "ordreAttendu": "Ordre du Trésor attendu",
+      "proposeParVous": "Proposé par vous"
     },
     "actions": {
       "annuler": "Annuler",
@@ -2582,7 +2604,7 @@
       "valider": {
         "bouton": "Valider",
         "titre": "Valider le remboursement {numero} ?",
-        "effet": "Le remboursement de {montant} à {beneficiaire} est validé : l’ordre peut être demandé au Trésor.",
+        "effet": "Le remboursement de {montant} à {beneficiaire} sera validé : le Responsable fiscal pourra demander l’ordre au Trésor.",
         "confirmer": "Valider le remboursement"
       },
       "refuser": {

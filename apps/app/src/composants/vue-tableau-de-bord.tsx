@@ -105,6 +105,11 @@ export type VueTableauDeBordProps = {
    * la règle des délais (mêmes nombres que les listes « À valider ») ; absent pour les autres.
    */
   aValider?: AValider;
+  /**
+   * Directeur (US-04.18) : remboursements proposés par le Responsable fiscal qu'il doit valider ou
+   * refuser (règle « À traiter » de l'API) ; absent pour les autres.
+   */
+  remboursementsAValider?: number;
   /** Données indisponibles (API injoignable) : état d'erreur explicite, aucun chiffre. */
   indisponible?: boolean;
 };
@@ -156,6 +161,7 @@ export function VueTableauDeBord({
   periode = "mois",
   travail,
   aValider,
+  remboursementsAValider = 0,
   indisponible = false,
 }: VueTableauDeBordProps) {
   const t = useTranslations("tableauDeBord");
@@ -242,6 +248,21 @@ export function VueTableauDeBord({
                 </li>
               ))}
           </ul>
+        </Alerte>
+      ) : null}
+
+      {remboursementsAValider > 0 ? (
+        <Alerte
+          nature="avertissement"
+          titre={t("remboursementsAValider.titre", { nombre: remboursementsAValider })}
+        >
+          <p>{t("remboursementsAValider.texte")}</p>
+          <Link
+            href="/remboursements?statut=demande"
+            className="inline-flex min-h-11 items-center font-semibold text-royal underline"
+          >
+            {t("remboursementsAValider.lien")}
+          </Link>
         </Alerte>
       ) : null}
 

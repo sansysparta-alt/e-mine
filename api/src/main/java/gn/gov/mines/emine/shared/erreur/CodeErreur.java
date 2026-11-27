@@ -89,6 +89,8 @@ public enum CodeErreur {
   PAY_016("PAY-016", HttpStatus.CONFLICT),
   /** Aucun reçu ne correspond à ce code de vérification (QR du reçu), US-04.14. */
   PAY_017("PAY-017", HttpStatus.NOT_FOUND),
+  /** Séparation des tâches : celui qui propose un remboursement ne le décide pas, US-04.18. */
+  PAY_018("PAY-018", HttpStatus.CONFLICT),
   /** Format de fichier non accepté (PDF, JPG ou PNG). */
   DOC_001("DOC-001", HttpStatus.UNSUPPORTED_MEDIA_TYPE),
   /** Fichier trop volumineux (10 Mo au plus). */

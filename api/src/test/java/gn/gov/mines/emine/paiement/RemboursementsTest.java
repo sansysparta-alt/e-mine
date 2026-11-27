@@ -1,12 +1,14 @@
 package gn.gov.mines.emine.paiement;
 
 import static gn.gov.mines.emine.support.Personas.ADMIN_TECH;
+import static gn.gov.mines.emine.support.Personas.DIRECTEUR;
 import static gn.gov.mines.emine.support.Personas.FISCAL;
 import static gn.gov.mines.emine.support.Personas.GUICHET;
 import static gn.gov.mines.emine.support.Personas.INVESTISSEUR;
 import static gn.gov.mines.emine.support.Personas.MINISTRE;
 import static gn.gov.mines.emine.support.Personas.jeton;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.matchesPattern;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -85,7 +87,7 @@ class RemboursementsTest extends TestIntegration {
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.code").value("PAY-006"));
 
-    mvc.perform(post("/api/v1/remboursements/" + id + "/validation").with(fiscal()))
+    mvc.perform(post("/api/v1/remboursements/" + id + "/validation").with(directeur()))
         .andExpect(status().isNoContent());
     executer(id, "{\"referenceOrdre\":\"\"}").andExpect(status().isBadRequest());
     executer(id, "{\"referenceOrdre\":\"OR-2026-0042\"}").andExpect(status().isNoContent());
@@ -133,20 +135,20 @@ class RemboursementsTest extends TestIntegration {
     long id = remboursementDeLaLigne(doublon);
     mvc.perform(
             post("/api/v1/remboursements/" + id + "/refus")
-                .with(fiscal())
+                .with(directeur())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"motif\":\"court\"}"))
         .andExpect(status().isBadRequest());
     mvc.perform(
             post("/api/v1/remboursements/" + id + "/refus")
-                .with(fiscal())
+                .with(directeur())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"motif\":\"Versement déjà rendu par la banque émettrice.\"}"))
         .andExpect(status().isNoContent());
     mvc.perform(get("/api/v1/remboursements/" + id).with(fiscal()))
         .andExpect(jsonPath("$.statut").value("refuse"))
         .andExpect(jsonPath("$.motifRefus").value("Versement déjà rendu par la banque émettrice."));
-    mvc.perform(post("/api/v1/remboursements/" + id + "/validation").with(fiscal()))
+    mvc.perform(post("/api/v1/remboursements/" + id + "/validation").with(directeur()))
         .andExpect(status().isConflict());
   }
 
@@ -196,10 +198,98 @@ class RemboursementsTest extends TestIntegration {
     }
   }
 
+  /**
+   * US-04.18, décision V1-13 : le Responsable fiscal propose, le Directeur valide ou refuse ;
+   * l'ordre du Trésor reste enregistré par le Responsable fiscal. Chacun voit ce qu'il doit faire.
+   */
+  @Test
+  void leDirecteurValideLesPropositionsDuResponsableFiscal() throws Exception {
+    String ref = virementDeclare(DemandesDeTest.deposee(INVESTISSEUR, "PEX"));
+    ligneImportee("26/11/2026;VIR " + ref + ";5000000;C");
+    long doublon = ligneImportee("27/11/2026;VIR " + ref + " QUATER;5000000;C");
+    decider(doublon, "{\"decision\":\"REMBOURSER\"}").andExpect(status().isNoContent());
+    long id = remboursementDeLaLigne(doublon);
+
+    // Le Responsable fiscal a proposé : il ne valide pas, ce n'est pas à lui de le faire.
+    mvc.perform(post("/api/v1/remboursements/" + id + "/validation").with(fiscal()))
+        .andExpect(status().isForbidden());
+    mvc.perform(get("/api/v1/remboursements/" + id).with(fiscal()))
+        .andExpect(jsonPath("$.aTraiterParMoi").value(false));
+    mvc.perform(get("/api/v1/remboursements/" + id).with(directeur()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.aTraiterParMoi").value(true));
+    long aTraiterAvant = compteurATraiter(directeur());
+    assertThat(aTraiterAvant).isPositive();
+
+    mvc.perform(post("/api/v1/remboursements/" + id + "/validation").with(directeur()))
+        .andExpect(status().isNoContent());
+    assertThat(compteurATraiter(directeur())).isEqualTo(aTraiterAvant - 1);
+    mvc.perform(get("/api/v1/remboursements/" + id).with(fiscal()))
+        .andExpect(jsonPath("$.statut").value("valide"))
+        .andExpect(jsonPath("$.aTraiterParMoi").value(true))
+        .andExpect(jsonPath("$.decidePar").isNotEmpty());
+    // L'ordre du Trésor : le Responsable fiscal, pas le Directeur.
+    mvc.perform(
+            post("/api/v1/remboursements/" + id + "/execution")
+                .with(directeur())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"referenceOrdre\":\"OR-2026-0077\"}"))
+        .andExpect(status().isForbidden());
+    executer(id, "{\"referenceOrdre\":\"OR-2026-0077\"}").andExpect(status().isNoContent());
+  }
+
+  /** Séparation des tâches, contrôlée par l'API (PAY-018) et par la base (V34). */
+  @Test
+  void celuiQuiProposeUnRemboursementNeLeDecidePas() throws Exception {
+    String ref = virementDeclare(DemandesDeTest.deposee(INVESTISSEUR, "PEX"));
+    long id;
+    try (Connection c = BaseDeDonneesDeTest.connexionOwner();
+        PreparedStatement ps =
+            c.prepareStatement(
+                "INSERT INTO remboursement (paiement_id, motif, montant_gnf, demande_par)"
+                    + " SELECT p.id, 'autre', 1000, u.id FROM paiement p, utilisateur u"
+                    + " WHERE p.reference = ? AND u.keycloak_id = ?::uuid RETURNING id")) {
+      ps.setString(1, ref);
+      ps.setString(2, DIRECTEUR);
+      ResultSet rs = ps.executeQuery();
+      rs.next();
+      id = rs.getLong(1);
+    }
+    mvc.perform(get("/api/v1/remboursements/" + id).with(directeur()))
+        .andExpect(jsonPath("$.aTraiterParMoi").value(false));
+    mvc.perform(post("/api/v1/remboursements/" + id + "/validation").with(directeur()))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("PAY-018"));
+
+    // La base refuse aussi, même sans passer par l'API ; et un Responsable fiscal ne décide pas.
+    try (Connection c = BaseDeDonneesDeTest.connexionOwner()) {
+      for (String qui : new String[] {DIRECTEUR, FISCAL}) {
+        try (PreparedStatement session =
+            c.prepareStatement(
+                "SELECT set_config('emine.user_id', id::text, false) FROM utilisateur"
+                    + " WHERE keycloak_id = ?::uuid")) {
+          session.setString(1, qui);
+          session.executeQuery();
+        }
+        try (PreparedStatement maj =
+            c.prepareStatement(
+                "UPDATE remboursement SET statut = 'valide', valide_par = fn_current_user_id(),"
+                    + " date_validation = now() WHERE id = ?")) {
+          maj.setLong(1, id);
+          assertThatThrownBy(maj::executeUpdate)
+              .as(qui)
+              .isInstanceOf(java.sql.SQLException.class)
+              .hasMessageContaining(DIRECTEUR.equals(qui) ? "propose" : "Directeur");
+        }
+      }
+    }
+  }
+
   @Test
   void seulLeResponsableFiscalTraiteLesRemboursements() throws Exception {
     mvc.perform(get("/api/v1/remboursements").with(jeton(GUICHET, "GUICHET")))
         .andExpect(status().isForbidden());
+    mvc.perform(get("/api/v1/remboursements").with(directeur())).andExpect(status().isOk());
     mvc.perform(get("/api/v1/remboursements").with(fiscal()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.compteurs.tous").isNumber());
@@ -228,6 +318,19 @@ class RemboursementsTest extends TestIntegration {
             .getResponse()
             .getContentAsString();
     return JSON.readTree(corps).path("version").asInt();
+  }
+
+  private long compteurATraiter(RequestPostProcessor qui) throws Exception {
+    String corps =
+        mvc.perform(get("/api/v1/remboursements").with(qui))
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+    return JSON.readTree(corps).path("compteurs").path("aTraiter").asLong();
+  }
+
+  private static RequestPostProcessor directeur() {
+    return jeton(DIRECTEUR, "DIRECTEUR");
   }
 
   private ResultActions executer(long id, String corps) throws Exception {

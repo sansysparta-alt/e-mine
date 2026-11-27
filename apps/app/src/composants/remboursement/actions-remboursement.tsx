@@ -24,19 +24,27 @@ export type DeciderRemboursement = (
   texte: string,
 ) => Promise<ResultatAction<null>>;
 
-/** Actions possibles selon le statut : valider ou refuser une demande, enregistrer l'ordre. */
-export function actionsRemboursement(statut: string): DecisionRemboursement[] {
-  if (statut === "demande") return ["valider", "refuser"];
-  if (statut === "valide") return ["executer"];
+/**
+ * Actions du profil connecté (US-04.18) : le Directeur valide ou refuse une proposition, le
+ * Responsable fiscal enregistre l'ordre du Trésor d'un remboursement validé. Seulement quand l'API
+ * dit que c'est à lui de le faire (`aTraiterParMoi`, séparation des tâches comprise).
+ */
+export function actionsRemboursement(
+  r: Pick<RemboursementDto, "statut" | "aTraiterParMoi">,
+): DecisionRemboursement[] {
+  if (!r.aTraiterParMoi) return [];
+  if (r.statut === "demande") return ["valider", "refuser"];
+  if (r.statut === "valide") return ["executer"];
   return [];
 }
 
 const ICONES = { valider: CircleCheck, refuser: Ban, executer: ReceiptText } as const;
 
 /**
- * Actions du Responsable fiscal sur un remboursement (US-04.10), confirmées dans une boîte de
- * dialogue : valider ; refuser avec un motif ; enregistrer la référence de l'ordre de
- * remboursement émis par le Trésor (l'argent est rendu hors plateforme, le demandeur est informé).
+ * Actions sur un remboursement (US-04.10, US-04.18), confirmées dans une boîte de dialogue : le
+ * Directeur valide, ou refuse avec un motif ; le Responsable fiscal enregistre la référence de
+ * l'ordre de remboursement émis par le Trésor (l'argent est rendu hors plateforme, le demandeur
+ * est informé).
  */
 export function ActionsRemboursement({
   remboursement,
@@ -53,7 +61,7 @@ export function ActionsRemboursement({
   const [texte, setTexte] = useState("");
   const [erreur, setErreur] = useState<{ champ?: string; api?: string }>({});
   const [enCours, demarrer] = useTransition();
-  const actions = actionsRemboursement(remboursement.statut);
+  const actions = actionsRemboursement(remboursement);
 
   function envoyer() {
     if (!choix) return;
