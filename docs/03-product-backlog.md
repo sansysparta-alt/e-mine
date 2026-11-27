@@ -404,7 +404,7 @@ Estimation : environ une session de travail complète pour les trois PR. La conv
 |---|---|---|
 | US-06.8 écrans, compte Brigade `a.conde@e-mine.test` | #114 | V35 |
 | US-04.12 complément d'un paiement insuffisant | #116 (empilée sur #114) | V36, V37 |
-| R1 à R9, US-04.13 (aperçu du motif), US-04.15 (lignes 1 à n), US-04.17 (cloche du Responsable fiscal) | PR « corrections de recette » (empilée sur #116) | V38 |
+| R1 à R9, US-04.13 (aperçu du motif), US-04.15 (lignes 1 à n), US-04.17 (cloche du Responsable fiscal) | #117 (empilée sur #116) | V38 |
 
 Réponses du porteur intégrées : US-04.12 (complément sans rejet, recette comptée une fois à la date du complément, reçu propre au complément) ; R6 (en-tête texte seul « République de Guinée · Travail – Justice – Solidarité · Ministère des Mines et de la Géologie · e-mine ») ; R7 (« Proposer un remboursement » pour le seul Responsable fiscal, sur la ligne du paiement de la fiche de la demande : les agents n'ont pas d'autre page de détail d'un paiement). **Ne pas commencer le lot 7 avant la recette et l'accord du porteur.**
 
