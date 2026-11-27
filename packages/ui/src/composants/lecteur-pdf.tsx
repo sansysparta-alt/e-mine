@@ -221,6 +221,7 @@ function PagePdf({
 }) {
   const conteneur = useRef<HTMLDivElement>(null);
   const toile = useRef<HTMLCanvasElement>(null);
+  const coucheTexte = useRef<HTMLDivElement>(null);
   // Les deux premières pages tout de suite ; toutes si le navigateur ne sait pas observer.
   const [proche, setProche] = useState(numero <= 2 || typeof IntersectionObserver === "undefined");
   const [rendue, setRendue] = useState(false);
@@ -243,9 +244,11 @@ function PagePdf({
   useEffect(() => {
     if (!proche || !toile.current) return;
     let tache: { cancel: () => void; promise: Promise<void> } | null = null;
+    let texte: { cancel: () => void } | null = null;
     let annule = false;
     const canvas = toile.current;
-    void document.getPage(numero).then((page) => {
+    const calque = coucheTexte.current;
+    void Promise.all([document.getPage(numero), chargerPdfJs()]).then(([page, m]) => {
       if (annule) return;
       const densite = Math.min(globalThis.devicePixelRatio || 1, 3);
       const vue = page.getViewport({ scale: echelle * PT_EN_PX * densite });
@@ -256,10 +259,23 @@ function PagePdf({
         () => !annule && setRendue(true),
         () => undefined,
       );
+      // Couche texte (lot 5) : texte transparent posé sur l'image de la page, sélectionnable pour
+      // la copie et lu par les lecteurs d'écran. Un PDF numérisé (sans texte) n'en a pas.
+      if (!calque || typeof m.TextLayer !== "function") return;
+      calque.replaceChildren();
+      calque.style.setProperty("--total-scale-factor", String(echelle * PT_EN_PX));
+      const couche = new m.TextLayer({
+        textContentSource: page.streamTextContent(),
+        container: calque,
+        viewport: page.getViewport({ scale: echelle * PT_EN_PX }),
+      });
+      texte = couche;
+      couche.render().catch(() => undefined);
     });
     return () => {
       annule = true;
       tache?.cancel();
+      texte?.cancel();
     };
   }, [document, numero, echelle, proche]);
 
@@ -277,6 +293,7 @@ function PagePdf({
         className="block"
         style={{ width: largeur, height: hauteur }}
       />
+      <div ref={coucheTexte} className="textLayer" />
     </div>
   );
 }
