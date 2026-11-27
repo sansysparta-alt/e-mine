@@ -47,8 +47,8 @@ class SeedTest extends TestIntegration {
                     + " '00000000-0000-4000-8000-%'"))
         .as(
             "5 personas de la V1, un second investisseur, le Ministre (US-05.4) et les avis"
-                + " techniques DNM, Géologue, Inspecteur (US-05.3)")
-        .isEqualTo(10);
+                + " techniques DNM, Géologue, Inspecteur (US-05.3), la Brigade anti-fraude (US-06.8)")
+        .isEqualTo(11);
   }
 
   @Test
