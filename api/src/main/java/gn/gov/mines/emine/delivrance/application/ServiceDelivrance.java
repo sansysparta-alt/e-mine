@@ -15,6 +15,7 @@ import gn.gov.mines.emine.delivrance.infrastructure.DelivranceRepository;
 import gn.gov.mines.emine.delivrance.infrastructure.DelivranceRepository.DecisionFavorable;
 import gn.gov.mines.emine.delivrance.infrastructure.GenerateurDocumentPdf;
 import gn.gov.mines.emine.delivrance.infrastructure.ProprietesDelivrance;
+import gn.gov.mines.emine.delivrance.infrastructure.SignalementRepository;
 import gn.gov.mines.emine.demande.Demandes;
 import gn.gov.mines.emine.demande.Demandes.DemandeResume;
 import gn.gov.mines.emine.shared.erreur.CodeErreur;
@@ -54,6 +55,7 @@ public class ServiceDelivrance {
   private final ProprietesDelivrance proprietes;
   private final UtilisateurCourant utilisateurCourant;
   private final Clock horloge;
+  private final SignalementRepository signalements;
 
   public ServiceDelivrance(
       Demandes demandes,
@@ -64,7 +66,8 @@ public class ServiceDelivrance {
       StockageObjets stockage,
       ProprietesDelivrance proprietes,
       UtilisateurCourant utilisateurCourant,
-      Clock horloge) {
+      Clock horloge,
+      SignalementRepository signalements) {
     this.demandes = demandes;
     this.catalogue = catalogue;
     this.registre = registre;
@@ -73,6 +76,7 @@ public class ServiceDelivrance {
     this.stockage = stockage;
     this.proprietes = proprietes;
     this.utilisateurCourant = utilisateurCourant;
+    this.signalements = signalements;
     this.horloge = horloge;
   }
 
@@ -167,26 +171,19 @@ public class ServiceDelivrance {
   }
 
   /**
-   * Révoque le document délivré de la demande (US-06.6) : PERM-001 hors profils Directeur et
-   * Brigade, VAL-001 si le motif ne convient pas, DOC-006 s'il est déjà révoqué. Effet immédiat :
-   * la vérification publique affiche « NON VALIDE ».
+   * Annule (révoque) le document délivré de la demande (US-06.6, US-06.8) : PERM-001 si le profil
+   * connecté n'en est pas le signataire, VAL-001 si le motif ne convient pas, DOC-006 s'il est déjà
+   * annulé. Effet immédiat : la vérification publique affiche « NON VALIDE ».
    */
   @Transactional
   public DocumentDelivre revoquer(long demandeId, String motif) {
-    UtilisateurConnecte moi = moi();
-    if (!RegleRevocation.peutRevoquer(moi.profilCode())) {
+    // Seul le signataire du document l'annule (V1-11) ; la base le contrôle aussi (V35).
+    if (!signalements.estSignataire(demandeId)) {
       throw new ErreurMetier(CodeErreur.PERM_001, Map.of("action", "revocation"));
     }
-    RegleRevocation.problemeMotif(motif)
-        .ifPresent(
-            message -> {
-              throw new ErreurMetier(
-                  CodeErreur.VAL_001,
-                  Map.of(
-                      "champs", java.util.List.of(Map.of("champ", "motif", "message", message))));
-            });
+    String net = RegleRevocation.motifValide(motif);
     DocumentDelivre document = lire(demandeId);
-    if (registre.revoquer(document.id(), motif.strip()) == 0) {
+    if (registre.revoquer(document.id(), net) == 0) {
       throw new ErreurMetier(CodeErreur.DOC_006, Map.of("numero", document.numero()));
     }
     LOG.info("Document {} révoqué", document.numero());

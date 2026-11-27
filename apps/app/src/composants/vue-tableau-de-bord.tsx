@@ -112,6 +112,8 @@ export type VueTableauDeBordProps = {
    * refuser (règle « À traiter » de l'API) ; absent pour les autres.
    */
   remboursementsAValider?: number;
+  /** Signataire : signalements de la Brigade sur ses documents, à décider (US-06.8). */
+  signalementsADecider?: number;
   /** Données indisponibles (API injoignable) : état d'erreur explicite, aucun chiffre. */
   indisponible?: boolean;
 };
@@ -164,6 +166,7 @@ export function VueTableauDeBord({
   travail,
   aValider,
   remboursementsAValider = 0,
+  signalementsADecider = 0,
   indisponible = false,
 }: VueTableauDeBordProps) {
   const t = useTranslations("tableauDeBord");
@@ -264,6 +267,21 @@ export function VueTableauDeBord({
             className="inline-flex min-h-11 items-center font-semibold text-royal underline"
           >
             {t("remboursementsAValider.lien")}
+          </Link>
+        </Alerte>
+      ) : null}
+
+      {signalementsADecider > 0 ? (
+        <Alerte
+          nature="avertissement"
+          titre={t("signalementsADecider.titre", { nombre: signalementsADecider })}
+        >
+          <p>{t("signalementsADecider.texte")}</p>
+          <Link
+            href="/signalements"
+            className="inline-flex min-h-11 items-center font-semibold text-royal underline"
+          >
+            {t("signalementsADecider.lien")}
           </Link>
         </Alerte>
       ) : null}

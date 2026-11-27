@@ -14,6 +14,8 @@ import {
   delivrer,
   type DocumentDelivreDto,
   revoquerDocument,
+  deciderSignalement,
+  signalerDocument,
   type ResultatDecisionDto,
   type ResultatRecevabiliteDto,
 } from "@emine/api-client";
@@ -79,8 +81,8 @@ export async function signerEtDelivrer(id: number): Promise<ResultatAction<Docum
 }
 
 /**
- * Révoque le document délivré (US-06.6) avec un motif : l'API réserve l'action aux profils Directeur
- * et Brigade.
+ * Révoque le document délivré avec un motif : l'API et la base réservent l'action au signataire du
+ * document (US-06.8, décision V1-11).
  */
 export async function revoquer(
   id: number,
@@ -188,6 +190,42 @@ export async function rendreUnAvis(
       { headers: await enTetesApi(session) },
     );
     return { ok: true, valeur: reponse.data };
+  } catch (e) {
+    return { ok: false, erreur: versErreurFormulaire(e) };
+  }
+}
+
+/**
+ * La Brigade anti-fraude signale le document à son signataire (US-06.8) : motif obligatoire, sans
+ * effet sur le document.
+ */
+export async function signaler(id: number, motif: string): Promise<ResultatAction<null>> {
+  try {
+    const session = await lireSession();
+    await signalerDocument(id, { motif: motif.trim() }, { headers: await enTetesApi(session) });
+    return { ok: true, valeur: null };
+  } catch (e) {
+    return { ok: false, erreur: versErreurFormulaire(e) };
+  }
+}
+
+/**
+ * Le signataire décide d'un signalement (US-06.8) : il révoque le document ou classe le
+ * signalement, toujours avec un motif ; la base vérifie qu'il est bien le signataire.
+ */
+export async function deciderUnSignalement(
+  id: number,
+  decision: "ANNULER" | "CLASSER",
+  motif: string,
+): Promise<ResultatAction<null>> {
+  try {
+    const session = await lireSession();
+    await deciderSignalement(
+      id,
+      { decision, motif: motif.trim() },
+      { headers: await enTetesApi(session) },
+    );
+    return { ok: true, valeur: null };
   } catch (e) {
     return { ok: false, erreur: versErreurFormulaire(e) };
   }

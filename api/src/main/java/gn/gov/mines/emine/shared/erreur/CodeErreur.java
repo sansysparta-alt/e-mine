@@ -113,6 +113,8 @@ public enum CodeErreur {
   DOC_010("DOC-010", HttpStatus.UNPROCESSABLE_CONTENT),
   /** Justificatif de virement trop volumineux (5 Mo au plus, US-04.7). */
   DOC_011("DOC-011", HttpStatus.CONTENT_TOO_LARGE),
+  /** Signalement introuvable, US-06.8. */
+  DOC_012("DOC-012", HttpStatus.NOT_FOUND),
   /** Erreur interne : un identifiant d'incident est donné dans le message et les détails. */
   SYS_001("SYS-001", HttpStatus.INTERNAL_SERVER_ERROR),
   /** Ressource ou adresse introuvable. */

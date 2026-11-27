@@ -7,6 +7,7 @@ import {
   FileCheck2,
   FileSpreadsheet,
   FileText,
+  Flag,
   Inbox,
   LayoutDashboard,
   type LucideIcon,
@@ -91,6 +92,15 @@ export const NAVIGATION: SectionConfig[] = [
         href: "/a-traiter",
         icone: Inbox,
         auMoinsUnDroit: ["INSTRUIRE", "SIGNER"],
+        interne: true,
+      },
+      // Signalements de la Brigade sur les documents dont le profil est le signataire (US-06.8).
+      {
+        cle: "signalements",
+        module: "delivrance",
+        href: "/signalements",
+        icone: Flag,
+        permission: "SIGNER",
         interne: true,
       },
     ],

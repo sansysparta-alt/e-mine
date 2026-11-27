@@ -11,6 +11,7 @@ import {
   lireParametresDelai,
   lireRegleRemboursement,
   listerRemboursements,
+  listerSignalementsADecider,
   listerFichesDocuments,
   listerWorkflows,
   listerTypesDocuments,
@@ -63,6 +64,8 @@ type Donnees = {
   aValider?: AValider;
   /** Directeur : remboursements proposés qu'il doit valider ou refuser (US-04.18). */
   remboursementsAValider?: number;
+  /** Signataire : signalements de la Brigade sur ses documents, à décider (US-06.8). */
+  signalementsADecider?: number;
   /** Données indisponibles : on le dit, plutôt qu'un état vide trompeur (revue B). */
   indisponible?: boolean;
 };
@@ -101,31 +104,36 @@ async function charger(moi: Profil, periode: ClePeriode): Promise<Donnees> {
     const libelles = Object.fromEntries(documents.map((d) => [d.code, libelleDocument(d, langue)]));
     const groupeTravail = groupesDepuis(compteur, moi)[0];
     const pilote = profil === "guichet" || profil === "instruction" || profil === "decideur";
-    const [recentes, aTraiter, indicateurs, file, catalogue, remboursements] = await Promise.all([
-      pilote
-        ? null
-        : listerDemandes({ taille: tailleDePagePour(DEMANDES_RECENTES) }, options).then(
-            (r) => r.data,
-          ),
-      profil === "demandeur"
-        ? listerDemandes({ aTraiter: true, tri: "date", sens: "asc", taille: 10 }, options).then(
-            (r) => r.data,
-          )
-        : null,
-      pilote ? lireIndicateurs({ periode }, options).then((r) => r.data) : undefined,
-      pilote && groupeTravail
-        ? listerDemandes(
-            { ...parametresListe(groupeTravail), taille: tailleDePagePour(COURTE_LISTE) },
-            options,
-          ).then((r) => r.data)
-        : null,
-      // Mêmes nombres que les listes « À valider » (compteurs de l'API).
-      moi.permissions.includes("VALIDER_CATALOGUE") ? propositionsAValider(options) : undefined,
-      // Règle « À traiter » des remboursements (API) : même nombre que le compteur du menu.
-      moi.permissions.includes("VALIDER_REMBOURSEMENT")
-        ? listerRemboursements({ taille: 10 }, options).then((r) => r.data.compteurs.aTraiter)
-        : undefined,
-    ]);
+    const [recentes, aTraiter, indicateurs, file, catalogue, remboursements, signalements] =
+      await Promise.all([
+        pilote
+          ? null
+          : listerDemandes({ taille: tailleDePagePour(DEMANDES_RECENTES) }, options).then(
+              (r) => r.data,
+            ),
+        profil === "demandeur"
+          ? listerDemandes({ aTraiter: true, tri: "date", sens: "asc", taille: 10 }, options).then(
+              (r) => r.data,
+            )
+          : null,
+        pilote ? lireIndicateurs({ periode }, options).then((r) => r.data) : undefined,
+        pilote && groupeTravail
+          ? listerDemandes(
+              { ...parametresListe(groupeTravail), taille: tailleDePagePour(COURTE_LISTE) },
+              options,
+            ).then((r) => r.data)
+          : null,
+        // Mêmes nombres que les listes « À valider » (compteurs de l'API).
+        moi.permissions.includes("VALIDER_CATALOGUE") ? propositionsAValider(options) : undefined,
+        // Règle « À traiter » des remboursements (API) : même nombre que le compteur du menu.
+        moi.permissions.includes("VALIDER_REMBOURSEMENT")
+          ? listerRemboursements({ taille: 10 }, options).then((r) => r.data.compteurs.aTraiter)
+          : undefined,
+        // Même nombre que le compteur du menu « Signalements » (US-06.8).
+        moi.interne && moi.permissions.includes("SIGNER")
+          ? listerSignalementsADecider({ taille: 10 }, options).then((r) => r.data.total)
+          : undefined,
+      ]);
     const tarifs = Object.fromEntries(documents.map((d) => [d.code, d.tarifs]));
     const aFaire: ActionAFaire[] = await Promise.all(
       (aTraiter?.elements ?? []).slice(0, COURTE_LISTE).flatMap((d) => {
@@ -162,6 +170,7 @@ async function charger(moi: Profil, periode: ClePeriode): Promise<Donnees> {
       indicateurs,
       aValider: catalogue,
       remboursementsAValider: remboursements,
+      signalementsADecider: signalements,
       ...(groupeTravail && file
         ? {
             travail: {
