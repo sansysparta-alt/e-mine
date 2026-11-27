@@ -15,6 +15,7 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { FilArianeApp } from "@/composants/fil-ariane-app";
 import { DecisionVersion } from "@/composants/catalogue/decision-version";
+import { LigneMotif } from "@/composants/gouvernance/gouvernance";
 import {
   ContenuFiche,
   LigneDecision,
@@ -206,13 +207,8 @@ export default async function FicheDocument({ params, searchParams }: Props) {
                   {h.proposeePar && h.statut !== "a_valider" ? " · " : null}
                   {h.statut !== "a_valider" ? <LigneDecision version={h} /> : null}
                 </p>
-                <p>{h.motif}</p>
-                {h.motifRefus ? (
-                  <p>
-                    <span className="font-semibold">{t("fiche.motifRefus")} : </span>
-                    {h.motifRefus}
-                  </p>
-                ) : null}
+                <LigneMotif texte={h.motif} />
+                {h.motifRefus ? <LigneMotif texte={h.motifRefus} refus /> : null}
                 {h.changements.length ? (
                   <details className="group">
                     <summary className="inline-flex min-h-11 cursor-pointer items-center text-royal">
