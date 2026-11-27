@@ -1394,7 +1394,6 @@
       "retour": "Catalogue and fees",
       "proposer": "Propose a change",
       "motif": "Purpose of the change",
-      "motifRefus": "Reason for rejection",
       "vide": "Not provided",
       "aucunAvis": "No technical opinion required",
       "jours": "{n, plural, one {# day} other {# days}}",
@@ -2180,7 +2179,6 @@
       "aideAdmin": "The Minister must approve it. You can withdraw it until the Minister decides.",
       "motif": "Reason for the change"
     },
-    "motifRefus": "Reason for refusal",
     "historique": "Version history",
     "voirContenu": "Show the content of version {n}",
     "champDate": {
@@ -2200,6 +2198,10 @@
       "retirer": "Proposal withdrawn: the version in force does not change.",
       "proposee": "Proposal {n} sent to the Minister. It will apply after approval, from the chosen effective date."
     },
-    "circuit": "Any change is proposed by the administrator, approved by the Minister, then applied from its effective date. Everything is recorded in the audit log."
+    "circuit": "Any change is proposed by the administrator, approved by the Minister, then applied from its effective date. Everything is recorded in the audit log.",
+    "etiquettes": {
+      "motif": "Reason:",
+      "motifRefus": "Reason for refusal:"
+    }
   }
 }
