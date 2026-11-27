@@ -144,8 +144,9 @@ public class ServiceDemandes {
   }
 
   /**
-   * Avancement (« Étape 3 sur 6 ») d'après la règle de la frise (US-07.3) ; le catalogue dit si le
-   * document a des droits à payer (lu une fois par document et par requête).
+   * Avancement (« Étape 3 sur 7 ») d'après la règle de la frise (US-07.3, US-07.6) ; le catalogue
+   * dit si le document a des droits à payer (lu une fois par document et par requête), la fiche du
+   * dépôt s'il demande des avis techniques.
    */
   private DemandeDetail avecAvancement(DemandeDetail d, Map<String, Boolean> droits) {
     boolean droitsRequis =
@@ -157,8 +158,9 @@ public class ServiceDemandes {
             d.statut(),
             d.fraisPayes(),
             droitsRequis,
+            d.avisRequis(),
             d.origineComplement(),
-            new RegleSuivi.Dates(d.deposeLe(), null, null, null, null, null, null));
+            new RegleSuivi.Dates(d.deposeLe(), null, null, null, null, null, null, null));
     return d.avec(RegleSuivi.avancement(situation));
   }
 

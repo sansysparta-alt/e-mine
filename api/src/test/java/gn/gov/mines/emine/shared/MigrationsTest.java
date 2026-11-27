@@ -39,7 +39,8 @@ class MigrationsTest extends TestIntegration {
   void lesReferentielsSontCharges() {
     assertThat(compter("profil")).isEqualTo(16);
     assertThat(compter("type_document")).isEqualTo(15);
-    assertThat(compter("permission")).isEqualTo(11);
+    // 10 droits de la matrice, + approuver le catalogue (V18) et valider un remboursement (V34).
+    assertThat(compter("permission")).isEqualTo(12);
     assertThat(compter("transition_statut")).isPositive();
     assertThat(compter("tarif")).isPositive();
   }

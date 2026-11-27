@@ -17,7 +17,7 @@
     "titre": "Document catalogue",
     "presentation": "The 15 documents issued by the Ministry, with processing time, required documents, signatory and fees. Amounts in Guinean francs (demonstration data).",
     "delai": "Processing time",
-    "jours": "{nombre} days",
+    "jours": "{nombre, plural, one {# day} other {# days}}",
     "signataire": "Signatory",
     "fraisDossier": "Application fee",
     "droits": "Duties",
@@ -33,7 +33,7 @@
     "autre": "Verify another document",
     "confidentialite": "This page shows no personal data: only what tells you whether the document is authentic. Demonstration platform, fictitious data.",
     "saisie": {
-      "presentation": "Scan the document's QR code with your phone, or enter below the verification code printed under the QR code.",
+      "presentation": "Scan the QR code of the document or receipt with your phone, or enter below the verification code printed under the QR code.",
       "libelle": "Verification code or address read from the QR code",
       "aide": "32 characters (digits and letters a to f). You can also paste the full address.",
       "bouton": "Verify",
@@ -80,6 +80,46 @@
         "titre": "The file could not be read",
         "texte": "Choose the PDF file again."
       }
+    }
+  },
+  "verificationRecu": {
+    "titre": "Verify a receipt",
+    "autre": "Verify another document or receipt",
+    "confidentialite": "This page shows no personal data: only what tells you whether the receipt is authentic. Demonstration platform, fictitious data.",
+    "authentique": {
+      "titre": "Authentic receipt",
+      "texte": "This receipt was issued by the e-mine platform for a confirmed payment."
+    },
+    "rembourse": {
+      "titre": "Authentic receipt, amount refunded",
+      "texte": "This receipt was issued, but the amount has since been refunded by the Treasury: it no longer proves a payment."
+    },
+    "inconnu": {
+      "titre": "No receipt matches this code",
+      "texte": "Check the code, or scan the receipt's QR again. A receipt missing from the register must not be accepted."
+    },
+    "indisponible": {
+      "titre": "Verification temporarily unavailable",
+      "texte": "The service is not responding. Try again in a few minutes."
+    },
+    "details": {
+      "titre": "Receipt",
+      "numero": "Receipt number",
+      "objet": "Purpose",
+      "montant": "Amount",
+      "payeLe": "Paid on",
+      "moyen": "Payment method",
+      "demande": "Request"
+    },
+    "objets": {
+      "FRAIS_DOSSIER": "Filing fees",
+      "DROITS": "Duties",
+      "ATTESTATION": "Certificate (single payment)",
+      "FORMATION": "Training"
+    },
+    "moyens": {
+      "TRESORPAY": "TrésorPay",
+      "VIREMENT": "Bank transfer"
     }
   }
 }

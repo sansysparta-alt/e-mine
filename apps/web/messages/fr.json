@@ -17,7 +17,7 @@
     "titre": "Catalogue des documents",
     "presentation": "Les 15 documents délivrés par le Ministère, avec leur délai de traitement, les pièces à fournir, le signataire et les frais. Montants en francs guinéens (données de démonstration).",
     "delai": "Délai",
-    "jours": "{nombre} jours",
+    "jours": "{nombre, plural, one {# jour} other {# jours}}",
     "signataire": "Signataire",
     "fraisDossier": "Frais de dossier",
     "droits": "Droits",
@@ -33,7 +33,7 @@
     "autre": "Vérifier un autre document",
     "confidentialite": "Cette page ne montre aucune donnée personnelle : seulement ce qui permet de savoir si le document est authentique. Plateforme de démonstration, données fictives.",
     "saisie": {
-      "presentation": "Scannez le QR du document avec votre téléphone, ou saisissez ci-dessous le code de vérification imprimé sous le QR.",
+      "presentation": "Scannez le QR du document ou du reçu avec votre téléphone, ou saisissez ci-dessous le code de vérification imprimé sous le QR.",
       "libelle": "Code de vérification ou adresse lue par le QR",
       "aide": "32 caractères (chiffres et lettres de a à f). Vous pouvez aussi coller l'adresse complète.",
       "bouton": "Vérifier",
@@ -80,6 +80,46 @@
         "titre": "Le fichier n'a pas pu être lu",
         "texte": "Choisissez à nouveau le fichier PDF."
       }
+    }
+  },
+  "verificationRecu": {
+    "titre": "Vérifier un reçu",
+    "autre": "Vérifier un autre document ou reçu",
+    "confidentialite": "Cette page ne montre aucune donnée personnelle : seulement ce qui permet de savoir si le reçu est authentique. Plateforme de démonstration, données fictives.",
+    "authentique": {
+      "titre": "Reçu authentique",
+      "texte": "Ce reçu a bien été émis par la plateforme e-mine pour un paiement confirmé."
+    },
+    "rembourse": {
+      "titre": "Reçu authentique, somme remboursée",
+      "texte": "Ce reçu a bien été émis, mais la somme a depuis été remboursée par le Trésor : il ne prouve plus un paiement acquis."
+    },
+    "inconnu": {
+      "titre": "Aucun reçu ne correspond à ce code",
+      "texte": "Vérifiez le code, ou scannez à nouveau le QR du reçu. Un reçu absent du registre ne doit pas être accepté."
+    },
+    "indisponible": {
+      "titre": "Vérification momentanément impossible",
+      "texte": "Le service ne répond pas. Réessayez dans quelques minutes."
+    },
+    "details": {
+      "titre": "Reçu",
+      "numero": "Numéro du reçu",
+      "objet": "Objet",
+      "montant": "Montant",
+      "payeLe": "Payé le",
+      "moyen": "Moyen de paiement",
+      "demande": "Demande"
+    },
+    "objets": {
+      "FRAIS_DOSSIER": "Frais de dossier",
+      "DROITS": "Droits",
+      "ATTESTATION": "Attestation (paiement unique)",
+      "FORMATION": "Formation"
+    },
+    "moyens": {
+      "TRESORPAY": "TrésorPay",
+      "VIREMENT": "Virement bancaire"
     }
   }
 }

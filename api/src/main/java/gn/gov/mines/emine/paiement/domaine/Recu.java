@@ -3,7 +3,8 @@ package gn.gov.mines.emine.paiement.domaine;
 import java.time.Instant;
 
 /**
- * Contenu d'un reçu de paiement (US-04.6), simple et sans signature en V1.
+ * Contenu d'un reçu de paiement (US-04.6), simple et sans signature en V1, avec le QR de sa
+ * vérification publique (US-04.14).
  *
  * @param numero {@code REC-AAAA-NNNNNN}, attribué par la base au passage à « payé » (D3)
  * @param reference référence du paiement {@code PAY-AAAA-NNNNNN}
@@ -16,6 +17,9 @@ import java.time.Instant;
  * @param document libellé et code du document demandé
  * @param payeur prénom et nom du demandeur
  * @param organisation organisation du demandeur, {@code null} sinon
+ * @param heureConnue l'heure du paiement est connue (TrésorPay) ; un virement n'a que la date du
+ *     relevé bancaire : le reçu affiche la date seule
+ * @param urlVerification page publique de vérification du reçu, encodée dans le QR
  */
 public record Recu(
     String numero,
@@ -29,4 +33,6 @@ public record Recu(
     String demandeNumero,
     String document,
     String payeur,
-    String organisation) {}
+    String organisation,
+    boolean heureConnue,
+    String urlVerification) {}

@@ -17,7 +17,7 @@ export type FriseSuiviProps = {
 };
 
 /**
- * Frise de suivi (US-07.3) : 6 étapes visibles, calculées par l'API, dans l'ordre réel du circuit.
+ * Frise de suivi (US-07.3, US-07.6) : 7 étapes visibles (dont la décision du signataire), calculées par l'API, dans l'ordre réel du circuit.
  * Même langage visuel que l'indicateur d'étapes du formulaire (pastille, coche, ligne de liaison) ;
  * l'état se lit en texte et en icône, jamais par la couleur seule ; l'étape en cours porte
  * `aria-current="step"`. Horizontale sur grand écran, verticale sur mobile.
@@ -31,7 +31,7 @@ export function FriseSuivi({
   const t = useTranslations("suivi");
   if (etapes.length === 0) return null;
   return (
-    <ol className="flex flex-col gap-0 md:grid md:grid-cols-6 md:gap-2" aria-label={t("titre")}>
+    <ol className="flex flex-col gap-0 md:grid md:grid-cols-7 md:gap-2" aria-label={t("titre")}>
       {etapes.map((e, i) => {
         const derniere = i === etapes.length - 1;
         const libelle =

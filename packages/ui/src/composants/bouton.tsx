@@ -15,6 +15,8 @@ const styles = cva(
       taille: {
         normale: "text-base",
         grande: "min-h-12 px-6 text-lg",
+        /** Action dans une ligne de tableau : compacte, libellé sur une seule ligne (US-11.8). */
+        ligne: "whitespace-nowrap px-3 text-sm",
       },
     },
     defaultVariants: { variante: "primaire", taille: "normale" },

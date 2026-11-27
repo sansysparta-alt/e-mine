@@ -3,6 +3,7 @@ import {
   listerAVerifier,
   listerRemboursements,
   lireParametresDelai,
+  lireRegleRemboursement,
   listerFichesDocuments,
   listerWorkflows,
   type MoiDto,
@@ -16,7 +17,7 @@ export type CompteursNavigation = Record<string, number>;
  * Compteurs du menu : ce que **le profil connecté** doit faire maintenant (règle « À traiter » du
  * socle, calculée par l'API, jamais recomptée ici). Demandeur : ses demandes qui attendent une
  * action de sa part ; agent : sa file « À traiter » ; Ministre : les fiches du catalogue, les
- * workflows et la règle des délais à valider. Une rubrique dont le nombre ne peut être lu reste simplement sans compteur.
+ * workflows et les règles (délais, remboursement) à valider. Une rubrique dont le nombre ne peut être lu reste simplement sans compteur.
  */
 export async function compteursNavigation(moi: MoiDto): Promise<CompteursNavigation> {
   const options = await optionsApi();
@@ -33,10 +34,15 @@ export async function compteursNavigation(moi: MoiDto): Promise<CompteursNavigat
   if (moi.interne && droits.has("ENCAISSER")) {
     lectures.push(
       listerAVerifier({ taille: 10 }, options).then((r) => ["aVerifier", r.data.total]),
-      // Remboursements à valider, puis ordres du Trésor à enregistrer (US-04.10).
+    );
+  }
+  // Remboursements (US-04.18) : propositions à valider (Directeur), ordres du Trésor à enregistrer
+  // (Responsable fiscal) ; règle « À traiter » de l'API.
+  if (moi.interne && (droits.has("ENCAISSER") || droits.has("VALIDER_REMBOURSEMENT"))) {
+    lectures.push(
       listerRemboursements({ taille: 10 }, options).then((r) => [
         "remboursements",
-        r.data.compteurs.demande + r.data.compteurs.valide,
+        r.data.compteurs.aTraiter,
       ]),
     );
   }
@@ -46,12 +52,17 @@ export async function compteursNavigation(moi: MoiDto): Promise<CompteursNavigat
         "catalogue",
         r.data.total,
       ]),
-      // Gouvernance (US-02.8) : propositions de workflows et de règle des délais à valider.
+      // Gouvernance (US-02.8, US-02.10) : propositions de workflows, de règle des délais et de
+      // règle de remboursement à valider (les deux règles sont dans la rubrique « Paramètres »).
       listerWorkflows({ taille: 10 }, options).then((r) => ["workflows", r.data.aValider]),
-      lireParametresDelai(options).then((r) => [
-        "parametres",
-        r.data.versions.filter((v) => v.etat === "a_valider").length,
-      ]),
+      Promise.all([lireParametresDelai(options), lireRegleRemboursement(options)]).then(
+        ([delais, remboursement]) => [
+          "parametres",
+          [...delais.data.versions, ...remboursement.data.versions].filter(
+            (v) => v.etat === "a_valider",
+          ).length,
+        ],
+      ),
     );
   }
   const resultats = await Promise.allSettled(lectures);

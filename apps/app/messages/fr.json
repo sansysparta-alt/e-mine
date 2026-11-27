@@ -177,17 +177,18 @@
     },
     "aValider": {
       "titre": "{nombre, plural, one {# modification à valider} other {# modifications à valider}}",
-      "texte": "Rien ne change au catalogue, dans les workflows ni dans la règle des délais sans votre validation.",
+      "texte": "Rien ne change au catalogue, dans les workflows ni dans les règles des délais et de remboursement sans votre validation.",
       "catalogue": "{n, plural, one {# fiche du catalogue} other {# fiches du catalogue}}",
       "workflows": "{n, plural, one {# workflow} other {# workflows}}",
-      "delais": "La règle des délais"
+      "delais": "La règle des délais",
+      "remboursement": "La règle de remboursement des frais"
     },
     "fiscal": {
       "aFaire": "Ce que vous avez à faire",
       "aVerifier": "À vérifier",
       "aVerifierPrecision": "Écarts et versements non reconnus",
-      "remboursementsAValider": "Remboursements à valider",
-      "remboursementsAValiderPrecision": "Doublons, excédents, paiements rejetés",
+      "remboursementsAValider": "Remboursements en attente du Directeur",
+      "remboursementsAValiderPrecision": "Vos propositions, à valider par le Directeur",
       "ordresAEnregistrer": "Ordres à enregistrer",
       "ordresAEnregistrerPrecision": "Remboursements validés, en attente du Trésor",
       "recettesMois": "Recettes du mois",
@@ -195,6 +196,11 @@
       "recettesMoisPrecision": "{nombre, plural, one {# opération} other {# opérations}}, frais remboursés déduits",
       "importer": "Importer un relevé bancaire",
       "indisponible": "Les chiffres des encaissements ne peuvent pas être lus pour le moment. Réessayez dans quelques instants."
+    },
+    "remboursementsAValider": {
+      "titre": "{nombre, plural, one {# remboursement à valider} other {# remboursements à valider}}",
+      "texte": "Proposés par le Responsable fiscal : l’ordre ne peut être demandé au Trésor qu’après votre validation.",
+      "lien": "Voir les remboursements à valider"
     }
   },
   "demande": {
@@ -279,7 +285,7 @@
         "AUTH-001": "Votre session a expiré : reconnectez-vous.",
         "autre": "La pièce n'a pas pu être traitée. Réessayez."
       },
-      "avancement": "{fournies} sur {total} pièces obligatoires fournies",
+      "avancement": "{fournies} sur {total, plural, one {# pièce obligatoire fournie} other {# pièces obligatoires fournies}}",
       "avancementLibelle": "Pièces obligatoires fournies",
       "ajouter": "Ajouter",
       "remplacer": "Remplacer",
@@ -440,6 +446,7 @@
       "croissant": "tri croissant",
       "decroissant": "tri décroissant"
     },
+    "element": "demande",
     "elements": "demandes",
     "recherche": {
       "libelle": "Rechercher une demande",
@@ -1061,6 +1068,7 @@
     "autres": "{nombre, plural, one {Voir 1 autre changement} other {Voir les # autres changements}}",
     "oui": "Oui",
     "non": "Non",
+    "element": "entrée",
     "elements": "entrées",
     "vide": {
       "titre": "Le journal est vide",
@@ -1200,6 +1208,7 @@
       "depot": "Déposée le",
       "statut": "Statut"
     },
+    "element": "dossier",
     "elements": "dossiers",
     "vide": {
       "tout": "Rien à traiter pour le moment",
@@ -1316,6 +1325,7 @@
       "paiement": "Paiement",
       "controle": "Contrôle du dossier",
       "instruction": "Instruction",
+      "decision": "Décision",
       "paiement-droits": "Paiement des droits",
       "signe": "Document signé"
     },
@@ -1332,7 +1342,7 @@
     },
     "precisions": {
       "avis": "Avis attendus : {profils}",
-      "examenTechnique": "Examen technique par les services, puis décision : {signataire}",
+      "examenTechnique": "Examen technique par les services",
       "decision": "Décision attendue : {signataire}"
     }
   },
@@ -1342,6 +1352,7 @@
     "descriptionNonLues": "{nombre, plural, =1 {1 notification non lue : c’est le nombre affiché sur la cloche.} other {# notifications non lues : c’est le nombre affiché sur la cloche.}} Ouvrez une notification pour voir le dossier concerné.",
     "toutMarquerLu": "Tout marquer comme lu",
     "nonLue": "Non lue",
+    "element": "notification",
     "elements": "notifications",
     "vide": {
       "titre": "Aucune notification",
@@ -1407,6 +1418,7 @@
     },
     "jours": "{n, plural, one {# jour} other {# jours}}",
     "version": "Version {n}",
+    "element": "document",
     "elements": "documents",
     "statuts": {
       "aApprouver": "À valider",
@@ -1431,7 +1443,7 @@
       "vide": "Non renseigné",
       "aucunAvis": "Aucun avis technique requis",
       "jours": "{n, plural, one {# jour} other {# jours}}",
-      "versionInitiale": "Version initiale du catalogue (schéma fourni par le Ministère).",
+      "versionInitiale": "Version initiale du catalogue, à l’installation de la plateforme.",
       "actif": {
         "oui": "Oui",
         "non": "Non, retiré du catalogue"
@@ -1524,7 +1536,7 @@
       "retirer": "Retirer la proposition",
       "annuler": "Annuler",
       "motif": "Motif du refus",
-      "motifAide": "L’administrateur le verra sur la fiche. 10 caractères au moins.",
+      "motifAide": "L’administrateur le verra avec sa proposition. 10 caractères au moins.",
       "echec": "La décision n’a pas pu être enregistrée",
       "indisponible": "Le service est momentanément indisponible. Réessayez dans un instant.",
       "signataire": {
@@ -1539,17 +1551,21 @@
         "approuver": {
           "titre": "Valider la version {numero} ?",
           "texte": "La fiche sera publiée dès maintenant. La validation est tracée à votre nom.",
-          "bouton": "Confirmer la validation"
+          "bouton": "Confirmer la validation",
+          "titreObjet": "Valider la version {numero} de {objet} ?"
         },
         "refuser": {
           "titre": "Refuser la version {numero} ?",
           "texte": "La fiche en vigueur ne change pas.",
-          "bouton": "Confirmer le refus"
+          "bouton": "Confirmer le refus",
+          "titreObjet": "Refuser la version {numero} de {objet} ?",
+          "texteRegle": "La règle en vigueur ne change pas."
         },
         "retirer": {
           "titre": "Retirer la version {numero} ?",
           "texte": "La proposition ne sera pas soumise au Ministre. Vous pourrez en proposer une autre.",
-          "bouton": "Retirer"
+          "bouton": "Retirer",
+          "titreObjet": "Retirer la version {numero} de {objet} ?"
         }
       }
     },
@@ -1633,6 +1649,7 @@
     "fourchette": "{min} à {max} jours",
     "version": "Version {n}",
     "modifieeLe": "depuis le {date}",
+    "element": "workflow",
     "elements": "workflows",
     "vide": "Aucun workflow.",
     "etape": "Étape {n} sur {total}",
@@ -1643,8 +1660,8 @@
     "historique": "Historique des versions",
     "actuelle": "en vigueur",
     "par": "Modifiée le {date} par {nom}",
-    "initiale": "Version initiale (schéma fourni par le Ministère).",
-    "voirEtapes": "Voir les {n} étapes",
+    "initiale": "Version initiale, à l’installation de la plateforme.",
+    "voirEtapes": "{n, plural, one {Voir l’étape} other {Voir les # étapes}}",
     "formulaire": {
       "titre": "Proposer une modification",
       "description": "{libelle} — à partir de la dernière version validée (v{n})",
@@ -1678,7 +1695,7 @@
       "descendre": "Descendre l’étape {n}",
       "retirer": "Retirer l’étape {n}",
       "ajouter": "Ajouter une étape",
-      "maximum": "{n} étapes au plus.",
+      "maximum": "{n, plural, one {# étape au plus.} other {# étapes au plus.}}",
       "erreurs": {
         "libelle": "De 3 à 150 caractères.",
         "reglePaiement": "De 3 à 300 caractères.",
@@ -1703,7 +1720,8 @@
     "enVigueurCourt": "Version {n} en vigueur",
     "decision": {
       "aApprouverTitre": "{n, plural, one {# proposition de workflow à valider} other {# propositions de workflow à valider}}"
-    }
+    },
+    "refusInchange": "Le workflow en vigueur ne change pas."
   },
   "parametres": {
     "titre": "Règles et notifications",
@@ -1712,8 +1730,8 @@
       "lecture": "Règles de calcul des délais et de remboursement des frais, canaux de chaque notification. Vous validez les modifications des règles proposées par l’administrateur."
     },
     "provisoire": {
-      "titre": "Choix à faire valider par le Ministère",
-      "texte": "Le cahier des charges ne fixe pas ces règles : les valeurs actuelles sont des choix provisoires (analyse, § 3, points 17 à 22)."
+      "titre": "Valeurs provisoires",
+      "texte": "Le cahier des charges ne fixe pas ces règles : les valeurs actuelles sont des choix provisoires de l’équipe projet, à confirmer par le Ministère. Elles se modifient ici, par proposition de l’administrateur et validation du Ministre."
     },
     "delais": {
       "titre": "Règle des délais",
@@ -1741,7 +1759,7 @@
       },
       "echec": "La proposition n’a pas pu être envoyée",
       "indisponible": "Le service est momentanément indisponible. Réessayez dans un instant.",
-      "enVigueur": "Règle en vigueur (version {n})",
+      "enVigueur": "Règle des délais · version {n} en vigueur",
       "proposer": "Proposer une modification",
       "proposerTitre": "Proposer une règle des délais",
       "proposerDescription": "À partir de la dernière règle validée (v{n}). Le Ministre la validera avant qu’elle s’applique.",
@@ -1760,7 +1778,8 @@
         "aucunePause": "Jamais",
         "seuil": "« Proche du dépassement »",
         "seuilValeur": "il reste au plus {pct} % du délai, et au moins {min, plural, =0 {0 jour} one {# jour} other {# jours}}"
-      }
+      },
+      "historique": "Historique de la règle des délais"
     },
     "canaux": {
       "titre": "Canaux des notifications",
@@ -1788,19 +1807,27 @@
     },
     "remboursement": {
       "titre": "Remboursement des frais",
-      "enVigueur": "Règle de remboursement en vigueur (version {n})",
+      "enVigueur": "Règle de remboursement des frais · version {n} en vigueur",
       "historique": "Historique de la règle de remboursement",
       "oui": "Les frais de dossier d’une demande rejetée sont remboursés.",
       "non": "Les frais de dossier d’une demande rejetée ne sont pas remboursés.",
       "toujours": "Un double paiement ou une erreur (montant en trop, paiement rejeté) est toujours remboursé, après validation du Responsable fiscal.",
       "proposer": "Proposer une modification",
-      "nouvelle": "Règle proposée :",
       "motif": "Motif de la modification",
       "motifAide": "Pourquoi changer la règle (décision du Ministère, arrêté…).",
       "envoyer": "Proposer au Ministre",
       "enCours": "Envoi…",
       "annuler": "Annuler",
-      "erreur": "La proposition n’a pas pu être envoyée"
+      "erreur": "La proposition n’a pas pu être envoyée",
+      "critere": "Frais de dossier d’une demande rejetée",
+      "valeurOui": "remboursés",
+      "valeurNon": "non remboursés"
+    },
+    "regles": {
+      "delais": "Règle des délais",
+      "remboursement": "Règle de remboursement des frais",
+      "objetDelais": "la règle des délais",
+      "objetRemboursement": "la règle de remboursement des frais"
     }
   },
   "profil": {
@@ -1870,7 +1897,7 @@
     "chargement": "Recherche en cours…",
     "erreur": "La recherche des dossiers n’a pas abouti. Réessayez dans un instant.",
     "brouillon": "Brouillon",
-    "voirTous": "Voir les {nombre} dossiers trouvés",
+    "voirTous": "{nombre, plural, one {Voir le dossier trouvé} other {Voir les # dossiers trouvés}}",
     "aucun": {
       "titre": "Aucun résultat pour « {texte} »",
       "conseil": "Vérifiez l’orthographe, ou saisissez une partie du numéro (par exemple 000009) ou le nom du document."
@@ -2032,6 +2059,7 @@
     "utilisateurs": {
       "titre": "Utilisateurs & rôles",
       "description": "Les comptes de la plateforme, leur profil, leur statut et leur dernière connexion.",
+      "element": "compte",
       "elements": "comptes",
       "jamais": "Jamais connecté",
       "keycloak": {
@@ -2078,6 +2106,7 @@
   "mesPaiements": {
     "titre": "Paiements & reçus",
     "description": "Tous vos paiements, avec la demande concernée. Un reçu se télécharge dès que le paiement est confirmé.",
+    "element": "paiement",
     "elements": "paiements",
     "vide": {
       "titre": "Aucun paiement pour le moment",
@@ -2113,6 +2142,7 @@
   "mesDocuments": {
     "titre": "Documents délivrés",
     "description": "Vos documents signés, à télécharger. Chacun porte un code QR que quiconque peut vérifier en ligne.",
+    "element": "document",
     "elements": "documents",
     "valide": "Valide",
     "revoque": "Révoqué",
@@ -2270,7 +2300,7 @@
       "valideeSansNom": "validée le {date}",
       "refuseeSansNom": "refusée le {date}",
       "retireeSansNom": "retirée le {date}",
-      "initiale": "Version initiale (schéma fourni par le Ministère)"
+      "initiale": "Version initiale, à l’installation de la plateforme"
     },
     "depuis": "applicable à partir du {date}",
     "dateEffet": "S’appliquera aux demandes déposées à partir du {date}. Les demandes en cours gardent leur version.",
@@ -2278,7 +2308,8 @@
       "titre": "Proposition {n} à valider",
       "aideMinistre": "Vérifiez la proposition, puis validez-la ou refusez-la. Rien ne change avant votre décision.",
       "aideAdmin": "Le Ministre doit la valider. Vous pouvez la retirer tant qu’il n’a pas décidé.",
-      "motif": "Motif de la modification"
+      "motif": "Motif de la modification",
+      "titreObjet": "{objet} · proposition {n} à valider"
     },
     "historique": "Historique des versions",
     "voirContenu": "Voir le contenu de la version {n}",
@@ -2303,6 +2334,20 @@
     "etiquettes": {
       "motif": "Motif :",
       "motifRefus": "Motif du refus :"
+    },
+    "resultatRegle": {
+      "approuver": "{regle} : la version validée s’appliquera à sa date d’effet aux demandes déposées ensuite.",
+      "refuser": "{regle} : proposition refusée. La règle en vigueur ne change pas.",
+      "retirer": "{regle} : proposition retirée. La règle en vigueur ne change pas.",
+      "proposee": "{regle} : proposition {n} envoyée au Ministre. Elle s’appliquera après sa validation, à la date d’effet choisie."
+    },
+    "changements": {
+      "titre": "Changements proposés",
+      "titreFormulaire": "Vos changements",
+      "deA": "de « {avant} » à « {apres} »",
+      "aucun": "Aucun changement par rapport à la dernière règle validée.",
+      "aucunPropose": "Aucun changement par rapport à la règle en vigueur.",
+      "libelle": "{libelle} :"
     }
   },
   "statutsPaiementAffiches": {
@@ -2320,9 +2365,12 @@
     "annule": "Annulé",
     "remboursementEnCours": "Remboursement en cours",
     "remboursementAValider": "Remboursement à valider",
-    "rembourse": "Remboursé"
+    "rembourse": "Remboursé",
+    "rejeteRembourse": "Rejeté · remboursé",
+    "rejeteRemboursementEnCours": "Rejeté · remboursement en cours"
   },
   "commun": {
+    "voirDetail": "Voir le détail",
     "copier": {
       "libelle": "Copier : {quoi}",
       "fait": "Copié : {quoi}"
@@ -2331,6 +2379,7 @@
   "releves": {
     "titre": "Relevés bancaires",
     "description": "Importez le relevé du compte des virements : chaque virement est reconnu par sa référence et son montant. Ce qui ne correspond pas exactement vous est soumis.",
+    "element": "relevé",
     "elements": "relevés",
     "import": {
       "titre": "Importer un relevé",
@@ -2382,6 +2431,7 @@
       "filtreRapprochees": "Rapprochées",
       "filtreAVerifier": "À vérifier",
       "aucune": "Aucune ligne pour ce filtre.",
+      "element": "ligne",
       "elements": "lignes",
       "traitees": "Traitées",
       "filtreTraitees": "Traitées"
@@ -2422,6 +2472,7 @@
   "aVerifier": {
     "titre": "À vérifier",
     "description": "{nombre, plural, =0 {Rien à vérifier : tous les versements sont rapprochés.} one {# élément attend votre décision : ce que le rapprochement automatique n’a pas pu confirmer.} other {# éléments attendent votre décision : ce que le rapprochement automatique n’a pas pu confirmer.}}",
+    "element": "élément",
     "elements": "éléments",
     "badge": "À vérifier",
     "paiementEnLigne": "Paiement en ligne TrésorPay",
@@ -2486,7 +2537,11 @@
   },
   "remboursements": {
     "titre": "Remboursements",
-    "description": "Validez chaque demande de remboursement, puis enregistrez la référence de l’ordre émis par le Trésor : l’argent est rendu hors plateforme et le demandeur est informé.",
+    "description": {
+      "directeur": "Validez ou refusez chaque remboursement proposé par le Responsable fiscal. Une fois validé, il enregistre l’ordre émis par le Trésor : l’argent est rendu hors plateforme et le demandeur est informé.",
+      "fiscal": "Les remboursements que vous proposez sont validés par le Directeur. Une fois validés, enregistrez la référence de l’ordre émis par le Trésor : l’argent est rendu hors plateforme et le demandeur est informé."
+    },
+    "element": "remboursement",
     "elements": "remboursements",
     "aucun": "Aucun remboursement pour ce filtre.",
     "demandeLe": "Demandé le {date}",
@@ -2494,15 +2549,26 @@
     "motifRefus": "Motif du refus : {motif}",
     "vide": {
       "titre": "Aucun remboursement",
-      "description": "Les remboursements proposés depuis « À vérifier » (doublon, excédent, paiement rejeté) apparaîtront ici."
+      "description": {
+        "directeur": "Les remboursements proposés par le Responsable fiscal (doublon, excédent, paiement rejeté) apparaîtront ici pour validation.",
+        "fiscal": "Les remboursements proposés depuis « À vérifier » (doublon, excédent, paiement rejeté) apparaîtront ici."
+      }
     },
     "filtres": {
       "libelle": "Statut",
       "tous": "Tous",
-      "demande": "À valider",
-      "valide": "Ordre à enregistrer",
-      "execute": "Remboursés",
-      "refuse": "Refusés"
+      "directeur": {
+        "demande": "À valider",
+        "valide": "Ordre du Trésor attendu",
+        "execute": "Remboursés",
+        "refuse": "Refusés"
+      },
+      "fiscal": {
+        "demande": "En attente du Directeur",
+        "valide": "Ordre à enregistrer",
+        "execute": "Remboursés",
+        "refuse": "Refusés"
+      }
     },
     "colonnes": {
       "numero": "Remboursement",
@@ -2523,7 +2589,10 @@
       "ordreAEnregistrer": "Ordre à enregistrer",
       "enCours": "Remboursement en cours",
       "rembourse": "Remboursé",
-      "refuse": "Refusé"
+      "refuse": "Refusé",
+      "attenteDirecteur": "En attente du Directeur",
+      "ordreAttendu": "Ordre du Trésor attendu",
+      "proposeParVous": "Proposé par vous"
     },
     "actions": {
       "annuler": "Annuler",
@@ -2537,7 +2606,7 @@
       "valider": {
         "bouton": "Valider",
         "titre": "Valider le remboursement {numero} ?",
-        "effet": "Le remboursement de {montant} à {beneficiaire} est validé : l’ordre peut être demandé au Trésor.",
+        "effet": "Le remboursement de {montant} à {beneficiaire} sera validé : le Responsable fiscal pourra demander l’ordre au Trésor.",
         "confirmer": "Valider le remboursement"
       },
       "refuser": {
@@ -2557,6 +2626,7 @@
   "journalEncaissements": {
     "titre": "Journal des encaissements",
     "description": "Recettes du Ministère (montant dû des paiements acceptés) et frais remboursés sur rejet d’une demande, pour la période choisie.",
+    "element": "opération",
     "elements": "opérations",
     "exporter": "Exporter en CSV",
     "periode": "Du {du} au {au}",
@@ -2597,5 +2667,24 @@
       "titre": "Aucune opération sur cette période",
       "description": "Choisissez une autre période ou un autre moyen de paiement."
     }
+  },
+  "paiementRejete": {
+    "titre": "Paiement {reference} rejeté",
+    "motif": "Motif : {motif}",
+    "sansMotif": "La somme reçue ne correspondait pas au paiement attendu.",
+    "effectue": "La somme reçue vous a été remboursée par le Trésor (ordre {ordre}).",
+    "enCours": "La somme reçue va vous être remboursée : le remboursement {numero} est en cours.",
+    "aucun": "Aucune somme n’a été encaissée pour ce paiement.",
+    "resteAPayer": "Il vous reste à payer {objet}.",
+    "rienAFaire": "Vous n’avez rien d’autre à faire pour ce paiement.",
+    "payer": "Payer {objet}",
+    "objets": {
+      "FRAIS_DOSSIER": "les frais de dossier",
+      "DROITS": "les droits",
+      "ATTESTATION": "l’attestation",
+      "FORMATION": "la formation"
+    },
+    "ligne": "Paiement {reference} rejeté : {motif}",
+    "refuse": "Le remboursement {numero} a été refusé : {motif}"
   }
 }

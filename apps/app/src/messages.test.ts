@@ -31,4 +31,22 @@ describe("traductions de l'application", () => {
     expect(trop(fr)).toEqual([]);
     expect(trop(en)).toEqual([]);
   });
+
+  it("les noms comptés s’accordent : « 1 élément » (US-11.8)", () => {
+    // Chaque « elements » (résumé de la pagination) a sa forme au singulier, accordée par
+    // `accorder` ; un nombre suivi d’un nom au pluriel passe par un message ICU `plural`.
+    for (const messages of [fr, en]) {
+      const toutes = cles(messages);
+      const sansSingulier = toutes
+        .filter((c) => c.endsWith(".elements"))
+        .filter((c) => !toutes.includes(c.replace(/elements$/, "element")));
+      expect(sansSingulier).toEqual([]);
+      const valeur = (c: string) =>
+        String(c.split(".").reduce<unknown>((o, k) => (o as never)[k], messages));
+      const nonAccordes = toutes.filter((c) =>
+        /\{(nombre|n|total)\} (?!fois\b)\p{L}+s\b/u.test(valeur(c)),
+      );
+      expect(nonAccordes).toEqual([]);
+    }
+  });
 });

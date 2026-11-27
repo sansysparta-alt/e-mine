@@ -7,7 +7,10 @@ import {
   type IndicateursDto,
   lireIndicateurs,
   listerDemandes,
+  listerPaiementsDemande,
   lireParametresDelai,
+  lireRegleRemboursement,
+  listerRemboursements,
   listerFichesDocuments,
   listerWorkflows,
   listerTypesDocuments,
@@ -34,6 +37,7 @@ import {
 import { type CleGroupe, groupesDepuis, parametresListe } from "@/composants/travail/file-travail";
 import { chargerMoi, optionsApi } from "@/serveur/donnees";
 import { profilAffiche } from "@/serveur/profil";
+import { paiementRejeteAExpliquer } from "@/composants/paiement/paiement-rejete";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("tableauDeBord");
@@ -57,6 +61,8 @@ type Donnees = {
   travail?: { groupe: CleGroupe; dossiers: DemandeDto[]; total: number };
   /** Ministre : propositions à valider (catalogue, workflows, règle des délais ; US-02.4, US-02.8). */
   aValider?: AValider;
+  /** Directeur : remboursements proposés qu'il doit valider ou refuser (US-04.18). */
+  remboursementsAValider?: number;
   /** Données indisponibles : on le dit, plutôt qu'un état vide trompeur (revue B). */
   indisponible?: boolean;
 };
@@ -95,7 +101,7 @@ async function charger(moi: Profil, periode: ClePeriode): Promise<Donnees> {
     const libelles = Object.fromEntries(documents.map((d) => [d.code, libelleDocument(d, langue)]));
     const groupeTravail = groupesDepuis(compteur, moi)[0];
     const pilote = profil === "guichet" || profil === "instruction" || profil === "decideur";
-    const [recentes, aTraiter, indicateurs, file, catalogue] = await Promise.all([
+    const [recentes, aTraiter, indicateurs, file, catalogue, remboursements] = await Promise.all([
       pilote
         ? null
         : listerDemandes({ taille: tailleDePagePour(DEMANDES_RECENTES) }, options).then(
@@ -115,18 +121,36 @@ async function charger(moi: Profil, periode: ClePeriode): Promise<Donnees> {
         : null,
       // Mêmes nombres que les listes « À valider » (compteurs de l'API).
       moi.permissions.includes("VALIDER_CATALOGUE") ? propositionsAValider(options) : undefined,
+      // Règle « À traiter » des remboursements (API) : même nombre que le compteur du menu.
+      moi.permissions.includes("VALIDER_REMBOURSEMENT")
+        ? listerRemboursements({ taille: 10 }, options).then((r) => r.data.compteurs.aTraiter)
+        : undefined,
     ]);
     const tarifs = Object.fromEntries(documents.map((d) => [d.code, d.tarifs]));
-    const aFaire: ActionAFaire[] = (aTraiter?.elements ?? [])
-      .slice(0, COURTE_LISTE)
-      .flatMap((d) => {
+    const aFaire: ActionAFaire[] = await Promise.all(
+      (aTraiter?.elements ?? []).slice(0, COURTE_LISTE).flatMap((d) => {
         const action = actionAttendue(d);
         if (!action) return [];
         const t = tarifs[d.typeDocumentCode];
         const montantGnf =
           action === "FRAIS" ? t?.aPayerAuDepotGnf : action === "DROITS" ? t?.droitsGnf : null;
-        return [{ demande: d, action, montantGnf }];
-      });
+        // Un paiement rejeté s'explique là où l'usager doit payer de nouveau (US-07.5).
+        const rejet =
+          action === "COMPLEMENT"
+            ? Promise.resolve(null)
+            : listerPaiementsDemande(d.id, options)
+                .then((r) => paiementRejeteAExpliquer(r.data))
+                .catch(() => null);
+        return [
+          rejet.then((p) => ({
+            demande: d,
+            action,
+            montantGnf,
+            paiementRejete: p ? { reference: p.reference, motif: p.motifRejet ?? null } : null,
+          })),
+        ];
+      }),
+    );
     return {
       profil,
       demandes: recentes?.elements ?? [],
@@ -137,6 +161,7 @@ async function charger(moi: Profil, periode: ClePeriode): Promise<Donnees> {
       vues,
       indicateurs,
       aValider: catalogue,
+      remboursementsAValider: remboursements,
       ...(groupeTravail && file
         ? {
             travail: {
@@ -169,7 +194,7 @@ type Props = { searchParams: Promise<{ periode?: string }> };
 async function propositionsAValider(
   options: Awaited<ReturnType<typeof optionsApi>>,
 ): Promise<AValider> {
-  const [catalogue, workflows, delais] = await Promise.allSettled([
+  const [catalogue, workflows, delais, remboursement] = await Promise.allSettled([
     listerFichesDocuments({ filtre: "A_VALIDER", taille: 10 }, options).then(
       (r) => r.data.compteurs["A_VALIDER"] ?? 0,
     ),
@@ -177,9 +202,17 @@ async function propositionsAValider(
     lireParametresDelai(options).then(
       (r) => r.data.versions.filter((v) => v.etat === "a_valider").length,
     ),
+    lireRegleRemboursement(options).then(
+      (r) => r.data.versions.filter((v) => v.etat === "a_valider").length,
+    ),
   ]);
   const n = (r: PromiseSettledResult<number>) => (r.status === "fulfilled" ? r.value : 0);
-  return { catalogue: n(catalogue), workflows: n(workflows), delais: n(delais) };
+  return {
+    catalogue: n(catalogue),
+    workflows: n(workflows),
+    delais: n(delais),
+    remboursement: n(remboursement),
+  };
 }
 
 export default async function TableauDeBord({ searchParams }: Props) {

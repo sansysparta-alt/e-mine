@@ -124,6 +124,7 @@ export default async function DetailWorkflow({ params, searchParams }: Props) {
                 decider={deciderWorkflow}
                 adresseApres={`/workflows/${w.code}`}
                 texteApprobation={tGouvernance("approbation")}
+                texteRefus={t("refusInchange")}
               />
             ) : undefined
           }

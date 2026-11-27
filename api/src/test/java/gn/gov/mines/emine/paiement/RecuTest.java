@@ -81,6 +81,57 @@ class RecuTest extends TestIntegration {
     }
   }
 
+  /**
+   * US-04.14 : le reçu porte le QR de sa vérification publique ; la page, ouverte sans connexion,
+   * confirme le reçu sans aucune donnée personnelle.
+   */
+  @Test
+  void leQrDuRecuMeneASaVerificationPubliqueSansDonneePersonnelle() throws Exception {
+    long demande = DemandesDeTest.deposee(INVESTISSEUR, "PEX");
+    String ref = payerEtConfirmer(demande);
+    byte[] pdf =
+        mvc.perform(get("/api/v1/paiements/" + ref + "/recu").with(investisseur()))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse()
+            .getContentAsByteArray();
+    String code;
+    try (PDDocument doc = Loader.loadPDF(pdf)) {
+      String texte = new PDFTextStripper().getText(doc).replaceAll("\s+", "");
+      assertThat(texte).contains("Vérifiercereçu");
+      java.util.regex.Matcher m =
+          java.util.regex.Pattern.compile("/verifier/recu/([0-9a-f]{32})").matcher(texte);
+      assertThat(m.find()).as("adresse de vérification sur le reçu").isTrue();
+      code = m.group(1);
+      assertThat(doc.getPage(0).getResources().getXObjectNames()).as("image du QR").isNotEmpty();
+    }
+    String json =
+        mvc.perform(get("/api/v1/verification/recus/" + code))
+            .andExpect(status().isOk())
+            .andExpect(header().string("Cache-Control", "no-store"))
+            .andExpect(jsonPath("$.numero").value(org.hamcrest.Matchers.startsWith("REC-")))
+            .andExpect(jsonPath("$.objet").value("FRAIS_DOSSIER"))
+            .andExpect(jsonPath("$.moyen").value("TRESORPAY"))
+            .andExpect(jsonPath("$.montantGnf").value(5_000_000))
+            .andExpect(jsonPath("$.heureConnue").value(true))
+            .andExpect(jsonPath("$.rembourse").value(false))
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+    assertThat(JSON.readTree(json).propertyNames())
+        .as("aucune donnée personnelle ni identifiant de transaction")
+        .doesNotContain("payeur", "organisation", "transactionId", "reference");
+  }
+
+  @Test
+  void unCodeDeRecuInconnuOuMalFormeDonneLaMemeReponse() throws Exception {
+    for (String code : new String[] {"0".repeat(32), "pas-un-code", "REC-2026-000001"}) {
+      mvc.perform(get("/api/v1/verification/recus/" + code))
+          .andExpect(status().isNotFound())
+          .andExpect(jsonPath("$.code").value("PAY-017"));
+    }
+  }
+
   @Test
   void leRecuSAfficheDansLeVisualiseurAvecInline() throws Exception {
     String ref = payerEtConfirmer(DemandesDeTest.deposee(INVESTISSEUR, "PEX"));

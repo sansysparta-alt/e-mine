@@ -177,17 +177,18 @@
     },
     "aValider": {
       "titre": "{nombre, plural, one {# change to approve} other {# changes to approve}}",
-      "texte": "Nothing changes in the catalogue, the workflows or the deadline rule without your approval.",
+      "texte": "Nothing changes in the catalogue, the workflows, the deadline rule or the refund rule without your approval.",
       "catalogue": "{n, plural, one {# catalogue record} other {# catalogue records}}",
       "workflows": "{n, plural, one {# workflow} other {# workflows}}",
-      "delais": "The deadline rule"
+      "delais": "The deadline rule",
+      "remboursement": "The fee refund rule"
     },
     "fiscal": {
       "aFaire": "What you have to do",
       "aVerifier": "To check",
       "aVerifierPrecision": "Differences and unrecognised credits",
-      "remboursementsAValider": "Refunds to approve",
-      "remboursementsAValiderPrecision": "Duplicates, excess amounts, rejected payments",
+      "remboursementsAValider": "Refunds awaiting the Director",
+      "remboursementsAValiderPrecision": "Your proposals, to be approved by the Director",
       "ordresAEnregistrer": "Orders to record",
       "ordresAEnregistrerPrecision": "Approved refunds awaiting the Treasury",
       "recettesMois": "Revenue this month",
@@ -195,6 +196,11 @@
       "recettesMoisPrecision": "{nombre, plural, one {# operation} other {# operations}}, refunded fees deducted",
       "importer": "Import a bank statement",
       "indisponible": "Collection figures cannot be read at the moment. Try again in a few moments."
+    },
+    "remboursementsAValider": {
+      "titre": "{nombre, plural, one {# refund to approve} other {# refunds to approve}}",
+      "texte": "Proposed by the tax officer: the order can be requested from the Treasury only after your approval.",
+      "lien": "See the refunds to approve"
     }
   },
   "demande": {
@@ -279,7 +285,7 @@
         "AUTH-001": "Your session has expired: please sign in again.",
         "autre": "The document could not be processed. Please try again."
       },
-      "avancement": "{fournies} of {total} mandatory documents provided",
+      "avancement": "{fournies} of {total, plural, one {# mandatory document provided} other {# mandatory documents provided}}",
       "avancementLibelle": "Mandatory documents provided",
       "ajouter": "Add",
       "remplacer": "Replace",
@@ -440,6 +446,7 @@
       "croissant": "ascending",
       "decroissant": "descending"
     },
+    "element": "request",
     "elements": "requests",
     "recherche": {
       "libelle": "Search a request",
@@ -1061,6 +1068,7 @@
     "autres": "{nombre, plural, one {Show 1 other change} other {Show the # other changes}}",
     "oui": "Yes",
     "non": "No",
+    "element": "entry",
     "elements": "entries",
     "vide": {
       "titre": "The log is empty",
@@ -1200,6 +1208,7 @@
       "depot": "Submitted on",
       "statut": "Status"
     },
+    "element": "file",
     "elements": "files",
     "vide": {
       "tout": "Nothing to do for now",
@@ -1253,11 +1262,11 @@
     },
     "passages": {
       "titre": "{nombre, plural, one {Skip in batch processing (#)} other {Skips in batch processing (#)}}",
-      "bloque": "Blocked file: skipped {nombre} times at this step",
+      "bloque": "Blocked file: skipped {nombre, plural, one {# time} other {# times}} at this step",
       "bloqueTexte": "Decision-makers see this file in their alerts. Process it or report the difficulty to your manager.",
       "ligne": "{date} · {auteur} · step \"{etape}\"",
       "passeNFois": "{nombre, plural, one {Skipped # time} other {Skipped # times}}",
-      "bloqueCourt": "Blocked · skipped {nombre} times"
+      "bloqueCourt": "Blocked · skipped {nombre, plural, one {# time} other {# times}}"
     }
   },
   "statutsAffiches": {
@@ -1316,6 +1325,7 @@
       "paiement": "Payment",
       "controle": "File check",
       "instruction": "Review",
+      "decision": "Decision",
       "paiement-droits": "Duties payment",
       "signe": "Signed document"
     },
@@ -1332,7 +1342,7 @@
     },
     "precisions": {
       "avis": "Opinions pending: {profils}",
-      "examenTechnique": "Technical review by the services, then decision: {signataire}",
+      "examenTechnique": "Technical review by the departments",
       "decision": "Decision pending: {signataire}"
     }
   },
@@ -1342,6 +1352,7 @@
     "descriptionNonLues": "{nombre, plural, =1 {1 unread notification: this is the number shown on the bell.} other {# unread notifications: this is the number shown on the bell.}} Open a notification to see the file concerned.",
     "toutMarquerLu": "Mark all as read",
     "nonLue": "Unread",
+    "element": "notification",
     "elements": "notifications",
     "vide": {
       "titre": "No notifications",
@@ -1407,6 +1418,7 @@
     },
     "jours": "{n, plural, one {# day} other {# days}}",
     "version": "Version {n}",
+    "element": "document",
     "elements": "documents",
     "statuts": {
       "aApprouver": "To validate",
@@ -1431,7 +1443,7 @@
       "vide": "Not provided",
       "aucunAvis": "No technical opinion required",
       "jours": "{n, plural, one {# day} other {# days}}",
-      "versionInitiale": "Initial catalogue version (schema provided by the Ministry).",
+      "versionInitiale": "Initial catalogue version, when the platform was installed.",
       "actif": {
         "oui": "Yes",
         "non": "No, withdrawn from the catalogue"
@@ -1524,7 +1536,7 @@
       "retirer": "Withdraw the proposal",
       "annuler": "Cancel",
       "motif": "Reason for rejection",
-      "motifAide": "The administrator will see it on the record. At least 10 characters.",
+      "motifAide": "The administrator will see it with their proposal. At least 10 characters.",
       "echec": "The decision could not be saved",
       "indisponible": "The service is temporarily unavailable. Please try again shortly.",
       "signataire": {
@@ -1539,17 +1551,21 @@
         "approuver": {
           "titre": "Validate version {numero}?",
           "texte": "The record will be published now. The validation is recorded in your name.",
-          "bouton": "Confirm validation"
+          "bouton": "Confirm validation",
+          "titreObjet": "Validate version {numero} of {objet}?"
         },
         "refuser": {
           "titre": "Reject version {numero}?",
           "texte": "The record in force does not change.",
-          "bouton": "Confirm rejection"
+          "bouton": "Confirm rejection",
+          "titreObjet": "Reject version {numero} of {objet}?",
+          "texteRegle": "The rule in force does not change."
         },
         "retirer": {
           "titre": "Withdraw version {numero}?",
           "texte": "The proposal will not be submitted to the Minister. You can propose another one.",
-          "bouton": "Withdraw"
+          "bouton": "Withdraw",
+          "titreObjet": "Withdraw version {numero} of {objet}?"
         }
       }
     },
@@ -1633,6 +1649,7 @@
     "fourchette": "{min} to {max} days",
     "version": "Version {n}",
     "modifieeLe": "since {date}",
+    "element": "workflow",
     "elements": "workflows",
     "vide": "No workflow.",
     "etape": "Step {n} of {total}",
@@ -1643,8 +1660,8 @@
     "historique": "Version history",
     "actuelle": "in force",
     "par": "Changed on {date} by {nom}",
-    "initiale": "Initial version (schema provided by the Ministry).",
-    "voirEtapes": "Show the {n} steps",
+    "initiale": "Initial version, when the platform was installed.",
+    "voirEtapes": "{n, plural, one {Show the step} other {Show the # steps}}",
     "formulaire": {
       "titre": "Propose a change",
       "description": "{libelle} — starting from the latest approved version (v{n})",
@@ -1678,7 +1695,7 @@
       "descendre": "Move step {n} down",
       "retirer": "Remove step {n}",
       "ajouter": "Add a step",
-      "maximum": "{n} steps at most.",
+      "maximum": "{n, plural, one {# step at most.} other {# steps at most.}}",
       "erreurs": {
         "libelle": "3 to 150 characters.",
         "reglePaiement": "3 to 300 characters.",
@@ -1703,7 +1720,8 @@
     "enVigueurCourt": "Version {n} in force",
     "decision": {
       "aApprouverTitre": "{n, plural, one {# workflow proposal to approve} other {# workflow proposals to approve}}"
-    }
+    },
+    "refusInchange": "The workflow in force does not change."
   },
   "parametres": {
     "titre": "Rules and notifications",
@@ -1712,8 +1730,8 @@
       "lecture": "Rules for computing deadlines and refunding fees, channels of each notification. You approve changes to the rules proposed by the administrator."
     },
     "provisoire": {
-      "titre": "Choices to be validated by the Ministry",
-      "texte": "The specifications do not set these rules: current values are provisional choices (analysis, § 3, points 17 to 22)."
+      "titre": "Provisional values",
+      "texte": "The specifications do not set these rules: current values are provisional choices of the project team, to be confirmed by the Ministry. They are changed here, proposed by the administrator and approved by the Minister."
     },
     "delais": {
       "titre": "Time limit rule",
@@ -1741,7 +1759,7 @@
       },
       "echec": "The proposal could not be sent",
       "indisponible": "The service is temporarily unavailable. Please try again shortly.",
-      "enVigueur": "Rule in force (version {n})",
+      "enVigueur": "Deadline rule · version {n} in force",
       "proposer": "Propose a change",
       "proposerTitre": "Propose a deadline rule",
       "proposerDescription": "Starting from the latest approved rule (v{n}). The Minister will approve it before it applies.",
@@ -1760,7 +1778,8 @@
         "aucunePause": "Never",
         "seuil": "“Close to the deadline”",
         "seuilValeur": "at most {pct}% of the deadline remains, and at least {min, plural, =0 {0 days} one {# day} other {# days}}"
-      }
+      },
+      "historique": "History of the deadline rule"
     },
     "canaux": {
       "titre": "Notification channels",
@@ -1788,19 +1807,27 @@
     },
     "remboursement": {
       "titre": "Fee refunds",
-      "enVigueur": "Refund rule in force (version {n})",
+      "enVigueur": "Fee refund rule · version {n} in force",
       "historique": "History of the refund rule",
       "oui": "Filing fees of a rejected request are refunded.",
       "non": "Filing fees of a rejected request are not refunded.",
       "toujours": "A double payment or an error (excess amount, rejected payment) is always refunded, after approval by the tax officer.",
       "proposer": "Propose a change",
-      "nouvelle": "Proposed rule:",
       "motif": "Reason for the change",
       "motifAide": "Why change the rule (Ministry decision, order…).",
       "envoyer": "Propose to the Minister",
       "enCours": "Sending…",
       "annuler": "Cancel",
-      "erreur": "The proposal could not be sent"
+      "erreur": "The proposal could not be sent",
+      "critere": "Filing fees of a rejected request",
+      "valeurOui": "refunded",
+      "valeurNon": "not refunded"
+    },
+    "regles": {
+      "delais": "Deadline rule",
+      "remboursement": "Fee refund rule",
+      "objetDelais": "the deadline rule",
+      "objetRemboursement": "the fee refund rule"
     }
   },
   "profil": {
@@ -1870,7 +1897,7 @@
     "chargement": "Searching…",
     "erreur": "The file search failed. Please try again in a moment.",
     "brouillon": "Draft",
-    "voirTous": "See the {nombre} files found",
+    "voirTous": "{nombre, plural, one {See the file found} other {See the # files found}}",
     "aucun": {
       "titre": "No results for “{texte}”",
       "conseil": "Check the spelling, or type part of the number (for example 000009) or the document name."
@@ -2032,6 +2059,7 @@
     "utilisateurs": {
       "titre": "Users & roles",
       "description": "Platform accounts, their profile, status and last sign-in.",
+      "element": "account",
       "elements": "accounts",
       "jamais": "Never signed in",
       "keycloak": {
@@ -2078,6 +2106,7 @@
   "mesPaiements": {
     "titre": "Payments & receipts",
     "description": "All your payments, with the request concerned. A receipt can be downloaded as soon as the payment is confirmed.",
+    "element": "payment",
     "elements": "payments",
     "vide": {
       "titre": "No payment yet",
@@ -2113,6 +2142,7 @@
   "mesDocuments": {
     "titre": "Issued documents",
     "description": "Your signed documents, ready to download. Each carries a QR code that anyone can check online.",
+    "element": "document",
     "elements": "documents",
     "valide": "Valid",
     "revoque": "Revoked",
@@ -2270,7 +2300,7 @@
       "valideeSansNom": "approved on {date}",
       "refuseeSansNom": "refused on {date}",
       "retireeSansNom": "withdrawn on {date}",
-      "initiale": "Initial version (schema supplied by the Ministry)"
+      "initiale": "Initial version, when the platform was installed"
     },
     "depuis": "applies from {date}",
     "dateEffet": "Will apply to requests submitted from {date}. Requests in progress keep their version.",
@@ -2278,7 +2308,8 @@
       "titre": "Proposal {n} to approve",
       "aideMinistre": "Review the proposal, then approve or refuse it. Nothing changes before your decision.",
       "aideAdmin": "The Minister must approve it. You can withdraw it until the Minister decides.",
-      "motif": "Reason for the change"
+      "motif": "Reason for the change",
+      "titreObjet": "{objet} · proposal {n} to approve"
     },
     "historique": "Version history",
     "voirContenu": "Show the content of version {n}",
@@ -2303,6 +2334,20 @@
     "etiquettes": {
       "motif": "Reason:",
       "motifRefus": "Reason for refusal:"
+    },
+    "resultatRegle": {
+      "approuver": "{regle}: the approved version will apply from its effective date to requests submitted afterwards.",
+      "refuser": "{regle}: proposal refused. The rule in force does not change.",
+      "retirer": "{regle}: proposal withdrawn. The rule in force does not change.",
+      "proposee": "{regle}: proposal {n} sent to the Minister. It will apply after approval, from the chosen effective date."
+    },
+    "changements": {
+      "titre": "Proposed changes",
+      "titreFormulaire": "Your changes",
+      "deA": "from “{avant}” to “{apres}”",
+      "aucun": "No change from the last approved rule.",
+      "aucunPropose": "No change from the rule in force.",
+      "libelle": "{libelle}:"
     }
   },
   "statutsPaiementAffiches": {
@@ -2320,9 +2365,12 @@
     "annule": "Cancelled",
     "remboursementEnCours": "Refund in progress",
     "remboursementAValider": "Refund to approve",
-    "rembourse": "Refunded"
+    "rembourse": "Refunded",
+    "rejeteRembourse": "Rejected · refunded",
+    "rejeteRemboursementEnCours": "Rejected · refund in progress"
   },
   "commun": {
+    "voirDetail": "View details",
     "copier": {
       "libelle": "Copy: {quoi}",
       "fait": "Copied: {quoi}"
@@ -2331,6 +2379,7 @@
   "releves": {
     "titre": "Bank statements",
     "description": "Import the statement of the transfer account: each transfer is recognised by its reference and amount. Anything that does not match exactly is submitted to you.",
+    "element": "statement",
     "elements": "statements",
     "import": {
       "titre": "Import a statement",
@@ -2382,6 +2431,7 @@
       "filtreRapprochees": "Reconciled",
       "filtreAVerifier": "To check",
       "aucune": "No line for this filter.",
+      "element": "line",
       "elements": "lines",
       "traitees": "Processed",
       "filtreTraitees": "Processed"
@@ -2422,6 +2472,7 @@
   "aVerifier": {
     "titre": "To check",
     "description": "{nombre, plural, =0 {Nothing to check: all payments are reconciled.} one {# item awaits your decision: what automatic reconciliation could not confirm.} other {# items await your decision: what automatic reconciliation could not confirm.}}",
+    "element": "item",
     "elements": "items",
     "badge": "To check",
     "paiementEnLigne": "TrésorPay online payment",
@@ -2486,7 +2537,11 @@
   },
   "remboursements": {
     "titre": "Refunds",
-    "description": "Approve each refund request, then record the reference of the order issued by the Treasury: the money is returned outside the platform and the applicant is notified.",
+    "description": {
+      "directeur": "Approve or refuse each refund proposed by the tax officer. Once approved, the tax officer records the order issued by the Treasury: the money is returned outside the platform and the applicant is notified.",
+      "fiscal": "The refunds you propose are approved by the Director. Once approved, record the reference of the order issued by the Treasury: the money is returned outside the platform and the applicant is notified."
+    },
+    "element": "refund",
     "elements": "refunds",
     "aucun": "No refund for this filter.",
     "demandeLe": "Requested on {date}",
@@ -2494,15 +2549,26 @@
     "motifRefus": "Reason for refusal: {motif}",
     "vide": {
       "titre": "No refunds",
-      "description": "Refunds proposed from “To check” (duplicate, excess, rejected payment) will appear here."
+      "description": {
+        "directeur": "Refunds proposed by the tax officer (duplicate, excess, rejected payment) will appear here for approval.",
+        "fiscal": "Refunds proposed from “To check” (duplicate, excess, rejected payment) will appear here."
+      }
     },
     "filtres": {
       "libelle": "Status",
       "tous": "All",
-      "demande": "To approve",
-      "valide": "Order to record",
-      "execute": "Refunded",
-      "refuse": "Refused"
+      "directeur": {
+        "demande": "To approve",
+        "valide": "Treasury order pending",
+        "execute": "Refunded",
+        "refuse": "Refused"
+      },
+      "fiscal": {
+        "demande": "Awaiting the Director",
+        "valide": "Order to record",
+        "execute": "Refunded",
+        "refuse": "Refused"
+      }
     },
     "colonnes": {
       "numero": "Refund",
@@ -2523,7 +2589,10 @@
       "ordreAEnregistrer": "Order to record",
       "enCours": "Refund in progress",
       "rembourse": "Refunded",
-      "refuse": "Refused"
+      "refuse": "Refused",
+      "attenteDirecteur": "Awaiting the Director",
+      "ordreAttendu": "Treasury order pending",
+      "proposeParVous": "Proposed by you"
     },
     "actions": {
       "annuler": "Cancel",
@@ -2537,7 +2606,7 @@
       "valider": {
         "bouton": "Approve",
         "titre": "Approve refund {numero}?",
-        "effet": "The refund of {montant} to {beneficiaire} is approved: the order can be requested from the Treasury.",
+        "effet": "The refund of {montant} to {beneficiaire} will be approved: the tax officer can then request the order from the Treasury.",
         "confirmer": "Approve the refund"
       },
       "refuser": {
@@ -2557,6 +2626,7 @@
   "journalEncaissements": {
     "titre": "Collections journal",
     "description": "Ministry revenue (amount due on accepted payments) and fees refunded after a request was rejected, for the selected period.",
+    "element": "operation",
     "elements": "operations",
     "exporter": "Export as CSV",
     "periode": "From {du} to {au}",
@@ -2597,5 +2667,24 @@
       "titre": "No operation in this period",
       "description": "Choose another period or payment method."
     }
+  },
+  "paiementRejete": {
+    "titre": "Payment {reference} rejected",
+    "motif": "Reason: {motif}",
+    "sansMotif": "The amount received did not match the expected payment.",
+    "effectue": "The amount received was refunded to you by the Treasury (order {ordre}).",
+    "enCours": "The amount received will be refunded to you: refund {numero} is in progress.",
+    "aucun": "No amount was collected for this payment.",
+    "resteAPayer": "You still need to pay {objet}.",
+    "rienAFaire": "You have nothing else to do for this payment.",
+    "payer": "Pay {objet}",
+    "objets": {
+      "FRAIS_DOSSIER": "the filing fees",
+      "DROITS": "the duties",
+      "ATTESTATION": "the certificate",
+      "FORMATION": "the training"
+    },
+    "ligne": "Payment {reference} rejected: {motif}",
+    "refuse": "Refund {numero} was refused: {motif}"
   }
 }

@@ -58,7 +58,8 @@ public class RemboursementRepository {
       Long demandeId,
       String numeroDemande,
       String beneficiaire,
-      UUID paiementId) {}
+      UUID paiementId,
+      long demandeParId) {}
 
   /** Crée une demande de remboursement ; renvoie son identifiant. */
   public long creer(
@@ -88,6 +89,27 @@ public class RemboursementRepository {
         .groupBy(REMBOURSEMENT.STATUT)
         .forEach(r -> n.put(r.value1(), r.value2().longValue()));
     return n;
+  }
+
+  /**
+   * Remboursements que ce profil doit traiter (US-04.18) : propositions à décider, hors les siennes
+   * (sauf celles de la règle sur rejet), pour le Directeur ; ordres à enregistrer pour le
+   * Responsable fiscal.
+   */
+  public long compterATraiter(boolean decideur, boolean encaisseur, long moi) {
+    Condition aDecider =
+        REMBOURSEMENT
+            .STATUT
+            .eq("demande")
+            .and(REMBOURSEMENT.MOTIF.eq("rejet_demande").or(REMBOURSEMENT.DEMANDE_PAR.ne(moi)));
+    Condition c = DSL.falseCondition();
+    if (decideur) {
+      c = c.or(aDecider);
+    }
+    if (encaisseur) {
+      c = c.or(REMBOURSEMENT.STATUT.eq("valide"));
+    }
+    return dsl.fetchCount(REMBOURSEMENT, c);
   }
 
   public PageResultat<Remboursement> lister(String statut, Pagination pagination) {
@@ -221,6 +243,7 @@ public class RemboursementRepository {
         r.get(PAIEMENT.DEMANDE_ID),
         r.get(DEMANDE.NUMERO),
         r.get("beneficiaire_nom", String.class),
-        r.get(REMBOURSEMENT.PAIEMENT_ID));
+        r.get(REMBOURSEMENT.PAIEMENT_ID),
+        r.get(REMBOURSEMENT.DEMANDE_PAR));
   }
 }

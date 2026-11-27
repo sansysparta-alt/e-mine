@@ -2,6 +2,7 @@
 
 import type { LigneJournalEncaissementsDto } from "@emine/api-client";
 import {
+  classesReference,
   classesAuDessusDuLien,
   cn,
   type ComposantLien,
@@ -46,9 +47,9 @@ export function TableauJournalEncaissements({
           rendu: (l) => (
             <span className="flex flex-col">
               <span className="font-semibold text-navy">{t(`types.${l.type}`)}</span>
-              <span className="text-sm text-texte-doux tabular-nums">
-                {l.reference}
-                {l.piece ? ` · ${l.piece}` : ""}
+              <span className="flex flex-wrap gap-x-1 text-sm text-texte-doux">
+                <span className={classesReference}>{l.reference}</span>
+                {l.piece ? <span>· {l.piece}</span> : null}
               </span>
             </span>
           ),
@@ -64,7 +65,7 @@ export function TableauJournalEncaissements({
                   href={`/demandes/${l.demandeId}`}
                   className={cn(
                     classesAuDessusDuLien,
-                    "inline-flex min-h-11 items-center font-semibold text-royal tabular-nums underline-offset-4 hover:underline",
+                    "inline-flex min-h-11 items-center font-semibold whitespace-nowrap text-royal tabular-nums underline-offset-4 hover:underline",
                   )}
                 >
                   {l.numeroDemande}
@@ -93,7 +94,7 @@ export function TableauJournalEncaissements({
           rendu: (l) => (
             <span
               className={cn(
-                "font-semibold tabular-nums",
+                "font-semibold whitespace-nowrap tabular-nums",
                 l.montantGnf < 0 ? "text-danger" : "text-texte",
               )}
             >

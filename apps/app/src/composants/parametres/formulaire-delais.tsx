@@ -13,6 +13,7 @@ import { useState, useTransition } from "react";
 import type { ResultatAction } from "@/serveur/erreurs-formulaire";
 import { erreurMotif } from "../instruction/champ-motif";
 import { aujourdhuiConakry, ChampDateEffet, dateEffetValide } from "../gouvernance/gouvernance";
+import { ChangementsRegleDelais } from "./resume-regle-delais";
 
 export type FormulaireDelaisProps = {
   /** Point de départ : la dernière règle validée (programmée, sinon en vigueur). */
@@ -54,7 +55,7 @@ export function FormulaireDelais({ initial, proposer }: FormulaireDelaisProps) {
     demarrer(async () => {
       const r = await proposer({ ...v, motif: motif.trim(), dateEffet });
       if (r.ok) {
-        router.push(`/parametres?proposee=${r.valeur.version}`);
+        router.push(`/parametres?proposee=${r.valeur.version}&regle=delais`);
         router.refresh();
       } else {
         setErreur(
@@ -173,6 +174,17 @@ export function FormulaireDelais({ initial, proposer }: FormulaireDelaisProps) {
           </div>
         </div>
       </fieldset>
+
+      <ChangementsRegleDelais
+        formulaire
+        avant={initial}
+        apres={{
+          ...v,
+          // Saisie en cours non valide : la comparaison garde la valeur validée.
+          seuilProchePourcent: pctValide ? v.seuilProchePourcent : initial.seuilProchePourcent,
+          seuilProcheMinJours: minValide ? v.seuilProcheMinJours : initial.seuilProcheMinJours,
+        }}
+      />
 
       <div className="flex flex-col gap-1">
         <label htmlFor="motif-delais" className="font-semibold">

@@ -108,13 +108,14 @@ export const NAVIGATION: SectionConfig[] = [
         permission: "ENCAISSER",
         interne: true,
       },
-      // Remboursements (US-04.10) : validation, puis ordre du Trésor enregistré.
+      // Remboursements (US-04.10, US-04.18) : validation par le Directeur, puis ordre du Trésor
+      // enregistré par le Responsable fiscal.
       {
         cle: "remboursements",
         module: "paiement",
         href: "/remboursements",
         icone: Undo2,
-        permission: "ENCAISSER",
+        auMoinsUnDroit: ["ENCAISSER", "VALIDER_REMBOURSEMENT"],
         interne: true,
       },
       {

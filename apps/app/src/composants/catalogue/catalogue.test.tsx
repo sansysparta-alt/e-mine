@@ -135,6 +135,36 @@ describe("décision sur une proposition (US-02.4)", () => {
     await waitFor(() => expect(push).toHaveBeenCalledWith("/catalogue/PEX?resultat=refuser"));
   });
 
+  it("le refus d'une règle la nomme et dit que la règle en vigueur ne change pas (US-02.10)", async () => {
+    const decider = vi.fn().mockResolvedValue({ ok: true, valeur: null });
+    avecTraductions(
+      <DecisionVersion
+        code="delais"
+        numero={2}
+        action="DECIDER"
+        changeSignataire={false}
+        desactive={false}
+        decider={decider}
+        adresseApres="/parametres?regle=delais"
+        objet="la règle des délais"
+        texteRefus={fr.catalogue.decision.confirmation.refuser.texteRegle}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Refuser" }));
+    const dialogue = screen.getByRole("dialog", {
+      name: "Refuser la version 2 de la règle des délais ?",
+    });
+    expect(dialogue).toHaveTextContent("La règle en vigueur ne change pas.");
+    expect(dialogue).not.toHaveTextContent("fiche");
+    fireEvent.change(screen.getByLabelText(/Motif du refus/), {
+      target: { value: "Pause des droits à garder (test)" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Confirmer le refus" }));
+    await waitFor(() =>
+      expect(push).toHaveBeenCalledWith("/parametres?regle=delais&resultat=refuser"),
+    );
+  });
+
   it("un changement de signataire est signalé avant l'approbation", () => {
     avecTraductions(
       <DecisionVersion
@@ -289,11 +319,15 @@ describe("tableau de bord du Ministre (US-02.4)", () => {
         nom="Test"
         profilLibelle="Ministre"
         profil="autre"
-        aValider={{ catalogue: 2, workflows: 1, delais: 0 }}
+        aValider={{ catalogue: 2, workflows: 1, delais: 0, remboursement: 1 }}
       />,
     );
     // Le total additionne les listes ; chaque lien ouvre la liste qui donne le même nombre.
-    expect(screen.getByText("3 modifications à valider")).toBeInTheDocument();
+    expect(screen.getByText("4 modifications à valider")).toBeInTheDocument();
+    // Règle de remboursement (US-02.10) : même alerte que les autres propositions.
+    expect(
+      screen.getByRole("link", { name: "La règle de remboursement des frais" }),
+    ).toHaveAttribute("href", "/parametres#titre-remboursement");
     expect(screen.getByRole("link", { name: "2 fiches du catalogue" })).toHaveAttribute(
       "href",
       "/catalogue?filtre=A_VALIDER",

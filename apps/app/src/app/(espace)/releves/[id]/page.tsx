@@ -146,7 +146,7 @@ export default async function DetailReleve({ params, searchParams }: Props) {
             page={lignes.page}
             taille={lignes.taille}
             total={lignes.total}
-            elements={t("elements")}
+            elements={{ un: t("element"), plusieurs: t("elements") }}
           />
         </div>
       )}

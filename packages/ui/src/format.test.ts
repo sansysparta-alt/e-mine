@@ -55,3 +55,23 @@ describe("jours calendaires (heure de Conakry)", () => {
     expect(dateDansJours(0, new Date("2026-11-24T00:10:00Z"))).toBe("2026-11-24");
   });
 });
+
+describe("accord d'un nom avec un nombre (US-11.8)", () => {
+  const formes = { un: "élément", plusieurs: "éléments" };
+
+  it("met 0 et 1 au singulier en français, « 1 élément »", async () => {
+    const { accorder } = await import("./format");
+    expect(accorder(0, formes)).toBe("élément");
+    expect(accorder(1, formes)).toBe("élément");
+    expect(accorder(2, formes)).toBe("éléments");
+    expect(accorder(36, formes)).toBe("éléments");
+  });
+
+  it("ne met que 1 au singulier en anglais", async () => {
+    const { accorder } = await import("./format");
+    const en = { un: "item", plusieurs: "items" };
+    expect(accorder(1, en, "en")).toBe("item");
+    expect(accorder(0, en, "en")).toBe("items");
+    expect(accorder(2, en, "en")).toBe("items");
+  });
+});

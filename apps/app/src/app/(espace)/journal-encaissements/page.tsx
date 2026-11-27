@@ -174,7 +174,7 @@ export default async function JournalEncaissements({ searchParams }: Props) {
                 page={resultat.page}
                 taille={resultat.taille}
                 total={resultat.total}
-                elements={t("elements")}
+                elements={{ un: t("element"), plusieurs: t("elements") }}
               />
             </div>
           )}
